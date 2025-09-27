@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+  floreria-db:
+    image: postgres:12-alpine
+    container_name: floreria-db-production
+    restart: always
+    env_file:
+      - ../../.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-production
+    restart: always
+    env_file:
+      - ../../.env
+    ports:
+      - 5050:80
+    depends_on:
+      floreria-db:
+        condition: service_healthy
+    user: root
+    volumes:
+      - ../scripts/pgadmin-entrypoint.sh:/entrypoint_custom.sh
+    entrypoint: /entrypoint_custom.sh
+    environment:
+      - POSTGRES_HOST=floreria-db-production
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+
+  floreria-backend:
+    image: floreria-medusa:latest
+    container_name: floreria-backend-production
+    restart: always
+    depends_on:
+      floreria-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    env_file:
+      - ../../apps/store/.env.prod
+    ports:
+      - "9000:9000"
+
+  redis:
+    image: redis:7-alpine
+    container_name: floreria-redis-production
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle-production
+    ports:
+      - 8080:8080
+    environment:
+      - DOZZLE_AUTH_PROVIDER=simple
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./users.yml:/data/users.yml
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  default:
+    name: floreria-net

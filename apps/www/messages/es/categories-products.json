@@ -1,0 +1,61 @@
+{
+  "filters": {
+    "header": "Filtros",
+    "clearFiltersButton": "Limpiar Filtros",
+    "form": {
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Ramo de ...",
+      "orderByLabel": "Ordenar por",
+      "orderByPlaceholder": "Selecciona un orden",
+      "orderByOptions": {
+        "mostRecent": "Más reciente",
+        "older": "Más Antiguo",
+        "priceAsc": "Precio: Menor a Mayor",
+        "priceDesc": "Precio: Mayor a Menor"
+      },
+      "applyButton": "Aplicar filtros",
+      "applyingButton": "Filtrando..."
+    },
+    "categoriesAccordion": {
+      "trigger": "Categorías",
+      "options": {
+        "primaveral": "Ramos primaverales",
+        "rosas": "Rosas",
+        "box": "Box",
+        "follaje": "Follaje",
+        "florero": "Florero",
+        "funebre": "Fúnebre",
+        "fragancias": "Fragancias",
+        "velas": "Velas"
+      }
+    },
+    "dynamicFilters": {
+      "roseTypeLabel": "Tipo de Rosas",
+      "roseTypeOptions": {
+        "premium": "Premium",
+        "nacional": "Nacional"
+      },
+      "sizeLabel": "Tamaño",
+      "sizeOptions": {
+        "s": "S",
+        "l": "L",
+        "xxl": "XXL"
+      }
+    },
+    "colorsAccordion": {
+      "trigger": "Colores",
+      "options": {
+        "red": "Rojo",
+        "blue": "Azul",
+        "green": "Verde",
+        "yellow": "Amarillo",
+        "white": "Blanco",
+        "black": "Negro",
+        "orange": "Naranja",
+        "purple": "Morado",
+        "pink": "Rosa",
+        "gray": "Gris"
+      }
+    }
+  }
+}

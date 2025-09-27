@@ -1,0 +1,10 @@
+@theme inline {
+  --font-geist: 'Geist', 'sans-serif';
+
+  --container-desktop: 1280px;
+  --container-medium: 1024px;
+  --container-tablet: 805px;
+
+  --spacing-layout: 1.5rem;
+  --spacing-vertical: 3rem;
+}

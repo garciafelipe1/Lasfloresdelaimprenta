@@ -1,0 +1,20 @@
+{
+  "navigation": {
+    "catalog": "Catálogo",
+    "servicios": {
+      "title": "Servicios",
+      "description": "Explora nuestra gama de servicios para realzar tu hogar y eventos."
+    },
+    "memberships": "Membresías",
+    "services": {
+      "floralEvents": {
+        "title": "Eventos Florales",
+        "description": "Organización y decoración de eventos con flores frescas."
+      },
+      "weddings": {
+        "title": "Bodas",
+        "description": "Diseño floral y decoración personalizado para bodas, desde la ceremonia hasta la recepción."
+      }
+    }
+  }
+}

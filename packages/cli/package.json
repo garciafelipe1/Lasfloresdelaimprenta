@@ -1,0 +1,23 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "bun src/index.ts",
+    "build": "tsc",
+    "dev": "bun --watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.1",
+  "dependencies": {
+    "chalk": "5.4.1",
+    "commander": "14.0.0",
+    "dotenv": "16.5.0",
+    "inquirer": "12.6.3",
+    "ora": "8.2.0"
+  }
+}

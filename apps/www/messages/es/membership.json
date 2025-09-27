@@ -1,0 +1,55 @@
+{
+    "membership": {
+      "membershipbasic": {
+        "title": "Membresía Esencial",
+        "subtitle": "Acceso a contenido exclusivo y descuentos en productos seleccionados.",
+        "price": "5.99€ al mes",
+        "description": {
+          "part1": "Con la membresía básica, obtienes acceso a contenido exclusivo y descuentos en productos seleccionados. Ideal para quienes buscan disfrutar de beneficios adicionales sin un compromiso a largo plazo.",
+          "part2": "Disfruta de un mes gratis al registrarte hoy.",
+          "part3": "Puedes cancelar tu membresía en cualquier momento."
+        },
+        "button": "Elegir Básica"
+      },
+      "membershippremium": {
+        "title": "Membresía Premium",
+        "subtitle": "Acceso completo a todo el contenido y descuentos exclusivos.",
+        "price": "9.99€ al mes",
+        "description": {
+          "part1": "Con la membresía premium, obtienes acceso completo a todo el contenido y descuentos exclusivos en todos los productos. Perfecto para quienes desean aprovechar al máximo nuestra oferta.",
+          "part2": "Disfruta de un mes gratis al registrarte hoy.",
+          "part3": "Puedes cancelar tu membresía en cualquier momento."
+        },
+        "button": "Elegir Premium"
+      },
+      "membershipbussiness": {
+        "title": "Membresía Elite",
+        "subtitle": "Acceso para toda la familia con beneficios adicionales.",
+        "price": "14.99€ al mes",
+        "description": {
+          "part1": "Con la membresía familiar, obtienes acceso para toda la familia, incluyendo beneficios adicionales como descuentos en productos familiares y acceso a eventos exclusivos.",
+          "part2": "Disfruta de un mes gratis al registrarte hoy.",
+          "part3": "Puedes cancelar tu membresía en cualquier momento."
+        },
+        "button": "Elegir Familiar"
+      },
+      "membershiplogin": {
+        "title": "Inicio de Sesión de Membresía",
+        "subtitle": "Por favor, inicia sesión para acceder a tu membresía.",
+        "button": "suscribirse"
+      },
+      "membershiplogout": {
+        "title": "Acceso Restringido",
+        "subtitle": "Debes iniciar sesión para acceder a este contenido.",
+        "button1": "Crear Cuenta",
+        "button2": "Ya tengo una cuenta"
+      },
+      "membershipaccount": {
+      "title": "Prueba de suscripción",
+      "subtitle": "Correo electrónico asociado a tu cuenta de Mercado Pago.",
+      "button1": "Suscribirse",
+      "button2": "Redireccionando a Mercado Pago..."
+
+    }
+    }
+}

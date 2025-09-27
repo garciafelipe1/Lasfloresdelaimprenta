@@ -1,0 +1,14 @@
+{
+  "services": {
+    "Servicio1": {
+      "title": "Floral Events",
+      "subtitle": "Buy seasonal peony arrangements",
+      "description": "<p>Transform your events into unforgettable experiences with our bespoke floral designs. We specialize in <strong>seasonal peony arrangements</strong> and custom setups that elevate every celebration. Whether it’s an intimate gathering or a large-scale occasion, our team crafts stunning visuals with fresh, locally sourced blooms.</p><p>From centerpieces to flower walls, trust us to bring your vision to life with elegance and creativity.</p>"
+    },
+    "Servicio2": {
+      "title": "Weddings",
+      "subtitle": "Personalized floral design for weddings, from bouquets to venue decoration",
+      "description": "<p>Make your wedding day bloom with beauty and meaning. Our wedding floral service offers <strong>tailored designs</strong> that reflect your story and style. From the bridal bouquet to the ceremony arch and table settings, we craft every detail with passion and precision.</p><p>Let us help you create a romantic atmosphere with <em>handpicked flowers, thoughtful palettes</em>, and enchanting arrangements that leave lasting impressions.</p>"
+    }
+  }
+}

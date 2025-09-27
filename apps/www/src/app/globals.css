@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@plugin '@tailwindcss/typography';
+
+@import './styles/custom-tw-classes.css';
+@import './styles/theme.css';
+@import './styles/typography.css';
+@import './styles/patterns.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50 font-geist;
+  }
+  body {
+    @apply bg-background text-foreground scroll-smooth;
+  }
+}
+
+@layer base {
+  #recommended-products > li {
+    list-style-type: none;
+  }
+
+  .w-full.rounded-xl.transition.group-hover\:shadow-xl {
+    list-style-type: none;
+  }
+}

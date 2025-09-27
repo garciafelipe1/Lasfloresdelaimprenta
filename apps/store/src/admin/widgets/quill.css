@@ -1,0 +1,10 @@
+.quill > .ql-toolbar {
+  border-color: var(--border-base);
+}
+.quill > .ql-toolbar .ql-stroke {
+  stroke: var(--fg-base);
+}
+
+.quill > .ql-container {
+  border-color: var(--border-base);
+}

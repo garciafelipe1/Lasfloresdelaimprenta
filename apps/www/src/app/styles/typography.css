@@ -1,0 +1,54 @@
+@layer base {
+  h1:not(form *, .not-prose, .not-prose *) {
+    @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
+  }
+  h2:not(form *, .not-prose, .not-prose *) {
+    @apply mt-10 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0;
+  }
+  h3:not(form *, .not-prose, .not-prose *) {
+    @apply mt-8 scroll-m-20 text-2xl font-semibold tracking-tight;
+  }
+  h4:not(form *, .not-prose, .not-prose *) {
+    @apply mt-6 scroll-m-20 text-xl font-semibold tracking-tight;
+  }
+  h5:not(form *, .not-prose, .not-prose *) {
+    @apply mt-6 scroll-m-20 text-lg font-semibold tracking-tight;
+  }
+  h6:not(form *, .not-prose, .not-prose *) {
+    @apply mt-6 scroll-m-20 font-semibold tracking-tight;
+  }
+  p:not(form *, .not-prose, .not-prose *) {
+    @apply leading-7 [&:not(:first-child)]:mt-6;
+  }
+  blockquote:not(form *, .not-prose, .not-prose *) {
+    @apply mt-6 border-l-2 pl-6 italic;
+  }
+  div:has(> table:only-child):not(form *, .not-prose, .not-prose *) {
+    @apply my-6 w-full overflow-y-auto;
+    > table {
+      @apply w-full;
+    }
+  }
+  tr:not(form *, .not-prose *) {
+    @apply even:bg-muted m-0 border-t p-0;
+  }
+  th:not(form *, .not-prose *) {
+    @apply border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right;
+  }
+  td:not(form *, .not-prose *) {
+    @apply border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+  }
+  ul:not(form *, .not-prose, .not-prose *) {
+    @apply [&>li]:mt-2;
+  }
+
+  code:not(form *, .not-prose, .not-prose *, pre *) {
+    @apply bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
+  }
+  small:not(form *, .not-prose, .not-prose *) {
+    @apply text-sm leading-none font-medium;
+  }
+  a:not(form *, .not-prose, .not-prose *) {
+    @apply text-primary font-medium;
+  }
+}

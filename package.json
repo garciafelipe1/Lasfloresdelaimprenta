@@ -1,0 +1,25 @@
+{
+  "name": "floreria",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
+    "husky": "9.1.7",
+    "lint-staged": "16.1.0",
+    "vercel": "^25.2.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "lint": "pnpm --filter \"./apps/**\" lint-staged",
+    "dev": "pnpm --filter \"./apps/**\" dev",
+    "cli": "pnpm --dir packages/cli start",
+    "db": "pnpm --filter \"./packages/database\" db:preview"
+  },
+  "packageManager": "pnpm@10.6.5",
+  "dependencies": {
+    "pnpm": "^10.14.0"
+  }
+}

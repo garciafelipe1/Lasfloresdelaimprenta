@@ -1,0 +1,51 @@
+{
+  "landing": {
+    "hero": {
+      "title": "Collection of exclusive designs",
+      "button": "Click here to view them"
+    },
+    "heros": {
+      "title": "Seasonal collection",
+      "button": "Click here to view them"
+    },
+    "examples": {
+      "title": "Exclusive Flower Bouquets",
+      "description": "Discover our exclusive bouquets, crafted with the freshest blooms for every occasion."
+    },
+    "about-us": {
+      "title": "Who are we?",
+      "description": "Click here and discover",
+      "button": "About us"
+    },
+    "memberships": {
+      "title": "Membership",
+      "description": "Choose the plan that best suits you and start enjoying all the benefits.",
+      "plans": {
+        "basic": {
+          "title": "Basic",
+          "description": "Access to seasonal arrangements "
+        },
+        "premium": {
+          "title": "Pro",
+          "description": "Everything in Basic plus early access to new collections."
+        },
+        "business": {
+          "title": "Business",
+          "description": "Everything in Pro plus free shipping and priority customer support."
+        }
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "Discover our peony arrangement categories, from elegant bouquets to event decorations."
+    },
+    "testimonials": {
+      "title": "Testimonials",
+      "description": "What our customers say about us"
+    },
+    "questions": {
+      "title": "Frequently Asked Questions",
+      "description": "Find the answers to your questions"
+    }
+  }
+}

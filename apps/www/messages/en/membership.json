@@ -1,0 +1,58 @@
+{
+  "membership": {
+    "membershipbasic": {
+      "title": "Basic Essential",
+      "subtitle": "Access to exclusive content and discounts on selected products.",
+      "price": " 5.99€ per month",
+      "description": {
+        "part1": "With the basic membership, you get access to exclusive content and discounts on selected products. Ideal for those looking to enjoy additional benefits without a long-term commitment.",
+        "part2": "Enjoy a month free when you sign up today.",
+        "part3": "You can cancel your membership at any time."
+      },
+      "button": "Choose Basic"
+    },
+    "membershippremium": {
+      "title": "Premium Membership",
+      "subtitle": "Full access to all content and exclusive discounts.",
+      "price": "9.99€ per month",
+      "description": {
+        "part1": "With the premium membership, you get full access to all content and exclusive discounts on all products. Perfect for those who want to make the most of our offerings.",
+        "part2": "Enjoy a month free when you sign up today.",
+        "part3": "You can cancel your membership at any time."
+      },
+      "button":"Choose Premium"
+    },
+    "membershipbussiness": {
+      "title": "Elite Membership",
+      "subtitle": "Access for the whole family with additional benefits.",
+      "price": "14.99€ per month",
+      "description": {
+        "part1": "With the family membership, you get access for the whole family, including additional benefits such as discounts on family products and access to exclusive events.",
+        "part2": "Enjoy a month free when you sign up today.",
+        "part3": "You can cancel your membership at any time."
+      },
+      "button": "Choose Business"
+    },
+    "membershiplogin":{
+      "title": "Membership Login",
+      "subtitle": "Please log in to access your membership.",
+      "button": "suscribe"
+    },
+    "membershiplogout":{
+      "title": "Access Restricted",
+      "subtitle": "You must be logged in to access this content.",
+      "button1": "Create Account",
+      "button2": "I already have an account"
+      
+
+    },
+    "membershipaccount": {
+      "title": "Try subscription",
+      "subtitle": "Email associated to your Mercado Pago account.",
+      "button1": "Suscribe",
+      "button2": "Redireccionando a Mercado Pago..."
+
+    }
+  
+  }
+}

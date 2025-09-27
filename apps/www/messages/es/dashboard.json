@@ -1,0 +1,58 @@
+
+{
+  "DashboardPage": {
+    "welcomeTitle": "¡Bienvenido a tu Panel de Control!",
+    "welcomeSubtitle": "Aquí puedes ver toda la información de tu cuenta y tu membresía actual.",
+    "membershipSectionTitle": "Tu Membresía Actual",
+    "quickLinksSectionTitle": "Acciones Rápidas",
+    "loadingMembership": {
+      "text": "Cargando tu membresía..."
+    },
+    "noMembership": {
+      "title": "¡Parece que aún no tienes una membresía activa!",
+      "explorePlansButton": "Explorar Planes"
+    },
+    "unknownMembership": {
+      "title": "Membresía desconocida. Por favor, contacta a soporte.",
+      "supportButton": "Ir a Soporte"
+    },
+    "membershipFeaturesTitle": "Características:",
+    "manageMembershipButton": "Administrar Membresía",
+    "quickLinks": {
+      "myProfile": "Mi Perfil",
+      "support": "Soporte",
+      "settings": "Configuración"
+    },
+    "membership": {
+      "basico": {
+        "title": "Membresía Básica",
+        "description": "Disfruta de nuestro plan esencial para empezar tu viaje.",
+        "features": [
+          "Acceso a contenido básico",
+          "Soporte por email",
+          "Acceso a la comunidad en línea"
+        ]
+      },
+      "mediano": {
+        "title": "Membresía Mediana",
+        "description": "Un plan optimizado para usuarios regulares, con funciones adicionales.",
+        "features": [
+          "Todo lo de Básico",
+          "Soporte prioritario",
+          "Acceso a contenido exclusivo",
+          "Webinars mensuales"
+        ]
+      },
+      "premium": {
+        "title": "Membresía Premium",
+        "description": "Para quienes buscan la experiencia completa y el máximo valor.",
+        "features": [
+          "Todo lo de Mediana",
+          "Sesiones de coaching 1 a 1",
+          "Acceso anticipado a nuevas funciones",
+          "Soporte directo por Slack"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",                // Or a recent Node.js version like "ES2020"
+    "module": "CommonJS",             // Crucial for Node.js
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,          // Allows `import x from 'y'` for CommonJS modules
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,                // Useful for debugging
+    "noEmitOnError": true,
+    "lib": ["ES2022"]                 // Specify library for target environment
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

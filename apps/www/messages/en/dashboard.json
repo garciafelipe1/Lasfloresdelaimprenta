@@ -1,0 +1,57 @@
+{
+  "DashboardPage": {
+    "welcomeTitle": "Welcome to Your Dashboard!",
+    "welcomeSubtitle": "Here you can view all your account information and current membership details.",
+    "membershipSectionTitle": "Your Current Membership",
+    "quickLinksSectionTitle": "Quick Actions",
+    "loadingMembership": {
+      "text": "Loading your membership..."
+    },
+    "noMembership": {
+      "title": "It looks like you don't have an active membership yet!",
+      "explorePlansButton": "Explore Plans"
+    },
+    "unknownMembership": {
+      "title": "Unknown membership. Please contact support.",
+      "supportButton": "Go to Support"
+    },
+    "membershipFeaturesTitle": "Features:",
+    "manageMembershipButton": "Manage Membership",
+    "quickLinks": {
+      "myProfile": "My Profile",
+      "support": "Support",
+      "settings": "Settings"
+    },
+    "membership": {
+      "basico": {
+        "title": "Basic Membership",
+        "description": "Enjoy our essential plan to start your journey.",
+        "features": [
+          "Access to basic content",
+          "Email support",
+          "Access to online community"
+        ]
+      },
+      "mediano": {
+        "title": "Medium Membership",
+        "description": "An optimized plan for regular users, with additional features.",
+        "features": [
+          "All Basic features",
+          "Priority support",
+          "Access to exclusive content",
+          "Monthly webinars"
+        ]
+      },
+      "premium": {
+        "title": "Premium Membership",
+        "description": "For those seeking the complete experience and maximum value.",
+        "features": [
+          "All Medium features",
+          "1-on-1 coaching sessions",
+          "Early access to new features",
+          "Direct Slack support"
+        ]
+      }
+    }
+  }
+}

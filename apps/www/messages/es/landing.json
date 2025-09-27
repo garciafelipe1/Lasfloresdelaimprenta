@@ -1,0 +1,51 @@
+{
+  "landing": {
+    "hero": {
+      "title": "Coleccion de diseños exclusivos",
+      "button": "Cliquea aqui para verlos"
+    },
+    "heros": {
+      "title": "Coleccion de temporada",
+      "button": "Cliquea aqui para verlos"
+    },
+    "examples": {
+      "title": "Ramos de Flores Exclusivos",
+      "description": "Descubre nuestros ramos exclusivos, elaborados con las flores más frescas para cualquier ocasión."
+    },
+    "about-us": {
+      "title": "¿Quiénes somos?",
+      "description": "Haz clic aquí y descúbrelo",
+      "button": "Sobre nosotros"
+    },
+    "memberships": {
+      "title": "Membresía",
+      "description": "Elige el plan que mejor se adapte a ti y comienza a disfrutar de todos los beneficios.",
+      "plans": {
+        "basic": {
+          "title": "Basico",
+          "description": "Acceso a arreglos de temporada"
+        },
+        "premium": {
+          "title": "Pro",
+          "description": "Todo en Básico más acceso anticipado a nuevas colecciones."
+        },
+        "business": {
+          "title": "Business",
+          "description": "Todo en Bussiness más envío gratuito y soporte prioritario al cliente."
+        }
+      }
+    },
+    "categories": {
+      "title": "Categorías",
+      "description": "Descubre nuestras categorías de arreglos de peonías, desde elegantes ramos hasta decoraciones para eventos."
+    },
+    "testimonials": {
+      "title": "Testimonios",
+      "description": "Lo que nuestros clientes dicen de nosotros"
+    },
+    "questions": {
+      "title": "Preguntas frecuentes",
+      "description": "Encuentra las respuestas a tus preguntas"
+    }
+  }
+}

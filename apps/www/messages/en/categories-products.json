@@ -1,0 +1,61 @@
+{
+  "filters": {
+    "header": "Filters",
+    "clearFiltersButton": "Clear Filters",
+    "form": {
+      "nameLabel": "Name",
+      "namePlaceholder": "Bouquet of ...",
+      "orderByLabel": "Order by",
+      "orderByPlaceholder": "Select an order",
+      "orderByOptions": {
+        "mostRecent": "Most recent",
+        "older": "Older",
+        "priceAsc": "Price: Low to High",
+        "priceDesc": "Price: High to Low"
+      },
+      "applyButton": "Apply filters",
+      "applyingButton": "Filtering..."
+    },
+    "categoriesAccordion": {
+      "trigger": "Categories",
+      "options": {
+        "primaveral": "Spring Bouquets",
+        "rosas": "Roses",
+        "box": "Box",
+        "follaje": "Foliage",
+        "florero": "Vase",
+        "funebre": "Funeral",
+        "fragancias": "Fragrances",
+        "velas": "Candles"
+      }
+    },
+    "dynamicFilters": {
+      "roseTypeLabel": "Rose Type",
+      "roseTypeOptions": {
+        "premium": "Premium",
+        "nacional": "National"
+      },
+      "sizeLabel": "Size",
+      "sizeOptions": {
+        "s": "S",
+        "l": "L",
+        "xxl": "XXL"
+      }
+    },
+    "colorsAccordion": {
+      "trigger": "Colors",
+      "options": {
+        "red": "Red",
+        "blue": "Blue",
+        "green": "Green",
+        "yellow": "Yellow",
+        "white": "White",
+        "black": "Black",
+        "orange": "Orange",
+        "purple": "Purple",
+        "pink": "Pink",
+        "gray": "Gray"
+      }
+    }
+  }
+}

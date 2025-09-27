@@ -1,0 +1,6 @@
+users:
+  admin:
+    email: email@gmail.com
+    name: John Doe
+    password: $2a$11$KBlNENH7r2Sr75k44XwLlu5f.2BaBAUUBjjJKyHfgQwPUViB4wMDi
+    filter: ""
