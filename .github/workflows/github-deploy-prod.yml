@@ -1,5 +1,4 @@
 name: Vercel Production Deployment
-
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -15,45 +14,22 @@ on:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout del repo
       - uses: actions/checkout@v4
-
-      # 2️⃣ Setup Node.js 20 y cache pnpm
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
         with:
-          node-version: 20
-          cache: "pnpm"
-
-      # 3️⃣ Activar Corepack y pnpm 10.17
-      - name: Enable Corepack and pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.17.1 --activate
-
-      # 4️⃣ Instalar dependencias
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # 5️⃣ Instalar Vercel CLI
+          version: 10.6.5
       - name: Install Vercel CLI
         run: pnpm install --global vercel@latest
-
-      # 6️⃣ Pull de environment variables de Vercel
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      # 7️⃣ Build del proyecto
       - name: Build Project Artifacts
         run: vercel build --prod
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      # 8️⃣ Deploy a Vercel
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --prod
         env:
