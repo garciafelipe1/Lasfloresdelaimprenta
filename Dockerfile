@@ -6,23 +6,24 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Copiar workspace y package.json
+COPY pnpm-workspace.yaml ./
 COPY package.json pnpm-lock.yaml* ./
-COPY apps/www/package.json ./apps/www/
-COPY apps/store/package.json ./apps/store/
-COPY packages/utils/package.json ./packages/utils/
+COPY apps/ ./apps/
+COPY packages/ ./packages/
 
 # Activar Corepack y pnpm
 RUN corepack enable
 RUN corepack prepare pnpm@10.17.1 --activate
 
-# Instalar dependencias
+# Instalar todas las dependencias del monorepo
 RUN pnpm install --frozen-lockfile
 
 # --- builder ---
 FROM base AS builder
 WORKDIR /app
 
-# Activar Corepack y pnpm también en builder
+# Activar Corepack y pnpm en builder
 RUN corepack enable
 RUN corepack prepare pnpm@10.17.1 --activate
 
@@ -30,7 +31,7 @@ RUN corepack prepare pnpm@10.17.1 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build de la app
+# Build de la app www
 RUN pnpm --filter ./apps/www build --max-old-space-size=4096 --no-lint
 
 # --- runner ---
@@ -42,6 +43,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copiar archivos de build de www
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/public ./apps/www/public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/.next/static ./apps/www/.next/static
