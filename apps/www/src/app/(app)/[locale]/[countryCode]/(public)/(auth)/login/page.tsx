@@ -21,6 +21,7 @@ export default function LoginPreview() {
           <CardTitle className='text-2xl'>{i18n('title')}</CardTitle>
             console.log('Login page rendered');
           <CardDescription>{i18n('description')}</CardDescription>
+          console.log('Login page rendered');
         </CardHeader>
         <CardContent>
           {/* Solo mostramos GoogleFooter */}
