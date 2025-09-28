@@ -20,7 +20,7 @@ COPY . .
 
 # Build de la app sin romper por ESLint/TS errors
 RUN corepack enable pnpm && \
-    pnpm --filter ./apps/www build --max-old-space-size=4096 --no-lint
+    pnpm --filter ./apps/www exec next build --max-old-space-size=4096 --no-lint
 
 FROM base AS runner
 WORKDIR /app
