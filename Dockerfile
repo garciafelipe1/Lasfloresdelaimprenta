@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
+FROM node:20-alpine AS base
 
-FROM node:18-alpine AS base
-
+# --- dependencias ---
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -11,17 +11,19 @@ COPY apps/www/package.json ./apps/www/
 COPY apps/store/package.json ./apps/store/
 COPY packages/utils/package.json ./packages/utils/
 
-RUN corepack enable pnpm && pnpm install --frozen-lockfile
+RUN corepack prepare pnpm@10.17.1 --activate
+RUN pnpm install --frozen-lockfile
 
+# --- build ---
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build de la app sin romper por ESLint/TS errors
-RUN corepack enable pnpm && \
-    pnpm --filter ./apps/www exec next build --max-old-space-size=4096 --no-lint
+RUN corepack enable pnpm
+RUN pnpm --filter ./apps/www build --max-old-space-size=4096 --no-lint
 
+# --- runner ---
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV production
