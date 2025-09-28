@@ -2,29 +2,26 @@
 
 FROM node:18-alpine AS base
 
-# --- Etapa de Builder: Instalación y Construcción ---
-FROM base AS builder
+FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copia los archivos de gestión de paquetes (necesario para el pnpm install)
 COPY package.json pnpm-lock.yaml* ./
 COPY apps/www/package.json ./apps/www/
 COPY apps/store/package.json ./apps/store/
 COPY packages/utils/package.json ./packages/utils/
 
-# Instala todas las dependencias en esta misma etapa.
-# Esto asegura que los binarios (como 'next') estén disponibles.
 RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
-# Copia el resto del código fuente y ejecuta el build
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Build de la app sin romper por ESLint/TS errors
 RUN corepack enable pnpm && \
     pnpm --filter ./apps/www exec next build --max-old-space-size=4096 --no-lint
 
-# --- Etapa Final de Runner ---
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV production
