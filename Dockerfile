@@ -6,24 +6,21 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copiar workspace y package.json
-COPY pnpm-workspace.yaml ./
-COPY package.json pnpm-lock.yaml* ./
-COPY apps/ ./apps/
-COPY packages/ ./packages/
+# Copiar todo el monorepo
+COPY . .
 
 # Activar Corepack y pnpm
 RUN corepack enable
 RUN corepack prepare pnpm@10.17.1 --activate
 
-# Instalar todas las dependencias del monorepo
+# Instalar todas las dependencias del workspace
 RUN pnpm install --frozen-lockfile
 
 # --- builder ---
 FROM base AS builder
 WORKDIR /app
 
-# Activar Corepack y pnpm en builder
+# Activar Corepack y pnpm
 RUN corepack enable
 RUN corepack prepare pnpm@10.17.1 --activate
 
@@ -32,25 +29,25 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Build de la app www
-RUN pnpm --filter ./apps/www build --max-old-space-size=4096 --no-lint
+RUN pnpm --filter @floreria/www build --max-old-space-size=4096
 
 # --- runner ---
 FROM base AS runner
 WORKDIR /app
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copiar archivos de build de www
+# Copiar la build
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/public ./apps/www/public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/.next/static ./apps/www/.next/static
 
 USER nextjs
 EXPOSE 3000
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "apps/www/server.js"]
