@@ -11,8 +11,6 @@ FROM base AS deps
 
 # Copiar solo los archivos necesarios para instalar dependencias
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
-COPY apps/ ./apps/
-COPY packages/ ./packages/
 
 # Instalar dependencias del monorepo
 RUN pnpm install --frozen-lockfile
@@ -24,8 +22,13 @@ WORKDIR /app
 # Copiar node_modules desde deps
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY apps/ ./apps/
-COPY packages/ ./packages/
+
+# Copiar el resto del repo
+COPY . .
+
+# 👇 Asegura que Next no intente prerenderizar Payload API
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
 # Build de la app www
 RUN pnpm --filter ./apps/www build --max-old-space-size=4096 --no-lint
