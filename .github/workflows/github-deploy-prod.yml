@@ -77,8 +77,8 @@ jobs:
         working-directory: ./apps/www
         run: |
           # Exportar todas las variables de entorno para el build
-          export DB_URL=$DB_URL
-          export DB_TOKEN=$DB_TOKEN
+          export DATABASE_URI=$DATABASE_URI
+          export DATABASE_AUTH_TOKEN=$DATABASE_AUTH_TOKEN
           export MP_ACCESS_TOKEN=$MP_ACCESS_TOKEN
           export MP_PUBLIC_KEY=$MP_PUBLIC_KEY
           export MP_CLIENT_ID=$MP_CLIENT_ID
