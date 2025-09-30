@@ -70,7 +70,7 @@ jobs:
           echo "S3_SECRET: $S3_SECRET"
           echo "GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID"
           echo "GOOGLE_CLIENT_SECRET: $GOOGLE_CLIENT_SECRET"
-          echo "MEDUSA_BACKEND_URL: $MEDUSA_BACKEND_URL"
+          
 
       # ✅ Construir el proyecto con Next.js
       - name: Build Project
@@ -91,7 +91,7 @@ jobs:
           export S3_SECRET=$S3_SECRET
           export GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
           export GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
-          export MEDUSA_BACKEND_URL=$MEDUSA_BACKEND_URL
+          
 
           # Ejecutar build
           pnpm run build
