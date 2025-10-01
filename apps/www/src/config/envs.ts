@@ -19,7 +19,7 @@ const envsSchema = z.object({
     CLIENT_ID: z.string(),
     CLIENT_SECRET: z.string(),
   }),
-  MEDUSA_BACKEND_URL: z.string().url(),
+  MEDUSA_BACKEND_URL: z.string(),
   DEFAULT_REGION: z.string(),
   PAYLOAD_SECRET: z.string(),
 });
