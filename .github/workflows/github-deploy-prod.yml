@@ -16,28 +16,36 @@ jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
     steps:
+      # 1️⃣ Clonar el repositorio
       - uses: actions/checkout@v4
 
-      # Instalar Node.js (versión recomendada)
+      # 2️⃣ Configurar Node.js con cache
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
+          cache: 'pnpm'
+          cache-dependency-path: apps/www/pnpm-lock.yaml
 
-      # Instalar Vercel CLI globalmente
-      - run: npm install -g vercel@latest
+      # 3️⃣ Configurar pnpm
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10.6.5
 
-      # Instalar dependencias con npm (forzando legacy peer deps)
+      # 4️⃣ Instalar Vercel CLI globalmente
+      - name: Install Vercel CLI
+        run: pnpm install --global vercel@latest
+
+      # 5️⃣ Instalar dependencias con legacy-peer-deps
       - name: Install Dependencies
         working-directory: ./apps/www
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --shamefully-hoist
 
-      # Pull del entorno de Vercel
+      # 6️⃣ Traer la información del entorno de Vercel
       - name: Pull Vercel Environment Information
         working-directory: ./apps/www
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # Crear archivo .env.production
+      # 7️⃣ Crear archivo .env.production para Next.js
       - name: Create .env.production
         working-directory: ./apps/www
         run: |
@@ -57,12 +65,12 @@ jobs:
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.production
           echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> .env.production
 
-      # Build del proyecto
+      # 8️⃣ Construir el proyecto con Next.js
       - name: Build Project
         working-directory: ./apps/www
-        run: npm run build
+        run: pnpm run build
 
-      # Deploy a Vercel
+      # 9️⃣ Desplegar el proyecto en Vercel
       - name: Deploy Project to Vercel
         working-directory: ./apps/www
         run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
