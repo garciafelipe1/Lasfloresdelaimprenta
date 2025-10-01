@@ -1,42 +1,36 @@
-param(
-    [string]$targetVersion = "3.37.0"
-)
+Write-Host "🚀 Ajustando dependencias para React 18 en monorepo con pnpm..."
 
-Write-Host "🔍 Buscando todos los package.json (excepto node_modules)..."
-$packageFiles = Get-ChildItem -Recurse -Filter "package.json" | Where-Object { $_.FullName -notmatch "node_modules" }
+# Ruta al proyecto donde está package.json
+$projectDir = "apps/www"
 
-foreach ($file in $packageFiles) {
-    Write-Host "⚙️ Revisando:" $file.FullName
+# Ir al directorio del proyecto
+Set-Location $projectDir
 
-    $content = Get-Content $file.PSPath -Raw | ConvertFrom-Json
+# Limpiar node_modules y lockfiles
+Write-Host "🧹 Limpiando dependencias..."
+Remove-Item -Recurse -Force "node_modules" -ErrorAction SilentlyContinue
+Remove-Item -Force "pnpm-lock.yaml" -ErrorAction SilentlyContinue
+Remove-Item -Force "package-lock.json" -ErrorAction SilentlyContinue
+Remove-Item -Force "yarn.lock" -ErrorAction SilentlyContinue
 
-    # Revisar dependencias normales
-    foreach ($dep in $content.dependencies.PSObject.Properties.Name) {
-        if ($dep -eq "payload" -or $dep -like "@payloadcms/*") {
-            Write-Host "   → Actualizando dependencia:" $dep "a versión $targetVersion"
-            $content.dependencies.$dep = $targetVersion
-        }
-    }
+# Instalar React 18 y React DOM 18
+Write-Host "📦 Instalando React 18..."
+pnpm add react@18.3.1 react-dom@18.3.1 --strict-peer-dependencies=false
 
-    # Revisar devDependencies
-    foreach ($dep in $content.devDependencies.PSObject.Properties.Name) {
-        if ($dep -eq "payload" -or $dep -like "@payloadcms/*") {
-            Write-Host "   → Actualizando devDependency:" $dep "a versión $targetVersion"
-            $content.devDependencies.$dep = $targetVersion
-        }
-    }
+# Instalar Payload 3.37.0
+Write-Host "📦 Instalando Payload 3.37.0..."
+pnpm add payload@3.37.0 --strict-peer-dependencies=false
 
-    # Guardar cambios
-    $content | ConvertTo-Json -Depth 100 | Set-Content $file.PSPath -Encoding UTF8
-    Write-Host "✅ Actualizado:" $file.FullName
-}
+# Instalar plugin-cloud-storage compatible
+Write-Host "📦 Instalando @payloadcms/plugin-cloud-storage@3.37.0..."
+pnpm add @payloadcms/plugin-cloud-storage@3.37.0 --strict-peer-dependencies=false
 
-Write-Host "🗑 Eliminando node_modules y lockfiles..."
-if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
-if (Test-Path "package-lock.json") { Remove-Item -Force "package-lock.json" }
-if (Test-Path "pnpm-lock.yaml") { Remove-Item -Force "pnpm-lock.yaml" }
+# Instalar db-sqlite para la misma versión
+Write-Host "📦 Instalando @payloadcms/db-sqlite@3.37.0..."
+pnpm add @payloadcms/db-sqlite@3.37.0 --strict-peer-dependencies=false
 
-Write-Host "📦 Instalando dependencias con pnpm..."
-pnpm install --no-frozen-lockfile
+# Reinstalar todas las dependencias limpias
+Write-Host "🔄 Reinstalando todas las dependencias..."
+pnpm install --strict-peer-dependencies=false
 
-Write-Host "🎉 Todas las dependencias de Payload fueron alineadas a la versión $targetVersion"
+Write-Host "✅ Dependencias ajustadas: React 18 + Payload 3.37.0 + plugin compatible"
