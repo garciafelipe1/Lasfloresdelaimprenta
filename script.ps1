@@ -1,29 +1,33 @@
-# upgrade-react18-payload.ps1
-# Script para mantener React 18 y usar Payload compatible
+# Script para forzar React 18 y bajar payload a 3.37.0
 
-Write-Host "=== START: Ajuste Payload para React 18 ==="
+Write-Host "🔧 Corrigiendo dependencias..."
 
-# 1. Borrar node_modules y lockfile
-Write-Host "Eliminando node_modules y pnpm-lock.yaml..."
-Remove-Item -Recurse -Force "node_modules"
-Remove-Item -Force "pnpm-lock.yaml"
+# 1. Leer package.json
+$packagePath = "package.json"
+if (-Not (Test-Path $packagePath)) {
+    Write-Host "❌ No se encontró package.json en este directorio"
+    exit 1
+}
 
-# 2. Forzar versión de Payload CMS compatible con React 18
-Write-Host "Instalando @payloadcms/plugin-cloud-storage@3.37.0..."
-pnpm add @payloadcms/plugin-cloud-storage@3.37.0
+# 2. Reemplazar versión del plugin
+(Get-Content $packagePath) -replace '"@payloadcms/plugin-cloud-storage":\s*".*"', '"@payloadcms/plugin-cloud-storage": "3.37.0"' | Set-Content $packagePath
 
-# 3. Reinstalar dependencias con pnpm sin frozen lockfile
-Write-Host "Instalando todas las dependencias..."
+Write-Host "✅ Versión de @payloadcms/plugin-cloud-storage fijada en 3.37.0"
+
+# 3. Eliminar node_modules y lockfile
+if (Test-Path "node_modules") {
+    Remove-Item -Recurse -Force "node_modules"
+    Write-Host "🗑️ Eliminado node_modules"
+}
+if (Test-Path "pnpm-lock.yaml") {
+    Remove-Item -Force "pnpm-lock.yaml"
+    Write-Host "🗑️ Eliminado pnpm-lock.yaml"
+}
+
+# 4. Instalar dependencias
+Write-Host "📦 Instalando dependencias con pnpm..."
 pnpm install --no-frozen-lockfile
 
-# 4. Limpiar cache de pnpm (opcional pero recomendable)
-Write-Host "Limpiando cache de pnpm..."
-pnpm store prune
-
-# 5. Confirmar versiones instaladas
-Write-Host "Verificando versiones instaladas de React y Payload..."
-pnpm list react
-pnpm list react-dom
-pnpm list @payloadcms/plugin-cloud-storage
-
-Write-Host "=== FIN: Proyecto listo para deploy con React 18 y Payload compatible ==="
+# 5. Mostrar versiones instaladas
+Write-Host "`n🔍 Verificando versiones:"
+pnpm list react react-dom @payloadcms/plugin-cloud-storage
