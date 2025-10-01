@@ -19,57 +19,36 @@ jobs:
       # 1️⃣ Clonar el repositorio
       - uses: actions/checkout@v4
 
-      # 2️⃣ Configurar pnpm
+      # 2️⃣ Forzar Node 18
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 3️⃣ Configurar pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 10.6.5
 
-      # 3️⃣ Instalar Vercel CLI globalmente
+      # 4️⃣ Instalar Vercel CLI globalmente
       - name: Install Vercel CLI
         run: pnpm install --global vercel@latest
 
-      # 4️⃣ Instalar dependencias
+      # 5️⃣ Limpiar cache de pnpm (opcional pero recomendable)
+      - name: Prune pnpm store
+        working-directory: ./apps/www
+        run: pnpm store prune
+
+      # 6️⃣ Instalar dependencias respetando lockfile
       - name: Install Dependencies
         working-directory: ./apps/www
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      # 5️⃣ Traer la información del entorno de Vercel
+      # 7️⃣ Traer la información del entorno de Vercel
       - name: Pull Vercel Environment Information
         working-directory: ./apps/www
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      # 6️⃣ DEBUG: Verificar archivos creados
-      - name: Debug - Check files created
-        working-directory: ./apps/www
-        run: |
-          echo "=== CHECKING FILES ==="
-          ls -la .vercel/
-          echo "=== ENV FILES ==="
-          ls -la .env*
-          echo "=== CONTENT OF .vercel/.env.production.local ==="
-          cat .vercel/.env.production.local || echo "File not found"
-
-      # 7️⃣ DEBUG: Verificar variables de entorno
-      - name: Debug - Check Environment Variables
-        working-directory: ./apps/www
-        run: |
-          echo "=== ENVIRONMENT VARIABLES ==="
-          echo "DB_URL: ${{ secrets.DB_URL }}"
-          echo "DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}"
-          echo "MP_ACCESS_TOKEN: ${{ secrets.MP_ACCESS_TOKEN }}"
-          echo "MP_PUBLIC_KEY: ${{ secrets.MP_PUBLIC_KEY }}"
-          echo "MP_CLIENT_ID: ${{ secrets.MP_CLIENT_ID }}"
-          echo "MP_CLIENT_SECRET: ${{ secrets.MP_CLIENT_SECRET }}"
-          echo "MP_WEBHOOK_KEY: ${{ secrets.MP_WEBHOOK_KEY }}"
-          echo "APP_URL: ${{ secrets.APP_URL }}"
-          echo "S3_URL: ${{ secrets.S3_URL }}"
-          echo "S3_BUCKET: ${{ secrets.S3_BUCKET }}"
-          echo "S3_KEY_ID: ${{ secrets.S3_KEY_ID }}"
-          echo "S3_SECRET: ${{ secrets.S3_SECRET }}"
-          echo "GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}"
-          echo "GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}"
-          echo "MEDUSA_BACKEND_URL: ${{ secrets.MEDUSA_BACKEND_URL }}"
 
       # 8️⃣ Crear archivo .env.production para Next.js
       - name: Create .env.production
@@ -100,5 +79,3 @@ jobs:
       - name: Deploy Project to Vercel
         working-directory: ./apps/www
         run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
-
-
