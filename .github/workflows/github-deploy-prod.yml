@@ -99,5 +99,6 @@ jobs:
       # 🔟 Desplegar el proyecto en Vercel
       - name: Deploy Project to Vercel
         working-directory: ./apps/www
-        run: vercel deploy --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+
 

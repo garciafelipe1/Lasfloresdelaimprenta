@@ -20,7 +20,6 @@ export default function LoginPreview() {
         <CardHeader>
           <CardTitle className='text-2xl'>{i18n('title')}</CardTitle>
           <CardDescription>{i18n('description')}</CardDescription>
-          
         </CardHeader>
         <CardContent>
           {/* Solo mostramos GoogleFooter */}
