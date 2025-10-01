@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { z } from 'zod';
 
 const envsSchema = z.object({
-  DB_URL: z.string().url(),
+  DB_URL: z.string(),
   DB_TOKEN: z.string(),
   SEED: z.coerce.boolean().default(false),
   MERCADO_PAGO: z.object({
