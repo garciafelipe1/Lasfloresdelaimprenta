@@ -19,7 +19,7 @@ export default function LoginPreview() {
       <Card className='mx-auto w-full max-w-md'>
         <CardHeader>
           <CardTitle className='text-2xl'>{i18n('title')}</CardTitle>
-          console.log('loginAction:', loginAction);
+         
           <CardDescription>{i18n('description')}</CardDescription>
         </CardHeader>
         <CardContent>
