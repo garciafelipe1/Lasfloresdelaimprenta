@@ -1,9 +1,5 @@
 name: Vercel Production Deployment
 
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
 on:
   push:
     branches:
@@ -12,6 +8,10 @@ on:
       - "apps/www/**"
   workflow_dispatch:
 
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
 jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
@@ -19,11 +19,12 @@ jobs:
       # 1️⃣ Clonar el repositorio
       - uses: actions/checkout@v4
 
-      # 2️⃣ Configurar Node 18
+      # 2️⃣ Configurar Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: "pnpm"
 
       # 3️⃣ Configurar pnpm
       - name: Setup pnpm
@@ -31,7 +32,7 @@ jobs:
         with:
           version: 10.6.5
 
-      # 4️⃣ Cache de pnpm
+      # 4️⃣ Cache de pnpm store
       - name: Cache pnpm store
         uses: actions/cache@v3
         with:
@@ -44,12 +45,19 @@ jobs:
       - name: Install Vercel CLI
         run: pnpm install --global vercel@latest
 
-      # 6️⃣ Instalar dependencias respetando lockfile y usando cache
-      - name: Install Dependencies
+      # 6️⃣ Instalar dependencias con retry automático
+      - name: Install Dependencies with Retry
         working-directory: ./apps/www
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: |
+          RETRIES=3
+          for i in $(seq 1 $RETRIES); do
+            echo "Attempt $i of $RETRIES..."
+            pnpm install --frozen-lockfile --prefer-offline --reporter=append-only && break
+            echo "pnpm install failed, retrying in 15 seconds..."
+            sleep 15
+          done
 
-      # 7️⃣ Traer la información del entorno de Vercel
+      # 7️⃣ Pull de variables de Vercel
       - name: Pull Vercel Environment Information
         working-directory: ./apps/www
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
@@ -74,12 +82,12 @@ jobs:
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.production
           echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> .env.production
 
-      # 9️⃣ Construir el proyecto con Next.js
+      # 9️⃣ Construir proyecto
       - name: Build Project
         working-directory: ./apps/www
         run: pnpm run build
 
-      # 🔟 Desplegar el proyecto en Vercel
+      # 🔟 Desplegar a Vercel
       - name: Deploy Project to Vercel
         working-directory: ./apps/www
         run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
