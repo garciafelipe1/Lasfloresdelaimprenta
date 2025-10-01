@@ -1,24 +1,29 @@
-# Script PowerShell: fix-react-payload.ps1
+# upgrade-react18-payload.ps1
+# Script para mantener React 18 y usar Payload compatible
 
-Write-Host "==> Deteniendo cualquier proceso Node/NPM si existe..."
-Stop-Process -Name node -ErrorAction SilentlyContinue
+Write-Host "=== START: Ajuste Payload para React 18 ==="
 
-Write-Host "==> Limpiando node_modules y lockfile..."
-Remove-Item -Recurse -Force "node_modules" -ErrorAction SilentlyContinue
-Remove-Item -Force "pnpm-lock.yaml" -ErrorAction SilentlyContinue
+# 1. Borrar node_modules y lockfile
+Write-Host "Eliminando node_modules y pnpm-lock.yaml..."
+Remove-Item -Recurse -Force "node_modules"
+Remove-Item -Force "pnpm-lock.yaml"
 
-Write-Host "==> Instalando React 18 y React-DOM 18..."
-pnpm add react@18.3.1 react-dom@18.3.1
-
-Write-Host "==> Instalando @payloadcms/plugin-cloud-storage compatible con React 18..."
+# 2. Forzar versión de Payload CMS compatible con React 18
+Write-Host "Instalando @payloadcms/plugin-cloud-storage@3.37.0..."
 pnpm add @payloadcms/plugin-cloud-storage@3.37.0
 
-Write-Host "==> Instalando dependencias restantes (sin frozen-lockfile)..."
+# 3. Reinstalar dependencias con pnpm sin frozen lockfile
+Write-Host "Instalando todas las dependencias..."
 pnpm install --no-frozen-lockfile
 
-Write-Host "==> Verificando versiones instaladas..."
+# 4. Limpiar cache de pnpm (opcional pero recomendable)
+Write-Host "Limpiando cache de pnpm..."
+pnpm store prune
+
+# 5. Confirmar versiones instaladas
+Write-Host "Verificando versiones instaladas de React y Payload..."
 pnpm list react
 pnpm list react-dom
 pnpm list @payloadcms/plugin-cloud-storage
 
-Write-Host "==> Script completado. Proyecto listo para deploy."
+Write-Host "=== FIN: Proyecto listo para deploy con React 18 y Payload compatible ==="
