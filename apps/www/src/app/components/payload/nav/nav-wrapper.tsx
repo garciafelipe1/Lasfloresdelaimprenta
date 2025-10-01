@@ -24,7 +24,7 @@ export const NavWrapper: React.FC<{
     >
       <div
         className={`${baseClass}__scroll`}
-        ref={navRef}
+        ref={navRef as React.RefObject<HTMLDivElement>} // ✅ casteo para TypeScript
       >
         {children}
       </div>
