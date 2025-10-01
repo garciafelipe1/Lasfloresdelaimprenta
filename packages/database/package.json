@@ -1,0 +1,27 @@
+{
+  "name": "database",
+  "module": "index.ts",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "cross-env SEED=true tsx ./src/seed.ts",
+    "db:preview": "drizzle-kit studio --config=drizzle.config.ts"
+  },
+  "devDependencies": {
+    "@types/pg": "8.15.4",
+    "cross-env": "7.0.3",
+    "drizzle-kit": "0.31.1",
+    "tsx": "4.19.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "dotenv": "16.5.0",
+    "drizzle-orm": "0.44.2",
+    "pg": "8.16.0",
+    "zod": "3.25.51"
+  }
+}
