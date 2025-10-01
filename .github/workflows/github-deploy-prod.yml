@@ -31,19 +31,23 @@ jobs:
         with:
           version: 10.6.5
 
-      # 4️⃣ Instalar Vercel CLI globalmente
+      # 4️⃣ Cache de pnpm
+      - name: Cache pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      # 5️⃣ Instalar Vercel CLI globalmente
       - name: Install Vercel CLI
         run: pnpm install --global vercel@latest
 
-      # 5️⃣ Limpiar cache de pnpm
-      - name: Prune pnpm store
-        working-directory: ./apps/www
-        run: pnpm store prune
-
-      # 6️⃣ Instalar dependencias respetando lockfile
+      # 6️⃣ Instalar dependencias respetando lockfile y usando cache
       - name: Install Dependencies
         working-directory: ./apps/www
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       # 7️⃣ Traer la información del entorno de Vercel
       - name: Pull Vercel Environment Information
