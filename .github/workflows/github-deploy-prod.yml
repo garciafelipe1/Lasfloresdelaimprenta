@@ -13,35 +13,42 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-  deploy-production:
+  Deploy-Production:
     runs-on: ubuntu-latest
     steps:
       # 1️⃣ Clonar repositorio
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Checkout Repository
+      - run: echo "✅ Repositorio clonado"
 
-      # 2️⃣ Configurar Node.js
-      - name: Setup Node.js 18
+      # 2️⃣ Setup Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-        
+          node-version: 20
+      - run: |
+          echo "✅ Node.js configurado"
+          node -v
+          npm -v
 
-      # 3️⃣ Configurar pnpm
-      - name: Setup pnpm 10.6.5
+      # 3️⃣ Setup pnpm 10.6.x
+      - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 10.6.5
-       
+      - run: |
+          echo "✅ pnpm configurado"
+          pnpm -v
 
-      # 4️⃣ Cache pnpm store
+      # 4️⃣ Cache pnpm store (force nueva key si falla)
       - name: Cache pnpm store
         uses: actions/cache@v3
         with:
           path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-
-        
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-v2
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+      - run: echo "✅ Cache pnpm configurado"
 
       # 5️⃣ Instalar Vercel CLI
       - name: Install Vercel CLI
@@ -55,11 +62,13 @@ jobs:
           vercel --version
           echo "✅ Vercel CLI instalado"
 
-      # 6️⃣ Instalar dependencias con retry
+      # 6️⃣ Instalar dependencias con retry y registry explícito
       - name: Install Dependencies with Retry
         working-directory: ./apps/www
         run: |
           set -e
+          echo "🔹 Configurando registry npm"
+          pnpm config set registry https://registry.npmjs.org/
           RETRIES=3
           for i in $(seq 1 $RETRIES); do
             echo "🔹 Attempt $i of $RETRIES..."
@@ -93,23 +102,21 @@ jobs:
         run: |
           set -e
           echo "🔹 Creando .env.production"
-          {
-            echo "DB_URL=${{ secrets.DB_URL }}"
-            echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}"
-            echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}"
-            echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}"
-            echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}"
-            echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}"
-            echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}"
-            echo "APP_URL=${{ secrets.APP_URL }}"
-            echo "S3_URL=${{ secrets.S3_URL }}"
-            echo "S3_BUCKET=${{ secrets.S3_BUCKET }}"
-            echo "S3_KEY_ID=${{ secrets.S3_KEY_ID }}"
-            echo "S3_SECRET=${{ secrets.S3_SECRET }}"
-            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
-            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
-            echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}"
-          } > .env.production
+          echo "DB_URL=${{ secrets.DB_URL }}" > .env.production
+          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
+          echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}" >> .env.production
+          echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}" >> .env.production
+          echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}" >> .env.production
+          echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}" >> .env.production
+          echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}" >> .env.production
+          echo "APP_URL=${{ secrets.APP_URL }}" >> .env.production
+          echo "S3_URL=${{ secrets.S3_URL }}" >> .env.production
+          echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env.production
+          echo "S3_KEY_ID=${{ secrets.S3_KEY_ID }}" >> .env.production
+          echo "S3_SECRET=${{ secrets.S3_SECRET }}" >> .env.production
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.production
+          echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> .env.production
           echo "✅ .env.production creado"
 
       # 9️⃣ Build proyecto
