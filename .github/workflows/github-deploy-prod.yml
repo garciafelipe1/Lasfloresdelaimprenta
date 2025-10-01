@@ -15,7 +15,6 @@ on:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
-    environment: TOKEN_VERCEL
     steps:
       # Clonar el repositorio
       - uses: actions/checkout@v4
