@@ -31,34 +31,28 @@ jobs:
           node -v
           npm -v
 
-      # 3️⃣ Setup pnpm 10.6.x
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 10.6.5
-      - run: |
-          echo "✅ pnpm configurado"
-          pnpm -v
+      # 3️⃣ Setup npm (usando Node.js built-in)
+      - name: Setup npm
+        run: |
+          echo "✅ npm configurado"
+          npm -v
 
-      # 4️⃣ Cache pnpm store (force nueva key si falla)
-      - name: Cache pnpm store
+      # 4️⃣ Cache npm store
+      - name: Cache npm store
         uses: actions/cache@v3
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-v2
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}-v2
           restore-keys: |
-            ${{ runner.os }}-pnpm-
-      - run: echo "✅ Cache pnpm configurado"
+            ${{ runner.os }}-npm-
+      - run: echo "✅ Cache npm configurado"
 
       # 5️⃣ Instalar Vercel CLI
       - name: Install Vercel CLI
         run: |
           set -e
-          echo "🔹 Activando corepack y pnpm"
-          corepack enable
-          corepack prepare pnpm@10.6.5 --activate
           echo "🔹 Instalando Vercel CLI globalmente"
-          pnpm install --global vercel@latest
+          npm install --global vercel@latest
           vercel --version
           echo "✅ Vercel CLI instalado"
 
@@ -68,15 +62,15 @@ jobs:
         run: |
           set -e
           echo "🔹 Configurando registry npm"
-          pnpm config set registry https://registry.npmjs.org/
+          npm config set registry https://registry.npmjs.org/
           RETRIES=3
           for i in $(seq 1 $RETRIES); do
             echo "🔹 Attempt $i of $RETRIES..."
-            if pnpm install --frozen-lockfile --prefer-offline; then
+            if npm ci --prefer-offline; then
               echo "✅ Dependencias instaladas correctamente"
               break
             else
-              echo "⚠ pnpm install falló en intento $i"
+              echo "⚠ npm ci falló en intento $i"
               if [ "$i" -lt "$RETRIES" ]; then
                 echo "⏳ Reintentando en 15 segundos..."
                 sleep 15
@@ -125,7 +119,7 @@ jobs:
         run: |
           set -e
           echo "🔹 Iniciando build del proyecto"
-          pnpm run build
+          npm run build
           echo "✅ Build completado"
 
       # 🔟 Deploy a Vercel

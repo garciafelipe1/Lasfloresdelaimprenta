@@ -19,7 +19,7 @@
     "lint-staged": "pnpm dlx lint-staged",
     "deploy": "cross-env vercel build --target=production && vercel deploy --prod --prebuilt"
   },
-  "dependencies": { 
+  "dependencies": {
     "@hookform/resolvers": "3.4.2",
     "@libsql/client": "^0.14.0",
     "@medusajs/js-sdk": "2.8.3",
@@ -87,7 +87,7 @@
     "swiper": "^11.2.10",
     "tailwind-merge": "^3.3.0",
     "usehooks-ts": "3.1.1",
-    "utils": "workspace:*",
+    "utils": "file:../../packages/utils",
     "vaul": "^1.1.2",
     "vercel": "42.2.0",
     "zod": "^3.25.67"
