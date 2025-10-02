@@ -113,6 +113,9 @@ jobs:
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.production
           echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> .env.production
+          echo "NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> .env.production
+          echo "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.MEDUSA_PUBLISHABLE_KEY }}" >> .env.production
+          echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}" >> .env.production
           echo "✅ .env.production creado"
 
       # 9️⃣ Build proyecto
