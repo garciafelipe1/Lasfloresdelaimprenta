@@ -11,14 +11,14 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
-  }, 
+  },
   "scripts": {
     "lint": "pnpm --filter \"./apps/**\" lint-staged",
     "dev": "pnpm --filter \"./apps/**\" dev",
     "cli": "pnpm --dir packages/cli start",
     "db": "pnpm --filter \"./packages/database\" db:preview"
   },
-  "packageManager": "pnpm@10.6.5",
+  "packageManager": "pnpm@10.17.1",
   "dependencies": {
     "pnpm": "^10.14.0",
     "react": "^18.3.1",
