@@ -128,9 +128,9 @@ jobs:
 
       # 🔟 Deploy a Vercel
       - name: Deploy Project to Vercel
-        working-directory: ./apps/www
         run: |
           set -e
           echo "🔹 Iniciando deploy a Vercel"
+          cd apps/www
           vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
           echo "✅ Deploy finalizado"
