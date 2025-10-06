@@ -55,7 +55,7 @@ jobs:
         run: |
           set -e
           echo "🔹 Instalando Vercel CLI globalmente"
-          pnpm add -g vercel
+          pnpm add -g vercel@latest
           vercel --version
           echo "✅ Vercel CLI instalado"
 
