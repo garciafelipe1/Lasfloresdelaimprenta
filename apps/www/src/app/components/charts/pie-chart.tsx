@@ -19,10 +19,12 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 
+
 type PieChartDatum = {
   [key: string]: string | number;
   fill: string;
 };
+
 
 interface Props {
   dataKey: keyof PieChartDatum;
