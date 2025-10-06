@@ -88,7 +88,7 @@ jobs:
         run: |
           set -e
           echo "🔹 Obteniendo variables de entorno de Vercel"
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --project=lasfloresdelaimprenta-www
           echo "✅ Variables de entorno obtenidas"
 
       # 8️⃣ Crear archivo .env.production
@@ -129,5 +129,5 @@ jobs:
         run: |
           set -e
           echo "🔹 Iniciando deploy a Vercel"
-          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --project=lasfloresdelaimprenta-www
           echo "✅ Deploy finalizado"
