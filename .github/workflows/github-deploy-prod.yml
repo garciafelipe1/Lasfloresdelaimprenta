@@ -56,7 +56,7 @@ jobs:
           set -e
           echo "🔹 Instalando Vercel CLI globalmente"
           npm uninstall -g vercel || true
-          npm install -g vercel@38.0.0
+          npm install -g vercel@36.0.0
           vercel --version
           echo "✅ Vercel CLI instalado"
 
@@ -84,15 +84,24 @@ jobs:
             fi
           done
 
-      # 7️⃣ Pull variables de Vercel
+      # 7️⃣ Configurar proyecto Vercel
+      - name: Configure Vercel Project
+        run: |
+          set -e
+          echo "🔹 Configurando proyecto Vercel"
+          echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}" >> $GITHUB_ENV
+          echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }}" >> $GITHUB_ENV
+          echo "✅ Proyecto configurado"
+
+      # 8️⃣ Pull variables de Vercel
       - name: Pull Vercel Environment Information
         run: |
           set -e
           echo "🔹 Obteniendo variables de entorno de Vercel"
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --id=${{ secrets.VERCEL_PROJECT_ID }}
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           echo "✅ Variables de entorno obtenidas"
 
-      # 8️⃣ Crear archivo .env.production
+      # 9️⃣ Crear archivo .env.production
       - name: Create .env.production
         run: |
           set -e
@@ -117,7 +126,7 @@ jobs:
           echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}" >> apps/www/.env.production
           echo "✅ .env.production creado"
 
-      # 9️⃣ Build proyecto
+      # 🔟 Build proyecto
       - name: Build Project
         run: |
           set -e
@@ -125,10 +134,10 @@ jobs:
           pnpm -F apps/www build
           echo "✅ Build completado"
 
-      # 🔟 Deploy a Vercel
+      # 1️⃣1️⃣ Deploy a Vercel
       - name: Deploy Project to Vercel
         run: |
           set -e
           echo "🔹 Iniciando deploy a Vercel"
-          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --id=${{ secrets.VERCEL_PROJECT_ID }}
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
           echo "✅ Deploy finalizado"
