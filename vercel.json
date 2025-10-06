@@ -2,5 +2,6 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm --filter ./apps/www build",
   "framework": "nextjs",
-  "outputDirectory": "apps/www/.next"
+  "outputDirectory": "apps/www/.next",
+  "name": "floreria-www"
 }
