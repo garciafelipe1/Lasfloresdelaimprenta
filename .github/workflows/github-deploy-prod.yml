@@ -55,7 +55,7 @@ jobs:
         run: |
           set -e
           echo "🔹 Instalando Vercel CLI globalmente"
-          pnpm install --global vercel@latest
+          pnpm add -g vercel
           vercel --version
           echo "✅ Vercel CLI instalado"
 
@@ -85,7 +85,6 @@ jobs:
 
       # 7️⃣ Pull variables de Vercel
       - name: Pull Vercel Environment Information
-        working-directory: ./apps/www
         run: |
           set -e
           echo "🔹 Obteniendo variables de entorno de Vercel"
@@ -94,28 +93,27 @@ jobs:
 
       # 8️⃣ Crear archivo .env.production
       - name: Create .env.production
-        working-directory: ./apps/www
         run: |
           set -e
           echo "🔹 Creando .env.production"
-          echo "DB_URL=${{ secrets.DB_URL }}" > .env.production
-          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
-          echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}" >> .env.production
-          echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}" >> .env.production
-          echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}" >> .env.production
-          echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}" >> .env.production
-          echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}" >> .env.production
-          echo "APP_URL=${{ secrets.APP_URL }}" >> .env.production
-          echo "S3_URL=${{ secrets.S3_URL }}" >> .env.production
-          echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env.production
-          echo "S3_KEY_ID=${{ secrets.S3_KEY_ID }}" >> .env.production
-          echo "S3_SECRET=${{ secrets.S3_SECRET }}" >> .env.production
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
-          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.production
-          echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> .env.production
-          echo "NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> .env.production
-          echo "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.MEDUSA_PUBLISHABLE_KEY }}" >> .env.production
-          echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}" >> .env.production
+          echo "DB_URL=${{ secrets.DB_URL }}" > apps/www/.env.production
+          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> apps/www/.env.production
+          echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}" >> apps/www/.env.production
+          echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}" >> apps/www/.env.production
+          echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}" >> apps/www/.env.production
+          echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}" >> apps/www/.env.production
+          echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}" >> apps/www/.env.production
+          echo "APP_URL=${{ secrets.APP_URL }}" >> apps/www/.env.production
+          echo "S3_URL=${{ secrets.S3_URL }}" >> apps/www/.env.production
+          echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> apps/www/.env.production
+          echo "S3_KEY_ID=${{ secrets.S3_KEY_ID }}" >> apps/www/.env.production
+          echo "S3_SECRET=${{ secrets.S3_SECRET }}" >> apps/www/.env.production
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> apps/www/.env.production
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> apps/www/.env.production
+          echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> apps/www/.env.production
+          echo "NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> apps/www/.env.production
+          echo "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.MEDUSA_PUBLISHABLE_KEY }}" >> apps/www/.env.production
+          echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}" >> apps/www/.env.production
           echo "✅ .env.production creado"
 
       # 9️⃣ Build proyecto
@@ -123,7 +121,7 @@ jobs:
         run: |
           set -e
           echo "🔹 Iniciando build del proyecto"
-          pnpm --filter ./apps/www build
+          pnpm -F apps/www build
           echo "✅ Build completado"
 
       # 🔟 Deploy a Vercel
@@ -131,5 +129,5 @@ jobs:
         run: |
           set -e
           echo "🔹 Iniciando deploy a Vercel"
-          vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
           echo "✅ Deploy finalizado"
