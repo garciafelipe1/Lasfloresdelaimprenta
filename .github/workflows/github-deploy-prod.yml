@@ -8,14 +8,13 @@ on:
       - "apps/www/**"
   workflow_dispatch:
 
+jobs:
+  Deploy-Production:
+    runs-on: ubuntu-latest
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_PROJECT_NAME: lasfloresdeiris
-
-jobs:
-  Deploy-Production:
-    runs-on: ubuntu-latest
     steps:
       # 1️⃣ Clonar repositorio
       - uses: actions/checkout@v4
