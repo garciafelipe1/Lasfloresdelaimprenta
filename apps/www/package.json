@@ -16,7 +16,7 @@
     "payload:types": "payload generate:types",
     "payload": "3.37.0",
     "ci": "payload migrate && pnpm build",
-    "lint-staged": "pnpm dlx lint-staged",
+    "lint-staged": "pnpm dlx lint-staged", 
     "deploy": "cross-env vercel build --target=production && vercel deploy --prod --prebuilt"
   },
   "dependencies": {
