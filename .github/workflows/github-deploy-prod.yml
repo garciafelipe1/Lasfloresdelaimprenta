@@ -89,8 +89,8 @@ jobs:
         run: |
           set -e
           echo "🔹 Configurando proyecto Vercel"
-          echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}" >> $GITHUB_ENV
-          echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }}" >> $GITHUB_ENV
+          mkdir -p .vercel
+          echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}"}' > .vercel/project.json
           echo "✅ Proyecto configurado"
 
       # 8️⃣ Pull variables de Vercel
