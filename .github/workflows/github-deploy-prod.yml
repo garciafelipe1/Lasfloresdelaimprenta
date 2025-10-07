@@ -56,7 +56,7 @@ jobs:
           set -e
           echo "🔹 Instalando Vercel CLI globalmente"
           npm uninstall -g vercel || true
-          npm install -g vercel@36.0.0
+          npm install -g vercel@latest
           vercel --version
           echo "✅ Vercel CLI instalado"
 
