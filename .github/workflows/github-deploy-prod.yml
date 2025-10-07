@@ -92,6 +92,7 @@ jobs:
           rm -rf .vercel || true
           echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}" >> $GITHUB_ENV
           echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }}" >> $GITHUB_ENV
+          echo "VERCEL_PROJECT_NAME=lasfloresdelaimprenta-www" >> $GITHUB_ENV
           echo "✅ Proyecto configurado"
 
       # 8️⃣ Pull variables de Vercel
@@ -99,7 +100,7 @@ jobs:
         run: |
           set -e
           echo "🔹 Obteniendo variables de entorno de Vercel"
-          VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }} VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }} vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }} VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }} vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --project=lasfloresdelaimprenta-www
           echo "✅ Variables de entorno obtenidas"
 
       # 9️⃣ Crear archivo .env.production
@@ -140,5 +141,5 @@ jobs:
         run: |
           set -e
           echo "🔹 Iniciando deploy a Vercel"
-          VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }} VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }} vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }} VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }} vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --project=lasfloresdelaimprenta-www
           echo "✅ Deploy finalizado"
