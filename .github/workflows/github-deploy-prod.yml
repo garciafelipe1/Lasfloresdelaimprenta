@@ -2,8 +2,7 @@ name: Vercel Production Deployment
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - "apps/www/**"
   workflow_dispatch:
@@ -14,33 +13,27 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      VERCEL_PROJECT_NAME: lasfloresdeiris
-    steps:
-      # 1️⃣ Clonar repositorio
-      - uses: actions/checkout@v4
-        name: Checkout Repository
-      - run: echo "✅ Repositorio clonado"
+      # Si tenés token de Team y hay varias orgs, agregá VERCEL_TEAM_SLUG como secreto y usá --scope en el "link"
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
-      # 2️⃣ Setup Node.js 20
+    steps:
+      # 1) Checkout
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2) Node 20
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: |
-          echo "✅ Node.js configurado"
-          node -v
-          npm -v
 
-      # 3️⃣ Setup pnpm 10.17.x
+      # 3) pnpm 10.17.x
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 10.17.1
-      - run: |
-          echo "✅ pnpm configurado"
-          pnpm -v
 
-      # 4️⃣ Cache pnpm store
+      # 4) Cache de la store de pnpm
       - name: Cache pnpm store
         uses: actions/cache@v3
         with:
@@ -48,98 +41,87 @@ jobs:
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-v2
           restore-keys: |
             ${{ runner.os }}-pnpm-
-      - run: echo "✅ Cache pnpm configurado"
 
-      # 5️⃣ Instalar Vercel CLI
-      - name: Install Vercel CLI
+      # 5) (OPCIONAL) Aprobar builds nativos si tuviste el banner de "Ignored build scripts"
+      - name: Approve native builds (optional)
         run: |
-          set -e
-          echo "🔹 Instalando Vercel CLI globalmente"
-          npm uninstall -g vercel || true
-          npm install -g vercel@latest
-          vercel --version
-          echo "✅ Vercel CLI instalado"
+          pnpm approve-builds @swc/core sharp esbuild || true
 
-      # 6️⃣ Instalar dependencias con retry y registry explícito
+      # 6) Instalar dependencias con retry y registry explícito
       - name: Install Dependencies with Retry
         run: |
           set -e
-          echo "🔹 Configurando registry pnpm"
           pnpm config set registry https://registry.npmjs.org/
           RETRIES=3
           for i in $(seq 1 $RETRIES); do
-            echo "🔹 Attempt $i of $RETRIES..."
-            if pnpm install --frozen-lockfile --prefer-offline; then
-              echo "✅ Dependencias instaladas correctamente"
+            echo "Attempt $i of $RETRIES..."
+            if pnpm install --frozen-lockfile; then
+              echo "✅ Dependencias instaladas"
               break
+            fi
+            if [ "$i" -lt "$RETRIES" ]; then
+              echo "Reintentando en 15s..."
+              sleep 15
             else
-              echo "⚠ pnpm install falló en intento $i"
-              if [ "$i" -lt "$RETRIES" ]; then
-                echo "⏳ Reintentando en 15 segundos..."
-                sleep 15
-              else
-                echo "❌ No se pudo instalar dependencias después de $RETRIES intentos"
-                exit 1
-              fi
+              echo "❌ No se pudo instalar dependencias"
+              exit 1
             fi
           done
 
-      # 7️⃣ Configurar proyecto Vercel
-      - name: Configure Vercel Project
-        run: |
-          set -e
-          echo "🔹 Configurando proyecto Vercel"
-          rm -rf .vercel || true
-          echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}" >> $GITHUB_ENV
-          echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }}" >> $GITHUB_ENV
-          echo "VERCEL_PROJECT_NAME=lasfloresdelaimprenta-www" >> $GITHUB_ENV
-          echo "✅ Proyecto configurado"
-
-      # 8️⃣ Pull variables de Vercel
-      - name: Pull Vercel Environment Information
-        run: |
-          set -e
-          echo "🔹 Obteniendo variables de entorno de Vercel"
-          VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }} VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }} vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --project=lasfloresdelaimprenta-www
-          echo "✅ Variables de entorno obtenidas"
-
-      # 9️⃣ Crear archivo .env.production
+      # 7) Crear .env.production para Next.js (apps/www)
       - name: Create .env.production
         run: |
           set -e
-          echo "🔹 Creando .env.production"
-          echo "DB_URL=${{ secrets.DB_URL }}" > apps/www/.env.production
-          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> apps/www/.env.production
-          echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}" >> apps/www/.env.production
-          echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}" >> apps/www/.env.production
-          echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}" >> apps/www/.env.production
-          echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}" >> apps/www/.env.production
-          echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}" >> apps/www/.env.production
-          echo "APP_URL=${{ secrets.APP_URL }}" >> apps/www/.env.production
-          echo "S3_URL=${{ secrets.S3_URL }}" >> apps/www/.env.production
-          echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> apps/www/.env.production
-          echo "S3_KEY_ID=${{ secrets.S3_KEY_ID }}" >> apps/www/.env.production
-          echo "S3_SECRET=${{ secrets.S3_SECRET }}" >> apps/www/.env.production
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> apps/www/.env.production
-          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> apps/www/.env.production
-          echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> apps/www/.env.production
-          echo "NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}" >> apps/www/.env.production
-          echo "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.MEDUSA_PUBLISHABLE_KEY }}" >> apps/www/.env.production
-          echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}" >> apps/www/.env.production
-          echo "✅ .env.production creado"
+          mkdir -p apps/www
+          {
+            echo "DB_URL=${{ secrets.DB_URL }}"
+            echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}"
+            echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}"
+            echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}"
+            echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}"
+            echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}"
+            echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}"
+            echo "APP_URL=${{ secrets.APP_URL }}"
+            echo "S3_URL=${{ secrets.S3_URL }}"
+            echo "S3_BUCKET=${{ secrets.S3_BUCKET }}"
+            echo "S3_KEY_ID=${{ secrets.S3_KEY_ID }}"
+            echo "S3_SECRET=${{ secrets.S3_SECRET }}"
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
+            echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}"
+            echo "NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}"
+            echo "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.MEDUSA_PUBLISHABLE_KEY }}"
+            echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}"
+          } > apps/www/.env.production
 
-      # 🔟 Build proyecto
+      # 8) Verificar CLI (sin instalar global)
+      - name: Check Vercel CLI version
+        run: npx -y vercel@latest --version
+
+      # 9) LINK (acá sí se usa --project) al subdirectorio apps/www
+      - name: Link Vercel project (monorepo)
+        run: >
+          rm -rf apps/www/.vercel || true &&
+          npx -y vercel@latest link --yes
+          --project lasfloresdelaimprenta-www
+          --token ${{ secrets.VERCEL_TOKEN }}
+          --cwd apps/www
+
+      # 10) PULL (sin --project), apuntando al cwd de la app
+      - name: Pull Vercel Environment (production)
+        run: >
+          npx -y vercel@latest pull --yes
+          --environment=production
+          --token ${{ secrets.VERCEL_TOKEN }}
+          --cwd apps/www
+
+      # 11) Build (filtrando el paquete de la app)
       - name: Build Project
-        run: |
-          set -e
-          echo "🔹 Iniciando build del proyecto"
-          pnpm -F apps/www build
-          echo "✅ Build completado"
+        run: pnpm --filter ./apps/www build
 
-      # 1️⃣1️⃣ Deploy a Vercel
-      - name: Deploy Project to Vercel
-        run: |
-          set -e
-          echo "🔹 Iniciando deploy a Vercel"
-          VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }} VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }} vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --project=lasfloresdelaimprenta-www
-          echo "✅ Deploy finalizado"
+      # 12) Deploy (sin --project), apuntando al cwd de la app
+      - name: Deploy to Vercel (prod)
+        run: >
+          npx -y vercel@latest deploy --prod
+          --token ${{ secrets.VERCEL_TOKEN }}
+          --cwd apps/www
