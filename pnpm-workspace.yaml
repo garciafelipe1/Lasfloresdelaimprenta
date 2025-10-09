@@ -1,3 +1,12 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - apps/*
+  - packages/*
+
+ignoredBuiltDependencies:
+  - '@medusajs/telemetry'
+  - '@swc/core'
+  - '@tailwindcss/oxide'
+  - esbuild
+  - msgpackr-extract
+  - sharp
+  - unrs-resolver
