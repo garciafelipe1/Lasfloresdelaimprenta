@@ -25,6 +25,7 @@ jobs:
           node-version: 20
           cache: pnpm
 
+      # ✅ instala pnpm (esto evita el "Unable to locate pnpm")
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -33,11 +34,13 @@ jobs:
       - name: Approve native builds (optional)
         run: pnpm approve-builds @swc/core sharp esbuild || true
 
-      - name: Install Dependencies (root, uses root lockfile)
+      # ✅ instala deps en la RAÍZ (usa pnpm-lock.yaml raíz)
+      - name: Install Dependencies (root)
         run: |
           pnpm config set registry https://registry.npmjs.org/
           pnpm install --frozen-lockfile
 
+      # genera .env.production para la app Next.js
       - name: Create .env.production for Next.js (apps/www)
         run: |
           mkdir -p apps/www
@@ -65,12 +68,14 @@ jobs:
       - name: Check Vercel CLI version
         run: npx -y vercel@latest --version
 
-      # Con ORG/PROJECT en env NO hace falta 'vercel link'
+      # con ORG/PROJECT env ya no hace falta 'vercel link'
       - name: Pull Vercel Environment (production)
         run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build (monorepo root, filtra app)
+      # ✅ build filtrando la app, pero desde la raíz
+      - name: Build (apps/www)
         run: pnpm -F apps/www build
 
-      - name: Deploy to Vercel (prod, desde raíz)
+      # ✅ deploy desde la raíz (sin --cwd)
+      - name: Deploy to Vercel (prod)
         run: npx -y vercel@latest deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
