@@ -13,65 +13,33 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      # Si tenés token de Team y hay varias orgs, agregá VERCEL_TEAM_SLUG como secreto y usá --scope en el "link"
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
     steps:
-      # 1) Checkout
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2) Node 20
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: pnpm
 
-      # 3) pnpm 10.17.x
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 10.17.1
 
-      # 4) Cache de la store de pnpm
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-v2
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      # 5) (OPCIONAL) Aprobar builds nativos si tuviste el banner de "Ignored build scripts"
       - name: Approve native builds (optional)
-        run: |
-          pnpm approve-builds @swc/core sharp esbuild || true
+        run: pnpm approve-builds @swc/core sharp esbuild || true
 
-      # 6) Instalar dependencias con retry y registry explícito
-      - name: Install Dependencies with Retry
+      - name: Install Dependencies (root, uses root lockfile)
         run: |
-          set -e
           pnpm config set registry https://registry.npmjs.org/
-          RETRIES=3
-          for i in $(seq 1 $RETRIES); do
-            echo "Attempt $i of $RETRIES..."
-            if pnpm install --frozen-lockfile; then
-              echo "✅ Dependencias instaladas"
-              break
-            fi
-            if [ "$i" -lt "$RETRIES" ]; then
-              echo "Reintentando en 15s..."
-              sleep 15
-            else
-              echo "❌ No se pudo instalar dependencias"
-              exit 1
-            fi
-          done
+          pnpm install --frozen-lockfile
 
-      # 7) Crear .env.production para Next.js (apps/www)
-      - name: Create .env.production
+      - name: Create .env.production for Next.js (apps/www)
         run: |
-          set -e
           mkdir -p apps/www
           {
             echo "DB_URL=${{ secrets.DB_URL }}"
@@ -94,34 +62,15 @@ jobs:
             echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}"
           } > apps/www/.env.production
 
-      # 8) Verificar CLI (sin instalar global)
       - name: Check Vercel CLI version
         run: npx -y vercel@latest --version
 
-      # 9) LINK (acá sí se usa --project) al subdirectorio apps/www
-      - name: Link Vercel project (monorepo)
-        run: >
-          rm -rf apps/www/.vercel || true &&
-          npx -y vercel@latest link --yes
-          --project lasfloresdelaimprenta-www
-          --token ${{ secrets.VERCEL_TOKEN }}
-          --cwd apps/www
-
-      # 10) PULL (sin --project), apuntando al cwd de la app
+      # Con ORG/PROJECT en env NO hace falta 'vercel link'
       - name: Pull Vercel Environment (production)
-        run: >
-          npx -y vercel@latest pull --yes
-          --environment=production
-          --token ${{ secrets.VERCEL_TOKEN }}
-          --cwd apps/www
+        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 11) Build (filtrando el paquete de la app)
-      - name: Build Project
-        run: pnpm --filter ./apps/www build
+      - name: Build (monorepo root, filtra app)
+        run: pnpm -F apps/www build
 
-      # 12) Deploy (sin --project), apuntando al cwd de la app
-      - name: Deploy to Vercel (prod)
-        run: >
-          npx -y vercel@latest deploy --prod
-          --token ${{ secrets.VERCEL_TOKEN }}
-          --cwd apps/www
+      - name: Deploy to Vercel (prod, desde raíz)
+        run: npx -y vercel@latest deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
