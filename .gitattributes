@@ -1,0 +1,6 @@
+* text=auto
+
+# Forzar LF en archivos sensibles a EOL
+pnpm-lock.yaml text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
