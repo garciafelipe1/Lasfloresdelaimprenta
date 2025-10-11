@@ -89,10 +89,6 @@ jobs:
       - name: Vercel pull (prod)
         run: npx -y vercel@latest pull --yes --environment=production --cwd apps/www --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 10) Build local en apps/www (desde RAÍZ con --cwd)
-      - name: Vercel build (prod)
-        run: npx -y vercel@latest build --prod --cwd apps/www
-
-      # 11) Deploy prebuilt (usa el build local de arriba)
-      - name: Vercel deploy (prebuilt, prod)
-        run: npx -y vercel@latest deploy --prebuilt --prod --cwd apps/www --token=${{ secrets.VERCEL_TOKEN }}
+      # 10) 
+      - name: Vercel deploy (cloud build, prod)
+        run: npx -y vercel@latest deploy --prod --cwd apps/www --yes --token=${{ secrets.VERCEL_TOKEN }}
