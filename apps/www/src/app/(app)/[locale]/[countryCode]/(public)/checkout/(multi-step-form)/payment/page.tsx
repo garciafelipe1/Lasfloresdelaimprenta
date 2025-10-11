@@ -22,7 +22,7 @@ export default async function CheckoutPaymentStepPage() {
       <Card>
         <CardHeader>
           <CardTitle>Opciones de pago</CardTitle>
-          Console.log(paymentMethods);
+          
         </CardHeader>
         <CardContent>
           <PaymentForms

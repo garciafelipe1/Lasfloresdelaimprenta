@@ -88,10 +88,18 @@ jobs:
       # 9) Pull de envs (desde la RAÍZ; con ORG/PROJECT en env no hace falta 'vercel link')
       - name: Pull Vercel Environment (production)
         run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: List workspace
+        run: pnpm -r list  
+
+      - name: Check Next.js in apps/www
+        run: node -e "console.log(require('./apps/www/package.json').dependencies?.next || require('./apps/www/package.json').devDependencies?.next || 'next not found')"  
 
       # 10) Build de la app desde la raíz (filtrada)
       - name: Build (apps/www)
-        run: pnpm -F apps/www build
+        run: |
+          set -e
+          pnpm --filter "./apps/www" build || (echo "❌ No matcheó ./apps/www"; pnpm -r list; exit 1)
 
       # 11) Deploy desde la raíz (sin --cwd)
       - name: Deploy to Vercel (prod)
