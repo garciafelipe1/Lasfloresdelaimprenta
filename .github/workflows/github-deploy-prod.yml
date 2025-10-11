@@ -87,8 +87,8 @@ jobs:
 
       # 9) Pull de envs apuntando a apps/www (desde RAÍZ con --cwd)
       - name: Vercel pull (prod)
-        run: npx -y vercel@latest pull --yes --environment=production --cwd apps/www --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       # 10) 
       - name: Vercel deploy (cloud build, prod)
-        run: npx -y vercel@latest deploy --prod --cwd apps/www --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
