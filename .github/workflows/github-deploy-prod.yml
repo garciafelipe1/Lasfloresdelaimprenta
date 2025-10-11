@@ -85,18 +85,14 @@ jobs:
       - name: Check Vercel CLI version
         run: npx -y vercel@latest --version
 
-      # === SECCIÓN VERCEL (dentro de apps/www) ===
-      # 9) Pull de envs en apps/www
+      # 9) Pull de envs apuntando a apps/www (desde RAÍZ con --cwd)
       - name: Vercel pull (prod)
-        working-directory: apps/www
-        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest pull --yes --environment=production --cwd apps/www --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 10) Build local con Vercel (detecta Next en apps/www)
+      # 10) Build local en apps/www (desde RAÍZ con --cwd)
       - name: Vercel build (prod)
-        working-directory: apps/www
-        run: npx -y vercel@latest build --prod
+        run: npx -y vercel@latest build --prod --cwd apps/www
 
-      # 11) Deploy prebuilt (usa el build local)
+      # 11) Deploy prebuilt (usa el build local de arriba)
       - name: Vercel deploy (prebuilt, prod)
-        working-directory: apps/www
-        run: npx -y vercel@latest deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest deploy --prebuilt --prod --cwd apps/www --token=${{ secrets.VERCEL_TOKEN }}
