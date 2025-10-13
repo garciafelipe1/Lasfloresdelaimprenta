@@ -19,7 +19,7 @@
     "deploy": "cross-env vercel build --target=production && vercel deploy --prod --prebuilt"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^3.10.0",
     "@libsql/client": "^0.14.0",
     "@medusajs/js-sdk": "2.8.3",
     "@mercadopago/sdk-react": "1.0.3",
