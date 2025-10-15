@@ -1,42 +1,50 @@
-# -------- Builder Stage --------
-FROM node:20-alpine AS builder
+# -------- Base (builder) --------
+FROM node:20-alpine AS base
+
+# Paquetes útiles para dependencias nativas / OpenSSL (Prisma, etc.)
+RUN apk add --no-cache libc6-compat openssl python3 make g++
 
 WORKDIR /app
 
-RUN npm install -g pnpm
+# Usar pnpm via corepack (mejor que instalar global)
+RUN corepack enable
 
-# Copy dependency files
-COPY package.json ./
+# Copia mínima para cache de instalación
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/store/package.json apps/store/
 
-# Install dependencies
-RUN pnpm install
+# Instalar deps del monorepo respetando el lockfile
+RUN pnpm install --frozen-lockfile
 
-# Copy source
+# Copiar el resto del repo (código)
 COPY . .
 
-# Build Medusa app
-RUN cat package.json && pnpm build
+# Build SOLO la app de store (Medusa)
+RUN pnpm -F ./apps/store build
 
-# -------- Runtime Stage --------
+# -------- Runtime --------
 FROM node:20-alpine AS runtime
-
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN apk add --no-cache libc6-compat openssl && corepack enable
 
-# Copy only built output and minimal project metadata
-COPY --from=builder /app/.medusa ./.medusa
-
-# Set production env
 ENV NODE_ENV=production
 
+# Copiar el resultado del build. Algunas plantillas de Medusa generan .medusa
+# dentro de apps/store; otras en la raíz. Cubrimos ambos casos.
+# Preferencia: si existe en apps/store, úsalo; si no, copia el de raíz.
+# (El segundo COPY no pisa si no existe el primero)
+COPY --from=base /app/apps/store/.medusa /app/.medusa
+COPY --from=base /app/.medusa /app/.medusa
+
+# Instalar deps de runtime dentro del server generado
 WORKDIR /app/.medusa/server
+RUN pnpm install --prod
 
-RUN pnpm install
-
-# Expose port
+# Exponer puerto típico de Medusa
 EXPOSE 9000
 
-# Default: run predeploy + start
+# Nota: si tu build no genera .medusa/server, ajustá el WORKDIR y el CMD.
+# El siguiente CMD corre migraciones/seed opcional y levanta el server.
+# Variables esperadas (inyectalas al run/deploy): ADMIN_EMAIL, ADMIN_PASSWORD
 CMD ["sh", "-c", "pnpm predeploy && pnpm seed && pnpm medusa user -e \"$ADMIN_EMAIL\" -p \"$ADMIN_PASSWORD\" || true && pnpm start"]
-
