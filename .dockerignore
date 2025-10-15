@@ -1,0 +1,22 @@
+# Node / Next
+node_modules
+.next
+out
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+packages-lock.yaml
+
+# VCS / CI
+.git
+.github
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Entornos
+.env
+.env.*
+!.env.example

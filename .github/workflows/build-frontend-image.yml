@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     paths:
       - "apps/www/**"
-      - "Dockerfile"                  # <- dispara si cambia el Dockerfile raíz
+      - "Dockerfile"
       - ".github/workflows/build-frontend-image.yml"
   workflow_dispatch:
 
@@ -13,9 +13,15 @@ permissions:
   contents: read
   packages: write
 
+# Evita runs simultáneos por el mismo ref
+concurrency:
+  group: build-frontend-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   Deploy-Production:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v3
 
@@ -26,8 +32,9 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      # Si solo publicas amd64, QEMU es innecesario (puedes borrar este paso)
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -39,6 +46,14 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile           # <- volvemos a la raíz
+          file: ./Dockerfile
+          platforms: linux/amd64       # <- clave para evitar binarios nativos incompatibles
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/floreria-nextjs:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/floreria-nextjs:latest
+            ghcr.io/${{ github.repository_owner }}/floreria-nextjs:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # Si necesitas variables públicas en build de Next:
+          # build-args: |
+          #   NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ vars.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
