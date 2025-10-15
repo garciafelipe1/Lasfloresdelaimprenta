@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - "apps/www/**"
+      - "Dockerfile"                  # <- dispara si cambia el Dockerfile raíz
       - ".github/workflows/build-frontend-image.yml"
   workflow_dispatch:
 
@@ -25,18 +26,19 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # QEMU es opcional si solo construís amd64; lo dejamos por si necesitás multi-arch
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Assert Dockerfile exists
+        run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
+
       - name: Build and push (Next.js)
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./apps/www/Dockerfile   # <-- Asegurate de tener este Dockerfile; si está en otra ruta, actualizá este valor
+          file: ./Dockerfile           # <- volvemos a la raíz
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/floreria-nextjs:latest
-          # platforms: linux/amd64,linux/arm64   # descomentá si querés multi-arch

@@ -4,3 +4,9 @@ node_modules/
 .env
 .env.template
 .gitignore
+**/.next
+**/dist
+**/.turbo
+**/.vercel
+**/.cache
+**/.DS_Store
