@@ -6,7 +6,6 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 
-# pnpm + compat libs
 RUN apk add --no-cache libc6-compat bash curl \
   && corepack enable \
   && corepack prepare pnpm@10.17.1 --activate
@@ -19,12 +18,21 @@ ENV NEXT_TELEMETRY_DISABLED=1
 FROM base AS deps
 WORKDIR /app
 
-# Copiamos todo el repo para resolver workspaces sin dolores de cabeza
-# (si luego quieres optimizar caché, podemos copiar solo los package.json por workspace)
+# Copia explícita del lockfile + manifests mínimos
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+# Si por .dockerignore no llega el lock, falla acá con mensaje claro
+RUN test -f pnpm-lock.yaml || (echo "❌ Falta pnpm-lock.yaml en el contexto. Asegúrate de no ignorarlo en .dockerignore y de tenerlo commiteado." && exit 1)
+
+# Pre-descarga al store basándose en el lock (mejor caché)
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm fetch --frozen-lockfile
+
+# Ahora sí: copia TODO el repo (para workspaces)
 COPY . .
 
-# Instala TODAS las deps del monorepo (incluye devDeps, necesarias para build)
-RUN pnpm install --frozen-lockfile
+# Instala enlazando desde la store (reproducible y rápido)
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --offline
 
 ########################
 # 3) Build de apps/www
@@ -32,17 +40,16 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 ENV NODE_ENV=production
-# El flag de memoria debe ir en NODE_OPTIONS, no como argumento de pnpm
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Traemos código y node_modules resueltos
+# Trae deps y código ya resuelto
 COPY --from=deps /app ./
 
-# IMPORTANTE: tu Next debe tener output:'standalone' en apps/www/next.config.js
+# IMPORTANTE: Next con output:'standalone' en apps/www/next.config.js
 RUN pnpm --filter ./apps/www build --no-lint
 
 ########################
-# 4) Runtime mínimo
+# 4) Runtime
 ########################
 FROM node:20-alpine AS runner
 WORKDIR /app
@@ -51,14 +58,13 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Paquete del SO que a veces requiere sharp/swc
 RUN apk add --no-cache libc6-compat
 
 # Usuario no root
 RUN addgroup --system --gid 1001 nodejs \
   && adduser  --system --uid 1001 nextjs
 
-# Copiamos solo lo necesario desde el build "standalone"
+# Sólo lo necesario del standalone de Next
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/public ./apps/www/public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/www/.next/static ./apps/www/.next/static
