@@ -21,7 +21,10 @@ concurrency:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-24.04
-
+    environment: TOKEN_VERCEL
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v3
 
@@ -41,17 +44,33 @@ jobs:
 
       - name: Assert Dockerfile exists
         run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
-
-      - name: Build and push (Next.js)
+      - name: Validate required secrets
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_TOKEN: ${{ secrets.DB_TOKEN }}
+          MERCADO_PAGO_TOKEN: ${{ secrets.MERCADO_PAGO_TOKEN }}
+          APP_URL: ${{ secrets.APP_URL }}
+          S3_URL: ${{ secrets.S3_URL }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_KEY_ID: ${{ secrets.S3_KEY_ID }}
+          S3_SECRET: ${{ secrets.S3_SECRET }}   # o S3_SECRET_ACCESS_KEY
+        run: |
+          set -e
+          for s in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET; do
+            if [ -z "${!s}" ]; then
+              echo "::error::Missing secret: $s"
+              exit 1
+            fi
+          done
+      - name: Build & Push image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64       # <- clave para evitar binarios nativos incompatibles
+          platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/floreria-nextjs:latest
-            ghcr.io/${{ github.repository_owner }}/floreria-nextjs:${{ github.sha }}
+            ghcr.io/garciafelipe1/floreria-nextjs:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           secrets: |
@@ -62,7 +81,7 @@ jobs:
             S3_URL=${{ secrets.S3_URL }}
             S3_BUCKET=${{ secrets.S3_BUCKET }}
             S3_KEY_ID=${{ secrets.S3_KEY_ID }}
-            S3_SECRET=${{ secrets.S3_SECRET }}
+            S3_SECRET=${{ secrets.S3_SECRET }}   # o S3_SECRET_ACCESS_KEY
           # Si necesitas variables públicas en build de Next:
           # build-args: |
           #   NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ vars.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
