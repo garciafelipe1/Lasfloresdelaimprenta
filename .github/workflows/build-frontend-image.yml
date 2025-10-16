@@ -54,6 +54,13 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/floreria-nextjs:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          secrets: |
+            id=DB_URL,env=DB_URL
+            id=DB_TOKEN,env=DB_TOKEN
+            id=MERCADO_PAGO_TOKEN,env=MERCADO_PAGO_TOKEN
+            id=APP_URL,env=APP_URL
+            id=S3_URL,env=S3_URL
+            id=S3_BUCKET,env=S3_BUCKET
           # Si necesitas variables públicas en build de Next:
           # build-args: |
           #   NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ vars.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}

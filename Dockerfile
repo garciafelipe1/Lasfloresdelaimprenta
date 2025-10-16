@@ -46,7 +46,19 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 COPY --from=deps /app ./
 
 # IMPORTANTE: Next con output:'standalone' en apps/www/next.config.js
-RUN pnpm --filter ./apps/www build --no-lint
+RUN --mount=type=secret,id=DB_URL \
+    --mount=type=secret,id=DB_TOKEN \
+    --mount=type=secret,id=MERCADO_PAGO_TOKEN \
+    --mount=type=secret,id=APP_URL \
+    --mount=type=secret,id=S3_URL \
+    --mount=type=secret,id=S3_BUCKET \
+    export DB_URL="$(cat /run/secrets/DB_URL)" && \
+    export DB_TOKEN="$(cat /run/secrets/DB_TOKEN)" && \
+    export MERCADO_PAGO_TOKEN="$(cat /run/secrets/MERCADO_PAGO_TOKEN)" && \
+    export APP_URL="$(cat /run/secrets/APP_URL)" && \
+    export S3_URL="$(cat /run/secrets/S3_URL)" && \
+    export S3_BUCKET="$(cat /run/secrets/S3_BUCKET)" && \
+    pnpm --filter ./apps/www build --no-lint
 
 ########################
 # 4) Runtime
