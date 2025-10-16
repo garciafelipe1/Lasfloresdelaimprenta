@@ -52,12 +52,20 @@ RUN --mount=type=secret,id=DB_URL \
     --mount=type=secret,id=APP_URL \
     --mount=type=secret,id=S3_URL \
     --mount=type=secret,id=S3_BUCKET \
+    --mount=type=secret,id=S3_KEY_ID \
+    --mount=type=secret,id=S3_SECRET \
+    # (opcional) chequeo sin revelar valores:
+    for v in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET; do \
+      [ -f "/run/secrets/$v" ] || { echo "Missing secret: $v"; exit 1; }; \
+    done && \
     export DB_URL="$(cat /run/secrets/DB_URL)" && \
     export DB_TOKEN="$(cat /run/secrets/DB_TOKEN)" && \
     export MERCADO_PAGO_TOKEN="$(cat /run/secrets/MERCADO_PAGO_TOKEN)" && \
     export APP_URL="$(cat /run/secrets/APP_URL)" && \
     export S3_URL="$(cat /run/secrets/S3_URL)" && \
     export S3_BUCKET="$(cat /run/secrets/S3_BUCKET)" && \
+    export S3_KEY_ID="$(cat /run/secrets/S3_KEY_ID)" && \
+    export S3_SECRET="$(cat /run/secrets/S3_SECRET)" && \
     pnpm --filter ./apps/www build --no-lint
 
 ########################
