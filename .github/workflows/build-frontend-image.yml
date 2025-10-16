@@ -13,7 +13,6 @@ permissions:
   contents: read
   packages: write
 
-# Evita runs simultáneos por el mismo ref
 concurrency:
   group: build-frontend-${{ github.ref }}
   cancel-in-progress: true
@@ -21,6 +20,7 @@ concurrency:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-24.04
+    # (opcional) environment de GitHub para agrupar secretos
     environment: TOKEN_VERCEL
     permissions:
       contents: read
@@ -35,15 +35,12 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Si solo publicas amd64, QEMU es innecesario (puedes borrar este paso)
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Assert Dockerfile exists
         run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
+
       - name: Validate required secrets
         env:
           DB_URL: ${{ secrets.DB_URL }}
@@ -62,6 +59,7 @@ jobs:
               exit 1
             fi
           done
+
       - name: Build & Push image
         uses: docker/build-push-action@v6
         with:
@@ -70,7 +68,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/garciafelipe1/floreria-nextjs:latest
+            ghcr.io/${{ github.repository_owner }}/floreria-nextjs:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           secrets: |
@@ -82,6 +80,6 @@ jobs:
             S3_BUCKET=${{ secrets.S3_BUCKET }}
             S3_KEY_ID=${{ secrets.S3_KEY_ID }}
             S3_SECRET=${{ secrets.S3_SECRET }}
-          # Si necesitas variables públicas en build de Next:
+          # Si necesitas exponer variables públicas a Next en build (no secretos):
           # build-args: |
           #   NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ vars.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
