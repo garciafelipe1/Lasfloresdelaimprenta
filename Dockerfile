@@ -46,20 +46,23 @@ RUN --mount=type=secret,id=DB_URL \
       pnpm -C apps/www build'
 
 # ---------- runtime ----------
-FROM base AS runner
+FROM node:20-alpine AS runner
 ENV NODE_ENV=production
-# usuario no-root
-RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
-USER nextjs
+
+# seguimos como root por ahora
 WORKDIR /app
 
-# Copiá el bundle standalone completo (respeta subcarpetas).
+# Copiá el bundle standalone y assets
 COPY --from=builder /app/apps/www/.next/standalone ./
-# Assets estáticos y public de la app
 COPY --from=builder /app/apps/www/.next/static ./apps/www/.next/static
-COPY --from=builder /app/apps/www/public ./apps/www/public
+COPY --from=builder /app/apps/www/public       ./apps/www/public
+
+# crear usuario no-root y dar permisos
+RUN addgroup -S nextjs && adduser -S nextjs -G nextjs \
+  && chown -R nextjs:nextjs /app
+
+USER nextjs
 
 EXPOSE 3000
-# El server.js queda en apps/www dentro del bundle standalone
 WORKDIR /app/apps/www
 CMD ["node", "server.js"]
