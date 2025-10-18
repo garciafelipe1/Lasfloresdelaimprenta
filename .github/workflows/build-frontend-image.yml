@@ -43,6 +43,8 @@ jobs:
 
       - name: Validate required secrets
         env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_RUNTIME: nodejs
           DB_URL: ${{ secrets.DB_URL }}
           DB_TOKEN: ${{ secrets.DB_TOKEN }}
           MERCADO_PAGO_TOKEN: ${{ secrets.MERCADO_PAGO_TOKEN }}
