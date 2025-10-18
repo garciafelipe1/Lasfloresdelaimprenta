@@ -20,14 +20,27 @@ export default withNextIntl(
     eslint: { ignoreDuringBuilds: true },
     typescript: { ignoreBuildErrors: true },
 
-    // 👉 standalone + monorepo
     output: 'standalone',
-    // raíz del repo desde apps/www (subí 2 niveles)
     outputFileTracingRoot: path.resolve(__dirname, '../../'),
 
     experimental: {
+      // @ts-expect-error - opción no tipada en Next 15 pero funcional
       outputFileTracingIncludes: {
-        '/(api|admin)?': [
+        '/*': [
+          '../../packages/**',
+          '../../payload/**',
+          '../../*/.json',
+          '../../*/.yaml',
+          '../../*/.yml',
+        ],
+        '/api/*': [
+          '../../packages/**',
+          '../../payload/**',
+          '../../*/.json',
+          '../../*/.yaml',
+          '../../*/.yml',
+        ],
+        '/admin/*': [
           '../../packages/**',
           '../../payload/**',
           '../../*/.json',

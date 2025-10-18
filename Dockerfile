@@ -56,7 +56,7 @@ WORKDIR /app
 COPY --from=builder /app/apps/www/.next/standalone ./
 COPY --from=builder /app/apps/www/.next/static ./apps/www/.next/static
 COPY --from=builder /app/apps/www/public       ./apps/www/public
-
+RUN ls -la /app/apps/www && ls -la /app/apps/www/.next && ls -la /app/apps/www/.next/static || true
 # crear usuario no-root y dar permisos
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs \
   && chown -R nextjs:nextjs /app
