@@ -1,33 +1,27 @@
+// apps/www/next.config.ts (o .js/.mjs)
 import { withPayload } from '@payloadcms/next/withPayload'
-import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
-import path from 'path'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url)
+const _dirname = path.dirname(__filename)
 
 const withNextIntl = createNextIntlPlugin()
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   output: 'standalone',
+  // 👇 importante: raíz ABSOLUTA del repo (desde apps/www subes 2 niveles)
+  outputFileTracingRoot: path.resolve(__dirname, '../../'),
 
-  // Next.js 15 → ya no va dentro de "experimental"
-  outputFileTracingRoot: path.join(__dirname, '../../'),
-
-  eslint: {
-    // ✅ Evita que ESLint rompa el deploy en Vercel/Docker
-    ignoreDuringBuilds: true,
-  },
+  eslint: { ignoreDuringBuilds: true },
 
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: '**' },
+      { protocol: 'http', hostname: '**' },
     ],
   },
-}
+} as const
 
 export default withPayload(withNextIntl(nextConfig))

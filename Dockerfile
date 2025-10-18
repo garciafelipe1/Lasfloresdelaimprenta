@@ -68,7 +68,7 @@ RUN --mount=type=secret,id=DB_URL \
            S3_BUCKET="$(cat /run/secrets/S3_BUCKET)" \
            S3_KEY_ID="$(cat /run/secrets/S3_KEY_ID)" \
            S3_SECRET="$(cat /run/secrets/S3_SECRET)" && \
-    pnpm --filter ./apps/www build --no-lint && \
+    pnpm -C apps/www build --no-lint && \
     # 🔎 Falla rápido si no se generó el standalone
     ls -la apps/www/.next || true && \
     test -f apps/www/.next/standalone/apps/www/server.js || \
