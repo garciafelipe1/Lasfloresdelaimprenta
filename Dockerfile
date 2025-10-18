@@ -10,17 +10,20 @@ WORKDIR /app
 
 # ---------- deps ----------
 FROM base AS deps
-# toolchain para compilar deps nativas si hace falta
 RUN apk add --no-cache --virtual .build-deps python3 make g++ pkgconfig
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-# prefetch del store (descarga lo necesario para linux-musl)
+
+# Trae TODAS las dependencias (prod + dev) al store
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
-    pnpm fetch --prod
-# copia del monorepo completo
+    pnpm fetch
+
+# Copia el monorepo completo
 COPY . .
-# instalación offline usando el store ya “prefetcheado”
+
+# Instala offline usando el store ya poblado
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --offline
+
 RUN apk del .build-deps
 
 # ---------- build ----------
