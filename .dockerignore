@@ -20,3 +20,4 @@ Dockerfile
 .env.*
 !.env.example
 .turbo
+.env*

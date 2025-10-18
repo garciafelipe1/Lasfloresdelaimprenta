@@ -28,9 +28,11 @@ RUN apk del .build-deps
 
 # ---------- build ----------
 FROM base AS builder
+ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app ./
 
-# Exportá los secretos a variables de entorno y compilá
+# Exporta secretos necesarios y compila la app
+# ⚠️ Agregamos PAYLOAD_SECRET y mapeamos DB_URL -> DATABASE_URL (ajusta a DATABASE_URI si tu setup de Payload lo requiere)
 RUN --mount=type=secret,id=DB_URL \
     --mount=type=secret,id=DB_TOKEN \
     --mount=type=secret,id=MERCADO_PAGO_TOKEN \
@@ -39,30 +41,35 @@ RUN --mount=type=secret,id=DB_URL \
     --mount=type=secret,id=S3_BUCKET \
     --mount=type=secret,id=S3_KEY_ID \
     --mount=type=secret,id=S3_SECRET \
+    --mount=type=secret,id=PAYLOAD_SECRET \
     bash -lc 'set -euo pipefail; \
-      for v in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET; do \
+      for v in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET PAYLOAD_SECRET; do \
         export "$v=$(cat "/run/secrets/$v")"; \
       done; \
+      # Mapear a la variable que esperan las libs:
+      export DATABASE_URL="${DATABASE_URL:-$DB_URL}"; \
+      # Si tu proyecto usa DATABASE_URI (Payload + Drizzle en algunos templates), descomenta la siguiente línea:
+      # export DATABASE_URI="${DATABASE_URI:-$DB_URL}"; \
       pnpm -C apps/www build'
 
 # ---------- runtime ----------
 FROM node:20-alpine AS runner
 ENV NODE_ENV=production
-
-# seguimos como root por ahora
 WORKDIR /app
 
 # Copiá el bundle standalone y assets
 COPY --from=builder /app/apps/www/.next/standalone ./
 COPY --from=builder /app/apps/www/.next/static ./apps/www/.next/static
 COPY --from=builder /app/apps/www/public       ./apps/www/public
+
+# (opcional) listado útil de debug
 RUN ls -la /app/apps/www && ls -la /app/apps/www/.next && ls -la /app/apps/www/.next/static || true
+
 # crear usuario no-root y dar permisos
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs \
   && chown -R nextjs:nextjs /app
 
 USER nextjs
-
 EXPOSE 3000
 WORKDIR /app/apps/www
 CMD ["node", "server.js"]

@@ -1,3 +1,4 @@
+# .github/workflows/build-frontend-image.yml
 name: Build Next.js Docker Image
 
 on:
@@ -20,7 +21,6 @@ concurrency:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-24.04
-    # (opcional) environment de GitHub para agrupar secretos
     environment: TOKEN_VERCEL
     permissions:
       contents: read
@@ -53,9 +53,10 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           S3_KEY_ID: ${{ secrets.S3_KEY_ID }}
           S3_SECRET: ${{ secrets.S3_SECRET }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
         run: |
           set -e
-          for s in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET; do
+          for s in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET PAYLOAD_SECRET; do
             if [ -z "${!s}" ]; then
               echo "::error::Missing secret: $s"
               exit 1
@@ -84,6 +85,7 @@ jobs:
             S3_BUCKET=${{ secrets.S3_BUCKET }}
             S3_KEY_ID=${{ secrets.S3_KEY_ID }}
             S3_SECRET=${{ secrets.S3_SECRET }}
-          # Si necesitas exponer variables públicas a Next en build (no secretos):
+            PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
+          # Si necesitás exponer variables públicas que Next inyecta en build (no secretos):
           # build-args: |
           #   NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ vars.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
