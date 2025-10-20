@@ -28,11 +28,9 @@ RUN apk del .build-deps
 
 # ---------- build ----------
 FROM base AS builder
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1 NEXT_RUNTIME=nodejs
 COPY --from=deps /app ./
 
-# Exporta secretos necesarios y compila la app
-# ⚠️ Agregamos PAYLOAD_SECRET y mapeamos DB_URL -> DATABASE_URL (ajusta a DATABASE_URI si tu setup de Payload lo requiere)
 RUN --mount=type=secret,id=DB_URL \
     --mount=type=secret,id=DB_TOKEN \
     --mount=type=secret,id=MERCADO_PAGO_TOKEN \
@@ -46,10 +44,8 @@ RUN --mount=type=secret,id=DB_URL \
       for v in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET PAYLOAD_SECRET; do \
         export "$v=$(cat "/run/secrets/$v")"; \
       done; \
-      # Mapear a la variable que esperan las libs:
       export DATABASE_URL="${DATABASE_URL:-$DB_URL}"; \
-      # Si tu proyecto usa DATABASE_URI (Payload + Drizzle en algunos templates), descomenta la siguiente línea:
-      # export DATABASE_URI="${DATABASE_URI:-$DB_URL}"; \
+      export DATABASE_URI="${DATABASE_URI:-$DB_URL}"; \
       pnpm -C apps/www build'
 
 # ---------- runtime ----------

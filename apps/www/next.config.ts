@@ -11,43 +11,35 @@ const withNextIntl = createNextIntlPlugin()
 
 export default withNextIntl(
   withPayload({
-    images: {
-      remotePatterns: [
-        { protocol: 'https', hostname: '**' },
-        { protocol: 'http', hostname: '**' },
-      ],
-    },
+    images: { remotePatterns: [{ protocol: 'https', hostname: '*' }, { protocol: 'http', hostname: '*' }] },
     eslint: { ignoreDuringBuilds: true },
     typescript: { ignoreBuildErrors: true },
 
     output: 'standalone',
     outputFileTracingRoot: path.resolve(__dirname, '../../'),
-
-    experimental: {
-      // @ts-expect-error - opción no tipada en Next 15 pero funcional
-      outputFileTracingIncludes: {
-        '/*': [
-          '../../packages/**',
-          '../../payload/**',
-          '../../*/.json',
-          '../../*/.yaml',
-          '../../*/.yml',
-        ],
-        '/api/*': [
-          '../../packages/**',
-          '../../payload/**',
-          '../../*/.json',
-          '../../*/.yaml',
-          '../../*/.yml',
-        ],
-        '/admin/*': [
-          '../../packages/**',
-          '../../payload/**',
-          '../../*/.json',
-          '../../*/.yaml',
-          '../../*/.yml',
-        ],
-      },
+    // 👉 mover fuera de experimental:
+    outputFileTracingIncludes: {
+      '/*': [
+        '../../packages/**',
+        '../../payload/**',
+        '../../*/.json',
+        '../../*/.yaml',
+        '../../*/.yml',
+      ],
+      '/api/*': [
+        '../../packages/**',
+        '../../payload/**',
+        '../../*/.json',
+        '../../*/.yaml',
+        '../../*/.yml',
+      ],
+      '/admin/*': [
+        '../../packages/**',
+        '../../payload/**',
+        '../../*/.json',
+        '../../*/.yaml',
+        '../../*/.yml',
+      ],
     },
   }),
 )
