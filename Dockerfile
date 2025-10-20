@@ -53,21 +53,24 @@ RUN --mount=type=secret,id=DB_URL \
 # ---------- runtime ----------
 FROM node:20-alpine AS runner
 ENV NODE_ENV=production
+ENV PORT=3000 HOSTNAME=0.0.0.0
+
 WORKDIR /app
 
-# Copiá el bundle standalone y assets
-COPY --from=builder /app/apps/www/.next/standalone ./apps/www
+# Copiá el standalone a /app (raíz)
+COPY --from=builder /app/apps/www/.next/standalone ./
+# Copiá assets donde Next los espera
 COPY --from=builder /app/apps/www/.next/static ./apps/www/.next/static
 COPY --from=builder /app/apps/www/public       ./apps/www/public
 
 # (opcional) listado útil de debug
-RUN ls -la /app/apps/www && ls -la /app/apps/www/.next && ls -la /app/apps/www/.next/static || true
+RUN ls -la /app && ls -la /app/apps/www || true
 
-# crear usuario no-root y dar permisos
+# usuario no-root
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs \
   && chown -R nextjs:nextjs /app
-
 USER nextjs
+
 EXPOSE 3000
-WORKDIR /app/apps/www
-CMD ["node", "server.js"]
+# En monorepo, se arranca así:
+CMD ["node", "apps/www/server.js"]
