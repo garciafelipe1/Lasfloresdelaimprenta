@@ -28,6 +28,8 @@ RUN apk del .build-deps
 
 # ---------- build ----------
 FROM base AS builder
+ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ENV NEXT_TELEMETRY_DISABLED=1 NEXT_RUNTIME=nodejs
 COPY --from=deps /app ./
 
@@ -54,7 +56,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 # Copiá el bundle standalone y assets
-COPY --from=builder /app/apps/www/.next/standalone ./
+COPY --from=builder /app/apps/www/.next/standalone ./apps/www
 COPY --from=builder /app/apps/www/.next/static ./apps/www/.next/static
 COPY --from=builder /app/apps/www/public       ./apps/www/public
 
