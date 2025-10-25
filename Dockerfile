@@ -52,6 +52,8 @@ RUN --mount=type=secret,id=DB_URL \
 
 # ---------- runtime ----------
 FROM node:20-alpine AS runner
+ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ENV NODE_ENV=production
 ENV PORT=3000 HOSTNAME=0.0.0.0
 
