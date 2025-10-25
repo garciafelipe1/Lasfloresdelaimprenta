@@ -40,7 +40,13 @@ jobs:
 
       - name: Assert Dockerfile exists
         run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
-
+      - name: Check NEXT_PUBLIC_MEDUSA_BACKEND_URL
+        env:
+          NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }} # o vars.
+        run: |
+          if [ -z "$NEXT_PUBLIC_MEDUSA_BACKEND_URL" ]; then
+            echo "::error::NEXT_PUBLIC_MEDUSA_BACKEND_URL no está definido"; exit 1
+          fi      
       - name: Validate required secrets
         env:
           NEXT_TELEMETRY_DISABLED: 1
@@ -86,5 +92,6 @@ jobs:
             S3_KEY_ID=${{ secrets.S3_KEY_ID }}
             S3_SECRET=${{ secrets.S3_SECRET }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
+            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
           build-args: |
             NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ vars.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
