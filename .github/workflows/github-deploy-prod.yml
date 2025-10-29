@@ -84,13 +84,13 @@ jobs:
           } > apps/www/.env.production
 
       # 8) Vercel CLI (solo para ver versión)
-      # - name: Check Vercel CLI version
-      #   run: npx -y vercel@latest --version
+      - name: Vercel deploy (cloud build, prod)
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+
 
       # # 9) Pull de envs apuntando a apps/www (desde RAÍZ con --cwd)
-      # - name: Vercel pull (prod)
-      #   run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Vercel pull (prod)
+        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # # 10) 
-      # - name: Vercel deploy (cloud build, prod)
-      #   run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Vercel deploy (cloud build, prod)
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
