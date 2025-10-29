@@ -17,28 +17,40 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
     steps:
-      # 1) Checkout
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2) Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3) Setup pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.17.1
 
-      # 4) Install dependencies solo de apps/www
-      - name: Install Dependencies (apps/www)
-        run: pnpm install --filter ./apps/www --frozen-lockfile
+      - name: Compute pnpm store path
+        id: pnpm-store
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      # 5) Crear .env.production para Next.js
-      - name: Create .env.production
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Approve native builds (optional)
+        run: pnpm approve-builds @swc/core sharp esbuild || true
+
+      - name: Install Dependencies (root)
+        run: |
+          pnpm config set registry https://registry.npmjs.org/
+          pnpm install --frozen-lockfile
+
+      - name: Create .env.production for Next.js (apps/www)
         run: |
           mkdir -p apps/www
           {
@@ -64,6 +76,11 @@ jobs:
             echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}"
           } > apps/www/.env.production
 
-      # 6) Deploy a Vercel usando CLI apuntando a apps/www
-      - name: Vercel Deploy
-        run: npx vercel --prod --confirm --token ${{ secrets.VERCEL_TOKEN }} --cwd ./apps/www
+      - name: Check Vercel CLI version
+        run: npx -y vercel@latest --version
+
+      - name: Vercel pull (prod)
+        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Vercel deploy (cloud build, prod)
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
