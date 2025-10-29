@@ -76,6 +76,14 @@ jobs:
             echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}"
           } > apps/www/.env.production
 
+      - name: Create vercel.json to skip Vercel's default install
+        run: |
+          cat << EOF > vercel.json
+          {
+            "installCommand": "echo 'Dependencies installed by GitHub Action; skipping Vercel internal install command.'"
+          }
+          EOF
+
       - name: Check Vercel CLI version
         run: npx -y vercel@latest --version
 
