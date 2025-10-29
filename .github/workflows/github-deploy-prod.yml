@@ -21,43 +21,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2) Node (sin cache de pnpm acá, para evitar el error)
+      # 2) Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3) Instalar pnpm (evita "Unable to locate pnpm")
+      # 3) Setup pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.17.1
 
-      # 4) (Opcional pero recomendado) Cache de la store de pnpm
-      - name: Compute pnpm store path
-        id: pnpm-store
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      # 4) Install dependencies solo de apps/www
+      - name: Install Dependencies (apps/www)
+        run: pnpm install --filter ./apps/www --frozen-lockfile
 
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      # 5) (Opcional) Aprobar builds nativos si fue necesario en el pasado
-      - name: Approve native builds (optional)
-        run: pnpm approve-builds @swc/core sharp esbuild || true
-
-      # 6) Instalar dependencias en la RAÍZ (usa pnpm-lock.yaml raíz)
-      - name: Install Dependencies (root)
-        run: |
-          pnpm config set registry https://registry.npmjs.org/
-          pnpm install --frozen-lockfile
-
-      # 7) Crear .env.production para Next.js (apps/www)
-      - name: Create .env.production for Next.js (apps/www)
+      # 5) Crear .env.production para Next.js
+      - name: Create .env.production
         run: |
           mkdir -p apps/www
           {
@@ -83,14 +64,6 @@ jobs:
             echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}"
           } > apps/www/.env.production
 
-      # 8) Vercel CLI (solo para ver versión)
-      # - name: Check Vercel CLI version
-      #   run: npx -y vercel@latest --version
-
-      # # 9) Pull de envs apuntando a apps/www (desde RAÍZ con --cwd)
-      # - name: Vercel pull (prod)
-      #   run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      # # 10) 
-      # - name: Vercel deploy (cloud build, prod)
-      #   run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+      # 6) Deploy a Vercel usando CLI apuntando a apps/www
+      - name: Vercel Deploy
+        run: npx vercel --prod --confirm --token ${{ secrets.VERCEL_TOKEN }} --cwd ./apps/www
