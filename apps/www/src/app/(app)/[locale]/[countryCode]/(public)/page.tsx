@@ -46,7 +46,6 @@ export default async function Home() {
     <div className='landing'>
       <Hero />
       <Categories />
-      console.log('Generating metadata for product handle:', handle);
       {/* <Suspense fallback={<ExamplesSkeleton />}>
         <Examples />
       </Suspense> */}

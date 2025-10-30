@@ -42,17 +42,13 @@ RUN --mount=type=secret,id=DB_URL \
     --mount=type=secret,id=S3_KEY_ID \
     --mount=type=secret,id=S3_SECRET \
     --mount=type=secret,id=PAYLOAD_SECRET \
-    --mount=type=secret,id=GOOGLE_CLIENT_ID \
-    --mount=type=secret,id=GOOGLE_CLIENT_SECRET \
-    --mount=type=secret,id=MEDUSA_BACKEND_URL \
     bash -lc 'set -euo pipefail; \
-      for v in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET PAYLOAD_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET MEDUSA_BACKEND_URL; do \
+      for v in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET PAYLOAD_SECRET; do \
         export "$v=$(cat "/run/secrets/$v")"; \
       done; \
       export DATABASE_URL="${DATABASE_URL:-$DB_URL}"; \
       export DATABASE_URI="${DATABASE_URI:-$DB_URL}"; \
       pnpm -C apps/www build'
-
 
 # ---------- runtime ----------
 FROM node:20-alpine AS runner

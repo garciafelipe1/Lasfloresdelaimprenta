@@ -17,19 +17,23 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
     steps:
+      # 1) Checkout
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 2) Node (sin cache de pnpm acá, para evitar el error)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      # 3) Instalar pnpm (evita "Unable to locate pnpm")
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.17.1
 
+      # 4) (Opcional pero recomendado) Cache de la store de pnpm
       - name: Compute pnpm store path
         id: pnpm-store
         run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
@@ -39,24 +43,38 @@ jobs:
         with:
           path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
+      # 5) (Opcional) Aprobar builds nativos si fue necesario en el pasado
+      - name: Approve native builds (optional)
+        run: pnpm approve-builds @swc/core sharp esbuild || true
+
+      # 6) Instalar dependencias en la RAÍZ (usa pnpm-lock.yaml raíz)
       - name: Install Dependencies (root)
         run: |
+          pnpm config set registry https://registry.npmjs.org/
           pnpm install --frozen-lockfile
 
+      # 7) Crear .env.production para Next.js (apps/www)
       - name: Create .env.production for Next.js (apps/www)
         run: |
           mkdir -p apps/www
           {
             echo "DB_URL=${{ secrets.DB_URL }}"
-            echo "DB_TOKEN=${{ secrets.DB_TOKEN }}"
-            echo "MERCADO_PAGO_TOKEN=${{ secrets.MERCADO_PAGO_TOKEN }}"
+            echo "DB_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}"
+            echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}"
+            echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}"
+            echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}"
+            echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}"
+            echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}"
+            echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}"
+            echo "MERCADO_PAGO_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}"
             echo "APP_URL=${{ secrets.APP_URL }}"
             echo "S3_URL=${{ secrets.S3_URL }}"
             echo "S3_BUCKET=${{ secrets.S3_BUCKET }}"
             echo "S3_KEY_ID=${{ secrets.S3_KEY_ID }}"
             echo "S3_SECRET=${{ secrets.S3_SECRET }}"
-            echo "PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}"
             echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
             echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
             echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}"
@@ -65,8 +83,14 @@ jobs:
             echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.DEFAULT_REGION }}"
           } > apps/www/.env.production
 
+      # 8) Vercel CLI (solo para ver versión)
+      - name: Vercel deploy (cloud build, prod)
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+
+      # # 9) Pull de envs apuntando a apps/www (desde RAÍZ con --cwd)
       - name: Vercel pull (prod)
-        run: npx -y vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Vercel deploy (cloud build, prod)
-        run: npx -y vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
