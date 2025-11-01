@@ -69,7 +69,6 @@ jobs:
             echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}"
             echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}"
             echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}"
-            echo "MERCADO_PAGO_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}"
             echo "APP_URL=${{ secrets.APP_URL }}"
             echo "S3_URL=${{ secrets.S3_URL }}"
             echo "S3_BUCKET=${{ secrets.S3_BUCKET }}"

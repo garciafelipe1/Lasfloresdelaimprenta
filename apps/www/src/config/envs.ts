@@ -1,5 +1,5 @@
-import 'dotenv/config'
-import { z } from 'zod'
+import "dotenv/config"
+import { z } from "zod"
 
 const envsSchema = z.object({
   SEED: z.coerce.boolean().default(false),
@@ -28,28 +28,30 @@ const envsSchema = z.object({
 export default envsSchema.parse({
   SEED: process.env.SEED,
 
-  // ✅ Acepta ambos nombres (corto y largo)
   MERCADO_PAGO: {
     TOKEN:
       process.env.MP_ACCESS_TOKEN ||
-      process.env.MERCADOPAGO_ACCESS_TOKEN || '',
+      process.env.MERCADOPAGO_ACCESS_TOKEN ||
+      process.env.MERCADO_PAGO_TOKEN ||
+      "",
     WEBHOOK_KEY:
       process.env.MP_WEBHOOK_KEY ||
-      process.env.MERCADOPAGO_WEBHOOK_SECRET || '',
+      process.env.MERCADOPAGO_WEBHOOK_SECRET ||
+      "",
   },
 
-  APP_URL: process.env.APP_URL || '',
+  APP_URL: process.env.APP_URL || "",
   S3: {
-    URL: process.env.S3_URL || '',
-    BUCKET: process.env.S3_BUCKET || '',
-    KEY_ID: process.env.S3_KEY_ID || '',
-    SECRET: process.env.S3_SECRET || '',
+    URL: process.env.S3_URL || "",
+    BUCKET: process.env.S3_BUCKET || "",
+    KEY_ID: process.env.S3_KEY_ID || "",
+    SECRET: process.env.S3_SECRET || "",
   },
   GOOGLE: {
-    CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
-    CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
+    CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
+    CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || "",
   },
-  MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || '',
-  DEFAULT_REGION: process.env.DEFAULT_REGION || 'ar',
-  PAYLOAD_SECRET: process.env.PAYLOAD_SECRET || 'supersecret',
+  MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || "",
+  DEFAULT_REGION: process.env.DEFAULT_REGION || "ar",
+  PAYLOAD_SECRET: process.env.PAYLOAD_SECRET || "supersecret",
 })
