@@ -2,8 +2,8 @@ import 'dotenv/config';
 import { z } from 'zod';
 
 const envsSchema = z.object({
-  DB_URL: z.string(),
-  DB_TOKEN: z.string(),
+  // DB_URL: z.string(),
+  // DB_TOKEN: z.string(),
   SEED: z.coerce.boolean().default(false),
   MERCADO_PAGO: z.object({
     TOKEN: z.string(),
@@ -25,8 +25,8 @@ const envsSchema = z.object({
 });
 
 export default envsSchema.parse({
-  DB_URL: process.env.DATABASE_URI,
-  DB_TOKEN: process.env.DATABASE_AUTH_TOKEN,
+  // DB_URL: process.env.DB_URL,
+  // DB_TOKEN: process.env.DATABASE_AUTH_TOKEN,
   SEED: process.env.SEED,
   MERCADO_PAGO: {
     TOKEN: process.env.MP_ACCESS_TOKEN,
