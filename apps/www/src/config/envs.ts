@@ -25,7 +25,7 @@ const envsSchema = z.object({
 });
 
 export default envsSchema.parse({
-  DB_URL: process.env.DB_URL,
+  DB_URL: process.env.DATABASE_URI,
   DB_TOKEN: process.env.DATABASE_AUTH_TOKEN,
   SEED: process.env.SEED,
   MERCADO_PAGO: {
