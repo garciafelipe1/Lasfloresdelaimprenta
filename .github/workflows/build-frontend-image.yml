@@ -53,7 +53,7 @@ jobs:
           NEXT_RUNTIME: nodejs
           DB_URL: ${{ secrets.DB_URL }}
           DB_TOKEN: ${{ secrets.DB_TOKEN }}
-          MERCADO_PAGO_TOKEN: ${{ secrets.MERCADO_PAGO_TOKEN }}
+          MERCADO_PAGO_TOKEN: ${{ secrets.MP_ACCESS_TOKEN }}
           APP_URL: ${{ secrets.APP_URL }}
           S3_URL: ${{ secrets.S3_URL }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
@@ -68,7 +68,6 @@ jobs:
               exit 1
             fi
           done
-
       - name: Build & Push image
         uses: docker/build-push-action@v6
         env:
@@ -85,7 +84,7 @@ jobs:
           secrets: |
             DB_URL=${{ secrets.DB_URL }}
             DB_TOKEN=${{ secrets.DB_TOKEN }}
-            MERCADO_PAGO_TOKEN=${{ secrets.MERCADO_PAGO_TOKEN }}
+            MERCADO_PAGO_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}
             APP_URL=${{ secrets.APP_URL }}
             S3_URL=${{ secrets.S3_URL }}
             S3_BUCKET=${{ secrets.S3_BUCKET }}

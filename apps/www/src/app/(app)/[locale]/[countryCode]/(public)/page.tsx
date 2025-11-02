@@ -49,7 +49,6 @@ export default async function Home() {
       {/* <Suspense fallback={<ExamplesSkeleton />}>
         <Examples />
       </Suspense> */}
-      console.log('hola');
       <AboutUs />
       <Memberships />
       
