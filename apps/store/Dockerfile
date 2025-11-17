@@ -4,6 +4,10 @@ FROM node:20-bullseye AS base
 # Dependencias nativas necesarias para Prisma / Sharp / bcrypt / etc.
 RUN apt-get update && apt-get install -y \
   python3 \
+  python3-dev \
+  build-essential \
+  libssl-dev \
+  pkg-config \
   make \
   g++ \
   openssl \
@@ -22,11 +26,14 @@ COPY . .
 
 RUN pnpm -F ./apps/store build
 
+
 # -------- Runtime --------
 FROM node:20-bullseye AS runtime
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/* \
+RUN apt-get update && apt-get install -y \
+  openssl \
+  && rm -rf /var/lib/apt/lists/* \
   && corepack enable
 
 ENV NODE_ENV=production
