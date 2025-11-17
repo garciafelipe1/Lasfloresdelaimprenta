@@ -55,7 +55,7 @@
     "slugify": "1.6.6"
   },
   "devDependencies": {
-    "@hookform/resolvers": "5.2.2",
+    "@hookform/resolvers": "3.3.4",
     "@medusajs/test-utils": "2.7.0",
     "@mikro-orm/cli": "6.4.3",
     "@react-email/preview-server": "4.2.3",

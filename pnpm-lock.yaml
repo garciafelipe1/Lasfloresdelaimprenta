@@ -20,6 +20,9 @@ importers:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+      zod:
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@commitlint/cli':
         specifier: 19.8.1
@@ -113,8 +116,8 @@ importers:
         version: 1.6.6
     devDependencies:
       '@hookform/resolvers':
-        specifier: 5.2.2
-        version: 5.2.2(react-hook-form@7.65.0(react@18.3.1))
+        specifier: 3.3.4
+        version: 3.3.4(react-hook-form@7.65.0(react@18.3.1))
       '@medusajs/test-utils':
         specifier: 2.7.0
         version: 2.7.0(a7620b7712131d878299c1bdaff7ff8a)
@@ -203,8 +206,8 @@ importers:
   apps/www:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^3.10.0
-        version: 3.10.0(react-hook-form@7.65.0(react@19.0.0))
+        specifier: ^3.3.4
+        version: 3.3.4(react-hook-form@7.65.0(react@19.0.0))
       '@libsql/client':
         specifier: ^0.14.0
         version: 0.14.0
@@ -485,6 +488,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@hookform/resolvers':
+        specifier: 3.3.4
+        version: 3.3.4(react-hook-form@7.65.0(react@19.0.0))
       chalk:
         specifier: 5.4.1
         version: 5.4.1
@@ -503,6 +509,9 @@ importers:
 
   packages/database:
     dependencies:
+      '@hookform/resolvers':
+        specifier: 3.3.4
+        version: 3.3.4(react-hook-form@7.65.0(react@19.0.0))
       dotenv:
         specifier: 16.5.0
         version: 16.5.0
@@ -532,7 +541,11 @@ importers:
         specifier: 4.19.4
         version: 4.19.4
 
-  packages/utils: {}
+  packages/utils:
+    dependencies:
+      '@hookform/resolvers':
+        specifier: 3.3.4
+        version: 3.3.4(react-hook-form@7.65.0(react@19.0.0))
 
 packages:
 
@@ -2160,8 +2173,8 @@ packages:
       react-dom: '>=16.8.0'
       react-hook-form: ^7.0.0
 
-  '@hookform/resolvers@3.10.0':
-    resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
+  '@hookform/resolvers@3.3.4':
+    resolution: {integrity: sha512-o5cgpGOuJYrd+iMKvkttOclgwRW86EsWJZZRC23prf0uU2i48Htq4PuT73AVb9ionFyZrwYEITuOFGF+BydEtQ==}
     peerDependencies:
       react-hook-form: ^7.0.0
 
@@ -2169,11 +2182,6 @@ packages:
     resolution: {integrity: sha512-1m9uAVIO8wVf7VCDAGsuGA0t6Z3m6jVGAN50HkV9vYLl0yixKK/Z1lr01vaRvYCkIKGoy1noVRxMzQYb4y/j1Q==}
     peerDependencies:
       react-hook-form: ^7.0.0
-
-  '@hookform/resolvers@5.2.2':
-    resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
-    peerDependencies:
-      react-hook-form: ^7.55.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -6393,9 +6401,6 @@ packages:
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
-
-  '@standard-schema/utils@0.3.0':
-    resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
   '@stepperize/core@1.2.7':
     resolution: {integrity: sha512-XiUwLZ0XRAfaDK6AzWVgqvI/BcrylyplhUXKO8vzgRw0FTmyMKHAAbQLDvU//ZJAqnmG2cSLZDSkcwLxU5zSYA==}
@@ -14741,18 +14746,17 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-hook-form: 7.49.1(react@18.3.1)
 
-  '@hookform/resolvers@3.10.0(react-hook-form@7.65.0(react@19.0.0))':
+  '@hookform/resolvers@3.3.4(react-hook-form@7.65.0(react@18.3.1))':
+    dependencies:
+      react-hook-form: 7.65.0(react@18.3.1)
+
+  '@hookform/resolvers@3.3.4(react-hook-form@7.65.0(react@19.0.0))':
     dependencies:
       react-hook-form: 7.65.0(react@19.0.0)
 
   '@hookform/resolvers@3.4.2(react-hook-form@7.49.1(react@18.3.1))':
     dependencies:
       react-hook-form: 7.49.1(react@18.3.1)
-
-  '@hookform/resolvers@5.2.2(react-hook-form@7.65.0(react@18.3.1))':
-    dependencies:
-      '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.65.0(react@18.3.1)
 
   '@humanfs/core@0.19.1': {}
 
@@ -20341,8 +20345,6 @@ snapshots:
   '@socket.io/component-emitter@3.1.2': {}
 
   '@standard-schema/spec@1.0.0': {}
-
-  '@standard-schema/utils@0.3.0': {}
 
   '@stepperize/core@1.2.7(typescript@5.9.3)':
     dependencies:

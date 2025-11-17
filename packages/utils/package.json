@@ -9,5 +9,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.6.5"
+  "packageManager": "pnpm@10.6.5",
+  "dependencies": {
+    "@hookform/resolvers": "3.3.4"
+  }
 }
