@@ -17,7 +17,7 @@
     "./constants": "./src/shared/constants.ts"
   },
   "scripts": {
-    "build": "pnpm medusa build && npm run resolve:aliases && ln -sfn .medusa/server/public/ public",
+    "build": "pnpm medusa build && npm run resolve:aliases && rm -rf public && ln -s .medusa/server/public public",
     "predeploy": "pnpm medusa db:migrate",
     "start": "medusa start",
     "dev": "medusa develop",
