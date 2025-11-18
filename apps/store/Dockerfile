@@ -38,7 +38,6 @@ RUN apt-get update && apt-get install -y \
 
 ENV NODE_ENV=production
 
-# ✅ ESTA ES LA ÚNICA COPIA CORRECTA
 COPY --from=base /app/apps/store/.medusa /app/.medusa
 
 WORKDIR /app/.medusa/server
@@ -47,4 +46,4 @@ RUN pnpm install --prod
 
 EXPOSE 9000
 
-CMD ["sh", "-c", \"pnpm predeploy && pnpm seed && pnpm medusa user -e \\\"$ADMIN_EMAIL\\\" -p \\\"$ADMIN_PASSWORD\\\" || true && pnpm start\"]
+CMD sh -c "pnpm predeploy && pnpm seed && pnpm medusa user -e $ADMIN_EMAIL -p $ADMIN_PASSWORD || true && pnpm start"
