@@ -1,7 +1,6 @@
 # -------- Base (builder) --------
 FROM node:20-bullseye AS base
 
-# Dependencias nativas necesarias para Prisma / Sharp / bcrypt / etc.
 RUN apt-get update && apt-get install -y \
   python3 \
   python3-dev \
@@ -46,4 +45,4 @@ RUN pnpm install --prod
 
 EXPOSE 9000
 
-CMD sh -c "pnpm predeploy && pnpm seed && pnpm medusa user -e $ADMIN_EMAIL -p $ADMIN_PASSWORD || true && pnpm start"
+CMD sh -c "pnpm predeploy && pnpm medusa user -e $ADMIN_EMAIL -p $ADMIN_PASSWORD || true && pnpm start"
