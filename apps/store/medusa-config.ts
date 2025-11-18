@@ -40,18 +40,19 @@ module.exports = defineConfig({
       },
     }),
   },
+
   projectConfig: {
-  databaseUrl: process.env.DATABASE_URL,
-  redisUrl: process.env.NODE_ENV === "production" ? process.env.REDIS_URL : "",
-  http: {
-    storeCors: process.env.STORE_CORS || "",
-    adminCors: process.env.ADMIN_CORS || "",
-    authCors: process.env.AUTH_CORS || "",
-    jwtSecret: process.env.JWT_SECRET || "supersecret",
-    cookieSecret: process.env.COOKIE_SECRET || "supersecret",
+    databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.NODE_ENV === "production" ? process.env.REDIS_URL : "",
+    http: {
+      storeCors: process.env.STORE_CORS || "",
+      adminCors: process.env.ADMIN_CORS || "",
+      authCors: process.env.AUTH_CORS || "",
+      jwtSecret: process.env.JWT_SECRET || "supersecret",
+      cookieSecret: process.env.COOKIE_SECRET || "supersecret",
+    },
+    workerMode: process.env.MEDUSA_WORKER_MODE as "shared" | "worker" | "server",
   },
-  workerMode: process.env.MEDUSA_WORKER_MODE as "shared" | "worker" | "server",
-},
 
   plugins: [
     {
@@ -62,24 +63,28 @@ module.exports = defineConfig({
       },
     },
   ],
+
   modules: [
     ...redisModules,
-    {
-      resolve: "@medusajs/medusa/notification",
-      options: {
-        providers: [
-          {
-            resolve: "./src/modules/resend",
-            id: "resend",
-            options: {
-              channels: ["email"],
-              api_key: process.env.RESEND_API_KEY,
-              from: process.env.RESEND_FROM_EMAIL,
-            },
-          },
-        ],
-      },
-    },
+
+    // ❌ NOTIFICATION REMOVIDO (NO RESEND)
+    // {
+    //   resolve: "@medusajs/medusa/notification",
+    //   options: {
+    //     providers: [
+    //       {
+    //         resolve: "./src/modules/resend",
+    //         id: "resend",
+    //         options: {
+    //           channels: ["email"],
+    //           api_key: process.env.RESEND_API_KEY,
+    //           from: process.env.RESEND_FROM_EMAIL,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // },
+
     {
       resolve: "@medusajs/medusa/auth",
       dependencies: [Modules.CACHE, ContainerRegistrationKeys.LOGGER],
@@ -102,9 +107,11 @@ module.exports = defineConfig({
         ],
       },
     },
+
     {
       resolve: "./src/modules/membership",
     },
+
     {
       resolve: "@medusajs/medusa/payment",
       options: {
