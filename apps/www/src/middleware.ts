@@ -10,7 +10,7 @@ const intlMiddleware = createIntlMiddleware(routing);
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/login';
 const REDIRECT_WHEN_AUTHENTICATED_ROUTE = '/dashboard';
 
-const BACKEND_URL = process.env.MEDUSA_BACKEND_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || 'ar';
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
 
