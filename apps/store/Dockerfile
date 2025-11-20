@@ -1,48 +1,39 @@
-# -------- Base (builder) --------
-FROM node:20-bullseye AS base
-
-RUN apt-get update && apt-get install -y \
-  python3 \
-  python3-dev \
-  build-essential \
-  libssl-dev \
-  pkg-config \
-  make \
-  g++ \
-  openssl \
-  && rm -rf /var/lib/apt/lists/*
+# ---------- BUILDER ----------
+FROM node:20-bullseye AS builder
 
 WORKDIR /app
 
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY apps/store/package.json apps/store/
+# Copiamos monorepo configs
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-RUN pnpm install --frozen-lockfile
+# Instalamos dependencias raíz
+RUN pnpm install
 
+# Copiamos TODO el repositorio
 COPY . .
 
-RUN pnpm -F ./apps/store build
+# Build de Medusa
+RUN pnpm -F apps/store build
 
 
-# -------- Runtime --------
-FROM node:20-bullseye AS runtime
+# ---------- RUNTIME ----------
+FROM node:20-bullseye-slim AS runner
+
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-  openssl \
-  && rm -rf /var/lib/apt/lists/* \
-  && corepack enable
+RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
 
 ENV NODE_ENV=production
-
-COPY --from=base /app/apps/store/.medusa /app/.medusa
-
-WORKDIR /app/.medusa/server
-
-RUN pnpm install --prod
-
+ENV PORT=9000
 EXPOSE 9000
 
-CMD sh -c "pnpm predeploy && pnpm medusa user -e $ADMIN_EMAIL -p $ADMIN_PASSWORD || true && pnpm start"
+# Copiamos el build estático de Medusa
+COPY --from=builder /app/apps/store/.medusa .medusa
+COPY --from=builder /app/apps/store/package.json .
+
+# Instalamos solo dependencias de producción
+RUN pnpm install --prod
+
+CMD ["pnpm", "start"]
