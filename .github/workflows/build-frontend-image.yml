@@ -22,9 +22,7 @@ jobs:
   Deploy-Production:
     runs-on: ubuntu-24.04
     environment: TOKEN_VERCEL
-    permissions:
-      contents: read
-      packages: write
+
     steps:
       - uses: actions/checkout@v3
 
@@ -40,34 +38,24 @@ jobs:
 
       - name: Assert Dockerfile exists
         run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
-      - name: Check NEXT_PUBLIC_MEDUSA_BACKEND_URL
-        env:
-          NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }} # o vars.
+
+      - name: Validate required NEXT_PUBLIC vars
         run: |
-          if [ -z "$NEXT_PUBLIC_MEDUSA_BACKEND_URL" ]; then
-            echo "::error::NEXT_PUBLIC_MEDUSA_BACKEND_URL no está definido"; exit 1
-          fi      
-      - name: Validate required secrets
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-          NEXT_RUNTIME: nodejs
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_TOKEN: ${{ secrets.DB_TOKEN }}
-          MERCADO_PAGO_TOKEN: ${{ secrets.MP_ACCESS_TOKEN }}
-          APP_URL: ${{ secrets.APP_URL }}
-          S3_URL: ${{ secrets.S3_URL }}
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          S3_KEY_ID: ${{ secrets.S3_KEY_ID }}
-          S3_SECRET: ${{ secrets.S3_SECRET }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-        run: |
-          set -e
-          for s in DB_URL DB_TOKEN MERCADO_PAGO_TOKEN APP_URL S3_URL S3_BUCKET S3_KEY_ID S3_SECRET PAYLOAD_SECRET; do
-            if [ -z "${!s}" ]; then
-              echo "::error::Missing secret: $s"
-              exit 1
-            fi
-          done
+          if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}" ]; then
+            echo "::error::Missing NEXT_PUBLIC_MEDUSA_BACKEND_URL"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}" ]; then
+            echo "::error::Missing NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}" ]; then
+            echo "::error::Missing NEXT_PUBLIC_DEFAULT_REGION"
+            exit 1
+          fi
+
       - name: Build & Push image
         uses: docker/build-push-action@v6
         env:
@@ -75,12 +63,18 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64
           push: true
+          platforms: linux/amd64
           tags: |
             ghcr.io/${{ github.repository_owner }}/lasfloresdelaimprenta-www:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+          build-args: |
+            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
+            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}
+
           secrets: |
             DB_URL=${{ secrets.DB_URL }}
             DB_TOKEN=${{ secrets.DB_TOKEN }}
@@ -91,5 +85,3 @@ jobs:
             S3_KEY_ID=${{ secrets.S3_KEY_ID }}
             S3_SECRET=${{ secrets.S3_SECRET }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
-            build-args: |
-            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}

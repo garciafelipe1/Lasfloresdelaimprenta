@@ -16,6 +16,7 @@ export default function OAuthCallbackPage() {
       return;
     }
 
+    // Guardamos el token que mandó MEDUSA
     Cookies.set("_medusa_jwt", token, { expires: 30 });
 
     router.replace("/es/ar/dashboard");
