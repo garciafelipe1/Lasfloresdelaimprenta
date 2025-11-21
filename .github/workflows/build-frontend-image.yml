@@ -39,6 +39,9 @@ jobs:
       - name: Assert Dockerfile exists
         run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
 
+      # --------------------
+      # 🔍 Validación NEXT_PUBLIC
+      # --------------------
       - name: Validate required NEXT_PUBLIC vars
         run: |
           if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}" ]; then
@@ -56,6 +59,9 @@ jobs:
             exit 1
           fi
 
+      # --------------------
+      # 🚀 Build + Push Image
+      # --------------------
       - name: Build & Push image
         uses: docker/build-push-action@v6
         env:
@@ -63,18 +69,14 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: true
           platforms: linux/amd64
+          push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/lasfloresdelaimprenta-www:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-          build-args: |
-            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
-            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
-            NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}
-
+          # 👇 SECRETS DEL BUILD
           secrets: |
             DB_URL=${{ secrets.DB_URL }}
             DB_TOKEN=${{ secrets.DB_TOKEN }}
@@ -85,3 +87,9 @@ jobs:
             S3_KEY_ID=${{ secrets.S3_KEY_ID }}
             S3_SECRET=${{ secrets.S3_SECRET }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
+
+          # 👇 BUILD ARGS PARA NEXT.JS
+          build-args: |
+            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
+            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}
