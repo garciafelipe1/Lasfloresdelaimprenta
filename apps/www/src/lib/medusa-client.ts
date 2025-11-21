@@ -6,12 +6,12 @@ const MEDUSA_BACKEND_URL =
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
   "http://localhost:9000";
 
-if (!process.env.NEXT_PUBLISHABLE_MEDUSA) {
-  console.warn("[medusa-client] WARNING → falta NEXT_PUBLISHABLE_MEDUSA");
+if (!process.env.NEXT_PUBLIC_PUBLISHABLE_MEDUSA) {
+  console.warn("[medusa-client] WARNING → falta NEXT_PUBLIC_PUBLISHABLE_MEDUSA");
 }
 
 export const medusa = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
-  publishableKey: process.env.NEXT_PUBLISHABLE_MEDUSA,
+  publishableKey: process.env.NEXT_PUBLIC_PUBLISHABLE_MEDUSA,
 });
