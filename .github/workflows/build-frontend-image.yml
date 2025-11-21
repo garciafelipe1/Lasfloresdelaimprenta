@@ -20,6 +20,8 @@ concurrency:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-24.04
+    environment:
+      name: TOKEN_VERCEL   # 🔥 FIX CLAVE: Activa tus Environment Secrets
 
     steps:
       - uses: actions/checkout@v3
