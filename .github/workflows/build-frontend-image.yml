@@ -20,8 +20,6 @@ concurrency:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-24.04
-    environment:
-      name: TOKEN_VERCEL   # 🔥 FIX CLAVE: Activa tus Environment Secrets
 
     steps:
       - uses: actions/checkout@v3
@@ -44,8 +42,8 @@ jobs:
           if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}" ]; then
             echo "::error::Missing NEXT_PUBLIC_MEDUSA_BACKEND_URL"; exit 1
           fi
-          if [ -z "${{ secrets.NEXT_PUBLIC_PUBLISHABLE_MEDUSA }}" ]; then
-            echo "::error::Missing NEXT_PUBLIC_PUBLISHABLE_MEDUSA"; exit 1
+          if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}" ]; then
+            echo "::error::Missing NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"; exit 1
           fi
 
       - name: Build & Push image
@@ -62,7 +60,7 @@ jobs:
 
           build-args: |
             NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
-            NEXT_PUBLIC_PUBLISHABLE_MEDUSA=${{ secrets.NEXT_PUBLIC_PUBLISHABLE_MEDUSA }}
+            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
             NEXT_PUBLIC_DEFAULT_REGION=ar
 
           secrets: |
