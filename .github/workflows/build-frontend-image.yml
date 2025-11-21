@@ -38,24 +38,15 @@ jobs:
       - name: Assert Dockerfile exists
         run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
 
-      # --------------------
-      # Validate NEXT_PUBLIC variables
-      # --------------------
-      - name: Validate required NEXT_PUBLIC vars
+      - name: Validate required vars
         run: |
           if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}" ]; then
             echo "::error::Missing NEXT_PUBLIC_MEDUSA_BACKEND_URL"; exit 1
           fi
-          if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}" ]; then
-            echo "::error::Missing NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"; exit 1
-          fi
-          if [ -z "${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}" ]; then
-            echo "::error::Missing NEXT_PUBLIC_DEFAULT_REGION"; exit 1
+          if [ -z "${{ secrets.NEXT_PUBLISHABLE_MEDUSA }}" ]; then
+            echo "::error::Missing NEXT_PUBLISHABLE_MEDUSA"; exit 1
           fi
 
-      # --------------------
-      # Build & Push Docker Image
-      # --------------------
       - name: Build & Push image
         uses: docker/build-push-action@v6
         with:
@@ -68,13 +59,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-          # Build Arguments
           build-args: |
             NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
-            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
-            NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}
+            NEXT_PUBLISHABLE_MEDUSA=${{ secrets.NEXT_PUBLISHABLE_MEDUSA }}
+            NEXT_PUBLIC_DEFAULT_REGION=ar
 
-          # Secrets passed to Docker
           secrets: |
             DB_URL=${{ secrets.DB_URL }}
             DB_TOKEN=${{ secrets.DB_TOKEN }}
