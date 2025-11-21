@@ -1,4 +1,3 @@
-# .github/workflows/build-frontend-image.yml
 name: Build Next.js Docker Image
 
 on:
@@ -40,32 +39,25 @@ jobs:
         run: test -f ./Dockerfile || (echo "No se encontró ./Dockerfile" && exit 1)
 
       # --------------------
-      # 🔍 Validación NEXT_PUBLIC
+      # Validate NEXT_PUBLIC variables
       # --------------------
       - name: Validate required NEXT_PUBLIC vars
         run: |
           if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}" ]; then
-            echo "::error::Missing NEXT_PUBLIC_MEDUSA_BACKEND_URL"
-            exit 1
+            echo "::error::Missing NEXT_PUBLIC_MEDUSA_BACKEND_URL"; exit 1
           fi
-
           if [ -z "${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}" ]; then
-            echo "::error::Missing NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"
-            exit 1
+            echo "::error::Missing NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"; exit 1
           fi
-
           if [ -z "${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}" ]; then
-            echo "::error::Missing NEXT_PUBLIC_DEFAULT_REGION"
-            exit 1
+            echo "::error::Missing NEXT_PUBLIC_DEFAULT_REGION"; exit 1
           fi
 
       # --------------------
-      # 🚀 Build + Push Image
+      # Build & Push Docker Image
       # --------------------
       - name: Build & Push image
         uses: docker/build-push-action@v6
-        env:
-          BUILDKIT_PROGRESS: plain
         with:
           context: .
           file: ./Dockerfile
@@ -76,7 +68,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-          # 👇 SECRETS DEL BUILD
+          # Build Arguments
+          build-args: |
+            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
+            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}
+
+          # Secrets passed to Docker
           secrets: |
             DB_URL=${{ secrets.DB_URL }}
             DB_TOKEN=${{ secrets.DB_TOKEN }}
@@ -87,9 +85,3 @@ jobs:
             S3_KEY_ID=${{ secrets.S3_KEY_ID }}
             S3_SECRET=${{ secrets.S3_SECRET }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
-
-          # 👇 BUILD ARGS PARA NEXT.JS
-          build-args: |
-            NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
-            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
-            NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}
