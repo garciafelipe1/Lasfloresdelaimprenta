@@ -8,15 +8,18 @@ import { toast } from 'sonner'
 export default function LoginPreview() {
   const i18n = useTranslations('Auth.login')
 
-  const handleGoogleLogin = async () => {
-    try {
-      // 🔥 Ya NO llamamos al backend de Medusa
-      window.location.href = "/api/auth/google"
-    } catch (err) {
-      console.error(err)
-      toast.error('Error iniciando sesión con Google')
-    }
+  const handleGoogleLogin = () => {
+  const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
+
+  if (!backend) {
+    toast.error("No se encuentra la URL del backend");
+    return;
   }
+
+  // 👉 ESTA es la ruta correcta
+  window.location.href = `${backend}/store/auth/google`;
+};
+
 
   return (
     <div className="flex h-full min-h-[50vh] w-full flex-col items-center justify-center px-4">
