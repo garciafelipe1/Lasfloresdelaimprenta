@@ -10,32 +10,8 @@ export default function LoginPreview() {
 
   const handleGoogleLogin = async () => {
     try {
-      const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
-      const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-
-      if (!backend || !pk) {
-        toast.error('Faltan variables de entorno')
-        return
-      }
-
-      // 🔥 Hacemos el request con HEADER correcto
-      const res = await fetch(`${backend}/store/auth/google`, {
-        method: 'GET',
-        headers: {
-          'x-publishable-api-key': pk,
-        },
-        redirect: 'manual',
-      })
-
-      const redirectUrl = res.headers.get('location')
-
-      if (!redirectUrl) {
-        toast.error('No se pudo iniciar sesión con Google')
-        return
-      }
-
-      // 🔥 Redirigimos a Google
-      window.location.href = redirectUrl
+      // 🔥 Ya NO llamamos al backend de Medusa
+      window.location.href = "/api/auth/google"
     } catch (err) {
       console.error(err)
       toast.error('Error iniciando sesión con Google')
