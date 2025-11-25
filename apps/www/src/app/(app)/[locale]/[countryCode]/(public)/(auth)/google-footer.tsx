@@ -1,69 +1,75 @@
 'use client'
 
-import { Button } from '@/app/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { toast } from 'sonner'
 
-export function GoogleFooter() {
-  const i18n = useTranslations('Auth.google')
+export default function LoginPreview() {
+  const i18n = useTranslations('Auth.login')
 
-  const loginWithGoogle = async () => {
+  const handleGoogleLogin = async () => {
+    const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+    const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+
+    if (!backend || !pk) {
+      toast.error('Faltan variables de entorno')
+      return
+    }
+
     try {
-      const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
-      const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-
-      if (!backend || !pk) {
-        toast.error('Faltan variables de entorno para Google OAuth')
-        return
-      }
-
-      // 👇 Petición con publishable key en HEADER (lo que pide Medusa 2.7+)
+      // 👇 Mandamos LA REQUEST con la PK
       const res = await fetch(`${backend}/store/auth/google`, {
         method: 'GET',
         headers: {
-          'x-publishable-api-key': pk,
+          'x-publishable-api-key': pk
         },
-        redirect: 'manual',
+        redirect: 'manual' // importante para que no siga automáticamente
       })
 
       const redirectUrl = res.headers.get('location')
 
       if (!redirectUrl) {
-        toast.error('No se pudo iniciar sesión con Google')
+        toast.error("No se obtuvo la URL de Google")
         return
       }
 
-      // 👇 Redirige realmente a Google
+      // 🔥 Redirige realmente a Google OAuth
       window.location.href = redirectUrl
+
     } catch (error) {
-      toast.error('Hubo un error al iniciar sesión con Google')
       console.error(error)
+      toast.error("Error iniciando sesión con Google")
     }
   }
 
   return (
-    <>
-      <div className="flex items-center gap-2">
-        <div className="bg-border h-[2px] w-full" />
-        <span>o</span>
-        <div className="bg-border h-[2px] w-full" />
-      </div>
+    <div className="flex h-full min-h-[50vh] w-full flex-col items-center justify-center px-4">
+      <Card className="mx-auto w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl">{i18n('title')}</CardTitle>
+          <CardDescription>{i18n('description')}</CardDescription>
+        </CardHeader>
 
-      <Button
-        type="button"
-        onClick={loginWithGoogle}
-        variant="outline"
-        className="w-full"
-      >
-        <Image
-          src="/assets/img/google-logo.webp"
-          alt="Google icon"
-          width={16}
-          height={16}
-        />
-        {i18n('signup')}
-      </Button>
-    </>
+        <CardContent>
+          <div className="grid gap-4">
+            <button
+              onClick={handleGoogleLogin}
+              className="flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-white hover:bg-neutral-800 transition"
+            >
+              <Image src="/google.svg" alt="Google" width={20} height={20} className="mr-2" />
+              Iniciar sesión con Google
+            </button>
+          </div>
+
+          <div className="mt-4 text-center text-sm">
+            {i18n('noAccount')}{' '}
+            <a href="/register" className="underline">
+              {i18n('registerLink')}
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
