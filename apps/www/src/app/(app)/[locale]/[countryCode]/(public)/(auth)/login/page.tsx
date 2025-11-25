@@ -9,17 +9,16 @@ export default function LoginPreview() {
   const i18n = useTranslations('Auth.login')
 
   const handleGoogleLogin = () => {
-  const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
+    const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
 
-  if (!backend) {
-    toast.error("No se encuentra la URL del backend");
-    return;
+    if (!backend) {
+      toast.error('No se encuentra la URL del backend')
+      return
+    }
+
+    // 👉 RUTA CORRECTA PARA INICIAR GOOGLE OAUTH
+    window.location.href = `${backend}/store/auth/google`
   }
-
-  // 👉 ESTA es la ruta correcta
-  window.location.href = `${backend}/store/auth/google`;
-};
-
 
   return (
     <div className="flex h-full min-h-[50vh] w-full flex-col items-center justify-center px-4">

@@ -11,13 +11,19 @@ const withNextIntl = createNextIntlPlugin()
 
 export default withNextIntl(
   withPayload({
-    images: { remotePatterns: [{ protocol: 'https', hostname: '*' }, { protocol: 'http', hostname: '*' }] },
+    images: { 
+      unoptimized: true,
+      remotePatterns: [
+        { protocol: 'https', hostname: '*' },
+        { protocol: 'http', hostname: '*' }
+      ]
+    },
+
     eslint: { ignoreDuringBuilds: true },
     typescript: { ignoreBuildErrors: true },
 
     output: 'standalone',
     outputFileTracingRoot: path.resolve(__dirname, '../../'),
-    // 👉 mover fuera de experimental:
     outputFileTracingIncludes: {
       '/*': [
         '../../packages/**',
