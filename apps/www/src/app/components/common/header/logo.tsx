@@ -8,7 +8,7 @@ export function Logo() {
         <Image
           src={'/assets/img/logo.png'}
           alt='Logo Flores Imprenta'
-          width={80}
+          width={40}
           height={80}
           className='h-full w-full object-contain dark:invert'
         />
