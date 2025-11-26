@@ -17,7 +17,8 @@ export default function LoginPreview() {
     }
 
     // 👉 RUTA CORRECTA PARA INICIAR GOOGLE OAUTH
-    window.location.href = `${backend}/store/auth/google`
+    window.location.href = "/api/auth/google";
+
   }
 
   return (
