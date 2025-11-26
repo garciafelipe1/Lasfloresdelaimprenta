@@ -30,11 +30,12 @@ import { PhoneInput } from '@/app/components/ui/phone-input';
 import { registerSchema } from '@/lib/zod/register-schema';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { GoogleFooter } from '../google-footer';
+import Image from 'next/image'; // ✅ Import correcto
 
 export default function RegisterPreview() {
   const i18n = useTranslations('Auth.register');
   const router = useRouter();
+
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -61,29 +62,29 @@ export default function RegisterPreview() {
   }
 
   return (
-    <div className='flex h-full min-h-[60vh] w-full items-center justify-center px-4'>
-      <Card className='mx-auto w-full max-w-md'>
+    <div className="flex h-full min-h-[60vh] w-full items-center justify-center px-4">
+      <Card className="mx-auto w-full max-w-md">
         <CardHeader>
-          <CardTitle className='text-2xl'>{i18n('title')}</CardTitle>
+          <CardTitle className="text-2xl">{i18n('title')}</CardTitle>
           <CardDescription>{i18n('description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className='space-y-8'
+              className="space-y-8"
             >
-              <div className='grid gap-4'>
+              <div className="grid gap-4">
                 <FormField
                   control={form.control}
-                  name='name'
+                  name="name"
                   render={({ field }) => (
-                    <FormItem className='grid gap-2'>
-                      <FormLabel htmlFor='name'>{i18n('name')}</FormLabel>
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="name">{i18n('name')}</FormLabel>
                       <FormControl>
                         <Input
-                          id='name'
-                          placeholder='Juan Pérez'
+                          id="name"
+                          placeholder="Juan Pérez"
                           {...field}
                         />
                       </FormControl>
@@ -94,16 +95,16 @@ export default function RegisterPreview() {
 
                 <FormField
                   control={form.control}
-                  name='email'
+                  name="email"
                   render={({ field }) => (
-                    <FormItem className='grid gap-2'>
-                      <FormLabel htmlFor='email'>{i18n('email')}</FormLabel>
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="email">{i18n('email')}</FormLabel>
                       <FormControl>
                         <Input
-                          id='email'
-                          placeholder='juanperez@mail.com'
-                          type='email'
-                          autoComplete='email'
+                          id="email"
+                          placeholder="juanperez@mail.com"
+                          type="email"
+                          autoComplete="email"
                           {...field}
                         />
                       </FormControl>
@@ -114,14 +115,14 @@ export default function RegisterPreview() {
 
                 <FormField
                   control={form.control}
-                  name='phone'
+                  name="phone"
                   render={({ field }) => (
-                    <FormItem className='grid gap-2'>
-                      <FormLabel htmlFor='phone'>{i18n('phone')}</FormLabel>
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="phone">{i18n('phone')}</FormLabel>
                       <FormControl>
                         <PhoneInput
                           {...field}
-                          defaultCountry='AR'
+                          defaultCountry="AR"
                         />
                       </FormControl>
                       <FormMessage />
@@ -131,17 +132,17 @@ export default function RegisterPreview() {
 
                 <FormField
                   control={form.control}
-                  name='password'
+                  name="password"
                   render={({ field }) => (
-                    <FormItem className='grid gap-2'>
-                      <FormLabel htmlFor='password'>
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="password">
                         {i18n('password')}
                       </FormLabel>
                       <FormControl>
                         <PasswordInput
-                          id='password'
-                          placeholder='******'
-                          autoComplete='new-password'
+                          id="password"
+                          placeholder="******"
+                          autoComplete="new-password"
                           {...field}
                         />
                       </FormControl>
@@ -152,17 +153,17 @@ export default function RegisterPreview() {
 
                 <FormField
                   control={form.control}
-                  name='confirmPassword'
+                  name="confirmPassword"
                   render={({ field }) => (
-                    <FormItem className='grid gap-2'>
-                      <FormLabel htmlFor='confirmPassword'>
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="confirmPassword">
                         {i18n('confirmPassword')}
                       </FormLabel>
                       <FormControl>
                         <PasswordInput
-                          id='confirmPassword'
-                          placeholder='******'
-                          autoComplete='new-password'
+                          id="confirmPassword"
+                          placeholder="******"
+                          autoComplete="new-password"
                           {...field}
                         />
                       </FormControl>
@@ -174,20 +175,36 @@ export default function RegisterPreview() {
                 <FormButton
                   isLoading={isExecuting}
                   disabled={isExecuting}
-                  type='submit'
-                  className='w-full'
+                  type="submit"
+                  className="w-full"
                 >
                   {i18n('submit')}
                 </FormButton>
-                <GoogleFooter />
+
+                {/* Botón de Google directo al proxy /api/auth/google */}
+                <button
+                  type="button"
+                  onClick={() => (window.location.href = '/api/auth/google')}
+                  className="flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-white hover:bg-neutral-800 transition"
+                >
+                  <Image
+                    src="/google.svg"
+                    alt="Google"
+                    width={20}
+                    height={20}
+                    className="mr-2"
+                  />
+                  Iniciar sesión con Google
+                </button>
               </div>
             </form>
           </Form>
-          <div className='mt-4 text-center text-sm'>
-            {i18n('haveAccount')}
+
+          <div className="mt-4 text-center text-sm">
+            {i18n('haveAccount')}{' '}
             <Link
-              href='/login'
-              className='underline'
+              href="/login"
+              className="underline"
             >
               {i18n('loginLink')}
             </Link>
