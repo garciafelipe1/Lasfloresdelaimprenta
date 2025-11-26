@@ -1,5 +1,4 @@
 // apps/www/next.config.ts
-
 import createNextIntlPlugin from 'next-intl/plugin'
 import { withPayload } from '@payloadcms/next/withPayload'
 import path from 'node:path'
@@ -12,22 +11,19 @@ const withNextIntl = createNextIntlPlugin()
 
 export default withNextIntl(
   withPayload({
-    images: {
+    images: { 
+      unoptimized: true,
       remotePatterns: [
         { protocol: 'https', hostname: '*' },
-        { protocol: 'http', hostname: '*' },
-      ],
+        { protocol: 'http', hostname: '*' }
+      ]
     },
-    eslint: {
-      ignoreDuringBuilds: true,
-    },
-    typescript: {
-      ignoreBuildErrors: true,
-    },
+
+    eslint: { ignoreDuringBuilds: true },
+    typescript: { ignoreBuildErrors: true },
+
     output: 'standalone',
     outputFileTracingRoot: path.resolve(__dirname, '../../'),
-
-    // 👉 mover fuera de experimental:
     outputFileTracingIncludes: {
       '/*': [
         '../../packages/**',
