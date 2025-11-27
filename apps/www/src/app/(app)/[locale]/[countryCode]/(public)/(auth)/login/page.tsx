@@ -18,7 +18,6 @@ export default function LoginPreview() {
 
     // 👉 RUTA CORRECTA PARA INICIAR GOOGLE OAUTH
     window.location.href = "/api/auth/google";
-    console.log("Redirigiendo a Google OAuth...");
 
   }
 
