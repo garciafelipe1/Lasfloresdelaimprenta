@@ -1,46 +1,67 @@
 # syntax=docker/dockerfile:1.7
 
+####################################
+# BASE
+####################################
 FROM node:20-bullseye AS base
-RUN apt-get update && apt-get install -y bash curl && rm -rf /var/lib/apt/lists/* \
-    && corepack enable && corepack prepare pnpm@10.17.1 --activate
+RUN apt-get update && apt-get install -y bash curl \
+  && rm -rf /var/lib/apt/lists/* \
+  && corepack enable && corepack prepare pnpm@10.17.1 --activate
+
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 WORKDIR /app
 
+
+####################################
+# DEPS (instala dependencias del monorepo una sola vez)
+####################################
 FROM base AS deps
-RUN apt-get update && apt-get install -y python3 make g++ pkg-config && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y python3 make g++ pkg-config \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm fetch
+
 COPY . .
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile --offline
 
-# ---------- build ----------
-FROM base AS builder
 
-# 👇 Declaramos los ARG correctos
+####################################
+# BUILDER – NEXT.JS
+####################################
+FROM base AS builder_www
+
 ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 ARG NEXT_PUBLIC_DEFAULT_REGION
 
-# 👇 Los convertimos en ENV para Next.js
 ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_DEFAULT_REGION=$NEXT_PUBLIC_DEFAULT_REGION
 
-ENV NEXT_TELEMETRY_DISABLED=1 NEXT_RUNTIME=nodejs
-
-COPY --from=deps /app ./
+COPY --from=deps /app .
 RUN pnpm -C apps/www build
 
-# ---------- runtime ----------
-FROM node:20-bullseye-slim AS runner
 
-# 👇 Declaramos los mismos ARG
+####################################
+# BUILDER – MEDUSA STORE
+####################################
+FROM base AS builder_store
+COPY --from=deps /app .
+RUN pnpm -F apps/store build
+
+
+####################################
+# RUNTIME – NEXTJS
+####################################
+FROM node:20-bullseye-slim AS runner_www
+
 ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 ARG NEXT_PUBLIC_DEFAULT_REGION
 
-# 👇 Y los pasamos a ENV
 ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_DEFAULT_REGION=$NEXT_PUBLIC_DEFAULT_REGION
@@ -50,10 +71,31 @@ ENV PORT=3000 HOSTNAME=0.0.0.0
 
 WORKDIR /app
 
-COPY --from=builder /app/apps/www/.next/standalone ./
-COPY --from=builder /app/apps/www/.next/static ./apps/www/.next/static
-COPY --from=builder /app/apps/www/public ./apps/www/public
+COPY --from=builder_www /app/apps/www/.next/standalone ./
+COPY --from=builder_www /app/apps/www/.next/static ./apps/www/.next/static
+COPY --from=builder_www /app/apps/www/public ./apps/www/public
 
 USER node
 EXPOSE 3000
+
 CMD ["node", "apps/www/server.js"]
+
+
+####################################
+# RUNTIME – MEDUSA
+####################################
+FROM node:20-bullseye-slim AS runner_store
+
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
+
+ENV NODE_ENV=production
+ENV PORT=9000
+
+COPY --from=builder_store /app/apps/store/.medusa .medusa
+COPY --from=builder_store /app/apps/store/package.json .
+
+RUN pnpm install --prod
+
+EXPOSE 9000
+CMD ["pnpm", "start"]
