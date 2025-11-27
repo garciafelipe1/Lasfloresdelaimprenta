@@ -7,6 +7,7 @@ on:
       - "apps/store/**"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
+      - "Dockerfile"                       
       - ".github/workflows/build-medusa-image.yml"
   workflow_dispatch:
 
@@ -36,8 +37,10 @@ jobs:
       - name: Build and push (Medusa)
         uses: docker/build-push-action@v6
         with:
-          context: .                       # <-- monorepo root para pnpm workspaces/lockfile
-          file: ./apps/store/Dockerfile    # <-- Dockerfile específico de la app
+          context: .              # 👈 raíz del monorepo
+          file: ./Dockerfile      # 👈 usamos el Dockerfile unificado de raíz
+          target: runner_store    # 👈 MUY IMPORTANTE: solo build del runtime de Medusa
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/floreria-medusa:latest
-          # platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
