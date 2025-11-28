@@ -5,61 +5,93 @@ export async function GET() {
   const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 
+  // URL que vamos a llamar en el backend
+  const url = `${backend.replace(/\/$/, "")}/auth/customer/google`;
+
+  console.log("[AUTH GOOGLE] Llamando a:", url);
+  console.log("[AUTH GOOGLE] callback_url:", `${siteUrl}/api/auth/callback/google`);
+
   try {
-    // 1) Pedimos a Medusa que inicie el login con Google
-    const resp = await fetch(`${backend}/auth/customer/google`, {
+    const resp = await fetch(url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
-      // Le decimos a Medusa que nos devuelva el callback a esta ruta de Next
       body: JSON.stringify({
         callback_url: `${siteUrl}/api/auth/callback/google`,
       }),
     });
 
+    const text = await resp.text();
+
+    // Si NO es 2xx, devolvemos info para debug
     if (!resp.ok) {
-      const text = await resp.text();
-      console.error("Error en /auth/customer/google:", resp.status, text);
-      return NextResponse.redirect(
-        `${siteUrl}/login?error=google_auth_start_failed`
+      console.error(
+        "[AUTH GOOGLE] Error desde backend:",
+        resp.status,
+        text.slice(0, 500)
+      );
+
+      return NextResponse.json(
+        {
+          error: "No se pudo iniciar el login con Google",
+          status: resp.status,
+          body: text,
+          calledUrl: url,
+        },
+        { status: 500 }
       );
     }
 
-    const data = await resp.json();
+    // Si el backend devolvió JSON, lo parseamos
+    let data: any = {};
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
 
-    // Caso típico: Medusa devuelve { location: "https://accounts.google.com/..." }
+    // Caso típico: { location: "https://accounts.google.com/..." }
     if (data && typeof data === "object" && "location" in data && data.location) {
+      console.log("[AUTH GOOGLE] Redirigiendo a Google:", data.location);
       return NextResponse.redirect(data.location as string);
     }
 
-    // En algunos casos podría devolver un token directamente (muy raro, pero por las dudas)
+    // Caso raro: nos devuelve un token directo
     const token =
       typeof data === "string"
         ? data
         : (data as any).token ?? (data as any).jwt;
 
     if (token) {
-      // Si ya nos devolvió token directo, redirigimos al dashboard
+      console.log("[AUTH GOOGLE] Recibimos token directo, seteando cookie y yendo al dashboard");
       const res = NextResponse.redirect(`${siteUrl}/es/ar/dashboard`);
-      // Si quisieras, acá podrías usar cookies.set, pero lo normal es que el token venga en el callback
-      res.cookies.set("__medusa_jwt", token, {
+      res.cookies.set("_medusa_jwt", token, {
         httpOnly: true,
         secure: true,
         sameSite: "lax",
         path: "/",
+        maxAge: 60 * 60 * 24 * 7,
       });
       return res;
     }
 
-    console.error("Respuesta inesperada de /auth/customer/google:", data);
-    return NextResponse.redirect(
-      `${siteUrl}/login?error=google_auth_unexpected_response`
+    console.error("[AUTH GOOGLE] Respuesta inesperada:", data);
+    return NextResponse.json(
+      {
+        error: "Respuesta inesperada de /auth/customer/google",
+        data,
+      },
+      { status: 500 }
     );
-  } catch (err) {
-    console.error("Fallo al iniciar login con Google:", err);
-    return NextResponse.redirect(
-      `${siteUrl}/login?error=google_auth_exception`
+  } catch (err: any) {
+    console.error("[AUTH GOOGLE] Excepción al llamar al backend:", err);
+    return NextResponse.json(
+      {
+        error: "Excepción al iniciar login con Google",
+        message: err?.message ?? String(err),
+      },
+      { status: 500 }
     );
   }
 }
