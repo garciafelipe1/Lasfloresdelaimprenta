@@ -1,13 +1,10 @@
-import { ShipmentCreatedEmailProps } from "@/modules/resend/emails/shipment-created";
-import { templatesNames } from "@/modules/resend/service";
+// import { ShipmentCreatedEmailProps } from "@/modules/resend/emails/shipment-created";
+// import { templatesNames } from "@/modules/resend/service";
 import { MedusaError } from "@medusajs/framework/utils";
-import {
-  createWorkflow,
-  WorkflowResponse,
-} from "@medusajs/framework/workflows-sdk";
+import { createWorkflow } from "@medusajs/framework/workflows-sdk";
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
-import { logStep } from "./steps/log";
-import { sendNotificationStep } from "./steps/send-notification";
+// import { logStep } from "./steps/log";
+// import { sendNotificationStep } from "./steps/send-notification";
 
 type WorkflowInput = {
   shipmentId: string;
@@ -48,27 +45,13 @@ export const shipmentCreatedConfirmationWorkflow = createWorkflow(
       );
     }
 
-    const data: ShipmentCreatedEmailProps = {
-      trackingNumber: shipment.labels[0].tracking_number,
-      order: {
-        id: order.id,
-      },
-      locale: order.metadata?.locale as "es",
-    };
+    // Todo lo de resend queda desactivado:
+    // const data: ShipmentCreatedEmailProps = { ... }
+    // logStep({ data }).config({ name: "log-order" });
+    // const notification = sendNotificationStep([...]);
+    // return new WorkflowResponse(notification);
 
-    logStep({ data }).config({ name: "log-order" });
-
-    const notification = sendNotificationStep([
-      {
-        to: order.email!,
-        channel: "email",
-        template: templatesNames.SHIPMENT_CREATED,
-        data: {
-          ...data,
-        },
-      },
-    ]);
-
-    return new WorkflowResponse(notification);
+    // Ahora el workflow solo valida que el order exista y no envía mails.
+    return;
   }
 );
