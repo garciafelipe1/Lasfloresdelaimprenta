@@ -49,8 +49,16 @@ RUN pnpm -C apps/www build
 # BUILDER – MEDUSA STORE
 ####################################
 FROM base AS builder_store
+
+# Traemos todo el monorepo ya resuelto
 COPY --from=deps /app .
-RUN pnpm -F apps/store build
+
+# Nos paramos dentro del backend de Medusa
+WORKDIR /app/apps/store
+
+# Ejecutamos el build definido en package.json de apps/store
+# (normalmente "build": "medusa build")
+RUN pnpm build
 
 
 ####################################
@@ -92,9 +100,11 @@ RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
 ENV NODE_ENV=production
 ENV PORT=9000
 
-COPY --from=builder_store /app/apps/store/.medusa .medusa
-COPY --from=builder_store /app/apps/store/package.json .
+# Copiamos SOLO la build lista para prod generada por "pnpm build"
+# (.medusa/server contiene package.json + JS compilado)
+COPY --from=builder_store /app/apps/store/.medusa/server ./
 
+# Instalamos dependencias de producción de ese package.json
 RUN pnpm install --prod
 
 EXPOSE 9000
