@@ -50,15 +50,18 @@ RUN pnpm -C apps/www build
 ####################################
 FROM base AS builder_store
 
-# Traemos todo el monorepo ya resuelto
+# Traemos todo el monorepo ya resuelto desde deps
 COPY --from=deps /app .
 
 # Nos paramos dentro del backend de Medusa
 WORKDIR /app/apps/store
 
-# Ejecutamos el build definido en package.json de apps/store
-# (normalmente "build": "medusa build")
-RUN pnpm build
+# Ejecutamos explícitamente lo mismo que tu script "build"
+# "build": "pnpm medusa build && npm run resolve:aliases && rm -rf public && ln -s .medusa/server/public public"
+RUN pnpm medusa build \
+ && npm run resolve:aliases \
+ && rm -rf public \
+ && ln -s .medusa/server/public public
 
 
 ####################################
@@ -100,11 +103,9 @@ RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
 ENV NODE_ENV=production
 ENV PORT=9000
 
-# Copiamos SOLO la build lista para prod generada por "pnpm build"
-# (.medusa/server contiene package.json + JS compilado)
+# Ahora ya sabemos que, si el build pasó, existe .medusa/server
 COPY --from=builder_store /app/apps/store/.medusa/server ./
 
-# Instalamos dependencias de producción de ese package.json
 RUN pnpm install --prod
 
 EXPOSE 9000
