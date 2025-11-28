@@ -26,5 +26,8 @@ export async function GET(
     },
   });
 
-  res.json(data[0].subscriptions);
+  const customer = data[0];
+  const subscriptions = customer?.subscriptions ?? [];
+
+  return res.json(subscriptions);
 }
