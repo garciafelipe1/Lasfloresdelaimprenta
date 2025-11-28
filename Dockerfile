@@ -56,10 +56,12 @@ COPY --from=deps /app .
 # Nos paramos dentro del backend de Medusa
 WORKDIR /app/apps/store
 
-# Ejecutamos explícitamente lo mismo que tu script "build"
-# "build": "pnpm medusa build && npm run resolve:aliases && rm -rf public && ln -s .medusa/server/public public"
-RUN pnpm medusa build \
- && npm run resolve:aliases \
+# 1) Build de Medusa (usa la CLI local)
+RUN npx medusa build
+
+# 2) Post-proceso igual que tu script "build"
+#    "build": "pnpm medusa build && npm run resolve:aliases && rm -rf public && ln -s .medusa/server/public public"
+RUN npm run resolve:aliases \
  && rm -rf public \
  && ln -s .medusa/server/public public
 
