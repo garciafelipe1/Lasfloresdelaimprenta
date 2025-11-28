@@ -10,11 +10,12 @@ export async function GET(req: NextRequest) {
   const search = url.search; // ?code=...&state=...
 
   try {
-    // 1) Reenviamos el callback a Medusa para que lo valide
     const resp = await fetch(
       `${backend}/auth/customer/google/callback${search}`,
       {
         method: "POST",
+        // credentials no hace daño, por si el provider quiere usar cookies
+        credentials: "include",
         headers: {
           "content-type": "application/json",
         },
@@ -33,8 +34,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // 2) Medusa debería devolver un token
     const data = await resp.json();
+    console.log("Google callback data desde Medusa:", data);
+
     const token =
       typeof data === "string"
         ? data
@@ -47,10 +49,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // 3) Guardamos el token usando tu helper actual
     await authCookies.setAuthToken(token);
 
-    // 4) Redirigimos al dashboard
+    // redirigimos al dashboard
     return NextResponse.redirect(`${siteUrl}/es/ar/dashboard`);
   } catch (err) {
     console.error("Excepción en callback de Google:", err);
