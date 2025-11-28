@@ -13,7 +13,6 @@ type WorkflowInput = {
 export const shipmentCreatedConfirmationWorkflow = createWorkflow(
   "shipment-created-confirmation",
   ({ shipmentId }: WorkflowInput) => {
-    // 1. Get the shipment and its order_id
     // @ts-ignore
     const { data: shipments } = useQueryGraphStep({
       entity: "fulfillment",
@@ -45,13 +44,7 @@ export const shipmentCreatedConfirmationWorkflow = createWorkflow(
       );
     }
 
-    // Todo lo de resend queda desactivado:
-    // const data: ShipmentCreatedEmailProps = { ... }
-    // logStep({ data }).config({ name: "log-order" });
-    // const notification = sendNotificationStep([...]);
-    // return new WorkflowResponse(notification);
-
-    // Ahora el workflow solo valida que el order exista y no envía mails.
+    // Workflow desactivado: no usamos resend ni mandamos email
     return;
   }
 );

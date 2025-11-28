@@ -1,10 +1,7 @@
-import { templatesNames } from "@/modules/resend/service";
-import {
-  createWorkflow,
-  WorkflowResponse,
-} from "@medusajs/framework/workflows-sdk";
+// import { templatesNames } from "@/modules/resend/service";
+import { createWorkflow } from "@medusajs/framework/workflows-sdk";
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
-import { sendNotificationStep } from "./steps/send-notification";
+// import { sendNotificationStep } from "./steps/send-notification";
 
 type WorkflowInput = {
   id: string;
@@ -45,18 +42,15 @@ export const sendOrderConfirmationWorkflow = createWorkflow(
 
     const order = orders[0];
 
-    const notification = sendNotificationStep([
-      {
-        to: order.email!,
-        channel: "email",
-        template: templatesNames.ORDER_PLACED,
-        data: {
-          order: order,
-          locale: order.metadata?.locale,
-        },
-      },
-    ]);
+    if (!order) {
+      // si querés, podrías tirar error, pero no es obligatorio
+      return;
+    }
 
-    return new WorkflowResponse(notification);
+    // Notificación desactivada a propósito (no usamos resend)
+    // const notification = sendNotificationStep([...]);
+    // return new WorkflowResponse(notification);
+
+    return;
   }
 );

@@ -1,9 +1,9 @@
-import { templatesNames } from "@/modules/resend/service";
+// import { templatesNames } from "@/modules/resend/service";
 import { MedusaError } from "@medusajs/framework/utils";
 import { createWorkflow } from "@medusajs/framework/workflows-sdk";
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
 import { logStep } from "./steps/log";
-import { sendNotificationStep } from "./steps/send-notification";
+// import { sendNotificationStep } from "./steps/send-notification";
 
 type WorkflowInput = { payment_id: string };
 
@@ -50,14 +50,16 @@ export const sendOrderConfirmationOnPaymentCapturedWorkflow = createWorkflow(
 
     logStep({ data: order }).config({ name: "log-order" });
 
-    // 3. Send the notification
-    sendNotificationStep([
-      {
-        to: order.email!,
-        channel: "email",
-        template: templatesNames.PAYMENT_CAPTURED,
-        data: { order, locale: order.metadata?.locale },
-      },
-    ]);
+    // 👇 Desactivamos el envío de email:
+    // sendNotificationStep([
+    //   {
+    //     to: order.email!,
+    //     channel: "email",
+    //     template: templatesNames.PAYMENT_CAPTURED,
+    //     data: { order, locale: order.metadata?.locale },
+    //   },
+    // ]);
+
+    return;
   }
 );
