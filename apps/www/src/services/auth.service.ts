@@ -4,31 +4,28 @@ import { StoreCustomer } from '@medusajs/types';
 
 class AuthService {
   async getUser(): Promise<StoreCustomer | null> {
-    const authHeaders = await cookies.getAuthHeaders();
-
-    if (!authHeaders) return null;
-
-    const headers = {
-      ...authHeaders,
+    // getAuthHeaders devuelve { authorization: 'Bearer ...' } o {}
+    const authHeaders = (await cookies.getAuthHeaders()) as {
+      authorization?: string;
     };
 
-    console.log({ headers });
-
-    // const next = {
-    //   ...(await getCacheOptions("customers")),
-    // }
+    // Si no hay token, no estamos logueados
+    if (!authHeaders.authorization) {
+      return null;
+    }
 
     try {
       const response = await medusa.client.fetch<{ customer: StoreCustomer }>(
-        `/store/customers/me`,
+        '/store/customers/me',
         {
           method: 'GET',
-          headers,
+          headers: authHeaders,
         },
       );
-      return response.customer;
+
+      return response.customer ?? null;
     } catch (error) {
-      console.error({ error });
+      console.error('[authService.getUser] Error obteniendo usuario:', error);
       return null;
     }
   }
