@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
@@ -7,6 +9,24 @@ import { toast } from 'sonner'
 
 export default function LoginPreview() {
   const i18n = useTranslations('Auth.login')
+  const router = useRouter()
+  const params = useParams<{ locale: string; countryCode: string }>()
+
+  // 🚀 Si ya hay cookie _medusa_jwt, lo sacamos del login al dashboard
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+
+    const hasToken = document.cookie
+      .split('; ')
+      .some((c) => c.startsWith('_medusa_jwt='))
+
+    if (hasToken) {
+      const locale = params.locale ?? 'es'
+      const countryCode = params.countryCode ?? 'ar'
+
+      router.replace(`/${locale}/${countryCode}/dashboard`)
+    }
+  }, [router, params])
 
   const handleGoogleLogin = () => {
     const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
