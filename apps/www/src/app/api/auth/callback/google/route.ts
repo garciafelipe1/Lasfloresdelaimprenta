@@ -1,5 +1,4 @@
 // apps/www/src/app/api/auth/callback/google/route.ts
-import { cookies as authCookies } from "@/lib/data/cookies";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -10,12 +9,11 @@ export async function GET(req: NextRequest) {
   const search = url.search; // ?code=...&state=...
 
   try {
+    // 1) Reenviamos el callback a Medusa para que valide el código de Google
     const resp = await fetch(
       `${backend}/auth/customer/google/callback${search}`,
       {
         method: "POST",
-        // credentials no hace daño, por si el provider quiere usar cookies
-        credentials: "include",
         headers: {
           "content-type": "application/json",
         },
@@ -34,6 +32,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // 2) Medusa debería devolver un token (jwt)
     const data = await resp.json();
     console.log("Google callback data desde Medusa:", data);
 
@@ -49,10 +48,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    await authCookies.setAuthToken(token);
+    // 3) Creamos la respuesta de redirección AL DASHBOARD
+    const res = NextResponse.redirect(`${siteUrl}/es/ar/dashboard`);
 
-    // redirigimos al dashboard
-    return NextResponse.redirect(`${siteUrl}/es/ar/dashboard`);
+    // 4) Y ACÁ seteamos la cookie directo sobre la respuesta
+    res.cookies.set("_medusa_jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7, // 7 días
+      path: "/",
+    });
+
+    return res;
   } catch (err) {
     console.error("Excepción en callback de Google:", err);
     return NextResponse.redirect(
