@@ -3,7 +3,6 @@ import { ModeToggle } from '@/app/components/ui/mode-toggle';
 import { SidebarTrigger } from '@/app/components/ui/sidebar';
 import { authService } from '@/services/auth.service';
 import { userService } from '@/services/user.service';
-import console from 'console';
 import Link from 'next/link';
 import { ProfileDropdown } from './profile-dropdown';
 
@@ -24,7 +23,19 @@ export async function DashboardHeader() {
         <section className='flex items-center gap-4'>
           {subscription && <Badge>{subscription.membership.name}</Badge>}
           <ModeToggle />
-          <ProfileDropdown user={user!} />
+
+          {user ? (
+            // 👇 Sólo mostramos el dropdown si HAY usuario
+            <ProfileDropdown user={user} />
+          ) : (
+            // 👇 Si no hay user, mostramos un enlace a login
+            <Link
+              href='/login'
+              className='text-sm text-muted-foreground hover:underline'
+            >
+              Iniciar sesión
+            </Link>
+          )}
         </section>
       </section>
     </header>

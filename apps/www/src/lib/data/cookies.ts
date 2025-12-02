@@ -3,58 +3,77 @@ import { cookies as nextCookies } from 'next/headers';
 
 export const cookies = {
   async getCartId() {
-    const cookies = await nextCookies();
-    return cookies.get('_medusa_cart_id')?.value;
+    const cookieStore = await nextCookies();
+    return cookieStore.get('_medusa_cart_id')?.value;
   },
 
   async setCartId(cartId: string) {
-    const cookies = await nextCookies();
-    cookies.set('_medusa_cart_id', cartId, {
+    const cookieStore = await nextCookies();
+    cookieStore.set('_medusa_cart_id', cartId, {
       maxAge: 60 * 60 * 24 * 7,
       httpOnly: true,
       sameSite: 'strict',
       secure: process.env.NODE_ENV === 'production',
+      path: '/', // mejor siempre
     });
   },
 
   async removeCartId() {
-    const cookies = await nextCookies();
-    cookies.set('_medusa_cart_id', '', {
+    const cookieStore = await nextCookies();
+    cookieStore.set('_medusa_cart_id', '', {
       maxAge: -1,
+      path: '/',
     });
   },
 
   async setAuthToken(token: string) {
-    const cookies = await nextCookies();
-    cookies.set('_medusa_jwt', token, {
+    const cookieStore = await nextCookies();
+    cookieStore.set('_medusa_jwt', token, {
       maxAge: 60 * 60 * 24 * 7,
       httpOnly: true,
       sameSite: 'strict',
       secure: process.env.NODE_ENV === 'production',
+      path: '/',
     });
   },
 
   async getAuthToken() {
-    const cookies = await nextCookies();
-    const token = cookies.get('_medusa_jwt')?.value;
+    const cookieStore = await nextCookies();
+    const token = cookieStore.get('_medusa_jwt')?.value;
     return token;
   },
 
   async removeAuthToken() {
-    const cookies = await nextCookies();
-    cookies.set('_medusa_jwt', '', {
+    const cookieStore = await nextCookies();
+    cookieStore.set('_medusa_jwt', '', {
       maxAge: -1,
+      path: '/',
     });
   },
 
-  async getAuthHeaders(): Promise<{ authorization: string } | {}> {
-    const cookies = await nextCookies();
-    const token = cookies.get('_medusa_jwt')?.value;
+  async getAuthHeaders(): Promise<{
+    authorization?: string;
+    'x-publishable-api-key'?: string;
+  }> {
+    const cookieStore = await nextCookies();
+    const token = cookieStore.get('_medusa_jwt')?.value;
 
-    if (!token) {
-      return {};
+    const headers: {
+      authorization?: string;
+      'x-publishable-api-key'?: string;
+    } = {};
+
+    // siempre mandamos la publishable key
+    if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+      headers['x-publishable-api-key'] =
+        process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
     }
 
-    return { authorization: `Bearer ${token}` };
+    // si hay JWT, agregamos Authorization
+    if (token) {
+      headers.authorization = `Bearer ${token}`;
+    }
+
+    return headers;
   },
 };

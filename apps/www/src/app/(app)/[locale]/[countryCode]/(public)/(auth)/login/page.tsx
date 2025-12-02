@@ -4,14 +4,15 @@ import { authService } from "@/services/auth.service";
 import LoginPreview from "./LoginPreview";
 
 type LoginPageProps = {
-  params: {
+  params: Promise<{
     locale: string;
     countryCode: string;
-  };
+  }>;
 };
 
 export default async function LoginPage({ params }: LoginPageProps) {
-  const { locale, countryCode } = params;
+  // 👇 AHORA sí: esperamos params
+  const { locale, countryCode } = await params;
 
   // Intentamos obtener el usuario actual; si falla, lo tratamos como no logueado
   const user = await authService.getUser().catch(() => null);
