@@ -11,7 +11,7 @@ type LoginPageProps = {
 };
 
 export default async function LoginPage({ params }: LoginPageProps) {
-  // Next 15: params es una Promise 👉 hay que hacer await
+  // 👇 Next 15: params es una Promise, hay que esperarla
   const { locale, countryCode } = await params;
 
   // Intentamos obtener el usuario actual; si falla, lo tratamos como no logueado

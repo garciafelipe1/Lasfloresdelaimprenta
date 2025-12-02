@@ -1,4 +1,3 @@
-// apps/www/src/app/components/common/dashboard/header/header.tsx
 import { Badge } from '@/app/components/ui/badge';
 import { ModeToggle } from '@/app/components/ui/mode-toggle';
 import { SidebarTrigger } from '@/app/components/ui/sidebar';
