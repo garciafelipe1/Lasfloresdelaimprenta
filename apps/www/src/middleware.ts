@@ -1,13 +1,10 @@
+// apps/www/src/middleware.ts
 import { StoreRegion } from '@medusajs/types'
 import createIntlMiddleware from 'next-intl/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 import { routing } from './i18n/routing'
-import { cookies } from './lib/data/cookies'
 
 const intlMiddleware = createIntlMiddleware(routing)
-
-const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/login'
-const REDIRECT_WHEN_AUTHENTICATED_ROUTE = '/dashboard'
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
@@ -30,7 +27,6 @@ async function getRegionMap(cacheId: string) {
   if (!BACKEND_URL) throw new Error("Missing MEDUSA_BACKEND_URL")
 
   if (!regionMap.keys().next().value || regionMapUpdated < Date.now() - 3600 * 1000) {
-
     const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
       headers: { "x-publishable-api-key": PUBLISHABLE_API_KEY! },
       next: { revalidate: 3600 }
@@ -68,16 +64,16 @@ async function getCountryCode(
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // 1) EXCLUSIÓN TOTAL DE ROUTES DE AUTH Y API
+  // 1) Excluir API y auth backend
   if (
-    pathname.startsWith('/api/') ||           // api interna
-    pathname.startsWith('/store/auth') ||     // OAuth backend Medusa
-    pathname.includes('/callback/google')     // callback OAuth
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/store/auth') ||
+    pathname.includes('/callback/google')
   ) {
     return NextResponse.next()
   }
 
-  // 2) INTERNATIONALIZATION
+  // 2) INTERNATIONALIZATION + REGION
   const cacheIdCookie = request.cookies.get('_medusa_cache_id')
   const cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
@@ -86,7 +82,6 @@ export async function middleware(request: NextRequest) {
 
   const segments = pathname.split('/')
   const urlCountry = segments[2]?.toLowerCase()
-
   const hasCountry = urlCountry === countryCode
 
   if (!hasCountry) {
@@ -102,31 +97,10 @@ export async function middleware(request: NextRequest) {
     response.cookies.set('_medusa_cache_id', cacheId, { maxAge: 86400 })
   }
 
-  // 3) DASHBOARD GUARD
-  const jwtToken = await cookies.getAuthToken()
-  const isLogged = Boolean(jwtToken)
-
-  const isAuthPage = pathname.includes('/login') || pathname.includes('/register')
-  const isDashboard = pathname.includes('/dashboard')
-
-  if (isLogged && isAuthPage) {
-    const r = request.nextUrl.clone()
-    r.pathname = REDIRECT_WHEN_AUTHENTICATED_ROUTE
-    return NextResponse.redirect(r)
-  }
-
-  if (!isLogged && isDashboard) {
-    const r = request.nextUrl.clone()
-    r.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
-    return NextResponse.redirect(r)
-  }
-
+  // 👇 YA NO HAY LÓGICA DE AUTH ACÁ
   return response
 }
 
-// ===============================================
-// MATCHER FINAL (SEGURO Y COMPROBADO)
-// ===============================================
 export const config = {
   matcher: [
     '/((?!api|store/auth|_next|_vercel|.*\\..*).*)',
