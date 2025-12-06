@@ -42,7 +42,7 @@ export const useMercadopagoFormData = () => {
   const context = useContext(MercadopagoPaymentDataContext);
   if (!context) {
     throw new Error(
-      'useFormData debe ser utilizado en el scope the un PaymentFormProvider',
+      'useFormData debe ser utilizado en el scope de un PaymentFormProvider',
     );
   }
   return context;
