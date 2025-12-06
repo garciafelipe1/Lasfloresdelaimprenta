@@ -51,7 +51,11 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      paymentMethod: '',
+    },
   });
+
   const router = useRouter();
 
   const { isExecuting, executeAsync } = useAction(
@@ -61,16 +65,22 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         toast.error('Hubo un error al iniciar el pago');
       },
       onSuccess() {
-        toast.success('Proovedor de pago seleccionado correctamente');
+        toast.success('Proveedor de pago seleccionado correctamente');
       },
     },
   );
 
   const isMp = isMercadopago(form.watch('paymentMethod'));
 
+  // Guardamos el controller del Brick en window sin romper TypeScript
+  const handleBrickReady = (brickController: any) => {
+    (window as any).paymentBrickController = brickController;
+  };
+
   const handleSubmit = async (data: FormSchema) => {
     console.log('Selected payment method:', data.paymentMethod);
     setIsLoading(true);
+
     const checkActiveSession =
       activeSession?.provider_id === data.paymentMethod;
 
@@ -87,18 +97,16 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
           providerId: data.paymentMethod,
         });
       }
-      //@ts-expect-error va a explotar
-      if (isMp && !window.paymentBrickController) {
-        return;
-      }
 
       if (isMp) {
-        const additionalData =
-          //@ts-expect-error va a explotar
-          await window.paymentBrickController!.getAdditionalData();
+        const controller = (window as any).paymentBrickController;
 
-        //@ts-expect-error va a explotar
-        const formData = await window.paymentBrickController!.getFormData();
+        if (!controller) {
+          throw new Error('Completar la información necesaria de tu tarjeta');
+        }
+
+        const additionalData = await controller.getAdditionalData();
+        const formData = await controller.getFormData();
 
         if (!additionalData) {
           throw new Error('Completar la información necesaria de tu tarjeta');
@@ -106,13 +114,12 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         if (!formData) {
           throw new Error('Completar la información necesaria de tu tarjeta');
         }
+
         setAdditionalData(additionalData);
         setFormData(formData);
       }
 
-      return router.push(steps[3].href, {
-        scroll: false,
-      });
+      router.push(steps[3].href, { scroll: false });
     } catch (error) {
       console.error({ error });
 
@@ -125,14 +132,14 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
   };
 
   useEffect(() => {
-    //@ts-expect-error va a explotar
-    window?.paymentBrickController?.unmount();
+    const controller = (window as any).paymentBrickController;
+    controller?.unmount();
   }, [form.watch('paymentMethod')]);
 
   useEffect(() => {
     return () => {
-      //@ts-expect-error va a explotar
-      window?.paymentBrickController?.unmount();
+      const controller = (window as any).paymentBrickController;
+      controller?.unmount();
     };
   }, []);
 
@@ -179,6 +186,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             </FormItem>
           )}
         />
+
         {isMp && (
           <MpPaymentBrick
             customization={{
@@ -192,6 +200,9 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
               amount: cart.total,
             }}
             onSubmit={async () => await Promise.resolve()}
+            // Los types del SDK dicen () => void, pero en runtime Mercado Pago
+            // pasa el brickController como argumento.
+            onReady={handleBrickReady as any}
           />
         )}
 
