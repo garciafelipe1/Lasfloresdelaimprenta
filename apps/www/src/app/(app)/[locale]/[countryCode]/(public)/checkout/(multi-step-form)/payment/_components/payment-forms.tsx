@@ -22,32 +22,12 @@ import {
 import { Payment as MpPaymentBrick } from '@mercadopago/sdk-react';
 import { useAction } from 'next-safe-action/hooks';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { steps } from '../../constants';
 import { isMercadopago, paymentInfoMap } from '../constants';
-
-// -----------------
-// Tipado del controller del Brick
-// -----------------
-import type {
-  IAdditionalData,
-  IPaymentFormData,
-} from '@mercadopago/sdk-react/esm/bricks/payment/type';
-
-type PaymentBrickController = {
-  getAdditionalData: () => Promise<IAdditionalData | null>;
-  getFormData: () => Promise<IPaymentFormData | null>;
-  unmount: () => void;
-};
-
-declare global {
-  interface Window {
-    paymentBrickController?: PaymentBrickController;
-  }
-}
 
 interface Props {
   cart: StoreCart;
@@ -76,8 +56,9 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     },
   });
 
-  const paymentMethod = form.watch('paymentMethod');
-  const isMp = isMercadopago(paymentMethod);
+  // Siempre string → evita el warning de "uncontrolled to controlled"
+  const selectedPaymentMethod = form.watch('paymentMethod') || '';
+  const isMp = isMercadopago(selectedPaymentMethod);
 
   const router = useRouter();
 
@@ -93,11 +74,9 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     },
   );
 
-  // Guardamos el controller del Brick en window
-  const handleBrickReady = (brickController: PaymentBrickController) => {
-    if (typeof window !== 'undefined') {
-      window.paymentBrickController = brickController;
-    }
+  // Guardamos el controller del Brick en window sin romper TypeScript
+  const handleBrickReady = (brickController: any) => {
+    (window as any).paymentBrickController = brickController;
   };
 
   const handleSubmit = async (data: FormSchema) => {
@@ -110,7 +89,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     console.log('Active session check:', checkActiveSession);
 
     try {
-      // 1) Aseguramos la sesión de pago en Medusa
+      // Si el provider cambió, iniciamos la sesión de pago en Medusa
       if (!checkActiveSession) {
         console.log(
           'Starting payment session with provider:',
@@ -122,63 +101,46 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         });
       }
 
-      // 2) Si es Mercado Pago, pedimos los datos al Brick
       if (isMp) {
-        if (typeof window === 'undefined') {
-          throw new Error('Error interno del navegador');
-        }
-
-        const controller = window.paymentBrickController;
+        const controller = (window as any).paymentBrickController;
 
         if (!controller) {
-          throw new Error(
-            'Completá primero el formulario de la tarjeta antes de continuar',
-          );
+          throw new Error('Completar la información necesaria de tu tarjeta');
         }
-
-        let additionalData: IAdditionalData | null = null;
-        let formData: IPaymentFormData | null = null;
 
         try {
-          additionalData = await controller.getAdditionalData();
-          formData = await controller.getFormData();
-        } catch (err: any) {
-          console.error('[MP BRICK ERROR]', err);
+          const additionalData = await controller.getAdditionalData();
+          const formData = await controller.getFormData();
 
-          // Si viene el error de cuotas vacías lo explicamos mejor
-          if (
-            err instanceof Error &&
-            err.message &&
-            err.message.toLowerCase().includes('empty_installments')
-          ) {
-            throw new Error(
-              'Seleccioná la cantidad de cuotas en el formulario de Mercado Pago',
-            );
+          if (!additionalData || !formData) {
+            throw new Error('Completar la información necesaria de tu tarjeta');
           }
 
-          throw new Error('Revisá los datos de tu tarjeta e intentá de nuevo');
-        }
+          setAdditionalData(additionalData);
+          setFormData(formData);
+        } catch (mpError: any) {
+          console.error('Error al obtener datos de Mercado Pago', mpError);
 
-        if (!additionalData || !formData) {
-          throw new Error(
-            'Completá todos los campos requeridos de la tarjeta (incluyendo cuotas)',
-          );
-        }
+          // Mensajes más claros según lo que devuelve el Brick
+          const rawMessage: string | undefined = mpError?.message;
 
-        // Guardamos en el contexto para el siguiente paso del checkout
-        setAdditionalData(additionalData);
-        setFormData(formData);
+          let message = 'Completar la información necesaria de tu tarjeta';
+
+          if (rawMessage?.toLowerCase().includes('empty_installments')) {
+            message = 'Seleccioná la cantidad de cuotas para continuar';
+          }
+
+          throw new Error(message);
+        }
       }
 
-      // 3) Pasamos al siguiente paso del checkout
+      // Si todo salió bien, pasamos al siguiente paso del checkout
       router.push(steps[3].href, { scroll: false });
     } catch (error: any) {
-      console.error({ error });
+      console.error('Error al continuar con el pago', error);
 
       const message =
-        error instanceof Error && error.message
-          ? error.message
-          : 'Completar la información necesaria de tu tarjeta';
+        error?.message || 'Completar la información necesaria de tu tarjeta';
 
       form.setError('paymentMethod', {
         message,
@@ -192,25 +154,17 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
 
   // Cuando cambia el método de pago, desmontamos el Brick anterior
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const controller = window.paymentBrickController;
-    controller?.unmount();
-  }, [paymentMethod]);
+    const controller = (window as any).paymentBrickController;
+    controller?.unmount?.();
+  }, [selectedPaymentMethod]);
 
-  // Cleanup al desmontar el componente
+  // Cleanup al salir de la página de pago
   useEffect(() => {
     return () => {
-      if (typeof window === 'undefined') return;
-      const controller = window.paymentBrickController;
-      controller?.unmount();
+      const controller = (window as any).paymentBrickController;
+      controller?.unmount?.();
     };
   }, []);
-
-  // Evitamos la advertencia de "uncontrolled -> controlled"
-  const radioOptions = useMemo(
-    () => availablePaymentMethods ?? [],
-    [availablePaymentMethods],
-  );
 
   return (
     <Form {...form}>
@@ -226,11 +180,11 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
               <FormLabel>Método de pago</FormLabel>
               <FormControl>
                 <RadioGroup
-                  defaultValue={field.value}
-                  onValueChange={field.onChange}
+                  value={selectedPaymentMethod}
+                  onValueChange={(value) => field.onChange(value)}
                   className='flex flex-col gap-2'
                 >
-                  {radioOptions.map((option, index) => (
+                  {availablePaymentMethods.map((option, index) => (
                     <FormItem
                       className='flex items-center space-y-0 space-x-3'
                       key={index}
@@ -249,7 +203,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
                 </RadioGroup>
               </FormControl>
               <FormDescription>
-                Seleccioná el método de pago que más te convenga
+                Seleccioná el método de pago que mejor te convenga
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -266,11 +220,12 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
               },
             }}
             initialization={{
-              // Si tus montos están en centavos podés ajustar a /100
               amount: cart.total,
             }}
-            onSubmit={async () => await Promise.resolve()}
-            // En runtime Mercado Pago pasa el controller como argumento
+            // No usamos el submit interno del Brick, solo lo requerimos para el tipo
+            onSubmit={async () => Promise.resolve()}
+            // En runtime Mercado Pago pasa el controller como argumento,
+            // por eso casteamos a any
             onReady={handleBrickReady as any}
           />
         )}
