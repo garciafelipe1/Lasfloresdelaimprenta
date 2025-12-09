@@ -47,7 +47,11 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
   );
 
   const { setFormData, setAdditionalData } = useMercadopagoFormData();
+
   const [isLoading, setIsLoading] = useState(false);
+
+  // 👉 NUEVO: saber cuándo el Brick está listo
+  const [isMpBrickReady, setIsMpBrickReady] = useState(false);
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -56,7 +60,6 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     },
   });
 
-  // Siempre string → evita el warning de "uncontrolled to controlled"
   const selectedPaymentMethod = form.watch('paymentMethod') || '';
   const isMp = isMercadopago(selectedPaymentMethod);
 
@@ -74,9 +77,10 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     },
   );
 
-  // Guardamos el controller del Brick en window sin romper TypeScript
+  // 👉 Guardamos el controller del Brick y marcamos que está listo
   const handleBrickReady = (brickController: any) => {
     (window as any).paymentBrickController = brickController;
+    setIsMpBrickReady(true);
   };
 
   const handleSubmit = async (data: FormSchema) => {
@@ -102,10 +106,17 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
       }
 
       if (isMp) {
+        // Si el Brick todavía no terminó de montar, corto acá
+        if (!isMpBrickReady) {
+          throw new Error(
+            'Esperá a que cargue el formulario de tarjeta y volvé a intentar',
+          );
+        }
+
         const controller = (window as any).paymentBrickController;
 
         if (!controller) {
-          throw new Error('Completar la información necesaria de tu tarjeta');
+          throw new Error('No se pudo inicializar el formulario de tarjeta');
         }
 
         try {
@@ -121,11 +132,11 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         } catch (mpError: any) {
           console.error('Error al obtener datos de Mercado Pago', mpError);
 
-          // Mensajes más claros según lo que devuelve el Brick
           const rawMessage: string | undefined = mpError?.message;
 
           let message = 'Completar la información necesaria de tu tarjeta';
 
+          // Caso típico de tu consola: empty_installments
           if (rawMessage?.toLowerCase().includes('empty_installments')) {
             message = 'Seleccioná la cantidad de cuotas para continuar';
           }
@@ -156,6 +167,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
   useEffect(() => {
     const controller = (window as any).paymentBrickController;
     controller?.unmount?.();
+    setIsMpBrickReady(false);
   }, [selectedPaymentMethod]);
 
   // Cleanup al salir de la página de pago
@@ -222,17 +234,16 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             initialization={{
               amount: cart.total,
             }}
-            // No usamos el submit interno del Brick, solo lo requerimos para el tipo
             onSubmit={async () => Promise.resolve()}
-            // En runtime Mercado Pago pasa el controller como argumento,
-            // por eso casteamos a any
             onReady={handleBrickReady as any}
           />
         )}
 
         <FormButton
           isLoading={isLoading || isExecuting}
-          disabled={isLoading || isExecuting}
+          disabled={
+            isLoading || isExecuting || (isMp && !isMpBrickReady)
+          }
         >
           Continuar
         </FormButton>
