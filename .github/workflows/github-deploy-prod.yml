@@ -66,8 +66,6 @@ jobs:
             echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}"
             echo "MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}"
             echo "MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}"
-            # 👇 ESTA es la que usa tu frontend (MercadoPagoProvider)
-            echo "NEXT_PUBLIC_MP_PUBLIC_KEY=${{ secrets.MP_PUBLIC_KEY }}"
             echo "MP_CLIENT_ID=${{ secrets.MP_CLIENT_ID }}"
             echo "MP_CLIENT_SECRET=${{ secrets.MP_CLIENT_SECRET }}"
             echo "MP_WEBHOOK_KEY=${{ secrets.MP_WEBHOOK_KEY }}"
@@ -80,24 +78,20 @@ jobs:
             echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
             echo "MEDUSA_BACKEND_URL=${{ secrets.MEDUSA_BACKEND_URL }}"
 
-            # 👇 FRONT de Medusa / región
+            # 👇 FINALLY: LAS CORRECTAS
             echo "NEXT_PUBLIC_MEDUSA_BACKEND_URL=${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}"
             echo "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}"
             echo "NEXT_PUBLIC_DEFAULT_REGION=${{ secrets.NEXT_PUBLIC_DEFAULT_REGION }}"
           } > apps/www/.env.production
 
-      # 8) Vercel deploy (cloud build, prod) con debug + retry
+      # 8) Vercel deploy (primero para preparar proyecto)
       - name: Vercel deploy (cloud build, prod)
-        run: |
-          npx -y vercel@latest deploy --prod --yes --debug --token=${{ secrets.VERCEL_TOKEN }} || \
-          npx -y vercel@latest deploy --prod --yes --debug --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 9) Pull de envs (si las usás desde Vercel)
+      # 9) Pull de envs
       - name: Vercel pull (prod)
-        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --debug
+        run: npx -y vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 10) Deploy final con debug + retry
+      # 10) Deploy final
       - name: Vercel deploy (cloud build, prod final)
-        run: |
-          npx -y vercel@latest deploy --prod --yes --debug --token=${{ secrets.VERCEL_TOKEN }} || \
-          npx -y vercel@latest deploy --prod --yes --debug --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx -y vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
