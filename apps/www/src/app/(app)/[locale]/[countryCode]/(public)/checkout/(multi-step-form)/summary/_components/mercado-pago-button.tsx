@@ -32,9 +32,10 @@ export function MercadopagoPaymentButton({
   const handlePayment = async () => {
     // 1) Validaciones previas
     if (notReady) {
-      toast.error(
-        'Faltan datos de envío o facturación para completar el pedido.',
-      );
+      const msg =
+        'Faltan datos de envío o facturación para completar el pedido.';
+      setErrorMessage(msg);
+      toast.error(msg);
       return;
     }
 
@@ -54,29 +55,57 @@ export function MercadopagoPaymentButton({
       return;
     }
 
-    // 2) Llamar backend: MP -> Medusa -> luego crear orden
+    // 2) Procesar pago: actualizar sesión -> completar carrito
     setSubmitting(true);
     setErrorMessage(null);
 
     try {
-      // Confirma el pago en tu backend /store/mercadopago/payment
-      await confirmMercadopagoPayment(session.id, formData.formData);
+      // Paso 1: Actualizar la sesión de pago con los datos de MercadoPago
+      // Esto almacena los datos del formulario en la sesión para que el plugin
+      // los use cuando se complete el carrito
+      const paymentResult = await confirmMercadopagoPayment(
+        session.id,
+        formData.formData,
+      );
 
-      // Crea la orden en Medusa
+      if (!paymentResult.success) {
+        throw new Error(
+          paymentResult.message || 'No se pudo actualizar la sesión de pago',
+        );
+      }
+
+      // Paso 2: Completar el carrito
+      // Esto crea la orden y automáticamente autoriza/captura el pago
+      // usando el payment provider de MercadoPago con los datos almacenados
       await placeOrderAction();
 
       toast.success('Pedido realizado correctamente ✅');
-
-      // Si tenés una página de éxito, podrías redirigir acá:
-      // router.push('/checkout/success');
       router.refresh();
     } catch (err: any) {
-      console.error('Error al confirmar el pago o crear la orden', err);
-      const msg =
-        err?.message ??
-        'No pudimos confirmar el pago. Intentá nuevamente en unos minutos.';
-      setErrorMessage(msg);
-      toast.error(msg);
+      console.error('Error al procesar el pago', {
+        error: err,
+        sessionId: session.id,
+      });
+
+      // Mensajes de error más específicos
+      let errorMessage =
+        'No pudimos procesar el pago. Intentá nuevamente en unos minutos.';
+
+      if (err?.message) {
+        errorMessage = err.message;
+      } else if (err?.code === 'PAYMENT_SESSION_NOT_FOUND') {
+        errorMessage =
+          'La sesión de pago expiró. Por favor, volvé a seleccionar el método de pago.';
+      } else if (err?.code === 'INVALID_PAYMENT_PROVIDER') {
+        errorMessage =
+          'Error en la configuración del método de pago. Por favor, intentá con otro método.';
+      } else if (err?.code === 'UPDATE_SESSION_FAILED') {
+        errorMessage =
+          'No se pudieron guardar los datos de la tarjeta. Por favor, intentá nuevamente.';
+      }
+
+      setErrorMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }

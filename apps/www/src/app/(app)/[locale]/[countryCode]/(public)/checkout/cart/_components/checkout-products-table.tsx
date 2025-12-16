@@ -109,7 +109,6 @@ export function CheckoutProductsTable({ items }: Props) {
               size='sm'
               onClick={() => handleIncreaseItemQuantity(item.id)}
             >
-              +
             </Button>
           </div>
 

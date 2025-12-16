@@ -22,6 +22,8 @@ import { createShippingOptionSchema } from "../shared/dtos/shipping-options";
 import { webhookSubscriptionSchema } from "./membership/subscription/validators";
 import { PutMembershipSchema } from "./membership/validators";
 import { GetStoreCustomSchema } from "./store/custom/validators";
+import { ConfirmMercadoPagoPaymentSchema } from "./store/mercadopago/payment/validators";
+import { MercadoPagoWebhookSchema } from "./store/mercadopago/webhook/validators";
 
 export default defineMiddlewares({
   routes: [
@@ -41,6 +43,17 @@ export default defineMiddlewares({
       matcher: "/membership/subscription",
       method: "POST",
       middlewares: [validateAndTransformBody(webhookSubscriptionSchema)],
+    },
+    // MercadoPago payment endpoints
+    {
+      matcher: "/store/mercadopago/payment",
+      method: "POST",
+      middlewares: [validateAndTransformBody(ConfirmMercadoPagoPaymentSchema)],
+    },
+    {
+      matcher: "/store/mercadopago/webhook",
+      method: "POST",
+      middlewares: [validateAndTransformBody(MercadoPagoWebhookSchema)],
     },
     {
       matcher: "/membership/subscription/me",
