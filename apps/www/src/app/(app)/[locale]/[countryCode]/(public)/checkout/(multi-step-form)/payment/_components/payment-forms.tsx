@@ -110,12 +110,27 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     console.log('[PaymentForms] Método de pago seleccionado:', data.paymentMethod);
     console.log('[PaymentForms] Es MercadoPago:', isMp);
     console.log('[PaymentForms] Cart ID:', cart.id);
+    console.log('[PaymentForms] Cart email:', cart.email);
+    console.log('[PaymentForms] Cart tiene shipping_address:', !!cart.shipping_address);
+    console.log('[PaymentForms] Cart tiene billing_address:', !!cart.billing_address);
     
     setIsLoading(true);
 
     try {
       // Si es MercadoPago, crear preferencia y redirigir
       if (isMp) {
+        // Validar que el email esté presente antes de intentar crear la preferencia
+        if (!cart.email) {
+          const errorMsg = 'Es necesario completar el email antes de continuar con el pago. Por favor, volvé al paso de dirección y completá tus datos.';
+          console.error('[PaymentForms] ERROR: El carrito no tiene email');
+          form.setError('paymentMethod', {
+            message: errorMsg,
+          });
+          toast.error(errorMsg);
+          setIsLoading(false);
+          return;
+        }
+
         console.log('[PaymentForms] Creando preferencia de MercadoPago usando useAction...');
         console.log('[PaymentForms] Llamando executeMercadoPago sin argumentos (schema es z.void())...');
         

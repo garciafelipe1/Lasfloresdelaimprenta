@@ -95,7 +95,20 @@ export const createMercadoPagoPreference = cartActionClient
       // Validar que el email esté presente (requerido por MercadoPago)
       if (!cartData.email) {
         console.error('[MP] ERROR: El carrito no tiene email asociado');
-        throw new Error('Es necesario completar el email antes de continuar con el pago');
+        console.error('[MP] Datos del carrito disponibles:', {
+          hasEmail: !!cartData.email,
+          hasShippingAddress: !!cartData.shipping_address,
+          hasBillingAddress: !!cartData.billing_address,
+          email: cartData.email,
+        });
+        throw new Error('Es necesario completar el email antes de continuar con el pago. Por favor, volvé al paso anterior y completá tus datos.');
+      }
+
+      // Validar formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cartData.email)) {
+        console.error('[MP] ERROR: Email con formato inválido:', cartData.email);
+        throw new Error('El email ingresado no es válido. Por favor, verificá tus datos.');
       }
 
       // Validar que haya items en el carrito
@@ -253,6 +266,36 @@ export const createMercadoPagoPreference = cartActionClient
         }
       }
 
+      // Validación final del objeto payer antes de enviar
+      console.log('[MP] Objeto payer final antes de enviar:', JSON.stringify(payerData, null, 2));
+      console.log('[MP] Datos completos del carrito para payer:', {
+        hasEmail: !!cartData.email,
+        hasBillingAddress: !!cartData.billing_address,
+        hasShippingAddress: !!cartData.shipping_address,
+        billingFirstName: cartData.billing_address?.first_name,
+        billingLastName: cartData.billing_address?.last_name,
+        billingPhone: cartData.billing_address?.phone,
+        shippingFirstName: cartData.shipping_address?.first_name,
+        shippingLastName: cartData.shipping_address?.last_name,
+        shippingPhone: cartData.shipping_address?.phone,
+        billingAddress: cartData.billing_address?.address_1,
+        shippingAddress: cartData.shipping_address?.address_1,
+        billingPostalCode: cartData.billing_address?.postal_code,
+        shippingPostalCode: cartData.shipping_address?.postal_code,
+      });
+      
+      if (!payerData.email || !emailRegex.test(payerData.email)) {
+        throw new Error('El email es requerido y debe tener un formato válido para procesar el pago.');
+      }
+      
+      // Advertencia si faltan datos importantes para MercadoPago
+      if (!payerData.name || !payerData.surname) {
+        console.warn('[MP] ADVERTENCIA: Faltan nombre o apellido del comprador. MercadoPago puede deshabilitar el botón de pago.');
+      }
+      if (!payerData.phone) {
+        console.warn('[MP] ADVERTENCIA: Falta el teléfono del comprador. MercadoPago puede deshabilitar el botón de pago.');
+      }
+
     const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL;
 
@@ -290,6 +333,9 @@ export const createMercadoPagoPreference = cartActionClient
       payerName: preferenceBody.payer.name,
       payerSurname: preferenceBody.payer.surname,
       hasPayerPhone: !!preferenceBody.payer.phone,
+      payerPhone: preferenceBody.payer.phone,
+      hasPayerAddress: !!preferenceBody.payer.address,
+      payerAddress: preferenceBody.payer.address,
       external_reference: preferenceBody.external_reference,
       hasNotificationUrl: !!preferenceBody.notification_url,
       back_urls: preferenceBody.back_urls,
@@ -297,11 +343,65 @@ export const createMercadoPagoPreference = cartActionClient
     
     // Log detallado de items
     console.log('[MP] Items detallados:', JSON.stringify(preferenceBody.items, null, 2));
+    
+    // Log completo del objeto payer que se enviará
+    console.log('[MP] PAYER COMPLETO que se enviará a MercadoPago:', JSON.stringify(preferenceBody.payer, null, 2));
+    
+    // Validar que todos los items tengan datos válidos
+    const invalidItems = preferenceBody.items.filter(item => 
+      !item.id || !item.title || item.quantity <= 0 || item.unit_price <= 0
+    );
+    if (invalidItems.length > 0) {
+      console.error('[MP] ERROR: Items inválidos encontrados:', invalidItems);
+      throw new Error('Algunos productos tienen datos inválidos. Por favor, intentá nuevamente.');
+    }
+    
+    // Advertencia si faltan datos importantes del payer
+    const missingPayerData = [];
+    if (!preferenceBody.payer.name) missingPayerData.push('nombre');
+    if (!preferenceBody.payer.surname) missingPayerData.push('apellido');
+    if (!preferenceBody.payer.phone) missingPayerData.push('teléfono');
+    
+    if (missingPayerData.length > 0) {
+      console.warn('[MP] ADVERTENCIA: Faltan datos del comprador:', missingPayerData.join(', '));
+      console.warn('[MP] MercadoPago puede deshabilitar el botón de pago si faltan estos datos.');
+      console.warn('[MP] Asegurate de que el usuario complete todos los datos en el paso de dirección.');
+    }
 
     // Crear la preferencia de pago
-    const preference = await new Preference(mercadoPagoClient).create({
-      body: preferenceBody,
-    });
+    let preference;
+    try {
+      preference = await new Preference(mercadoPagoClient).create({
+        body: preferenceBody,
+      });
+    } catch (mpError: any) {
+      console.error('[MP] ERROR al crear preferencia en MercadoPago API');
+      console.error('[MP] Error de MercadoPago:', {
+        message: mpError?.message,
+        status: mpError?.status,
+        statusCode: mpError?.statusCode,
+        cause: mpError?.cause,
+      });
+      
+      // Intentar obtener más detalles del error
+      if (mpError?.cause) {
+        console.error('[MP] Error cause:', JSON.stringify(mpError.cause, null, 2));
+      }
+      
+      if (mpError?.response) {
+        console.error('[MP] Error response:', {
+          status: mpError.response.status,
+          statusText: mpError.response.statusText,
+          data: mpError.response.data,
+        });
+      }
+      
+      throw new Error(
+        mpError?.message || 
+        mpError?.cause?.message || 
+        'No se pudo crear la preferencia de pago en MercadoPago. Por favor, verificá tus datos e intentá nuevamente.'
+      );
+    }
 
     console.log('[MP] Respuesta de MercadoPago:', {
       hasPreference: !!preference,
@@ -309,12 +409,20 @@ export const createMercadoPagoPreference = cartActionClient
       hasInitPoint: !!preference.init_point,
       initPoint: preference.init_point?.substring(0, 50) + '...',
       status: preference.status,
+      payer: preference.payer,
+      items: preference.items?.length,
     });
 
     if (!preference.init_point) {
       console.error('[MP] ERROR: La preferencia no tiene init_point');
-      console.error('[MP] Respuesta completa:', JSON.stringify(preference, null, 2));
-      throw new Error('No se pudo crear la preferencia de pago');
+      console.error('[MP] Respuesta completa de MercadoPago:', JSON.stringify(preference, null, 2));
+      
+      // Verificar si hay errores en la respuesta
+      if (preference.status === 'rejected' || preference.status === 'cancelled') {
+        throw new Error(`La preferencia fue ${preference.status}. Por favor, verificá tus datos e intentá nuevamente.`);
+      }
+      
+      throw new Error('No se pudo crear la preferencia de pago. MercadoPago no devolvió una URL de pago válida.');
     }
 
     console.log('[MP] Preferencia creada exitosamente');
