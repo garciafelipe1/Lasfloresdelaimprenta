@@ -3,6 +3,10 @@ import { cookies } from '@/lib/data/cookies';
 import { medusa } from '@/lib/medusa-client';
 
 interface Props {
+  params: Promise<{
+    locale: string;
+    countryCode: string;
+  }>;
   searchParams: Promise<{
     collection_id?: string;
     collection_status?: string;
@@ -16,6 +20,7 @@ interface Props {
 }
 
 export default async function CheckoutSuccessPage(props: Props) {
+  const params = await props.params;
   const searchParams = await props.searchParams;
   const { external_reference, collection_status, payment_id, status } = searchParams;
 
@@ -36,7 +41,7 @@ export default async function CheckoutSuccessPage(props: Props) {
         await cookies.removeCartId();
         
         // Redirigir a la página de confirmación de orden
-        redirect(`/order/${cartResponse.order.display_id}/confirmed`);
+        redirect(`/${params.locale}/${params.countryCode}/order/${cartResponse.order.display_id}/confirmed`);
       } else {
         console.warn('[CheckoutSuccess] El carrito no se pudo completar:', cartResponse);
       }

@@ -1,4 +1,8 @@
 interface Props {
+  params: Promise<{
+    locale: string;
+    countryCode: string;
+  }>;
   searchParams: Promise<{
     collection_id?: string;
     collection_status?: string;
@@ -12,6 +16,7 @@ interface Props {
 }
 
 export default async function CheckoutPendingPage(props: Props) {
+  const params = await props.params;
   const searchParams = await props.searchParams;
 
   console.log('[CheckoutPending] Parámetros recibidos:', searchParams);

@@ -395,9 +395,16 @@ export const createMercadoPagoPreference = cartActionClient
       // Limpiar la URL para evitar dobles barras
       const cleanAppUrl = appUrl.replace(/\/+$/, '');
 
+      // Obtener locale y countryCode del carrito o usar valores por defecto
+      // El cartActionClient usa 'ar' por defecto, y el locale por defecto es 'es'
+      const locale = cart.region?.countries?.[0]?.iso_2 === 'ar' ? 'es' : 'es'; // Por ahora siempre 'es' para Argentina
+      const countryCode = cart.region?.countries?.[0]?.iso_2 || 'ar';
+
       console.log('[MP] Configuración de URLs:', {
         appUrl,
         cleanAppUrl,
+        locale,
+        countryCode,
         medusaBackendUrl,
         hasNotificationUrl: !!medusaBackendUrl,
       });
@@ -406,9 +413,9 @@ export const createMercadoPagoPreference = cartActionClient
         items,
         payer: payerData,
         back_urls: {
-          success: `${cleanAppUrl}/checkout/success`,
-          failure: `${cleanAppUrl}/checkout/failure`,
-          pending: `${cleanAppUrl}/checkout/pending`,
+          success: `${cleanAppUrl}/${locale}/${countryCode}/checkout/success`,
+          failure: `${cleanAppUrl}/${locale}/${countryCode}/checkout/failure`,
+          pending: `${cleanAppUrl}/${locale}/${countryCode}/checkout/pending`,
         },
       auto_return: 'approved' as const,
       external_reference: cart.id,
