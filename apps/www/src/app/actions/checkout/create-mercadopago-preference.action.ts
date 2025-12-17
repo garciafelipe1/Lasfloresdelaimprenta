@@ -63,7 +63,8 @@ export const createMercadoPagoPreference = cartActionClient
           console.log('[MP] Provider de MercadoPago encontrado:', mercadoPagoProvider.id);
 
           // Crear la sesión de pago
-          await medusa.store.payment.initiatePaymentSession(cart.id, {
+          // Nota: En Medusa v2, initiatePaymentSession espera el objeto cart completo, no el cartId
+          await medusa.store.payment.initiatePaymentSession(cart, {
             provider_id: mercadoPagoProvider.id,
           });
 

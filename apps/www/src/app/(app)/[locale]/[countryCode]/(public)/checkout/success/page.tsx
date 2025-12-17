@@ -166,34 +166,57 @@ export default async function CheckoutSuccessPage(props: Props) {
       // Log completo de la respuesta para debugging
       console.log('[CheckoutSuccess] Respuesta completa (JSON):', JSON.stringify(cartResponse, null, 2));
       
+      console.log('[CheckoutSuccess] ========== ANALIZANDO RESPUESTA ==========');
+      console.log('[CheckoutSuccess] Tipo de respuesta:', cartResponse?.type);
+      console.log('[CheckoutSuccess] Tiene order:', !!cartResponse?.order);
+      console.log('[CheckoutSuccess] Tiene cart:', !!cartResponse?.cart);
+      
       if (cartResponse?.type === 'order' && cartResponse?.order) {
-        console.log('[CheckoutSuccess] ✅ Orden creada exitosamente:', {
+        console.log('[CheckoutSuccess] ========== ✅ ORDEN CREADA EXITOSAMENTE ==========');
+        console.log('[CheckoutSuccess] Detalles de la orden:', {
           id: cartResponse.order.id,
           display_id: cartResponse.order.display_id,
+          email: cartResponse.order.email,
+          status: cartResponse.order.status,
+          total: cartResponse.order.total,
+          currency_code: cartResponse.order.currency_code,
         });
         
         // Limpiar el carrito
+        console.log('[CheckoutSuccess] Limpiando cookie del carrito...');
         await cookies.removeCartId();
         
         // Redirigir a la página de confirmación de orden
-        redirect(`/${params.locale}/${params.countryCode}/order/${cartResponse.order.display_id}/confirmed`);
+        const redirectUrl = `/${params.locale}/${params.countryCode}/order/${cartResponse.order.display_id}/confirmed`;
+        console.log('[CheckoutSuccess] Redirigiendo a:', redirectUrl);
+        redirect(redirectUrl);
       } else if (cartResponse?.type === 'cart' || cartResponse?.cart) {
-        console.error('[CheckoutSuccess] ❌ cart.complete retornó un carrito en lugar de una orden');
+        console.error('[CheckoutSuccess] ========== ❌ ERROR: CARRITO NO COMPLETADO ==========');
+        console.error('[CheckoutSuccess] cart.complete retornó un carrito en lugar de una orden');
         console.error('[CheckoutSuccess] Esto significa que el carrito no se pudo completar');
         console.error('[CheckoutSuccess] Tipo de respuesta:', cartResponse.type);
-        console.error('[CheckoutSuccess] Carrito retornado:', {
+        console.error('[CheckoutSuccess] Estado del carrito retornado:', {
           id: cartResponse.cart?.id,
           status: cartResponse.cart?.status,
-          payment_collection: cartResponse.cart?.payment_collection,
+          email: cartResponse.cart?.email,
+          hasPaymentCollection: !!cartResponse.cart?.payment_collection,
+          paymentSessionsCount: cartResponse.cart?.payment_collection?.payment_sessions?.length || 0,
+          paymentSessions: cartResponse.cart?.payment_collection?.payment_sessions?.map(s => ({
+            id: s.id,
+            provider_id: s.provider_id,
+            status: s.status,
+          })),
         });
+        console.error('[CheckoutSuccess] Payment ID de MercadoPago:', payment_id);
+        console.error('[CheckoutSuccess] External Reference (cart_id):', external_reference);
         
         throw new Error(
           'El carrito no se pudo completar. El pago fue procesado en MercadoPago, pero la orden no se creó en Medusa. ' +
           'Por favor, contactá con soporte e incluye el ID de pago: ' + (payment_id || 'N/A')
         );
       } else {
-        console.error('[CheckoutSuccess] ❌ Respuesta inesperada de cart.complete');
-        console.error('[CheckoutSuccess] Respuesta:', cartResponse);
+        console.error('[CheckoutSuccess] ========== ❌ ERROR: RESPUESTA INESPERADA ==========');
+        console.error('[CheckoutSuccess] Respuesta completa recibida:', JSON.stringify(cartResponse, null, 2));
         throw new Error('Respuesta inesperada al completar el carrito. Por favor, contactá con soporte.');
       }
     } catch (error: any) {
