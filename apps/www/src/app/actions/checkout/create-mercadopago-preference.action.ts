@@ -252,5 +252,4 @@ export const createMercadoPagoPreference = cartActionClient.action(
     
     throw new Error(errorMessage);
   }
-}
-
+});
