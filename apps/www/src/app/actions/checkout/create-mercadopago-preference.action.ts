@@ -56,11 +56,15 @@ export const createMercadoPagoPreference = cartActionClient
       const fieldsString = [
         'id',
         'total',
+        'item_subtotal',
         'shipping_total',
         'currency_code',
         'items.*',
         'items.variant.*',
         'items.variant.product.*',
+        'items.total',
+        'items.unit_price',
+        'items.quantity',
         'shipping_address.*',
         'billing_address.*',
         'email',
@@ -88,99 +92,166 @@ export const createMercadoPagoPreference = cartActionClient
 
       const cartData = cartResponse.cart;
 
-    // Preparar los items para la preferencia de MercadoPago
-    console.log('[MP] Preparando items del carrito...');
-    console.log('[MP] Items del carrito:', cartData.items?.map(item => ({
-      id: item.id,
-      variant_id: item.variant_id,
-      title: item.title,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
-    })));
-    
-    const items = cartData.items?.map((item) => {
-      // Obtener el precio del item (los precios en Medusa están en centavos)
-      const unitPrice = item.unit_price || 0;
-      const unitPriceDecimal = Number(unitPrice) / 100;
+      // Validar que el email esté presente (requerido por MercadoPago)
+      if (!cartData.email) {
+        console.error('[MP] ERROR: El carrito no tiene email asociado');
+        throw new Error('Es necesario completar el email antes de continuar con el pago');
+      }
 
-      console.log('[MP] Procesando item:', {
-        id: item.variant_id || item.id,
-        title: item.variant?.product?.title || item.title,
-        unitPrice,
-        unitPriceDecimal,
+      // Validar que haya items en el carrito
+      if (!cartData.items || cartData.items.length === 0) {
+        console.error('[MP] ERROR: El carrito está vacío');
+        throw new Error('El carrito está vacío');
+      }
+
+      // Preparar los items para la preferencia de MercadoPago
+      console.log('[MP] Preparando items del carrito...');
+      console.log('[MP] Items del carrito:', cartData.items.map(item => ({
+        id: item.id,
+        variant_id: item.variant_id,
+        title: item.title,
         quantity: item.quantity,
+        unit_price: item.unit_price,
+        total: item.total,
+      })));
+      
+      const items = cartData.items.map((item) => {
+        // Obtener el precio del item (los precios en Medusa están en centavos)
+        const unitPrice = item.unit_price || 0;
+        const unitPriceDecimal = Number(unitPrice) / 100;
+
+        // Validar que el precio sea válido
+        if (unitPriceDecimal <= 0) {
+          console.error('[MP] ERROR: Item con precio inválido:', {
+            id: item.id,
+            title: item.title,
+            unitPrice,
+            unitPriceDecimal,
+          });
+          throw new Error(`El producto "${item.title || 'Sin título'}" tiene un precio inválido`);
+        }
+
+        console.log('[MP] Procesando item:', {
+          id: item.variant_id || item.id,
+          title: item.variant?.product?.title || item.title,
+          unitPrice,
+          unitPriceDecimal,
+          quantity: item.quantity,
+        });
+
+        return {
+          id: String(item.variant_id || item.id),
+          title: (item.variant?.product?.title || item.title || 'Producto').substring(0, 256),
+          description: (
+            item.variant?.product?.description?.substring(0, 250) ||
+            item.variant?.title ||
+            item.title ||
+            'Sin descripción'
+          ).substring(0, 256),
+          quantity: Number(item.quantity) || 1,
+          unit_price: Number(unitPriceDecimal.toFixed(2)), // MercadoPago espera el precio en formato decimal (ARS)
+          currency_id: cartData.currency_code?.toUpperCase() || 'ARS',
+        };
       });
 
-      return {
-        id: item.variant_id || item.id,
-        title: item.variant?.product?.title || item.title || 'Producto',
-        description:
-          item.variant?.product?.description?.substring(0, 250) ||
-          item.variant?.title ||
-          'Sin descripción',
-        quantity: item.quantity || 1,
-        unit_price: unitPriceDecimal, // MercadoPago espera el precio en formato decimal (ARS)
-        currency_id: cartData.currency_code?.toUpperCase() || 'ARS',
+      // Agregar el costo de envío como un item adicional si existe
+      if (cartData.shipping_total && cartData.shipping_total > 0) {
+        const shippingDecimal = Number(cartData.shipping_total) / 100;
+        console.log('[MP] Agregando costo de envío:', {
+          shipping_total: cartData.shipping_total,
+          shipping_total_decimal: shippingDecimal,
+        });
+        items.push({
+          id: 'shipping',
+          title: 'Costo de envío',
+          description: 'Gastos de envío',
+          quantity: 1,
+          unit_price: Number(shippingDecimal.toFixed(2)),
+          currency_id: cartData.currency_code?.toUpperCase() || 'ARS',
+        });
+      }
+
+      // Calcular el total de los items para validar
+      const itemsTotal = items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+      const cartTotal = Number(cartData.total) / 100;
+      
+      console.log('[MP] Validación de totales:', {
+        itemsTotal: itemsTotal.toFixed(2),
+        cartTotal: cartTotal.toFixed(2),
+        diferencia: Math.abs(itemsTotal - cartTotal).toFixed(2),
+      });
+
+      console.log('[MP] Items preparados para MercadoPago:', items.map(item => ({
+        id: item.id,
+        title: item.title,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: (item.unit_price * item.quantity).toFixed(2),
+      })));
+
+      // Preparar datos del payer (MercadoPago requiere email para habilitar el botón)
+      const payerEmail = cartData.email;
+      const payerFirstName = cartData.billing_address?.first_name || cartData.shipping_address?.first_name;
+      const payerLastName = cartData.billing_address?.last_name || cartData.shipping_address?.last_name;
+      const payerPhone = cartData.billing_address?.phone || cartData.shipping_address?.phone;
+
+      console.log('[MP] Datos del payer:', {
+        email: payerEmail,
+        firstName: payerFirstName,
+        lastName: payerLastName,
+        phone: payerPhone,
+      });
+
+      // Construir objeto payer con validaciones
+      const payerData: {
+        email: string;
+        name?: string;
+        surname?: string;
+        phone?: {
+          area_code?: string;
+          number?: string;
+        };
+        address?: {
+          street_name?: string;
+          street_number?: string;
+          zip_code?: string;
+        };
+      } = {
+        email: payerEmail, // Requerido por MercadoPago
       };
-    }) || [];
 
-    // Agregar el costo de envío como un item adicional si existe
-    if (cartData.shipping_total && cartData.shipping_total > 0) {
-      console.log('[MP] Agregando costo de envío:', {
-        shipping_total: cartData.shipping_total,
-        shipping_total_decimal: Number(cartData.shipping_total) / 100,
-      });
-      items.push({
-        id: 'shipping',
-        title: 'Costo de envío',
-        description: 'Gastos de envío',
-        quantity: 1,
-        unit_price: Number(cartData.shipping_total) / 100,
-        currency_id: cartData.currency_code?.toUpperCase() || 'ARS',
-      });
-    }
+      if (payerFirstName) {
+        payerData.name = payerFirstName;
+      }
 
-    console.log('[MP] Items preparados para MercadoPago:', items);
+      if (payerLastName) {
+        payerData.surname = payerLastName;
+      }
 
-    // Si no hay items, lanzar error
-    if (items.length === 0) {
-      console.error('[MP] ERROR: El carrito está vacío');
-      throw new Error('El carrito está vacío');
-    }
+      // Procesar teléfono si existe
+      if (payerPhone) {
+        const phoneClean = payerPhone.replace(/\D/g, ''); // Solo números
+        if (phoneClean.length >= 10) {
+          payerData.phone = {
+            area_code: phoneClean.substring(0, 3) || undefined,
+            number: phoneClean.substring(3) || undefined,
+          };
+        }
+      }
 
-    // Preparar datos del payer
-    const payerData = {
-      email: cartData.email || undefined,
-      name:
-        cartData.billing_address?.first_name ||
-        cartData.shipping_address?.first_name ||
-        undefined,
-      surname:
-        cartData.billing_address?.last_name ||
-        cartData.shipping_address?.last_name ||
-        undefined,
-      phone: {
-        area_code:
-          cartData.billing_address?.phone?.substring(0, 3) ||
-          cartData.shipping_address?.phone?.substring(0, 3) ||
-          undefined,
-        number:
-          cartData.billing_address?.phone?.substring(3) ||
-          cartData.shipping_address?.phone?.substring(3) ||
-          undefined,
-      },
-      address: {
-        street_name:
-          cartData.billing_address?.address_1 ||
-          cartData.shipping_address?.address_1 ||
-          undefined,
-        street_number: undefined,
-        zip_code:
-          cartData.billing_address?.postal_code ||
-          cartData.shipping_address?.postal_code ||
-          undefined,
-      },
-    };
+      // Procesar dirección si existe
+      const address = cartData.billing_address?.address_1 || cartData.shipping_address?.address_1;
+      const postalCode = cartData.billing_address?.postal_code || cartData.shipping_address?.postal_code;
+      
+      if (address || postalCode) {
+        payerData.address = {};
+        if (address) {
+          payerData.address.street_name = address;
+        }
+        if (postalCode) {
+          payerData.address.zip_code = postalCode;
+        }
+      }
 
     const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL;
@@ -208,15 +279,24 @@ export const createMercadoPagoPreference = cartActionClient
       notification_url: medusaBackendUrl
         ? `${medusaBackendUrl}/store/mercadopago/webhook`
         : undefined,
+      statement_descriptor: 'La Florería de la Imprenta', // Descripción que aparece en el resumen de tarjeta
     };
 
     console.log('[MP] Creando preferencia en MercadoPago...');
     console.log('[MP] Datos de la preferencia:', {
       itemsCount: preferenceBody.items.length,
+      itemsTotal: itemsTotal.toFixed(2),
       payerEmail: preferenceBody.payer.email,
+      payerName: preferenceBody.payer.name,
+      payerSurname: preferenceBody.payer.surname,
+      hasPayerPhone: !!preferenceBody.payer.phone,
       external_reference: preferenceBody.external_reference,
       hasNotificationUrl: !!preferenceBody.notification_url,
+      back_urls: preferenceBody.back_urls,
     });
+    
+    // Log detallado de items
+    console.log('[MP] Items detallados:', JSON.stringify(preferenceBody.items, null, 2));
 
     // Crear la preferencia de pago
     const preference = await new Preference(mercadoPagoClient).create({
