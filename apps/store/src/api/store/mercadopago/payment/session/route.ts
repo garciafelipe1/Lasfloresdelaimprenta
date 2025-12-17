@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { z } from "zod";
 
 const UpdatePaymentSessionSchema = z.object({
@@ -9,57 +9,28 @@ const UpdatePaymentSessionSchema = z.object({
 });
 
 /**
- * Endpoint para actualizar la sesión de pago con el payment_id de MercadoPago
+ * Endpoint para recibir el payment_id de MercadoPago
  * 
  * Este endpoint se llama después de que el usuario completa el pago en MercadoPago
- * y recibe el payment_id. Actualiza la sesión de pago con este ID para que
- * cuando se complete el carrito, el plugin pueda verificar el pago.
+ * y recibe el payment_id. El plugin de MercadoPago manejará la actualización
+ * de la sesión de pago cuando se complete el carrito usando el external_reference (cart_id).
+ * 
+ * Por ahora, este endpoint solo registra la información recibida y retorna éxito.
+ * El plugin debería usar el payment_id desde MercadoPago cuando se complete el carrito.
  */
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-  const paymentModuleService = req.scope.resolve(Modules.PAYMENT);
 
   try {
     const body = UpdatePaymentSessionSchema.parse(req.body);
 
     const { paymentSessionId, paymentId, cartId } = body;
 
-    logger.info(`Updating payment session ${paymentSessionId} with payment_id ${paymentId} for cart ${cartId}`);
+    logger.info(`Received payment_id ${paymentId} for payment session ${paymentSessionId} and cart ${cartId}`);
 
-    // Obtener la sesión de pago
-    // En Medusa v2, el método puede variar, intentamos obtenerla del carrito primero
-    const paymentSession = await paymentModuleService
-      .retrievePaymentSession(paymentSessionId)
-      .catch(() => null);
-
-    if (!paymentSession) {
-      logger.warn(`Payment session ${paymentSessionId} not found, but continuing...`);
-      // Continuamos de todas formas, el plugin puede manejar esto
-    } else {
-      // Verificar que la sesión pertenece al carrito correcto si es posible
-      if (paymentSession.cart_id && paymentSession.cart_id !== cartId) {
-        return res.status(400).json({
-          error: "Payment session does not belong to this cart",
-        });
-      }
-    }
-
-    // Actualizar la sesión de pago con el payment_id
-    // En Medusa v2, esto puede requerir usar el cart module
-    try {
-      await paymentModuleService.updatePaymentSession(paymentSessionId, {
-        data: {
-          ...(paymentSession?.data || {}),
-          payment_id: paymentId,
-          updated_at: new Date().toISOString(),
-        },
-      });
-
-      logger.info(`Payment session ${paymentSessionId} updated successfully with payment_id ${paymentId}`);
-    } catch (updateError: any) {
-      logger.warn(`Could not update payment session directly: ${updateError.message}`);
-      // Continuamos de todas formas, el plugin puede usar el payment_id del contexto
-    }
+    // El plugin de MercadoPago debería manejar el payment_id cuando se complete el carrito
+    // usando el external_reference (cart_id) que se pasa en la preferencia.
+    // Por ahora, solo registramos la información y retornamos éxito.
 
     return res.json({
       success: true,
@@ -67,9 +38,10 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         id: paymentSessionId,
         payment_id: paymentId,
       },
+      message: "Payment ID received. The MercadoPago plugin will handle the payment when the cart is completed.",
     });
   } catch (error: any) {
-    logger.error(`Error updating payment session: ${error.message}`, error);
+    logger.error(`Error processing payment session update: ${error.message}`, error);
 
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -79,7 +51,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     }
 
     return res.status(500).json({
-      error: "Failed to update payment session",
+      error: "Failed to process payment session update",
       message: error.message,
     });
   }
