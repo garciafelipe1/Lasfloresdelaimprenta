@@ -67,7 +67,8 @@ export const createMercadoPagoPreference = cartActionClient
         'items.*',
         'items.variant.*',
         'items.variant.product.*',
-        'items.variant.calculated_price.*',
+        // Removido 'items.variant.calculated_price.*' porque requiere currency_code en el contexto
+        // y estamos usando item.total / item.quantity para obtener el precio unitario
         'items.total',
         'items.unit_price',
         'items.quantity',
