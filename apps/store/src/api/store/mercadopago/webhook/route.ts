@@ -67,39 +67,22 @@ export async function POST(
         `Payment ${paymentId} status: ${payment.status}, status_detail: ${payment.status_detail}`
       );
 
-      // Buscar la sesión de pago en Medusa usando el external_id
-      // El external_id debería ser el payment_id de MercadoPago
-      try {
-        // Intentar encontrar la sesión de pago por external_id
-        // Nota: Esto depende de cómo el plugin almacene el external_id
-        const paymentSessions = await paymentModuleService.listPaymentSessions({
-          provider_id: {
-            $ilike: "pp_mercadopago_%",
-          },
-        });
-
-        // Buscar la sesión que coincida con este pago
-        // Esto requiere que el plugin almacene el payment_id en la sesión
-        for (const session of paymentSessions) {
-          // Si encontramos la sesión, actualizar su estado
-          if (payment.status === "approved") {
-            // El pago fue aprobado, pero la captura debería hacerse
-            // cuando se complete el carrito
-            logger.info(
-              `Payment ${paymentId} approved. Session: ${session.id}`
-            );
-          } else if (payment.status === "rejected") {
-            logger.warn(
-              `Payment ${paymentId} rejected. Reason: ${payment.status_detail}`
-            );
-          } else if (payment.status === "pending") {
-            logger.info(`Payment ${paymentId} is pending`);
-          }
-        }
-      } catch (sessionError: any) {
-        logger.error(
-          `Error processing payment session: ${sessionError.message}`,
-          sessionError
+      // Log del estado del pago
+      // El plugin de MercadoPago manejará la actualización de la sesión
+      // cuando se complete el carrito o cuando se reciba el webhook
+      if (payment.status === "approved") {
+        logger.info(
+          `Payment ${paymentId} approved. Status detail: ${payment.status_detail}`
+        );
+      } else if (payment.status === "rejected") {
+        logger.warn(
+          `Payment ${paymentId} rejected. Reason: ${payment.status_detail}`
+        );
+      } else if (payment.status === "pending") {
+        logger.info(`Payment ${paymentId} is pending`);
+      } else {
+        logger.info(
+          `Payment ${paymentId} status: ${payment.status}, detail: ${payment.status_detail}`
         );
       }
     } else if (type === "merchant_order") {

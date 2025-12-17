@@ -76,8 +76,7 @@ export async function POST(
       // cuando se complete el carrito
       
       logger.info(
-        `Payment data prepared for session: ${paymentSessionId}`,
-        { hasToken: !!paymentData.token }
+        `Payment data prepared for session: ${paymentSessionId}, hasToken: ${!!paymentData.token}`
       );
 
       return res.json({
