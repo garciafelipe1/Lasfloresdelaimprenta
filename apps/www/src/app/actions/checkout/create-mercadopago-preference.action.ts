@@ -62,6 +62,7 @@ export const createMercadoPagoPreference = cartActionClient
         'items.*',
         'items.variant.*',
         'items.variant.product.*',
+        'items.variant.calculated_price.*',
         'items.total',
         'items.unit_price',
         'items.quantity',
@@ -129,9 +130,49 @@ export const createMercadoPagoPreference = cartActionClient
       })));
       
       const items = cartData.items.map((item) => {
-        // Obtener el precio del item (los precios en Medusa están en centavos)
-        const unitPrice = item.unit_price || 0;
+        // Obtener el precio del item
+        // En Medusa, los precios pueden venir en diferentes campos:
+        // - item.unit_price: precio unitario (puede estar en centavos o no)
+        // - item.total: total del item (precio unitario * cantidad)
+        // - item.variant.calculated_price: precio calculado del variant
+        
+        // Intentar obtener el precio del total del item dividido por la cantidad
+        // Esto es más confiable que unit_price que puede no estar correctamente calculado
+        let unitPrice = 0;
+        
+        console.log('[MP] Datos del item para calcular precio:', {
+          itemId: item.id,
+          itemTotal: item.total,
+          itemQuantity: item.quantity,
+          itemUnitPrice: item.unit_price,
+          variantCalculatedPrice: item.variant?.calculated_price?.calculated_amount,
+        });
+        
+        if (item.total && item.quantity) {
+          // Si tenemos el total y la cantidad, calculamos el precio unitario
+          // item.total está en centavos, así que lo dividimos por 100
+          unitPrice = Number(item.total) / Number(item.quantity);
+          console.log('[MP] Precio calculado desde total:', unitPrice);
+        } else if (item.variant?.calculated_price?.calculated_amount) {
+          // Como segundo recurso, usamos el precio calculado del variant
+          unitPrice = Number(item.variant.calculated_price.calculated_amount);
+          console.log('[MP] Precio obtenido del variant:', unitPrice);
+        } else if (item.unit_price) {
+          // Como último recurso, usamos unit_price (asumiendo que está en centavos)
+          unitPrice = Number(item.unit_price);
+          console.log('[MP] Precio obtenido de unit_price:', unitPrice);
+        }
+        
+        // Convertir de centavos a decimales
+        // Los precios en Medusa están en centavos, así que dividimos por 100
         const unitPriceDecimal = Number(unitPrice) / 100;
+        
+        console.log('[MP] Precio final calculado:', {
+          unitPrice,
+          unitPriceDecimal,
+          itemTotal: item.total,
+          itemQuantity: item.quantity,
+        });
 
         // Validar que el precio sea válido
         if (unitPriceDecimal <= 0) {
@@ -348,23 +389,27 @@ export const createMercadoPagoPreference = cartActionClient
         console.warn('[MP] ADVERTENCIA: Falta el teléfono del comprador. MercadoPago puede deshabilitar el botón de pago.');
       }
 
-    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL;
+      const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL;
 
-    console.log('[MP] Configuración de URLs:', {
-      appUrl,
-      medusaBackendUrl,
-      hasNotificationUrl: !!medusaBackendUrl,
-    });
+      // Limpiar la URL para evitar dobles barras
+      const cleanAppUrl = appUrl.replace(/\/+$/, '');
 
-    const preferenceBody = {
-      items,
-      payer: payerData,
-      back_urls: {
-        success: `${appUrl}/checkout/success`,
-        failure: `${appUrl}/checkout/failure`,
-        pending: `${appUrl}/checkout/pending`,
-      },
+      console.log('[MP] Configuración de URLs:', {
+        appUrl,
+        cleanAppUrl,
+        medusaBackendUrl,
+        hasNotificationUrl: !!medusaBackendUrl,
+      });
+
+      const preferenceBody = {
+        items,
+        payer: payerData,
+        back_urls: {
+          success: `${cleanAppUrl}/checkout/success`,
+          failure: `${cleanAppUrl}/checkout/failure`,
+          pending: `${cleanAppUrl}/checkout/pending`,
+        },
       auto_return: 'approved' as const,
       external_reference: cart.id,
       metadata: {
