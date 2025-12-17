@@ -4,6 +4,7 @@ import { medusa } from '@/lib/medusa-client';
 import { cartActionClient } from '@/lib/next-safe-action/cart-action-client';
 import { mercadoPagoClient } from '@/lib/mp-client';
 import { Preference } from 'mercadopago';
+import { z } from 'zod';
 
 /**
  * Crea una preferencia de pago en MercadoPago y retorna la URL de pago
@@ -11,40 +12,65 @@ import { Preference } from 'mercadopago';
  * Este action crea una preferencia de pago con los items del carrito
  * y retorna la URL de pago de MercadoPago para que el cliente haga el redirect.
  */
-export const createMercadoPagoPreference = cartActionClient.action(
-  async ({ ctx: { cart } }) => {
+const createMercadoPagoPreferenceSchema = z.void();
+
+export const createMercadoPagoPreference = cartActionClient
+  .schema(createMercadoPagoPreferenceSchema)
+  .action(async ({ ctx: { cart } }) => {
+    console.log('[MP] ========== INICIO DE CREACIÓN DE PREFERENCIA ==========');
     console.log('[MP] Iniciando creación de preferencia de MercadoPago');
     console.log('[MP] Cart ID:', cart.id);
+    console.log('[MP] Cart object:', JSON.stringify(cart, null, 2));
     
     try {
-      // Verificar que tenemos el access token
+      console.log('[MP] Verificando mercadoPagoClient...');
+      console.log('[MP] mercadoPagoClient existe:', !!mercadoPagoClient);
+      console.log('[MP] Tipo de mercadoPagoClient:', typeof mercadoPagoClient);
+      
+      // Verificar que tenemos el access token desde las variables de entorno
+      console.log('[MP] Verificando access token...');
+      console.log('[MP] MP_ACCESS_TOKEN existe:', !!process.env.MP_ACCESS_TOKEN);
+      console.log('[MP] MERCADOPAGO_ACCESS_TOKEN existe:', !!process.env.MERCADOPAGO_ACCESS_TOKEN);
+      console.log('[MP] MERCADO_PAGO_TOKEN existe:', !!process.env.MERCADO_PAGO_TOKEN);
+      
       const accessToken = process.env.MP_ACCESS_TOKEN || 
                          process.env.MERCADOPAGO_ACCESS_TOKEN || 
                          process.env.MERCADO_PAGO_TOKEN;
       
+      console.log('[MP] Access token encontrado:', !!accessToken);
+      
       if (!accessToken) {
-        console.error('[MP] ERROR: No se encontró el access token de MercadoPago');
-        throw new Error('Configuración de MercadoPago incompleta');
+        console.error('[MP] ERROR: No se encontró el access token de MercadoPago en ninguna variable de entorno');
+        const mpEnvVars = Object.keys(process.env).filter(k => 
+          k.includes('MP') || k.includes('MERCADO') || k.includes('MERCADOPAGO')
+        );
+        console.error('[MP] Variables de entorno relacionadas disponibles:', mpEnvVars);
+        throw new Error('Configuración de MercadoPago incompleta: No se encontró el access token');
       }
       
-      console.log('[MP] Access token encontrado:', accessToken.substring(0, 10) + '...');
+      console.log('[MP] Access token encontrado (primeros 10 caracteres):', accessToken.substring(0, 10) + '...');
       
       // Obtener el carrito completo con todos los datos necesarios
       console.log('[MP] Obteniendo carrito completo de Medusa...');
+      // Medusa espera fields como string separado por comas, no como array
+      const fieldsString = [
+        'id',
+        'total',
+        'shipping_total',
+        'currency_code',
+        'items.*',
+        'items.variant.*',
+        'items.variant.product.*',
+        'shipping_address.*',
+        'billing_address.*',
+        'email',
+        'region.*',
+      ].join(',');
+      
+      console.log('[MP] Fields string:', fieldsString);
+      
       const cartResponse = await medusa.store.cart.retrieve(cart.id, {
-        fields: [
-          'id',
-          'total',
-          'shipping_total',
-          'currency_code',
-          'items.*',
-          'items.variant.*',
-          'items.variant.product.*',
-          'shipping_address.*',
-          'billing_address.*',
-          'email',
-          'region.*',
-        ],
+        fields: fieldsString,
       });
 
       console.log('[MP] Respuesta de Medusa:', {

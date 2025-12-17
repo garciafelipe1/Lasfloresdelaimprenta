@@ -71,12 +71,27 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     },
   );
 
-  const { executeAsync: executeMercadoPago, isExecuting: isExecutingMP } = useAction(
+  const { executeAsync: executeMercadoPago, isExecuting: isExecutingMP, result: mpResult } = useAction(
     createMercadoPagoPreference,
     {
       onError(error: any) {
         console.error('[PaymentForms] Error en useAction de MercadoPago:', error);
-        const errorMessage = error?.error?.serverError || error?.serverError || 'Hubo un error al crear la preferencia de pago';
+        console.error('[PaymentForms] Error completo:', JSON.stringify(error, null, 2));
+        
+        // Intentar extraer el mensaje de error real
+        let errorMessage = 'Hubo un error al crear la preferencia de pago';
+        
+        if (error?.error?.serverError) {
+          errorMessage = error.error.serverError;
+        } else if (error?.serverError) {
+          errorMessage = error.serverError;
+        } else if (error?.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        
+        console.error('[PaymentForms] Mensaje de error extraído:', errorMessage);
         toast.error(errorMessage);
       },
       onSuccess(data: any) {
@@ -102,9 +117,13 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
       // Si es MercadoPago, crear preferencia y redirigir
       if (isMp) {
         console.log('[PaymentForms] Creando preferencia de MercadoPago usando useAction...');
+        console.log('[PaymentForms] Llamando executeMercadoPago sin argumentos (schema es z.void())...');
+        
         try {
-          const result = await executeMercadoPago();
+          // Llamar sin argumentos porque el schema es z.void()
+          const result = await executeMercadoPago(undefined);
           console.log('[PaymentForms] Resultado de executeMercadoPago:', result);
+          console.log('[PaymentForms] Result completo:', JSON.stringify(result, null, 2));
           
           // El redirect se maneja en onSuccess del useAction
           // Pero por si acaso, también lo hacemos aquí
@@ -112,8 +131,16 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             console.log('[PaymentForms] URL de pago obtenida:', result.data.substring(0, 50) + '...');
             console.log('[PaymentForms] Redirigiendo a MercadoPago...');
             window.location.href = result.data;
+            return;
           }
-          return;
+          
+          // Si no hay data pero tampoco hay error, revisar el result
+          if (result?.serverError) {
+            console.error('[PaymentForms] Error del servidor en result:', result.serverError);
+            throw new Error(result.serverError);
+          }
+          
+          console.warn('[PaymentForms] No se recibió URL de pago ni error. Result:', result);
         } catch (mpError: any) {
           console.error('[PaymentForms] Error específico de MercadoPago:', {
             message: mpError?.message,
@@ -121,8 +148,17 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             error: mpError,
             serverError: mpError?.serverError,
             validationErrors: mpError?.validationErrors,
+            errorType: mpError?.constructor?.name,
           });
-          throw mpError;
+          
+          // Extraer el mensaje de error real
+          const errorMessage = 
+            mpError?.serverError || 
+            mpError?.error?.serverError || 
+            mpError?.message || 
+            'Hubo un error al crear la preferencia de pago';
+          
+          throw new Error(errorMessage);
         }
       }
 
