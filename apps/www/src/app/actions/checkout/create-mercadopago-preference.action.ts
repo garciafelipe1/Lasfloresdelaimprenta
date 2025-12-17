@@ -20,7 +20,13 @@ export const createMercadoPagoPreference = cartActionClient
     console.log('[MP] ========== INICIO DE CREACIÓN DE PREFERENCIA ==========');
     console.log('[MP] Iniciando creación de preferencia de MercadoPago');
     console.log('[MP] Cart ID:', cart.id);
-    console.log('[MP] Cart object:', JSON.stringify(cart, null, 2));
+    console.log('[MP] Cart object (partial):', JSON.stringify({
+      id: cart.id,
+      email: cart.email,
+      total: cart.total,
+      shipping_total: cart.shipping_total,
+      items_count: cart.items?.length,
+    }, null, 2));
     
     try {
       console.log('[MP] Verificando mercadoPagoClient...');
@@ -70,6 +76,7 @@ export const createMercadoPagoPreference = cartActionClient
         'billing_address.*',
         'email',
         'region.*',
+        'region.countries.*',
       ].join(',');
       
       console.log('[MP] Fields string:', fieldsString);
@@ -395,16 +402,23 @@ export const createMercadoPagoPreference = cartActionClient
       // Limpiar la URL para evitar dobles barras
       const cleanAppUrl = appUrl.replace(/\/+$/, '');
 
-      // Obtener locale y countryCode del carrito o usar valores por defecto
+      // Obtener locale y countryCode del carrito completo o usar valores por defecto
       // El cartActionClient usa 'ar' por defecto, y el locale por defecto es 'es'
-      const locale = cart.region?.countries?.[0]?.iso_2 === 'ar' ? 'es' : 'es'; // Por ahora siempre 'es' para Argentina
-      const countryCode = cart.region?.countries?.[0]?.iso_2 || 'ar';
+      const countryCodeFromCart = cartData.region?.countries?.[0]?.iso_2 || 
+                                  cart.region?.countries?.[0]?.iso_2 || 
+                                  'ar';
+      const locale = 'es'; // Por ahora siempre 'es' para Argentina
+      const countryCode = countryCodeFromCart;
 
       console.log('[MP] Configuración de URLs:', {
         appUrl,
         cleanAppUrl,
         locale,
         countryCode,
+        countryCodeFromCart,
+        hasRegion: !!cartData.region,
+        hasCountries: !!cartData.region?.countries,
+        countriesCount: cartData.region?.countries?.length || 0,
         medusaBackendUrl,
         hasNotificationUrl: !!medusaBackendUrl,
       });
