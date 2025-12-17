@@ -111,14 +111,49 @@ export default async function CheckoutSuccessPage(props: Props) {
         status: paymentSession.status,
       });
 
-      // Paso 3: Registrar el payment_id en los logs (el plugin debería usar el external_reference)
+      // Paso 3: Actualizar la sesión de pago con el payment_id de MercadoPago
       if (payment_id) {
         console.log('[CheckoutSuccess] Payment ID recibido de MercadoPago:', payment_id);
-        console.log('[CheckoutSuccess] Este payment_id debería estar asociado al external_reference (cart_id):', external_reference);
+        console.log('[CheckoutSuccess] Actualizando sesión de pago con payment_id...');
+        
+        try {
+          const medusaBackendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
+          if (!medusaBackendUrl) {
+            throw new Error('NEXT_PUBLIC_MEDUSA_BACKEND_URL no está configurado');
+          }
+
+          const updateResponse = await fetch(`${medusaBackendUrl}/store/mercadopago/payment/session`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              paymentSessionId: paymentSession.id,
+              paymentId: payment_id,
+              cartId: external_reference,
+            }),
+          });
+
+          if (!updateResponse.ok) {
+            const errorData = await updateResponse.json().catch(() => ({}));
+            console.error('[CheckoutSuccess] Error al actualizar sesión de pago:', {
+              status: updateResponse.status,
+              statusText: updateResponse.statusText,
+              error: errorData,
+            });
+            // Continuar de todas formas, el plugin puede usar el external_reference
+          } else {
+            const updateData = await updateResponse.json();
+            console.log('[CheckoutSuccess] ✅ Sesión de pago actualizada:', updateData);
+          }
+        } catch (updateError: any) {
+          console.error('[CheckoutSuccess] Error al llamar endpoint de actualización de sesión:', updateError);
+          // Continuar de todas formas, el plugin puede usar el external_reference
+        }
       }
       
       // Paso 4: Completar el carrito para crear la orden
-      // El plugin de MercadoPago debería verificar el pago usando el external_reference
+      // El plugin de MercadoPago debería verificar el pago usando el external_reference o el payment_id en la sesión
       console.log('[CheckoutSuccess] Completando carrito...');
       console.log('[CheckoutSuccess] Datos del carrito antes de completar:', {
         cartId: cart.id,
