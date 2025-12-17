@@ -77,8 +77,9 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     try {
       // Si es MercadoPago, crear preferencia y redirigir
       if (isMp) {
-        await createMercadoPagoPreference(cart.id);
-        // La función createMercadoPagoPreference hace redirect, así que no llegamos aquí
+        const paymentUrl = await createMercadoPagoPreference(cart.id);
+        // Redirigir al usuario a la URL de pago de MercadoPago
+        window.location.href = paymentUrl;
         return;
       }
 

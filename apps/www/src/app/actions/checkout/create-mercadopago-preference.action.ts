@@ -3,15 +3,14 @@
 import { medusa } from '@/lib/medusa-client';
 import { mercadoPagoClient } from '@/lib/mp-client';
 import { Preference } from 'mercadopago';
-import { redirect } from 'next/navigation';
 
 /**
- * Crea una preferencia de pago en MercadoPago y redirige al usuario
+ * Crea una preferencia de pago en MercadoPago y retorna la URL de pago
  * 
  * Este action crea una preferencia de pago con los items del carrito
- * y redirige al usuario a la URL de pago de MercadoPago.
+ * y retorna la URL de pago de MercadoPago para que el cliente haga el redirect.
  */
-export async function createMercadoPagoPreference(cartId: string) {
+export async function createMercadoPagoPreference(cartId: string): Promise<string> {
   try {
     // Obtener el carrito completo con todos los datos necesarios
     const cart = await medusa.store.cart.retrieve(cartId, {
@@ -128,13 +127,25 @@ export async function createMercadoPagoPreference(cartId: string) {
       throw new Error('No se pudo crear la preferencia de pago');
     }
 
-    // Redirigir al usuario a la URL de pago de MercadoPago
-    redirect(preference.init_point);
+    // Retornar la URL de pago para que el cliente haga el redirect
+    return preference.init_point;
   } catch (error: any) {
-    console.error('Error al crear preferencia de MercadoPago:', error);
-    throw new Error(
-      error.message || 'No se pudo procesar el pago. Por favor, intentá nuevamente.'
-    );
+    console.error('Error al crear preferencia de MercadoPago:', {
+      message: error.message,
+      stack: error.stack,
+      cartId,
+      error,
+    });
+    
+    // Proporcionar un mensaje de error más descriptivo
+    const errorMessage = error.message || 'No se pudo procesar el pago. Por favor, intentá nuevamente.';
+    
+    // Si es un error de MercadoPago, incluir más detalles
+    if (error.response) {
+      console.error('MercadoPago API Error:', error.response);
+    }
+    
+    throw new Error(errorMessage);
   }
 }
 
