@@ -229,6 +229,10 @@ export const createMercadoPagoPreference = cartActionClient
           street_number?: string;
           zip_code?: string;
         };
+        identification?: {
+          type?: string;
+          number?: string;
+        };
       } = {
         email: payerEmail, // Requerido por MercadoPago
       };
@@ -243,12 +247,60 @@ export const createMercadoPagoPreference = cartActionClient
 
       // Procesar teléfono si existe
       if (payerPhone) {
+        console.log('[MP] Procesando teléfono:', payerPhone);
         const phoneClean = payerPhone.replace(/\D/g, ''); // Solo números
+        console.log('[MP] Teléfono limpio (solo números):', phoneClean);
+        
+        // Para Argentina: formato +54 (código país) + código de área (2-4 dígitos) + número (6-8 dígitos)
+        // Ejemplo: +542914397685 -> código país: 54, área: 291, número: 4397685
         if (phoneClean.length >= 10) {
-          payerData.phone = {
-            area_code: phoneClean.substring(0, 3) || undefined,
-            number: phoneClean.substring(3) || undefined,
-          };
+          let areaCode: string | undefined;
+          let number: string | undefined;
+          
+          // Si empieza con 54 (código de país de Argentina), lo removemos
+          if (phoneClean.startsWith('54') && phoneClean.length > 10) {
+            const withoutCountryCode = phoneClean.substring(2);
+            console.log('[MP] Teléfono sin código de país:', withoutCountryCode);
+            
+            // El código de área en Argentina puede ser 2, 3 o 4 dígitos
+            // Intentamos detectar el código de área más común (2-3 dígitos)
+            // Los códigos de área comunes en Argentina son: 11 (CABA), 291 (Bahía Blanca), etc.
+            if (withoutCountryCode.length >= 8) {
+              // Intentamos con 3 dígitos primero (más común)
+              if (withoutCountryCode.length >= 9) {
+                areaCode = withoutCountryCode.substring(0, 3);
+                number = withoutCountryCode.substring(3);
+              } else {
+                // Si tiene 8 dígitos, usamos 2 dígitos para el área
+                areaCode = withoutCountryCode.substring(0, 2);
+                number = withoutCountryCode.substring(2);
+              }
+            }
+          } else {
+            // Si no tiene código de país, asumimos que ya está en formato local
+            // Intentamos con 3 dígitos para el área (más común en Argentina)
+            if (phoneClean.length >= 9) {
+              areaCode = phoneClean.substring(0, 3);
+              number = phoneClean.substring(3);
+            } else if (phoneClean.length >= 8) {
+              areaCode = phoneClean.substring(0, 2);
+              number = phoneClean.substring(2);
+            }
+          }
+          
+          console.log('[MP] Teléfono procesado:', { areaCode, number });
+          
+          if (areaCode && number) {
+            payerData.phone = {
+              area_code: areaCode,
+              number: number,
+            };
+            console.log('[MP] Teléfono agregado al payer:', payerData.phone);
+          } else {
+            console.warn('[MP] ADVERTENCIA: No se pudo procesar el teléfono correctamente');
+          }
+        } else {
+          console.warn('[MP] ADVERTENCIA: El teléfono es demasiado corto:', phoneClean);
         }
       }
 
