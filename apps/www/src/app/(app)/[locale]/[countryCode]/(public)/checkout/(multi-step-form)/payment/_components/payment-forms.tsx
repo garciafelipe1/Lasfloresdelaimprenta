@@ -72,15 +72,38 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
   );
 
   const handleSubmit = async (data: FormSchema) => {
+    console.log('[PaymentForms] Iniciando submit del formulario');
+    console.log('[PaymentForms] Método de pago seleccionado:', data.paymentMethod);
+    console.log('[PaymentForms] Es MercadoPago:', isMp);
+    console.log('[PaymentForms] Cart ID:', cart.id);
+    
     setIsLoading(true);
 
     try {
       // Si es MercadoPago, crear preferencia y redirigir
       if (isMp) {
-        const paymentUrl = await createMercadoPagoPreference(cart.id);
-        // Redirigir al usuario a la URL de pago de MercadoPago
-        window.location.href = paymentUrl;
-        return;
+        console.log('[PaymentForms] Creando preferencia de MercadoPago...');
+        try {
+          const paymentUrl = await createMercadoPagoPreference(cart.id);
+          console.log('[PaymentForms] Preferencia creada exitosamente');
+          console.log('[PaymentForms] URL de pago obtenida:', paymentUrl?.substring(0, 50) + '...');
+          
+          if (!paymentUrl) {
+            throw new Error('No se recibió la URL de pago de MercadoPago');
+          }
+          
+          console.log('[PaymentForms] Redirigiendo a MercadoPago...');
+          // Redirigir al usuario a la URL de pago de MercadoPago
+          window.location.href = paymentUrl;
+          return;
+        } catch (mpError: any) {
+          console.error('[PaymentForms] Error específico de MercadoPago:', {
+            message: mpError?.message,
+            stack: mpError?.stack,
+            error: mpError,
+          });
+          throw mpError;
+        }
       }
 
       // Para otros métodos de pago, usar el flujo normal
@@ -94,12 +117,25 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
       }
 
       // Si todo salió bien, pasamos al siguiente paso del checkout
+      console.log('[PaymentForms] Pago procesado exitosamente, redirigiendo al siguiente paso');
       router.push(steps[3].href, { scroll: false });
     } catch (error: any) {
-      console.error('Error al continuar con el pago', error);
+      console.error('[PaymentForms] ERROR al procesar el pago');
+      console.error('[PaymentForms] Tipo de error:', error?.constructor?.name);
+      console.error('[PaymentForms] Mensaje:', error?.message);
+      console.error('[PaymentForms] Stack:', error?.stack);
+      console.error('[PaymentForms] Error completo:', {
+        name: error?.name,
+        message: error?.message,
+        stack: error?.stack,
+        cause: error?.cause,
+        response: error?.response,
+      });
 
       const message =
         error?.message || 'Hubo un error al procesar el pago. Intentá nuevamente.';
+
+      console.error('[PaymentForms] Mostrando error al usuario:', message);
 
       form.setError('paymentMethod', {
         message,
@@ -107,6 +143,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
 
       toast.error(message);
     } finally {
+      console.log('[PaymentForms] Finalizando proceso de pago');
       setIsLoading(false);
     }
   };
