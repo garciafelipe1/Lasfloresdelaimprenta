@@ -17,18 +17,17 @@ const createMercadoPagoPreferenceSchema = z.void();
 export const createMercadoPagoPreference = cartActionClient
   .schema(createMercadoPagoPreferenceSchema)
   .action(async ({ ctx: { cart } }) => {
-    console.log('[MP] ========== INICIO DE CREACIÓN DE PREFERENCIA ==========');
-    console.log('[MP] Iniciando creación de preferencia de MercadoPago');
-    console.log('[MP] Cart ID:', cart.id);
-    console.log('[MP] Cart object (partial):', JSON.stringify({
-      id: cart.id,
-      email: cart.email,
-      total: cart.total,
-      shipping_total: cart.shipping_total,
-      items_count: cart.items?.length,
-    }, null, 2));
-    
     try {
+      console.log('[MP] ========== INICIO DE CREACIÓN DE PREFERENCIA ==========');
+      console.log('[MP] Iniciando creación de preferencia de MercadoPago');
+      console.log('[MP] Cart ID:', cart.id);
+      console.log('[MP] Cart object (partial):', JSON.stringify({
+        id: cart.id,
+        email: cart.email,
+        total: cart.total,
+        shipping_total: cart.shipping_total,
+        items_count: cart.items?.length,
+      }, null, 2));
       console.log('[MP] Verificando mercadoPagoClient...');
       console.log('[MP] mercadoPagoClient existe:', !!mercadoPagoClient);
       console.log('[MP] Tipo de mercadoPagoClient:', typeof mercadoPagoClient);
