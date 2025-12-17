@@ -1,6 +1,7 @@
 'use server';
 
 import { medusa } from '@/lib/medusa-client';
+import { cartActionClient } from '@/lib/next-safe-action/cart-action-client';
 import { mercadoPagoClient } from '@/lib/mp-client';
 import { Preference } from 'mercadopago';
 
@@ -10,55 +11,56 @@ import { Preference } from 'mercadopago';
  * Este action crea una preferencia de pago con los items del carrito
  * y retorna la URL de pago de MercadoPago para que el cliente haga el redirect.
  */
-export async function createMercadoPagoPreference(cartId: string): Promise<string> {
-  console.log('[MP] Iniciando creación de preferencia de MercadoPago');
-  console.log('[MP] Cart ID:', cartId);
-  
-  try {
-    // Verificar que tenemos el access token
-    const accessToken = process.env.MP_ACCESS_TOKEN || 
-                       process.env.MERCADOPAGO_ACCESS_TOKEN || 
-                       process.env.MERCADO_PAGO_TOKEN;
+export const createMercadoPagoPreference = cartActionClient.action(
+  async ({ ctx: { cart } }) => {
+    console.log('[MP] Iniciando creación de preferencia de MercadoPago');
+    console.log('[MP] Cart ID:', cart.id);
     
-    if (!accessToken) {
-      console.error('[MP] ERROR: No se encontró el access token de MercadoPago');
-      throw new Error('Configuración de MercadoPago incompleta');
-    }
-    
-    console.log('[MP] Access token encontrado:', accessToken.substring(0, 10) + '...');
-    
-    // Obtener el carrito completo con todos los datos necesarios
-    console.log('[MP] Obteniendo carrito de Medusa...');
-    const cart = await medusa.store.cart.retrieve(cartId, {
-      fields: [
-        'id',
-        'total',
-        'shipping_total',
-        'currency_code',
-        'items.*',
-        'items.variant.*',
-        'items.variant.product.*',
-        'shipping_address.*',
-        'billing_address.*',
-        'email',
-        'region.*',
-      ],
-    });
+    try {
+      // Verificar que tenemos el access token
+      const accessToken = process.env.MP_ACCESS_TOKEN || 
+                         process.env.MERCADOPAGO_ACCESS_TOKEN || 
+                         process.env.MERCADO_PAGO_TOKEN;
+      
+      if (!accessToken) {
+        console.error('[MP] ERROR: No se encontró el access token de MercadoPago');
+        throw new Error('Configuración de MercadoPago incompleta');
+      }
+      
+      console.log('[MP] Access token encontrado:', accessToken.substring(0, 10) + '...');
+      
+      // Obtener el carrito completo con todos los datos necesarios
+      console.log('[MP] Obteniendo carrito completo de Medusa...');
+      const cartResponse = await medusa.store.cart.retrieve(cart.id, {
+        fields: [
+          'id',
+          'total',
+          'shipping_total',
+          'currency_code',
+          'items.*',
+          'items.variant.*',
+          'items.variant.product.*',
+          'shipping_address.*',
+          'billing_address.*',
+          'email',
+          'region.*',
+        ],
+      });
 
-    console.log('[MP] Respuesta de Medusa:', {
-      hasCart: !!cart.cart,
-      cartId: cart.cart?.id,
-      itemsCount: cart.cart?.items?.length || 0,
-      total: cart.cart?.total,
-      currency: cart.cart?.currency_code,
-    });
+      console.log('[MP] Respuesta de Medusa:', {
+        hasCart: !!cartResponse.cart,
+        cartId: cartResponse.cart?.id,
+        itemsCount: cartResponse.cart?.items?.length || 0,
+        total: cartResponse.cart?.total,
+        currency: cartResponse.cart?.currency_code,
+      });
 
-    if (!cart.cart) {
-      console.error('[MP] ERROR: Carrito no encontrado en la respuesta');
-      throw new Error('Carrito no encontrado');
-    }
+      if (!cartResponse.cart) {
+        console.error('[MP] ERROR: Carrito no encontrado en la respuesta');
+        throw new Error('Carrito no encontrado');
+      }
 
-    const cartData = cart.cart;
+      const cartData = cartResponse.cart;
 
     // Preparar los items para la preferencia de MercadoPago
     console.log('[MP] Preparando items del carrito...');
@@ -172,9 +174,9 @@ export async function createMercadoPagoPreference(cartId: string): Promise<strin
         pending: `${appUrl}/checkout/pending`,
       },
       auto_return: 'approved' as const,
-      external_reference: cartId,
+      external_reference: cart.id,
       metadata: {
-        cart_id: cartId,
+        cart_id: cart.id,
         order_type: 'checkout',
       },
       notification_url: medusaBackendUrl
@@ -219,7 +221,7 @@ export async function createMercadoPagoPreference(cartId: string): Promise<strin
     console.error('[MP] Tipo de error:', error?.constructor?.name);
     console.error('[MP] Mensaje de error:', error?.message);
     console.error('[MP] Stack trace:', error?.stack);
-    console.error('[MP] Cart ID:', cartId);
+    console.error('[MP] Cart ID:', cart.id);
     console.error('[MP] Error completo:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     
     // Si es un error de MercadoPago, incluir más detalles

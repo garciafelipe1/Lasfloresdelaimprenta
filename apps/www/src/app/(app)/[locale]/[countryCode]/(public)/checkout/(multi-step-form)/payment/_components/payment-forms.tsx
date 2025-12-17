@@ -71,6 +71,25 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     },
   );
 
+  const { executeAsync: executeMercadoPago, isExecuting: isExecutingMP } = useAction(
+    createMercadoPagoPreference,
+    {
+      onError(error: any) {
+        console.error('[PaymentForms] Error en useAction de MercadoPago:', error);
+        const errorMessage = error?.error?.serverError || error?.serverError || 'Hubo un error al crear la preferencia de pago';
+        toast.error(errorMessage);
+      },
+      onSuccess(data: any) {
+        console.log('[PaymentForms] Preferencia creada exitosamente desde useAction');
+        console.log('[PaymentForms] Datos recibidos:', data);
+        if (data?.data) {
+          console.log('[PaymentForms] Redirigiendo a MercadoPago desde onSuccess...');
+          window.location.href = data.data;
+        }
+      },
+    },
+  );
+
   const handleSubmit = async (data: FormSchema) => {
     console.log('[PaymentForms] Iniciando submit del formulario');
     console.log('[PaymentForms] Método de pago seleccionado:', data.paymentMethod);
@@ -82,25 +101,26 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     try {
       // Si es MercadoPago, crear preferencia y redirigir
       if (isMp) {
-        console.log('[PaymentForms] Creando preferencia de MercadoPago...');
+        console.log('[PaymentForms] Creando preferencia de MercadoPago usando useAction...');
         try {
-          const paymentUrl = await createMercadoPagoPreference(cart.id);
-          console.log('[PaymentForms] Preferencia creada exitosamente');
-          console.log('[PaymentForms] URL de pago obtenida:', paymentUrl?.substring(0, 50) + '...');
+          const result = await executeMercadoPago();
+          console.log('[PaymentForms] Resultado de executeMercadoPago:', result);
           
-          if (!paymentUrl) {
-            throw new Error('No se recibió la URL de pago de MercadoPago');
+          // El redirect se maneja en onSuccess del useAction
+          // Pero por si acaso, también lo hacemos aquí
+          if (result?.data) {
+            console.log('[PaymentForms] URL de pago obtenida:', result.data.substring(0, 50) + '...');
+            console.log('[PaymentForms] Redirigiendo a MercadoPago...');
+            window.location.href = result.data;
           }
-          
-          console.log('[PaymentForms] Redirigiendo a MercadoPago...');
-          // Redirigir al usuario a la URL de pago de MercadoPago
-          window.location.href = paymentUrl;
           return;
         } catch (mpError: any) {
           console.error('[PaymentForms] Error específico de MercadoPago:', {
             message: mpError?.message,
             stack: mpError?.stack,
             error: mpError,
+            serverError: mpError?.serverError,
+            validationErrors: mpError?.validationErrors,
           });
           throw mpError;
         }
@@ -193,8 +213,8 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         />
 
         <FormButton
-          isLoading={isLoading || isExecuting}
-          disabled={isLoading || isExecuting}
+          isLoading={isLoading || isExecuting || isExecutingMP}
+          disabled={isLoading || isExecuting || isExecutingMP}
         >
           {isMp ? 'Pagar con Mercado Pago' : 'Continuar'}
         </FormButton>
