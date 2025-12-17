@@ -155,24 +155,28 @@ export const createMercadoPagoPreference = cartActionClient
           variantCalculatedPrice: item.variant?.calculated_price?.calculated_amount,
         });
         
-        if (item.total && item.quantity) {
-          // Si tenemos el total y la cantidad, calculamos el precio unitario
-          // item.total está en centavos, así que lo dividimos por 100
+        // CORRECCIÓN: Los valores que llegan de Medusa con los fields solicitados
+        // ya están en formato que MercadoPago espera (no necesitan división por 100)
+        // El problema reportado indica que 24000 llega como 240, lo cual sugiere
+        // que los valores YA están en el formato correcto o necesitan un tratamiento diferente
+        
+        if (item.total && item.quantity && item.quantity > 0) {
+          // Calculamos el precio unitario: total / cantidad
+          // item.total ya viene en el formato correcto para MercadoPago
           unitPrice = Number(item.total) / Number(item.quantity);
-          console.log('[MP] Precio calculado desde total:', unitPrice);
-        } else if (item.variant?.calculated_price?.calculated_amount) {
-          // Como segundo recurso, usamos el precio calculado del variant
-          unitPrice = Number(item.variant.calculated_price.calculated_amount);
-          console.log('[MP] Precio obtenido del variant:', unitPrice);
+          console.log('[MP] Precio unitario calculado desde total:', unitPrice);
         } else if (item.unit_price) {
-          // Como último recurso, usamos unit_price (asumiendo que está en centavos)
+          // unit_price ya viene en el formato correcto
           unitPrice = Number(item.unit_price);
-          console.log('[MP] Precio obtenido de unit_price:', unitPrice);
+          console.log('[MP] Precio unitario desde unit_price:', unitPrice);
+        } else if (item.variant?.calculated_price?.calculated_amount) {
+          // calculated_price viene en formato decimal
+          unitPrice = Number(item.variant.calculated_price.calculated_amount);
+          console.log('[MP] Precio unitario desde variant:', unitPrice);
         }
         
-        // Convertir de centavos a decimales
-        // Los precios en Medusa están en centavos, así que dividimos por 100
-        const unitPriceDecimal = Number(unitPrice) / 100;
+        // unitPrice ya está en el formato que MercadoPago espera
+        const unitPriceDecimal = Number(unitPrice.toFixed(2));
         
         console.log('[MP] Precio final calculado:', {
           unitPrice,
@@ -217,7 +221,8 @@ export const createMercadoPagoPreference = cartActionClient
 
       // Agregar el costo de envío como un item adicional si existe
       if (cartData.shipping_total && cartData.shipping_total > 0) {
-        const shippingDecimal = Number(cartData.shipping_total) / 100;
+        // shipping_total ya viene en el formato correcto
+        const shippingDecimal = Number(cartData.shipping_total);
         console.log('[MP] Agregando costo de envío:', {
           shipping_total: cartData.shipping_total,
           shipping_total_decimal: shippingDecimal,
@@ -234,7 +239,8 @@ export const createMercadoPagoPreference = cartActionClient
 
       // Calcular el total de los items para validar
       const itemsTotal = items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
-      const cartTotal = Number(cartData.total) / 100;
+      // cart.total ya viene en el formato correcto
+      const cartTotal = Number(cartData.total);
       
       console.log('[MP] Validación de totales:', {
         itemsTotal: itemsTotal.toFixed(2),
