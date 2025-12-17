@@ -64,16 +64,25 @@ export async function POST(
       });
 
       logger.info(
-        `Payment ${paymentId} status: ${payment.status}, status_detail: ${payment.status_detail}`
+        `Payment ${paymentId} status: ${payment.status}, status_detail: ${payment.status_detail}, external_reference: ${payment.external_reference}`
       );
 
-      // Log del estado del pago
-      // El plugin de MercadoPago manejará la actualización de la sesión
-      // cuando se complete el carrito o cuando se reciba el webhook
+      // Si el pago fue aprobado, registrar información importante
       if (payment.status === "approved") {
         logger.info(
-          `Payment ${paymentId} approved. Status detail: ${payment.status_detail}`
+          `✅ Payment ${paymentId} approved. Status detail: ${payment.status_detail}, external_reference (cart_id): ${payment.external_reference}`
         );
+
+        // Log importante: el external_reference debería ser el cart_id
+        // El plugin de MercadoPago debería usar esto para verificar el pago cuando se complete el carrito
+        if (payment.external_reference) {
+          logger.info(
+            `Payment ${paymentId} is associated with cart ${payment.external_reference}. ` +
+            `Cart should be completed from the success page or the plugin should handle it automatically.`
+          );
+        } else {
+          logger.warn(`Payment ${paymentId} approved but has no external_reference (cart_id)`);
+        }
       } else if (payment.status === "rejected") {
         logger.warn(
           `Payment ${paymentId} rejected. Reason: ${payment.status_detail}`

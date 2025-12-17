@@ -28,6 +28,54 @@ export const createMercadoPagoPreference = cartActionClient
         shipping_total: cart.shipping_total,
         items_count: cart.items?.length,
       }, null, 2));
+
+      // PASO 0: Asegurar que existe una sesión de pago de MercadoPago
+      // Esto es crítico para que el plugin pueda procesar el pago cuando se complete el carrito
+      console.log('[MP] Verificando/creando sesión de pago de MercadoPago...');
+      try {
+        // Obtener el carrito con sesiones de pago
+        const cartWithSessions = await medusa.store.cart.retrieve(cart.id, {
+          fields: 'payment_collection.payment_sessions.*',
+        });
+
+        let paymentSession = cartWithSessions.cart?.payment_collection?.payment_sessions?.find(
+          (session) => session.provider_id?.startsWith('pp_mercadopago_')
+        );
+
+        // Si no existe, crear una nueva sesión de pago
+        if (!paymentSession) {
+          console.log('[MP] No se encontró sesión de pago, creando una nueva...');
+          
+          // Obtener los providers disponibles
+          const providersResponse = await medusa.store.payment.listPaymentProviders({
+            region_id: cart.region_id,
+          });
+
+          // Buscar el provider de MercadoPago
+          const mercadoPagoProvider = providersResponse.payment_providers?.find(
+            (provider) => provider.id?.startsWith('pp_mercadopago_')
+          );
+
+          if (!mercadoPagoProvider) {
+            throw new Error('Provider de MercadoPago no encontrado');
+          }
+
+          console.log('[MP] Provider de MercadoPago encontrado:', mercadoPagoProvider.id);
+
+          // Crear la sesión de pago
+          await medusa.store.payment.initiatePaymentSession(cart.id, {
+            provider_id: mercadoPagoProvider.id,
+          });
+
+          console.log('[MP] Sesión de pago de MercadoPago creada exitosamente');
+        } else {
+          console.log('[MP] Sesión de pago de MercadoPago ya existe:', paymentSession.id);
+        }
+      } catch (sessionError: any) {
+        console.error('[MP] Error al crear/verificar sesión de pago:', sessionError);
+        // Continuar de todas formas, pero registrar el error
+        console.warn('[MP] Continuando sin sesión de pago (puede causar problemas al completar el carrito)');
+      }
       console.log('[MP] Verificando mercadoPagoClient...');
       console.log('[MP] mercadoPagoClient existe:', !!mercadoPagoClient);
       console.log('[MP] Tipo de mercadoPagoClient:', typeof mercadoPagoClient);
