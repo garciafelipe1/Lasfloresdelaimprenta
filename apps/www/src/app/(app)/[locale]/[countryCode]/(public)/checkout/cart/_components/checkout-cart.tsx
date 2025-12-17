@@ -21,7 +21,7 @@ export function CheckoutCart({ cart }: Props) {
       <Card className='bg-secondary h-fit'>
         <CardHeader>
           <CardTitle className='text-primary text-center'>
-            Order Summary
+            Resumen del pedido
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -33,8 +33,8 @@ export function CheckoutCart({ cart }: Props) {
               </span>
             </div>
             <div className='flex items-center justify-between'>
-              <p className='text-sm'>Shipping</p>
-              <span className='text-sm text-gray-500'>To be calculated</span>
+              <p className='text-sm'>Envío</p>
+              <span className='text-sm text-gray-500'>A calcular</span>
             </div>
             <div className='flex items-center justify-between'>
               <p className='text-sm font-semibold'>Total</p>

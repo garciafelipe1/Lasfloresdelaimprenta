@@ -26,13 +26,13 @@ export function SummaryInfo({ cart }: Props) {
       </div>
       <div className='flex flex-col gap-2'>
         <h4>Productos en tu pedido</h4>
-        <ul className='grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-4'>
+        <ul className='grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))]'>
           {cart.items?.map((item) => (
             <div
               key={item.id}
-              className='bg-secondary flex gap-4 rounded-md p-2 shadow'
+              className='bg-secondary flex flex-col gap-3 rounded-md p-3 shadow sm:flex-row sm:gap-4'
             >
-              <div className='relative aspect-square h-20 w-20'>
+              <div className='relative aspect-square h-20 w-20 flex-shrink-0'>
                 <Image
                   alt=''
                   src={item.thumbnail ?? ''}
@@ -40,16 +40,16 @@ export function SummaryInfo({ cart }: Props) {
                   fill
                 />
               </div>
-              <div className='flex flex-col gap-1'>
-                <h4>{item.title}</h4>
-                <div className='flex flex-col text-sm opacity-75'>
-                  <p>Precio unitario: {formatARS(item.unit_price)}</p>
+              <div className='flex min-w-0 flex-1 flex-col gap-1'>
+                <h4 className='break-words text-sm font-semibold sm:text-base'>{item.title}</h4>
+                <div className='flex flex-col gap-1 text-sm opacity-75'>
+                  <p className='break-words'>Precio unitario: {formatARS(item.unit_price)}</p>
                   <p>Unidades: {item.quantity}</p>
-                  <p>subtotal: {formatARS(item.total)}</p>
+                  <p>Subtotal: {formatARS(item.total)}</p>
                 </div>
-                {item.metadata && (
-                  <p className='text-sm italic'>
-                    {item.metadata.message as string}
+                {item.metadata && item.metadata.message && (
+                  <p className='break-words text-sm italic'>
+                    &quot;{item.metadata.message as string}&quot;
                   </p>
                 )}
               </div>

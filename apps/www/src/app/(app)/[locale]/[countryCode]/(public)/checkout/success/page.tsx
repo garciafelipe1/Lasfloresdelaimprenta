@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { cookies } from '@/lib/data/cookies';
 import { medusa } from '@/lib/medusa-client';
+import { ensureMercadoPagoPaymentSession } from '@/app/actions/checkout/update-mercadopago-payment-session.action';
+import { BAHIA_BLANCA_SHIPPING_CODES } from '@server/constants';
 
 interface Props {
   params: Promise<{
@@ -26,12 +28,69 @@ export default async function CheckoutSuccessPage(props: Props) {
 
   console.log('[CheckoutSuccess] Parámetros recibidos:', searchParams);
 
+  // Obtener información del método de envío antes de completar el carrito
+  let shippingMessage = 'Te enviaremos un correo con los detalles de tu pedido. Si tenés alguna duda, no dudes en contactarnos.';
+  
+  if (external_reference) {
+    try {
+      const cartResponse = await medusa.store.cart.retrieve(external_reference, {
+        fields: 'shipping_methods.*,shipping_methods.type.*',
+      });
+      
+      const shippingMethod = cartResponse.cart?.shipping_methods?.[0];
+      const shippingTypeCode = shippingMethod?.type?.code;
+      
+      if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.retiroLocal) {
+        shippingMessage = 'Tu pedido ya puede ser retirado en el local.';
+      } else if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.bahiaBlanca) {
+        shippingMessage = 'Tu pedido está siendo enviado.';
+      }
+    } catch (error) {
+      console.error('[CheckoutSuccess] Error al obtener información del carrito:', error);
+      // Continuar con el mensaje por defecto
+    }
+  }
+
   // Si tenemos un external_reference (cart_id), intentar completar el carrito
   if (external_reference && collection_status === 'approved' && status === 'approved') {
     try {
       console.log('[CheckoutSuccess] Intentando completar carrito:', external_reference);
       
-      // Completar el carrito para crear la orden
+      // Paso 1: Asegurar que existe una sesión de pago de MercadoPago
+      console.log('[CheckoutSuccess] Asegurando sesión de pago de MercadoPago...');
+      const sessionResult = await ensureMercadoPagoPaymentSession(external_reference);
+      
+      if (!sessionResult.success) {
+        console.error('[CheckoutSuccess] Error al asegurar sesión de pago:', sessionResult.error);
+        // Continuar intentando completar el carrito de todas formas
+      }
+      
+      // Paso 2: Actualizar la sesión de pago con el payment_id si está disponible
+      if (payment_id && sessionResult.paymentSessionId) {
+        console.log('[CheckoutSuccess] Actualizando sesión con payment_id:', payment_id);
+        try {
+          const backendUrl = process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
+          if (backendUrl) {
+            await fetch(`${backendUrl}/store/mercadopago/payment/session`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                paymentSessionId: sessionResult.paymentSessionId,
+                paymentId: payment_id,
+                cartId: external_reference,
+              }),
+            });
+          }
+        } catch (updateError: any) {
+          console.error('[CheckoutSuccess] Error al actualizar sesión con payment_id:', updateError);
+          // Continuar de todas formas
+        }
+      }
+      
+      // Paso 3: Completar el carrito para crear la orden
+      console.log('[CheckoutSuccess] Completando carrito...');
       const cartResponse = await medusa.store.cart.complete(external_reference);
       
       if (cartResponse.type === 'order') {
@@ -47,6 +106,7 @@ export default async function CheckoutSuccessPage(props: Props) {
       }
     } catch (error: any) {
       console.error('[CheckoutSuccess] Error al completar el carrito:', error);
+      console.error('[CheckoutSuccess] Error completo:', JSON.stringify(error, null, 2));
       // Continuar mostrando la página de éxito aunque haya un error
     }
   }
@@ -80,7 +140,7 @@ export default async function CheckoutSuccessPage(props: Props) {
         </p>
       )}
       <p className='mt-4 text-sm'>
-        Te enviaremos un correo con los detalles de tu pedido. Si tenés alguna duda, no dudes en contactarnos.
+        {shippingMessage}
       </p>
     </div>
   );
