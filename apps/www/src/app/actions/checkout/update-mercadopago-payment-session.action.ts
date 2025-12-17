@@ -59,7 +59,7 @@ export async function ensureMercadoPagoPaymentSession(cartId: string) {
         count: providersResponse.payment_providers?.length || 0,
         providers: providersResponse.payment_providers?.map(p => ({
           id: p.id,
-          is_ enabled: p.is_enabled,
+          is_enabled: p.is_enabled,
         })),
       });
 
