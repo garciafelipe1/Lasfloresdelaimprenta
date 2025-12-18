@@ -110,150 +110,138 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
     logger.info(`[PaymentSessionUpdate]   - data keys: ${paymentSession.data ? Object.keys(paymentSession.data).join(', ') : 'null'}`);
     logger.info(`[PaymentSessionUpdate] Sesión de pago actual - id: ${paymentSession.id}, provider_id: ${paymentSession.provider_id}, status: ${paymentSession.status}, hasData: ${!!paymentSession.data}`);
 
-    // IMPORTANTE: Para el flujo de Checkout Pro con preferencias, necesitamos autorizar
-    // manualmente la sesión de pago porque el plugin está diseñado para Payment Brick.
-    // El plugin debería verificar el pago usando el external_reference cuando se complete
-    // el carrito, pero para asegurarnos de que funcione correctamente, actualizamos
-    // los datos de la sesión con información del pago y confiamos en que el plugin
-    // autorizará correctamente usando el external_reference (cart_id).
+    logger.info(`[PaymentSessionUpdate] ✅ Pago verificado exitosamente en MercadoPago.`);
     
-    // El plugin de MercadoPago tiene un método authorizePaymentSession que se llama
-    // automáticamente cuando se completa el carrito. Este método debería:
-    // 1. Buscar el pago en MercadoPago usando el external_reference (cart_id)
-    // 2. Verificar que el pago esté aprobado
-    // 3. Autorizar la sesión de pago en Medusa
+    // IMPORTANTE: El plugin de MercadoPago está diseñado para autorizar automáticamente
+    // cuando se completa el carrito. El plugin buscará el pago usando el external_reference
+    // (que es el cart_id) de los datos de la sesión de pago.
+    // 
+    // Para que el plugin pueda encontrar el pago, necesitamos que:
+    // 1. El external_reference en la preferencia de MercadoPago sea el cart_id (✅ ya configurado)
+    // 2. El plugin tenga acceso al external_reference cuando autorice (se obtiene del cart)
+    //
+    // Intentamos autorizar manualmente aquí para que la sesión esté lista antes de cart.complete(),
+    // pero si falla, el plugin debería intentar autorizar automáticamente durante cart.complete().
     
-    // Para asegurarnos de que el plugin pueda encontrar el pago, el external_reference
-    // debe coincidir con el cart_id, lo cual ya está configurado en la preferencia.
+    logger.info(`[PaymentSessionUpdate] Paso 5: Intentando autorizar la sesión de pago...`);
     
-      logger.info(`[PaymentSessionUpdate] ✅ Pago verificado exitosamente en MercadoPago.`);
+    try {
+      // CRÍTICO: El plugin busca el pago usando session_id como external_reference en MercadoPago
+      // Como usamos cart_id como external_reference en la preferencia, debemos pasar cart_id como session_id
+      const sessionIdForPlugin = payment.external_reference || cartId;
       
-      // IMPORTANTE: Actualizar los datos de la sesión con el payment_id de MercadoPago
-      // El plugin de MercadoPago debería autorizar automáticamente cuando se complete el carrito
-      // usando el external_reference (cart_id) para buscar el pago en MercadoPago.
-      // Sin embargo, para asegurarnos de que funcione, actualizamos los datos de la sesión
-      // con el payment_id y luego intentamos autorizar manualmente.
-      logger.info(`[PaymentSessionUpdate] Paso 5: Actualizando datos de la sesión con payment_id...`);
+      logger.info(`[PaymentSessionUpdate] Configuración para autorización:`);
+      logger.info(`[PaymentSessionUpdate]   - session_id (external_reference para plugin): ${sessionIdForPlugin}`);
+      logger.info(`[PaymentSessionUpdate]   - payment_id: ${payment.id}`);
+      logger.info(`[PaymentSessionUpdate]   - payment status: ${payment.status}`);
+      logger.info(`[PaymentSessionUpdate]   - payment external_reference: ${payment.external_reference}`);
+      logger.info(`[PaymentSessionUpdate]   - cart_id: ${cartId}`);
       
-      try {
-        // Paso 6: Intentar autorizar la sesión directamente
-        // El plugin de MercadoPago debería poder autorizar usando el external_reference (cart_id)
-        logger.info(`[PaymentSessionUpdate] Paso 6: Intentando autorizar la sesión...`);
-        
-        // CRÍTICO: El plugin busca el pago usando session_id como external_reference en MercadoPago
-        // Como usamos cart_id como external_reference en la preferencia, debemos pasar cart_id como session_id
-        const sessionIdForPlugin = payment.external_reference || cartId;
-        
-        logger.info(`[PaymentSessionUpdate] session_id (external_reference) para plugin: ${sessionIdForPlugin}`);
-        logger.info(`[PaymentSessionUpdate] payment_id: ${payment.id}`);
-        logger.info(`[PaymentSessionUpdate] payment status: ${payment.status}`);
-        logger.info(`[PaymentSessionUpdate] Verificando que el external_reference del pago coincida con cart_id: ${payment.external_reference} === ${cartId}`);
-        
-        if (payment.external_reference !== cartId) {
-          logger.warn(`[PaymentSessionUpdate] ⚠️ ADVERTENCIA: El external_reference del pago (${payment.external_reference}) no coincide con el cart_id (${cartId})`);
-          logger.warn(`[PaymentSessionUpdate] ⚠️ Esto puede causar que el plugin no encuentre el pago al buscar por external_reference.`);
-          logger.warn(`[PaymentSessionUpdate] ⚠️ Usaremos el external_reference del pago (${payment.external_reference}) como session_id en su lugar.`);
-        } else {
-          logger.info(`[PaymentSessionUpdate] ✅ El external_reference del pago coincide con el cart_id. El plugin debería encontrar el pago.`);
-        }
-        
-        // IMPORTANTE: El plugin necesita que session_id coincida con el external_reference del pago
-        // Pasamos los datos del pago para que el plugin pueda autorizar correctamente
-        const authorizeData = {
-          data: {
-            // CRÍTICO: session_id DEBE ser el cart_id (external_reference) para que el plugin encuentre el pago
-            session_id: sessionIdForPlugin,
-            // Datos del pago para referencia
-            payment_id: payment.id.toString(),
-            payment_status: payment.status,
-            payment_status_detail: payment.status_detail,
-            transaction_amount: payment.transaction_amount,
-            external_reference: payment.external_reference,
-          },
-        };
-        
-        logger.info(`[PaymentSessionUpdate] Datos de autorización: ${JSON.stringify(authorizeData, null, 2)}`);
-        
-        const authorizeResult = await paymentModuleService.authorizePaymentSession(
-          paymentSessionId,
-          authorizeData
-        );
-
-        logger.info(`[PaymentSessionUpdate] ✅ authorizePaymentSession ejecutado`);
-        logger.info(`[PaymentSessionUpdate] Resultado: ${JSON.stringify(authorizeResult, null, 2)}`);
-        
-        // CRÍTICO: Verificar que el estado realmente cambió
-        logger.info(`[PaymentSessionUpdate] Paso 7: Verificando cambio de estado...`);
-        logger.info(`[PaymentSessionUpdate] Estado ANTES: ${paymentSession.status}`);
-        
-        // Esperar un momento para que se propague el cambio
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const finalSession = await paymentModuleService.retrievePaymentSession(paymentSessionId);
-        logger.info(`[PaymentSessionUpdate] Estado DESPUÉS: ${finalSession?.status}`);
-        
-        // VERIFICACIÓN CRÍTICA
-        if (finalSession?.status !== 'authorized' && finalSession?.status !== 'captured') {
-          logger.error(`[PaymentSessionUpdate] ❌❌❌ PROBLEMA CRÍTICO: La sesión NO está autorizada`);
-          logger.error(`[PaymentSessionUpdate] Estado esperado: 'authorized' o 'captured'`);
-          logger.error(`[PaymentSessionUpdate] Estado actual: '${finalSession?.status}'`);
-          logger.error(`[PaymentSessionUpdate] Esto causará que cart.complete() falle`);
-          logger.error(`[PaymentSessionUpdate] El plugin debería autorizar automáticamente cuando se complete el carrito usando external_reference: ${payment.external_reference}`);
-        } else {
-          logger.info(`[PaymentSessionUpdate] ✅✅✅ Estado correcto: ${finalSession?.status}`);
-        }
-        
-        logger.info(`[PaymentSessionUpdate] Detalles finales de la sesión:`);
-        logger.info(`[PaymentSessionUpdate]   - id: ${finalSession?.id}`);
-        logger.info(`[PaymentSessionUpdate]   - status: ${finalSession?.status}`);
-        logger.info(`[PaymentSessionUpdate]   - data: ${JSON.stringify(finalSession?.data, null, 2)}`);
-
-        const response = {
-          success: true,
-          payment: {
-            id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            external_reference: payment.external_reference,
-            transaction_amount: payment.transaction_amount,
-          },
-          payment_session: {
-            id: paymentSessionId,
-            status: finalSession?.status || paymentSession.status,
-          },
-          message: "Payment verified and session updated successfully.",
-        };
-        
-        logger.info(`[PaymentSessionUpdate] ========== FIN DE ACTUALIZACIÓN DE SESIÓN ==========`);
-        
-        return res.json(response);
-      } catch (error: any) {
-        logger.error(`[PaymentSessionUpdate] ❌ Error al actualizar/autorizar sesión`);
-        logger.error(`[PaymentSessionUpdate] Tipo: ${error?.constructor?.name}`);
-        logger.error(`[PaymentSessionUpdate] Mensaje: ${error?.message}`);
-        logger.error(`[PaymentSessionUpdate] Stack: ${error?.stack}`);
-        logger.error(`[PaymentSessionUpdate] Error completo: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
-        
-        // Aún retornamos éxito porque el plugin puede intentar autorizar cuando se complete el carrito
-        logger.warn(`[PaymentSessionUpdate] ⚠️ Continuando. El plugin intentará autorizar cuando se complete el carrito.`);
-        
-        return res.json({
-          success: true,
-          payment: {
-            id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            external_reference: payment.external_reference,
-            transaction_amount: payment.transaction_amount,
-          },
-          payment_session: {
-            id: paymentSessionId,
-            status: paymentSession.status,
-          },
-          message: "Payment verified successfully. Session authorization will be attempted when cart is completed.",
-          warning: "Manual authorization failed, but plugin may authorize automatically.",
-        });
+      if (payment.external_reference !== cartId) {
+        logger.warn(`[PaymentSessionUpdate] ⚠️ ADVERTENCIA: El external_reference del pago (${payment.external_reference}) no coincide con el cart_id (${cartId})`);
+        logger.warn(`[PaymentSessionUpdate] ⚠️ Esto puede causar que el plugin no encuentre el pago al buscar por external_reference.`);
+      } else {
+        logger.info(`[PaymentSessionUpdate] ✅ El external_reference del pago coincide con el cart_id.`);
       }
+      
+      // IMPORTANTE: El plugin necesita que session_id coincida con el external_reference del pago
+      // Pasamos los datos esenciales que el plugin necesita para encontrar y autorizar el pago
+      // El plugin buscará el pago en MercadoPago usando session_id como external_reference
+      const authorizeData = {
+        data: {
+          // CRÍTICO: session_id DEBE ser el cart_id (external_reference) para que el plugin encuentre el pago
+          session_id: sessionIdForPlugin,
+          // Incluir payment_id para que el plugin pueda validar directamente sin buscar
+          payment_id: payment.id.toString(),
+        },
+      };
+      
+      logger.info(`[PaymentSessionUpdate] Datos de autorización (simplificados): ${JSON.stringify(authorizeData, null, 2)}`);
+      logger.info(`[PaymentSessionUpdate] Llamando a authorizePaymentSession...`);
+      
+      const authorizeResult = await paymentModuleService.authorizePaymentSession(
+        paymentSessionId,
+        authorizeData
+      );
+
+      logger.info(`[PaymentSessionUpdate] ✅ authorizePaymentSession ejecutado`);
+      logger.info(`[PaymentSessionUpdate] Resultado: ${JSON.stringify(authorizeResult, null, 2)}`);
+      
+      // CRÍTICO: Verificar que el estado realmente cambió
+      logger.info(`[PaymentSessionUpdate] Paso 6: Verificando cambio de estado...`);
+      logger.info(`[PaymentSessionUpdate] Estado ANTES: ${paymentSession.status}`);
+      
+      // Esperar un momento para que se propague el cambio en la base de datos
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const finalSession = await paymentModuleService.retrievePaymentSession(paymentSessionId);
+      logger.info(`[PaymentSessionUpdate] Estado DESPUÉS: ${finalSession?.status}`);
+      logger.info(`[PaymentSessionUpdate] Detalles de la sesión después de autorizar:`);
+      logger.info(`[PaymentSessionUpdate]   - id: ${finalSession?.id}`);
+      logger.info(`[PaymentSessionUpdate]   - status: ${finalSession?.status}`);
+      logger.info(`[PaymentSessionUpdate]   - data: ${JSON.stringify(finalSession?.data, null, 2)}`);
+      
+      // VERIFICACIÓN CRÍTICA
+      if (finalSession?.status !== 'authorized' && finalSession?.status !== 'captured') {
+        logger.error(`[PaymentSessionUpdate] ❌❌❌ PROBLEMA CRÍTICO: La sesión NO está autorizada después de authorizePaymentSession`);
+        logger.error(`[PaymentSessionUpdate] Estado esperado: 'authorized' o 'captured'`);
+        logger.error(`[PaymentSessionUpdate] Estado actual: '${finalSession?.status}'`);
+        logger.error(`[PaymentSessionUpdate] Esto causará que cart.complete() falle con "Payment sessions are required to complete cart"`);
+        logger.warn(`[PaymentSessionUpdate] ⚠️ NOTA: El plugin debería intentar autorizar automáticamente durante cart.complete() usando external_reference: ${payment.external_reference}`);
+        logger.warn(`[PaymentSessionUpdate] ⚠️ Continuando de todas formas - el plugin puede autorizar durante cart.complete()`);
+      } else {
+        logger.info(`[PaymentSessionUpdate] ✅✅✅ Estado correcto: La sesión está ${finalSession?.status}`);
+        logger.info(`[PaymentSessionUpdate] ✅✅✅ cart.complete() debería funcionar correctamente`);
+      }
+
+      const response = {
+        success: true,
+        payment: {
+          id: payment.id,
+          status: payment.status,
+          status_detail: payment.status_detail,
+          external_reference: payment.external_reference,
+          transaction_amount: payment.transaction_amount,
+        },
+        payment_session: {
+          id: paymentSessionId,
+          status: finalSession?.status || paymentSession.status,
+        },
+        message: "Payment verified and session updated successfully.",
+      };
+      
+      logger.info(`[PaymentSessionUpdate] ========== FIN DE ACTUALIZACIÓN DE SESIÓN (ÉXITO) ==========`);
+      
+      return res.json(response);
+    } catch (error: any) {
+      logger.error(`[PaymentSessionUpdate] ❌ Error al autorizar sesión`);
+      logger.error(`[PaymentSessionUpdate] Tipo: ${error?.constructor?.name}`);
+      logger.error(`[PaymentSessionUpdate] Mensaje: ${error?.message}`);
+      logger.error(`[PaymentSessionUpdate] Stack: ${error?.stack}`);
+      logger.error(`[PaymentSessionUpdate] Error completo: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
+      
+      // IMPORTANTE: Aún retornamos éxito porque el plugin puede intentar autorizar automáticamente
+      // durante cart.complete() usando el external_reference (cart_id) del carrito
+      logger.warn(`[PaymentSessionUpdate] ⚠️ La autorización manual falló, pero el plugin puede autorizar durante cart.complete()`);
+      logger.warn(`[PaymentSessionUpdate] ⚠️ El plugin buscará el pago usando external_reference: ${payment.external_reference}`);
+      
+      return res.json({
+        success: true,
+        payment: {
+          id: payment.id,
+          status: payment.status,
+          status_detail: payment.status_detail,
+          external_reference: payment.external_reference,
+          transaction_amount: payment.transaction_amount,
+        },
+        payment_session: {
+          id: paymentSessionId,
+          status: paymentSession.status,
+        },
+        message: "Payment verified successfully. Session authorization will be attempted when cart is completed.",
+        warning: "Manual authorization failed, but plugin may authorize automatically during cart.complete().",
+      });
+    }
   } catch (error: any) {
     logger.error(`[PaymentSessionUpdate] ❌ Error general en el endpoint`);
     logger.error(`[PaymentSessionUpdate] Tipo de error: ${error?.constructor?.name}`);

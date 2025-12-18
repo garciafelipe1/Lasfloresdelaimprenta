@@ -187,12 +187,15 @@ export default async function CheckoutSuccessPage(props: Props) {
       });
 
       // VERIFICACIÓN CRÍTICA: El estado debe ser 'authorized' o 'captured'
+      // NOTA: Si la sesión no está autorizada, aún intentamos cart.complete() porque
+      // el plugin de MercadoPago puede autorizar automáticamente durante cart.complete()
+      // usando el external_reference (cart_id) del carrito para buscar el pago
       if (finalPaymentSession.status !== 'authorized' && finalPaymentSession.status !== 'captured') {
-        console.error('[CheckoutSuccess] ❌❌❌ PROBLEMA CRÍTICO: La sesión NO está autorizada');
-        console.error('[CheckoutSuccess] Estado esperado: "authorized" o "captured"');
-        console.error('[CheckoutSuccess] Estado actual:', finalPaymentSession.status);
-        console.error('[CheckoutSuccess] cart.complete() FALLARÁ con "Payment sessions are required to complete cart"');
-        throw new Error(`La sesión de pago no está autorizada (${finalPaymentSession.status}). No se puede completar el carrito.`);
+        console.warn('[CheckoutSuccess] ⚠️ ADVERTENCIA: La sesión NO está autorizada después de actualizar');
+        console.warn('[CheckoutSuccess] Estado esperado: "authorized" o "captured"');
+        console.warn('[CheckoutSuccess] Estado actual:', finalPaymentSession.status);
+        console.warn('[CheckoutSuccess] Intentando cart.complete() de todas formas - el plugin puede autorizar automáticamente');
+        console.warn('[CheckoutSuccess] El plugin buscará el pago usando external_reference:', external_reference);
       } else {
         console.log('[CheckoutSuccess] ✅✅✅ Estado correcto: La sesión está', finalPaymentSession.status);
         console.log('[CheckoutSuccess] cart.complete() debería funcionar correctamente');
