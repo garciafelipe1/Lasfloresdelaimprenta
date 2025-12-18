@@ -128,6 +128,13 @@ export default async function CheckoutSuccessPage(props: Props) {
           // Continuar de todas formas, el plugin puede usar el external_reference
         }
         console.log('[CheckoutSuccess] ========== FIN PASO 2 ==========');
+        
+        // CRÍTICO: Esperar un momento para que la autorización se propague en la base de datos
+        // Esto es necesario porque puede haber un pequeño delay entre cuando autorizamos la sesión
+        // y cuando Medusa puede verificar que está autorizada durante cart.complete()
+        console.log('[CheckoutSuccess] Esperando 2 segundos para que la autorización se propague...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log('[CheckoutSuccess] Espera completada, procediendo a recuperar el carrito...');
       } else {
         console.log('[CheckoutSuccess] ⚠️ No hay payment_id, saltando actualización de sesión');
       }
@@ -136,8 +143,9 @@ export default async function CheckoutSuccessPage(props: Props) {
       console.log('[CheckoutSuccess] ========== PASO 3: RECUPERAR CARRITO ACTUALIZADO ==========');
       console.log('[CheckoutSuccess] Obteniendo carrito con sesión de pago actualizada...');
       
+      // CRÍTICO: Incluir todos los campos necesarios del payment_collection para que Medusa pueda validar correctamente
       const finalCartResponse = await medusa.store.cart.retrieve(external_reference, {
-        fields: 'id,email,shipping_address.*,billing_address.*,shipping_methods.*,payment_collection.payment_sessions.*,payment_collection.*',
+        fields: 'id,email,shipping_address.*,billing_address.*,shipping_methods.*,payment_collection.id,payment_collection.status,payment_collection.amount,payment_collection.authorized_amount,payment_collection.captured_amount,payment_collection.payment_sessions.id,payment_collection.payment_sessions.provider_id,payment_collection.payment_sessions.status,payment_collection.payment_sessions.authorized_at,payment_collection.payment_sessions.amount,payment_collection.payment_sessions.data',
       });
 
       if (!finalCartResponse.cart) {
@@ -197,6 +205,21 @@ export default async function CheckoutSuccessPage(props: Props) {
         console.log('[CheckoutSuccess]   - id:', paymentCollection.id);
         console.log('[CheckoutSuccess]   - status:', paymentCollection.status);
         console.log('[CheckoutSuccess]   - amount:', paymentCollection.amount);
+        console.log('[CheckoutSuccess]   - authorized_amount:', paymentCollection.authorized_amount);
+        console.log('[CheckoutSuccess]   - captured_amount:', paymentCollection.captured_amount);
+        console.log('[CheckoutSuccess]   - payment_sessions count:', paymentCollection.payment_sessions?.length || 0);
+        console.log('[CheckoutSuccess]   - payment_sessions:', JSON.stringify(
+          paymentCollection.payment_sessions?.map(s => ({
+            id: s.id,
+            provider_id: s.provider_id,
+            status: s.status,
+            amount: s.amount,
+          })),
+          null,
+          2
+        ));
+      } else {
+        console.error('[CheckoutSuccess] ❌❌❌ PROBLEMA CRÍTICO: No hay payment_collection en el carrito');
       }
 
       console.log('[CheckoutSuccess] Datos del carrito antes de completar:');
@@ -226,6 +249,39 @@ export default async function CheckoutSuccessPage(props: Props) {
       console.log('[CheckoutSuccess] Llamando a medusa.store.cart.complete...');
       console.log('[CheckoutSuccess] cartId a completar:', external_reference);
       console.log('[CheckoutSuccess] NOTA: Si la sesión no está "authorized" o "captured", esto fallará');
+      
+      // VERIFICACIÓN FINAL ANTES DE COMPLETAR: Loggear TODO el estado del payment_collection
+      console.log('[CheckoutSuccess] ========== VERIFICACIÓN FINAL ANTES DE cart.complete() ==========');
+      console.log('[CheckoutSuccess] Payment Collection completo:', JSON.stringify({
+        id: paymentCollection?.id,
+        status: paymentCollection?.status,
+        amount: paymentCollection?.amount,
+        authorized_amount: paymentCollection?.authorized_amount,
+        captured_amount: paymentCollection?.captured_amount,
+        payment_sessions: paymentCollection?.payment_sessions?.map(s => ({
+          id: s.id,
+          provider_id: s.provider_id,
+          status: s.status,
+          amount: s.amount,
+          authorized_at: s.authorized_at,
+        })),
+      }, null, 2));
+      
+      // Verificar que haya al menos una sesión autorizada
+      const authorizedSessions = paymentCollection?.payment_sessions?.filter(
+        s => s.status === 'authorized' || s.status === 'captured'
+      ) || [];
+      
+      console.log('[CheckoutSuccess] Sesiones autorizadas encontradas:', authorizedSessions.length);
+      if (authorizedSessions.length === 0) {
+        console.error('[CheckoutSuccess] ❌❌❌ ERROR: No hay sesiones autorizadas en el payment_collection');
+        console.error('[CheckoutSuccess] Esto causará que cart.complete() falle con "Payment sessions are required"');
+        throw new Error('No hay sesiones de pago autorizadas en el payment_collection. Estado: ' + 
+          paymentCollection?.payment_sessions?.map(s => `${s.id}:${s.status}`).join(', '));
+      } else {
+        console.log('[CheckoutSuccess] ✅ Sesiones autorizadas:', authorizedSessions.map(s => `${s.id}:${s.status}`).join(', '));
+      }
+      console.log('[CheckoutSuccess] ========== FIN VERIFICACIÓN FINAL ==========');
       
       let cartResponse;
       

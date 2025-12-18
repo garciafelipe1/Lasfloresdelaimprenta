@@ -165,34 +165,33 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
         // Como el pago tiene cart_id como external_reference, debemos pasar cart_id como session_id.
         // Además, incluimos todos los datos del pago como un objeto "result" para que el plugin
         // pueda usarlo directamente como fallback si no encuentra el pago en la búsqueda.
+        // CRÍTICO: El plugin busca el pago usando session_id como external_reference.
+        // Como usamos cart_id como external_reference en la preferencia de MercadoPago,
+        // debemos pasar cart_id como session_id para que el plugin encuentre el pago.
+        // El session_id debe ir PRIMERO para que sobrescriba cualquier session_id que pueda venir de updatedSessionData
+        const sessionIdForPlugin = payment.external_reference || cartId;
+        
         const authorizeData = {
           data: {
+            // CRÍTICO: session_id debe ir PRIMERO para asegurar que sobrescriba cualquier valor previo
+            session_id: sessionIdForPlugin,
             // Incluir todos los datos del pago para que el plugin pueda usarlos directamente
             ...updatedSessionData,
-        // CRÍTICO: El plugin busca el pago usando session_id como external_reference.
-        // Si usamos paymentSessionId como external_reference en la preferencia, debemos pasar paymentSessionId como session_id.
-        // Si usamos cart_id como external_reference, debemos pasar cart_id como session_id.
-        // Verificamos el external_reference del pago para determinar qué usar
-        session_id: payment.external_reference || paymentSessionId || cartId, // Usar el external_reference del pago (debería ser paymentSessionId o cartId)
-            // Incluir todos los campos del objeto de pago para que el plugin lo use como fallback
-            // cuando no encuentra el pago en la búsqueda (lo cual puede pasar por lag en MercadoPago)
-            // El plugin usa results[0] ?? data, así que si pasamos el objeto directamente como data,
-            // el plugin debería usarlo cuando no encuentra resultados en la búsqueda
             // Asegurar que estos campos estén presentes también en el nivel superior
             id: payment.id,
             status: payment.status,
           },
         };
         
-        logger.info(`[PaymentSessionUpdate] IMPORTANTE: Como usamos cart_id (${cartId}) como external_reference en MercadoPago,`);
-        logger.info(`[PaymentSessionUpdate] pasamos el cart_id como session_id para que el plugin busque el pago correctamente.`);
-        logger.info(`[PaymentSessionUpdate] El plugin buscará pagos con external_reference = ${cartId}`);
-        logger.info(`[PaymentSessionUpdate] Verificando que el external_reference del pago coincida: ${payment.external_reference}`);
+        logger.info(`[PaymentSessionUpdate] IMPORTANTE: Como usamos cart_id como external_reference en MercadoPago,`);
+        logger.info(`[PaymentSessionUpdate] pasamos el external_reference del pago (${sessionIdForPlugin}) como session_id para que el plugin busque el pago correctamente.`);
+        logger.info(`[PaymentSessionUpdate] El plugin buscará pagos con external_reference = ${sessionIdForPlugin}`);
+        logger.info(`[PaymentSessionUpdate] Verificando que el external_reference del pago coincida con cart_id: ${payment.external_reference} === ${cartId}`);
         
         if (payment.external_reference !== cartId) {
           logger.warn(`[PaymentSessionUpdate] ⚠️ ADVERTENCIA: El external_reference del pago (${payment.external_reference}) no coincide con el cart_id (${cartId})`);
           logger.warn(`[PaymentSessionUpdate] ⚠️ Esto puede causar que el plugin no encuentre el pago al buscar por external_reference.`);
-          logger.warn(`[PaymentSessionUpdate] ⚠️ Sin embargo, pasamos los datos del pago directamente, así que debería funcionar.`);
+          logger.warn(`[PaymentSessionUpdate] ⚠️ Usaremos el external_reference del pago (${payment.external_reference}) como session_id en su lugar.`);
         } else {
           logger.info(`[PaymentSessionUpdate] ✅ El external_reference del pago coincide con el cart_id. El plugin debería encontrar el pago.`);
         }
