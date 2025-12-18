@@ -155,13 +155,18 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
         // cuando se complete el carrito, pero intentamos autorizar manualmente aquí
         logger.info(`[PaymentSessionUpdate] Paso 6: Intentando autorizar la sesión...`);
         
-        // CRÍTICO: El plugin busca el pago usando el session_id como external_reference
-        // Por eso es importante pasar el paymentSessionId como session_id en los datos
+        // IMPORTANTE: El plugin busca el pago usando el session_id como external_reference.
+        // Como ahora usamos cart_id como external_reference en la preferencia, el plugin no encontrará el pago
+        // si buscamos por external_reference. Sin embargo, tenemos el payment_id directamente del pago aprobado,
+        // así que podemos pasar los datos del pago directamente al plugin sin necesidad de buscar.
+        // El plugin debería poder usar estos datos directamente si están presentes.
         const authorizeData = {
           data: {
-            // El plugin espera session_id para buscar el pago en MercadoPago
-            session_id: paymentSessionId,
-            // Incluir todos los datos del pago para que el plugin pueda usarlos
+            // El plugin espera session_id para buscar el pago en MercadoPago usando external_reference
+            // Pero como usamos cart_id como external_reference, pasamos el cart_id como session_id
+            // para que el plugin pueda encontrar el pago buscando por external_reference con el cart_id
+            session_id: cartId, // Usar cart_id como session_id porque es el external_reference en MercadoPago
+            // Incluir todos los datos del pago para que el plugin pueda usarlos directamente
             ...updatedSessionData,
             // Asegurar que estos campos estén presentes (pueden sobrescribir los de updatedSessionData)
             id: payment.id,
@@ -169,14 +174,17 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
           },
         };
         
-        logger.info(`[PaymentSessionUpdate] IMPORTANTE: El plugin buscará el pago usando session_id (${paymentSessionId}) como external_reference`);
+        logger.info(`[PaymentSessionUpdate] IMPORTANTE: Como usamos cart_id (${cartId}) como external_reference en MercadoPago,`);
+        logger.info(`[PaymentSessionUpdate] pasamos el cart_id como session_id para que el plugin busque el pago correctamente.`);
+        logger.info(`[PaymentSessionUpdate] El plugin buscará pagos con external_reference = ${cartId}`);
         logger.info(`[PaymentSessionUpdate] Verificando que el external_reference del pago coincida: ${payment.external_reference}`);
         
-        if (payment.external_reference !== paymentSessionId) {
-          logger.warn(`[PaymentSessionUpdate] ⚠️ ADVERTENCIA: El external_reference del pago (${payment.external_reference}) no coincide con el paymentSessionId (${paymentSessionId})`);
-          logger.warn(`[PaymentSessionUpdate] ⚠️ El plugin puede no encontrar el pago. Esto puede causar que la autorización falle.`);
+        if (payment.external_reference !== cartId) {
+          logger.warn(`[PaymentSessionUpdate] ⚠️ ADVERTENCIA: El external_reference del pago (${payment.external_reference}) no coincide con el cart_id (${cartId})`);
+          logger.warn(`[PaymentSessionUpdate] ⚠️ Esto puede causar que el plugin no encuentre el pago al buscar por external_reference.`);
+          logger.warn(`[PaymentSessionUpdate] ⚠️ Sin embargo, pasamos los datos del pago directamente, así que debería funcionar.`);
         } else {
-          logger.info(`[PaymentSessionUpdate] ✅ El external_reference del pago coincide con el paymentSessionId. El plugin debería encontrar el pago.`);
+          logger.info(`[PaymentSessionUpdate] ✅ El external_reference del pago coincide con el cart_id. El plugin debería encontrar el pago.`);
         }
         
         logger.info(`[PaymentSessionUpdate] Datos de autorización: ${JSON.stringify(authorizeData, null, 2)}`);

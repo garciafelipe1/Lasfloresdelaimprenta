@@ -500,15 +500,20 @@ export const createMercadoPagoPreference = cartActionClient
         hasNotificationUrl: !!medusaBackendUrl,
       });
 
-      // CRÍTICO: El plugin de MercadoPago busca el pago usando el paymentSessionId como external_reference
-      // Si usamos cart.id, el plugin no podrá encontrar el pago cuando se complete el carrito
-      const externalReference = paymentSessionId || cart.id;
+      // IMPORTANTE: Usamos el cart_id como external_reference para poder encontrarlo en la redirección.
+      // El plugin buscará el pago usando el paymentSessionId, pero como usamos cart_id como external_reference,
+      // necesitamos actualizar la sesión de pago con el paymentSessionId para que el plugin lo pueda usar.
+      // Alternativamente, el endpoint de actualización de sesión manejará esto buscando el pago por payment_id.
+      const externalReference = cart.id;
       
-      if (!paymentSessionId) {
-        console.warn('[MP] ⚠️ ADVERTENCIA: No se pudo obtener paymentSessionId. Usando cart.id como external_reference.');
-        console.warn('[MP] ⚠️ Esto puede causar que el plugin no encuentre el pago cuando se complete el carrito.');
+      console.log('[MP] ✅ Usando cart_id como external_reference:', externalReference);
+      
+      if (paymentSessionId) {
+        console.log('[MP] ✅ PaymentSessionId obtenido:', paymentSessionId);
+        console.log('[MP] ℹ️ El endpoint de actualización de sesión manejará la búsqueda del pago usando el payment_id');
       } else {
-        console.log('[MP] ✅ Usando paymentSessionId como external_reference:', externalReference);
+        console.warn('[MP] ⚠️ ADVERTENCIA: No se pudo obtener paymentSessionId.');
+        console.warn('[MP] ⚠️ El endpoint de actualización de sesión puede no funcionar correctamente.');
       }
 
       const preferenceBody = {
