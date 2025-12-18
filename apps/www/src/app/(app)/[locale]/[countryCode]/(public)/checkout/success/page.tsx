@@ -143,10 +143,9 @@ export default async function CheckoutSuccessPage(props: Props) {
       console.log('[CheckoutSuccess] ========== PASO 3: RECUPERAR CARRITO ACTUALIZADO ==========');
       console.log('[CheckoutSuccess] Obteniendo carrito con sesión de pago actualizada...');
       
-      // CRÍTICO: Incluir todos los campos necesarios del payment_collection para que Medusa pueda validar correctamente
-      const finalCartResponse = await medusa.store.cart.retrieve(external_reference, {
-        fields: 'id,email,shipping_address.*,billing_address.*,shipping_methods.*,payment_collection.id,payment_collection.status,payment_collection.amount,payment_collection.authorized_amount,payment_collection.captured_amount,payment_collection.payment_sessions.id,payment_collection.payment_sessions.provider_id,payment_collection.payment_sessions.status,payment_collection.payment_sessions.authorized_at,payment_collection.payment_sessions.amount,payment_collection.payment_sessions.data',
-      });
+      // CRÍTICO: NO especificar fields para que Medusa devuelva TODOS los datos del carrito
+      // Esto asegura que la validación de cart.complete() tenga acceso a todos los datos necesarios
+      const finalCartResponse = await medusa.store.cart.retrieve(external_reference);
 
       if (!finalCartResponse.cart) {
         throw new Error('Carrito no encontrado después de actualizar sesión');
