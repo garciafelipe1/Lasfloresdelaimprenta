@@ -150,7 +150,7 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
       logger.info(`[PaymentSessionUpdate] ${JSON.stringify(updatedSessionData, null, 2)}`);
       
       try {
-        // Intentar autorizar la sesión directamente
+        // Paso 6: Intentar autorizar la sesión directamente
         // El plugin de MercadoPago debería poder autorizar usando el external_reference (cart_id)
         // cuando se complete el carrito, pero intentamos autorizar manualmente aquí
         logger.info(`[PaymentSessionUpdate] Paso 6: Intentando autorizar la sesión...`);
