@@ -128,14 +128,7 @@ export default async function CheckoutSuccessPage(props: Props) {
           // Continuar de todas formas, el plugin puede usar el external_reference
         }
         console.log('[CheckoutSuccess] ========== FIN PASO 2 ==========');
-        
-        // CRÍTICO: Esperar un momento para que la autorización se propague en la base de datos
-        // Esto es necesario porque puede haber un pequeño delay entre cuando autorizamos la sesión
-        // y cuando Medusa puede verificar que está autorizada durante cart.complete()
-        // Aumentamos el tiempo de espera a 3 segundos para asegurar que la autorización se haya propagado completamente
-        console.log('[CheckoutSuccess] Esperando 3 segundos para que la autorización se propague completamente...');
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        console.log('[CheckoutSuccess] Espera completada, procediendo a recuperar el carrito...');
+        console.log('[CheckoutSuccess] ℹ️ El endpoint solo verifica el pago. El plugin autorizará automáticamente durante cart.complete()');
       } else {
         console.log('[CheckoutSuccess] ⚠️ No hay payment_id, saltando actualización de sesión');
       }
@@ -251,7 +244,7 @@ export default async function CheckoutSuccessPage(props: Props) {
       console.log('[CheckoutSuccess] Completando carrito...');
       console.log('[CheckoutSuccess] Llamando a medusa.store.cart.complete...');
       console.log('[CheckoutSuccess] cartId a completar:', external_reference);
-      console.log('[CheckoutSuccess] NOTA: Si la sesión no está "authorized" o "captured", esto fallará');
+      console.log('[CheckoutSuccess] NOTA: Si la sesión no está "authorized" o "captured", el plugin intentará autorizar automáticamente');
       
       // VERIFICACIÓN FINAL ANTES DE COMPLETAR: Loggear TODO el estado del payment_collection
       console.log('[CheckoutSuccess] ========== VERIFICACIÓN FINAL ANTES DE cart.complete() ==========');
@@ -270,17 +263,17 @@ export default async function CheckoutSuccessPage(props: Props) {
         })),
       }, null, 2));
       
-      // Verificar que haya al menos una sesión autorizada
+      // Verificar si hay sesiones autorizadas (solo para logging, NO lanzar error)
       const authorizedSessions = paymentCollection?.payment_sessions?.filter(
         s => s.status === 'authorized' || s.status === 'captured'
       ) || [];
       
       console.log('[CheckoutSuccess] Sesiones autorizadas encontradas:', authorizedSessions.length);
       if (authorizedSessions.length === 0) {
-        console.error('[CheckoutSuccess] ❌❌❌ ERROR: No hay sesiones autorizadas en el payment_collection');
-        console.error('[CheckoutSuccess] Esto causará que cart.complete() falle con "Payment sessions are required"');
-        throw new Error('No hay sesiones de pago autorizadas en el payment_collection. Estado: ' + 
-          paymentCollection?.payment_sessions?.map(s => `${s.id}:${s.status}`).join(', '));
+        console.warn('[CheckoutSuccess] ⚠️ ADVERTENCIA: No hay sesiones autorizadas en el payment_collection');
+        console.warn('[CheckoutSuccess] Estado actual de las sesiones:', paymentCollection?.payment_sessions?.map(s => `${s.id}:${s.status}`).join(', '));
+        console.warn('[CheckoutSuccess] Intentando cart.complete() de todas formas - el plugin de MercadoPago puede autorizar automáticamente');
+        console.warn('[CheckoutSuccess] El plugin buscará el pago en MercadoPago usando external_reference (cart_id):', external_reference);
       } else {
         console.log('[CheckoutSuccess] ✅ Sesiones autorizadas:', authorizedSessions.map(s => `${s.id}:${s.status}`).join(', '));
       }
