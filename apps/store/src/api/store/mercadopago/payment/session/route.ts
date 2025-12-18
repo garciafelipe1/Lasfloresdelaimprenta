@@ -1,13 +1,8 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { z } from "zod";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-
-const UpdatePaymentSessionSchema = z.object({
-  paymentSessionId: z.string().min(1, "Payment session ID is required"),
-  paymentId: z.string().min(1, "Payment ID is required"),
-  cartId: z.string().min(1, "Cart ID is required"),
-});
+import { z } from "zod";
+import { UpdatePaymentSessionSchema, UpdatePaymentSessionSchemaType } from "./validators";
 
 /**
  * Endpoint para verificar el pago en MercadoPago y preparar la sesión de pago
@@ -16,7 +11,7 @@ const UpdatePaymentSessionSchema = z.object({
  * Verifica el pago en MercadoPago usando el payment_id y registra la información
  * para que el plugin pueda usar esta información cuando se complete el carrito.
  */
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
+export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, res: MedusaResponse) {
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
   const paymentModuleService = req.scope.resolve(Modules.PAYMENT);
 

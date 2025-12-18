@@ -137,10 +137,20 @@ export default async function CheckoutSuccessPage(props: Props) {
           console.log('[CheckoutSuccess] Body de la request:', JSON.stringify(requestBody, null, 2));
           console.log('[CheckoutSuccess] Realizando fetch al endpoint...');
 
+          // Obtener el publishable API key para el header requerido por Medusa
+          const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
+          if (!publishableKey) {
+            console.error('[CheckoutSuccess] ❌ NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY no está configurado');
+            throw new Error('NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY no está configurado');
+          }
+
+          console.log('[CheckoutSuccess] Publishable API Key encontrado:', publishableKey.substring(0, 10) + '...');
+
           const updateResponse = await fetch(`${medusaBackendUrl}/store/mercadopago/payment/session`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'x-publishable-api-key': publishableKey,
             },
             body: JSON.stringify(requestBody),
           });
