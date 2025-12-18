@@ -31,25 +31,7 @@ export default async function CheckoutSuccessPage(props: Props) {
   // Obtener información del método de envío antes de completar el carrito
   let shippingMessage = 'Te enviaremos un correo con los detalles de tu pedido. Si tenés alguna duda, no dudes en contactarnos.';
   
-  if (external_reference) {
-    try {
-      const cartResponse = await medusa.store.cart.retrieve(external_reference, {
-        fields: 'shipping_methods.*,shipping_methods.type.*',
-      });
-      
-      const shippingMethod = cartResponse.cart?.shipping_methods?.[0];
-      const shippingTypeCode = shippingMethod?.type?.code;
-      
-      if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.retiroLocal) {
-        shippingMessage = 'Tu pedido ya puede ser retirado en el local.';
-      } else if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.bahiaBlanca) {
-        shippingMessage = 'Tu pedido está siendo enviado.';
-      }
-    } catch (error) {
-      console.error('[CheckoutSuccess] Error al obtener información del carrito:', error);
-      // Continuar con el mensaje por defecto
-    }
-  }
+  // El mensaje de envío se establecerá después de recuperar el carrito actualizado
 
   // Si tenemos un external_reference (cart_id) y el pago fue aprobado, intentar completar el carrito
   if (external_reference && collection_status === 'approved' && status === 'approved') {
@@ -67,57 +49,14 @@ export default async function CheckoutSuccessPage(props: Props) {
       }
 
       console.log('[CheckoutSuccess] Sesión de pago verificada/creada:', sessionResult.paymentSessionId);
-      
-      // Paso 2: Verificar que el carrito está listo para completar
-      const cartCheck = await medusa.store.cart.retrieve(external_reference, {
-        fields: 'id,email,shipping_address.*,billing_address.*,shipping_methods.*,payment_collection.payment_sessions.*',
-      });
 
-      if (!cartCheck.cart) {
-        throw new Error('Carrito no encontrado');
-      }
-
-      const cart = cartCheck.cart;
-
-      // Validar que el carrito tenga todos los datos necesarios
-      if (!cart.email) {
-        throw new Error('El carrito no tiene email');
-      }
-
-      if (!cart.shipping_address) {
-        throw new Error('El carrito no tiene dirección de envío');
-      }
-
-      if (!cart.billing_address) {
-        throw new Error('El carrito no tiene dirección de facturación');
-      }
-
-      if (!cart.shipping_methods || cart.shipping_methods.length === 0) {
-        throw new Error('El carrito no tiene método de envío seleccionado');
-      }
-
-      // Verificar que la sesión de pago esté presente
-      const paymentSession = cart.payment_collection?.payment_sessions?.find(
-        (session) => session.provider_id?.startsWith('pp_mercadopago_')
-      );
-
-      if (!paymentSession) {
-        throw new Error('No se encontró sesión de pago de MercadoPago');
-      }
-
-      console.log('[CheckoutSuccess] Sesión de pago encontrada:', {
-        id: paymentSession.id,
-        provider_id: paymentSession.provider_id,
-        status: paymentSession.status,
-      });
-
-      // Paso 3: Actualizar la sesión de pago con el payment_id de MercadoPago
+      // Paso 2: Actualizar la sesión de pago con el payment_id de MercadoPago
       if (payment_id) {
-        console.log('[CheckoutSuccess] ========== PASO 3: ACTUALIZAR SESIÓN DE PAGO ==========');
+        console.log('[CheckoutSuccess] ========== PASO 2: ACTUALIZAR SESIÓN DE PAGO ==========');
         console.log('[CheckoutSuccess] Payment ID recibido de MercadoPago:', payment_id);
         console.log('[CheckoutSuccess] Actualizando sesión de pago con payment_id...');
         console.log('[CheckoutSuccess] Datos a enviar al endpoint:');
-        console.log('[CheckoutSuccess]   - paymentSessionId:', paymentSession.id);
+        console.log('[CheckoutSuccess]   - paymentSessionId:', sessionResult.paymentSessionId);
         console.log('[CheckoutSuccess]   - paymentId:', payment_id);
         console.log('[CheckoutSuccess]   - cartId:', external_reference);
         
@@ -130,7 +69,7 @@ export default async function CheckoutSuccessPage(props: Props) {
           console.log('[CheckoutSuccess] URL completa del endpoint:', `${medusaBackendUrl}/store/mercadopago/payment/session`);
 
           const requestBody = {
-            paymentSessionId: paymentSession.id,
+            paymentSessionId: sessionResult.paymentSessionId,
             paymentId: payment_id,
             cartId: external_reference,
           };
@@ -188,96 +127,102 @@ export default async function CheckoutSuccessPage(props: Props) {
           console.error('[CheckoutSuccess] Error completo:', JSON.stringify(updateError, Object.getOwnPropertyNames(updateError), 2));
           // Continuar de todas formas, el plugin puede usar el external_reference
         }
-        console.log('[CheckoutSuccess] ========== FIN PASO 3 ==========');
+        console.log('[CheckoutSuccess] ========== FIN PASO 2 ==========');
       } else {
         console.log('[CheckoutSuccess] ⚠️ No hay payment_id, saltando actualización de sesión');
       }
       
-      // Paso 4: Completar el carrito para crear la orden
-      // El plugin de MercadoPago debería verificar el pago usando el external_reference o el payment_id en la sesión
-      console.log('[CheckoutSuccess] ========== PASO 4: COMPLETAR CARRITO ==========');
-      console.log('[CheckoutSuccess] Completando carrito...');
+      // Paso 3: Recuperar el carrito FINAL con todos los datos actualizados después de actualizar la sesión
+      console.log('[CheckoutSuccess] ========== PASO 3: RECUPERAR CARRITO ACTUALIZADO ==========');
+      console.log('[CheckoutSuccess] Obteniendo carrito con sesión de pago actualizada...');
       
-      // CRÍTICO: Verificar TODAS las sesiones de pago antes de completar
-      console.log('[CheckoutSuccess] ========== VERIFICACIÓN CRÍTICA ANTES DE COMPLETAR ==========');
-      console.log('[CheckoutSuccess] Obteniendo sesión de pago actualizada antes de completar...');
-      try {
-        const updatedCartCheck = await medusa.store.cart.retrieve(external_reference, {
-          fields: 'payment_collection.payment_sessions.*,payment_collection.*',
-        });
-        
-        console.log('[CheckoutSuccess] Todas las sesiones de pago del carrito:');
-        const allSessions = updatedCartCheck.cart?.payment_collection?.payment_sessions || [];
-        console.log('[CheckoutSuccess]   - Total de sesiones:', allSessions.length);
-        
-        allSessions.forEach((session, index) => {
-          console.log(`[CheckoutSuccess]   Sesión ${index + 1}:`);
-          console.log(`[CheckoutSuccess]     - id: ${session.id}`);
-          console.log(`[CheckoutSuccess]     - provider_id: ${session.provider_id}`);
-          console.log(`[CheckoutSuccess]     - status: ${session.status} ${session.status === 'authorized' || session.status === 'captured' ? '✅' : '❌'}`);
-        });
-        
-        const updatedPaymentSession = allSessions.find(
-          (session) => session.provider_id?.startsWith('pp_mercadopago_')
-        );
-        
-        if (updatedPaymentSession) {
-          console.log('[CheckoutSuccess] Sesión de MercadoPago encontrada:');
-          console.log('[CheckoutSuccess]   - id:', updatedPaymentSession.id);
-          console.log('[CheckoutSuccess]   - provider_id:', updatedPaymentSession.provider_id);
-          console.log('[CheckoutSuccess]   - status:', updatedPaymentSession.status);
-          
-          // VERIFICACIÓN CRÍTICA: El estado debe ser 'authorized' o 'captured'
-          if (updatedPaymentSession.status !== 'authorized' && updatedPaymentSession.status !== 'captured') {
-            console.error('[CheckoutSuccess] ❌❌❌ PROBLEMA CRÍTICO: La sesión NO está autorizada');
-            console.error('[CheckoutSuccess] Estado esperado: "authorized" o "captured"');
-            console.error('[CheckoutSuccess] Estado actual:', updatedPaymentSession.status);
-            console.error('[CheckoutSuccess] cart.complete() FALLARÁ con "Payment sessions are required to complete cart"');
-            console.error('[CheckoutSuccess] Esto significa que la autorización NO funcionó correctamente');
-          } else {
-            console.log('[CheckoutSuccess] ✅✅✅ Estado correcto: La sesión está', updatedPaymentSession.status);
-            console.log('[CheckoutSuccess] cart.complete() debería funcionar correctamente');
-          }
-        } else {
-          console.error('[CheckoutSuccess] ❌ No se encontró sesión de MercadoPago');
-        }
-        
-        // Verificar también el payment_collection
-        const paymentCollection = updatedCartCheck.cart?.payment_collection;
-        if (paymentCollection) {
-          console.log('[CheckoutSuccess] Payment Collection:');
-          console.log('[CheckoutSuccess]   - id:', paymentCollection.id);
-          console.log('[CheckoutSuccess]   - status:', paymentCollection.status);
-          console.log('[CheckoutSuccess]   - amount:', paymentCollection.amount);
-        }
-      } catch (sessionCheckError: any) {
-        console.error('[CheckoutSuccess] ❌ Error al verificar sesión antes de completar:');
-        console.error('[CheckoutSuccess] Mensaje:', sessionCheckError.message);
-        console.error('[CheckoutSuccess] Stack:', sessionCheckError.stack);
-      }
-      console.log('[CheckoutSuccess] ========== FIN VERIFICACIÓN CRÍTICA ==========');
-      
-      console.log('[CheckoutSuccess] Datos del carrito antes de completar:');
-      console.log('[CheckoutSuccess]   - cartId:', cart.id);
-      console.log('[CheckoutSuccess]   - email:', cart.email);
-      console.log('[CheckoutSuccess]   - hasShippingAddress:', !!cart.shipping_address);
-      console.log('[CheckoutSuccess]   - hasBillingAddress:', !!cart.billing_address);
-      console.log('[CheckoutSuccess]   - shippingMethodsCount:', cart.shipping_methods?.length || 0);
-      console.log('[CheckoutSuccess]   - paymentSessionId:', paymentSession.id);
-      console.log('[CheckoutSuccess]   - paymentSessionProviderId:', paymentSession.provider_id);
-      console.log('[CheckoutSuccess]   - paymentSessionStatus:', paymentSession.status);
-      console.log('[CheckoutSuccess] Datos del carrito antes de completar:', {
-        cartId: cart.id,
-        email: cart.email,
-        hasShippingAddress: !!cart.shipping_address,
-        hasBillingAddress: !!cart.billing_address,
-        shippingMethodsCount: cart.shipping_methods?.length || 0,
-        paymentSessionId: paymentSession.id,
-        paymentSessionProviderId: paymentSession.provider_id,
-        paymentSessionStatus: paymentSession.status,
+      const finalCartResponse = await medusa.store.cart.retrieve(external_reference, {
+        fields: 'id,email,shipping_address.*,billing_address.*,shipping_methods.*,payment_collection.payment_sessions.*,payment_collection.*',
       });
 
-      console.log('[CheckoutSuccess] ========== LLAMANDO A cart.complete() ==========');
+      if (!finalCartResponse.cart) {
+        throw new Error('Carrito no encontrado después de actualizar sesión');
+      }
+
+      const finalCart = finalCartResponse.cart;
+
+      // Validar que el carrito tenga todos los datos necesarios
+      if (!finalCart.email) {
+        throw new Error('El carrito no tiene email');
+      }
+
+      if (!finalCart.shipping_address) {
+        throw new Error('El carrito no tiene dirección de envío');
+      }
+
+      if (!finalCart.billing_address) {
+        throw new Error('El carrito no tiene dirección de facturación');
+      }
+
+      if (!finalCart.shipping_methods || finalCart.shipping_methods.length === 0) {
+        throw new Error('El carrito no tiene método de envío seleccionado');
+      }
+
+      // Verificar que la sesión de pago esté presente y autorizada
+      const finalPaymentSession = finalCart.payment_collection?.payment_sessions?.find(
+        (session) => session.provider_id?.startsWith('pp_mercadopago_')
+      );
+
+      if (!finalPaymentSession) {
+        throw new Error('No se encontró sesión de pago de MercadoPago');
+      }
+
+      console.log('[CheckoutSuccess] Sesión de pago FINAL encontrada:', {
+        id: finalPaymentSession.id,
+        provider_id: finalPaymentSession.provider_id,
+        status: finalPaymentSession.status,
+      });
+
+      // VERIFICACIÓN CRÍTICA: El estado debe ser 'authorized' o 'captured'
+      if (finalPaymentSession.status !== 'authorized' && finalPaymentSession.status !== 'captured') {
+        console.error('[CheckoutSuccess] ❌❌❌ PROBLEMA CRÍTICO: La sesión NO está autorizada');
+        console.error('[CheckoutSuccess] Estado esperado: "authorized" o "captured"');
+        console.error('[CheckoutSuccess] Estado actual:', finalPaymentSession.status);
+        console.error('[CheckoutSuccess] cart.complete() FALLARÁ con "Payment sessions are required to complete cart"');
+        throw new Error(`La sesión de pago no está autorizada (${finalPaymentSession.status}). No se puede completar el carrito.`);
+      } else {
+        console.log('[CheckoutSuccess] ✅✅✅ Estado correcto: La sesión está', finalPaymentSession.status);
+        console.log('[CheckoutSuccess] cart.complete() debería funcionar correctamente');
+      }
+
+      // Verificar también el payment_collection
+      const paymentCollection = finalCart.payment_collection;
+      if (paymentCollection) {
+        console.log('[CheckoutSuccess] Payment Collection:');
+        console.log('[CheckoutSuccess]   - id:', paymentCollection.id);
+        console.log('[CheckoutSuccess]   - status:', paymentCollection.status);
+        console.log('[CheckoutSuccess]   - amount:', paymentCollection.amount);
+      }
+
+      console.log('[CheckoutSuccess] Datos del carrito antes de completar:');
+      console.log('[CheckoutSuccess]   - cartId:', finalCart.id);
+      console.log('[CheckoutSuccess]   - email:', finalCart.email);
+      console.log('[CheckoutSuccess]   - hasShippingAddress:', !!finalCart.shipping_address);
+      console.log('[CheckoutSuccess]   - hasBillingAddress:', !!finalCart.billing_address);
+      console.log('[CheckoutSuccess]   - shippingMethodsCount:', finalCart.shipping_methods?.length || 0);
+      console.log('[CheckoutSuccess]   - paymentSessionId:', finalPaymentSession.id);
+      console.log('[CheckoutSuccess]   - paymentSessionProviderId:', finalPaymentSession.provider_id);
+      console.log('[CheckoutSuccess]   - paymentSessionStatus:', finalPaymentSession.status);
+      
+      // Establecer el mensaje de envío basado en el método de envío
+      const shippingMethod = finalCart.shipping_methods?.[0];
+      const shippingTypeCode = shippingMethod?.type?.code;
+      
+      if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.retiroLocal) {
+        shippingMessage = 'Tu pedido ya puede ser retirado en el local.';
+      } else if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.bahiaBlanca) {
+        shippingMessage = 'Tu pedido está siendo enviado.';
+      }
+      
+      console.log('[CheckoutSuccess] ========== FIN PASO 3 ==========');
+
+      console.log('[CheckoutSuccess] ========== PASO 4: COMPLETAR CARRITO ==========');
+      console.log('[CheckoutSuccess] Completando carrito...');
       console.log('[CheckoutSuccess] Llamando a medusa.store.cart.complete...');
       console.log('[CheckoutSuccess] cartId a completar:', external_reference);
       console.log('[CheckoutSuccess] NOTA: Si la sesión no está "authorized" o "captured", esto fallará');
