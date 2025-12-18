@@ -160,15 +160,25 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
         // si buscamos por external_reference. Sin embargo, tenemos el payment_id directamente del pago aprobado,
         // así que podemos pasar los datos del pago directamente al plugin sin necesidad de buscar.
         // El plugin debería poder usar estos datos directamente si están presentes.
+        // 
+        // CRÍTICO: El plugin usa el session_id como external_reference para buscar el pago.
+        // Como el pago tiene cart_id como external_reference, debemos pasar cart_id como session_id.
+        // Además, incluimos todos los datos del pago como un objeto "result" para que el plugin
+        // pueda usarlo directamente como fallback si no encuentra el pago en la búsqueda.
         const authorizeData = {
           data: {
             // Incluir todos los datos del pago para que el plugin pueda usarlos directamente
             ...updatedSessionData,
-            // CRÍTICO: El plugin busca el pago usando session_id como external_reference
-            // Como usamos cart_id como external_reference en la preferencia, debemos pasar cart_id como session_id
-            // Esto debe ir DESPUÉS del spread para sobrescribir cualquier session_id que venga de updatedSessionData
-            session_id: cartId, // Usar cart_id porque es el external_reference en MercadoPago
-            // Asegurar que estos campos estén presentes (pueden sobrescribir los de updatedSessionData)
+        // CRÍTICO: El plugin busca el pago usando session_id como external_reference.
+        // Si usamos paymentSessionId como external_reference en la preferencia, debemos pasar paymentSessionId como session_id.
+        // Si usamos cart_id como external_reference, debemos pasar cart_id como session_id.
+        // Verificamos el external_reference del pago para determinar qué usar
+        session_id: payment.external_reference || paymentSessionId || cartId, // Usar el external_reference del pago (debería ser paymentSessionId o cartId)
+            // Incluir todos los campos del objeto de pago para que el plugin lo use como fallback
+            // cuando no encuentra el pago en la búsqueda (lo cual puede pasar por lag en MercadoPago)
+            // El plugin usa results[0] ?? data, así que si pasamos el objeto directamente como data,
+            // el plugin debería usarlo cuando no encuentra resultados en la búsqueda
+            // Asegurar que estos campos estén presentes también en el nivel superior
             id: payment.id,
             status: payment.status,
           },

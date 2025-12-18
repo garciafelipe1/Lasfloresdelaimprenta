@@ -501,16 +501,15 @@ export const createMercadoPagoPreference = cartActionClient
       });
 
       // IMPORTANTE: Usamos el cart_id como external_reference para poder encontrarlo en la redirección.
-      // El plugin buscará el pago usando el paymentSessionId, pero como usamos cart_id como external_reference,
-      // necesitamos actualizar la sesión de pago con el paymentSessionId para que el plugin lo pueda usar.
-      // Alternativamente, el endpoint de actualización de sesión manejará esto buscando el pago por payment_id.
+      // El plugin buscará el pago usando el session_id de los datos de autorización como external_reference.
+      // Pasaremos el cart_id como session_id en los datos de autorización para que el plugin lo encuentre.
       const externalReference = cart.id;
       
       console.log('[MP] ✅ Usando cart_id como external_reference:', externalReference);
       
       if (paymentSessionId) {
         console.log('[MP] ✅ PaymentSessionId obtenido:', paymentSessionId);
-        console.log('[MP] ℹ️ El endpoint de actualización de sesión manejará la búsqueda del pago usando el payment_id');
+        console.log('[MP] ℹ️ El endpoint de actualización de sesión pasará cart_id como session_id para que el plugin encuentre el pago');
       } else {
         console.warn('[MP] ⚠️ ADVERTENCIA: No se pudo obtener paymentSessionId.');
         console.warn('[MP] ⚠️ El endpoint de actualización de sesión puede no funcionar correctamente.');
@@ -525,7 +524,7 @@ export const createMercadoPagoPreference = cartActionClient
           pending: `${cleanAppUrl}/${locale}/${countryCode}/checkout/pending`,
         },
       auto_return: 'approved' as const,
-      external_reference: externalReference, // CRÍTICO: Debe ser el paymentSessionId para que el plugin lo encuentre
+      external_reference: externalReference, // CRÍTICO: Usamos paymentSessionId (o cart.id como fallback) para que el plugin pueda encontrar el pago
       metadata: {
         cart_id: cart.id, // Guardamos el cart_id en metadata para referencia
         payment_session_id: paymentSessionId, // También guardamos el paymentSessionId en metadata
