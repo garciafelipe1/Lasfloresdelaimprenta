@@ -113,48 +113,149 @@ export default async function CheckoutSuccessPage(props: Props) {
 
       // Paso 3: Actualizar la sesión de pago con el payment_id de MercadoPago
       if (payment_id) {
+        console.log('[CheckoutSuccess] ========== PASO 3: ACTUALIZAR SESIÓN DE PAGO ==========');
         console.log('[CheckoutSuccess] Payment ID recibido de MercadoPago:', payment_id);
         console.log('[CheckoutSuccess] Actualizando sesión de pago con payment_id...');
+        console.log('[CheckoutSuccess] Datos a enviar al endpoint:');
+        console.log('[CheckoutSuccess]   - paymentSessionId:', paymentSession.id);
+        console.log('[CheckoutSuccess]   - paymentId:', payment_id);
+        console.log('[CheckoutSuccess]   - cartId:', external_reference);
         
         try {
           const medusaBackendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
           if (!medusaBackendUrl) {
             throw new Error('NEXT_PUBLIC_MEDUSA_BACKEND_URL no está configurado');
           }
+          console.log('[CheckoutSuccess] URL del backend:', medusaBackendUrl);
+          console.log('[CheckoutSuccess] URL completa del endpoint:', `${medusaBackendUrl}/store/mercadopago/payment/session`);
+
+          const requestBody = {
+            paymentSessionId: paymentSession.id,
+            paymentId: payment_id,
+            cartId: external_reference,
+          };
+          console.log('[CheckoutSuccess] Body de la request:', JSON.stringify(requestBody, null, 2));
+          console.log('[CheckoutSuccess] Realizando fetch al endpoint...');
 
           const updateResponse = await fetch(`${medusaBackendUrl}/store/mercadopago/payment/session`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              paymentSessionId: paymentSession.id,
-              paymentId: payment_id,
-              cartId: external_reference,
-            }),
+            body: JSON.stringify(requestBody),
           });
+
+          console.log('[CheckoutSuccess] ✅ Fetch completado');
+          console.log('[CheckoutSuccess] Status de la respuesta:', updateResponse.status);
+          console.log('[CheckoutSuccess] StatusText de la respuesta:', updateResponse.statusText);
+          console.log('[CheckoutSuccess] Headers de la respuesta:', Object.fromEntries(updateResponse.headers.entries()));
 
           if (!updateResponse.ok) {
             const errorData = await updateResponse.json().catch(() => ({}));
-            console.error('[CheckoutSuccess] Error al actualizar sesión de pago:', {
-              status: updateResponse.status,
-              statusText: updateResponse.statusText,
-              error: errorData,
-            });
+            console.error('[CheckoutSuccess] ❌ Error al actualizar sesión de pago:');
+            console.error('[CheckoutSuccess]   - status:', updateResponse.status);
+            console.error('[CheckoutSuccess]   - statusText:', updateResponse.statusText);
+            console.error('[CheckoutSuccess]   - error:', JSON.stringify(errorData, null, 2));
             // Continuar de todas formas, el plugin puede usar el external_reference
           } else {
             const updateData = await updateResponse.json();
-            console.log('[CheckoutSuccess] ✅ Sesión de pago actualizada:', updateData);
+            console.log('[CheckoutSuccess] ✅ Respuesta exitosa del endpoint:');
+            console.log('[CheckoutSuccess]', JSON.stringify(updateData, null, 2));
+            console.log('[CheckoutSuccess] ✅ Sesión de pago actualizada');
+            
+            // Verificar el estado de la sesión después de la actualización
+            if (updateData.payment_session) {
+              console.log('[CheckoutSuccess] Estado de la sesión después de actualizar:');
+              console.log('[CheckoutSuccess]   - id:', updateData.payment_session.id);
+              console.log('[CheckoutSuccess]   - status:', updateData.payment_session.status);
+            }
           }
         } catch (updateError: any) {
-          console.error('[CheckoutSuccess] Error al llamar endpoint de actualización de sesión:', updateError);
+          console.error('[CheckoutSuccess] ❌ Error al llamar endpoint de actualización de sesión:');
+          console.error('[CheckoutSuccess] Tipo de error:', updateError?.constructor?.name);
+          console.error('[CheckoutSuccess] Mensaje:', updateError?.message);
+          console.error('[CheckoutSuccess] Stack:', updateError?.stack);
+          console.error('[CheckoutSuccess] Error completo:', JSON.stringify(updateError, Object.getOwnPropertyNames(updateError), 2));
           // Continuar de todas formas, el plugin puede usar el external_reference
         }
+        console.log('[CheckoutSuccess] ========== FIN PASO 3 ==========');
+      } else {
+        console.log('[CheckoutSuccess] ⚠️ No hay payment_id, saltando actualización de sesión');
       }
       
       // Paso 4: Completar el carrito para crear la orden
       // El plugin de MercadoPago debería verificar el pago usando el external_reference o el payment_id en la sesión
+      console.log('[CheckoutSuccess] ========== PASO 4: COMPLETAR CARRITO ==========');
       console.log('[CheckoutSuccess] Completando carrito...');
+      
+      // CRÍTICO: Verificar TODAS las sesiones de pago antes de completar
+      console.log('[CheckoutSuccess] ========== VERIFICACIÓN CRÍTICA ANTES DE COMPLETAR ==========');
+      console.log('[CheckoutSuccess] Obteniendo sesión de pago actualizada antes de completar...');
+      try {
+        const updatedCartCheck = await medusa.store.cart.retrieve(external_reference, {
+          fields: 'payment_collection.payment_sessions.*,payment_collection.*',
+        });
+        
+        console.log('[CheckoutSuccess] Todas las sesiones de pago del carrito:');
+        const allSessions = updatedCartCheck.cart?.payment_collection?.payment_sessions || [];
+        console.log('[CheckoutSuccess]   - Total de sesiones:', allSessions.length);
+        
+        allSessions.forEach((session, index) => {
+          console.log(`[CheckoutSuccess]   Sesión ${index + 1}:`);
+          console.log(`[CheckoutSuccess]     - id: ${session.id}`);
+          console.log(`[CheckoutSuccess]     - provider_id: ${session.provider_id}`);
+          console.log(`[CheckoutSuccess]     - status: ${session.status} ${session.status === 'authorized' || session.status === 'captured' ? '✅' : '❌'}`);
+        });
+        
+        const updatedPaymentSession = allSessions.find(
+          (session) => session.provider_id?.startsWith('pp_mercadopago_')
+        );
+        
+        if (updatedPaymentSession) {
+          console.log('[CheckoutSuccess] Sesión de MercadoPago encontrada:');
+          console.log('[CheckoutSuccess]   - id:', updatedPaymentSession.id);
+          console.log('[CheckoutSuccess]   - provider_id:', updatedPaymentSession.provider_id);
+          console.log('[CheckoutSuccess]   - status:', updatedPaymentSession.status);
+          
+          // VERIFICACIÓN CRÍTICA: El estado debe ser 'authorized' o 'captured'
+          if (updatedPaymentSession.status !== 'authorized' && updatedPaymentSession.status !== 'captured') {
+            console.error('[CheckoutSuccess] ❌❌❌ PROBLEMA CRÍTICO: La sesión NO está autorizada');
+            console.error('[CheckoutSuccess] Estado esperado: "authorized" o "captured"');
+            console.error('[CheckoutSuccess] Estado actual:', updatedPaymentSession.status);
+            console.error('[CheckoutSuccess] cart.complete() FALLARÁ con "Payment sessions are required to complete cart"');
+            console.error('[CheckoutSuccess] Esto significa que la autorización NO funcionó correctamente');
+          } else {
+            console.log('[CheckoutSuccess] ✅✅✅ Estado correcto: La sesión está', updatedPaymentSession.status);
+            console.log('[CheckoutSuccess] cart.complete() debería funcionar correctamente');
+          }
+        } else {
+          console.error('[CheckoutSuccess] ❌ No se encontró sesión de MercadoPago');
+        }
+        
+        // Verificar también el payment_collection
+        const paymentCollection = updatedCartCheck.cart?.payment_collection;
+        if (paymentCollection) {
+          console.log('[CheckoutSuccess] Payment Collection:');
+          console.log('[CheckoutSuccess]   - id:', paymentCollection.id);
+          console.log('[CheckoutSuccess]   - status:', paymentCollection.status);
+          console.log('[CheckoutSuccess]   - amount:', paymentCollection.amount);
+        }
+      } catch (sessionCheckError: any) {
+        console.error('[CheckoutSuccess] ❌ Error al verificar sesión antes de completar:');
+        console.error('[CheckoutSuccess] Mensaje:', sessionCheckError.message);
+        console.error('[CheckoutSuccess] Stack:', sessionCheckError.stack);
+      }
+      console.log('[CheckoutSuccess] ========== FIN VERIFICACIÓN CRÍTICA ==========');
+      
+      console.log('[CheckoutSuccess] Datos del carrito antes de completar:');
+      console.log('[CheckoutSuccess]   - cartId:', cart.id);
+      console.log('[CheckoutSuccess]   - email:', cart.email);
+      console.log('[CheckoutSuccess]   - hasShippingAddress:', !!cart.shipping_address);
+      console.log('[CheckoutSuccess]   - hasBillingAddress:', !!cart.billing_address);
+      console.log('[CheckoutSuccess]   - shippingMethodsCount:', cart.shipping_methods?.length || 0);
+      console.log('[CheckoutSuccess]   - paymentSessionId:', paymentSession.id);
+      console.log('[CheckoutSuccess]   - paymentSessionProviderId:', paymentSession.provider_id);
+      console.log('[CheckoutSuccess]   - paymentSessionStatus:', paymentSession.status);
       console.log('[CheckoutSuccess] Datos del carrito antes de completar:', {
         cartId: cart.id,
         email: cart.email,
@@ -166,20 +267,39 @@ export default async function CheckoutSuccessPage(props: Props) {
         paymentSessionStatus: paymentSession.status,
       });
 
+      console.log('[CheckoutSuccess] ========== LLAMANDO A cart.complete() ==========');
       console.log('[CheckoutSuccess] Llamando a medusa.store.cart.complete...');
+      console.log('[CheckoutSuccess] cartId a completar:', external_reference);
+      console.log('[CheckoutSuccess] NOTA: Si la sesión no está "authorized" o "captured", esto fallará');
+      
       let cartResponse;
       
       try {
+        const startTime = Date.now();
+        console.log('[CheckoutSuccess] Ejecutando medusa.store.cart.complete()...');
         cartResponse = await medusa.store.cart.complete(external_reference);
-        console.log('[CheckoutSuccess] ✅ cart.complete ejecutado sin lanzar excepción');
+        const endTime = Date.now();
+        console.log('[CheckoutSuccess] ✅✅✅ cart.complete ejecutado SIN errores');
+        console.log('[CheckoutSuccess] Tiempo de ejecución:', endTime - startTime, 'ms');
+        console.log('[CheckoutSuccess] Tipo de respuesta:', cartResponse?.type);
       } catch (completeError: any) {
-        console.error('[CheckoutSuccess] ❌ Error al llamar cart.complete:', {
-          message: completeError?.message,
-          status: completeError?.response?.status,
-          statusText: completeError?.response?.statusText,
-          data: completeError?.response?.data,
-          error: completeError,
-        });
+        console.error('[CheckoutSuccess] ❌❌❌ cart.complete() FALLÓ');
+        console.error('[CheckoutSuccess] ========== DETALLES DEL ERROR ==========');
+        console.error('[CheckoutSuccess] Mensaje del error:', completeError?.message);
+        console.error('[CheckoutSuccess] Tipo de error:', completeError?.constructor?.name);
+        
+        // Si el error es "Payment sessions are required to complete cart"
+        if (completeError?.message?.includes('Payment sessions are required')) {
+          console.error('[CheckoutSuccess] ⚠️⚠️⚠️ ERROR ESPERADO: La sesión de pago no está autorizada');
+          console.error('[CheckoutSuccess] Esto significa que authorizePaymentSession NO cambió el estado correctamente');
+          console.error('[CheckoutSuccess] La sesión debe estar en estado "authorized" o "captured"');
+        }
+        
+        console.error('[CheckoutSuccess] Status HTTP:', completeError?.response?.status);
+        console.error('[CheckoutSuccess] StatusText:', completeError?.response?.statusText);
+        console.error('[CheckoutSuccess] Data del error:', JSON.stringify(completeError?.response?.data, null, 2));
+        console.error('[CheckoutSuccess] Error completo:', JSON.stringify(completeError, Object.getOwnPropertyNames(completeError), 2));
+        console.error('[CheckoutSuccess] ========== FIN DETALLES DEL ERROR ==========');
         
         // Si hay un error, intentar obtener más información
         if (completeError?.response?.data) {
