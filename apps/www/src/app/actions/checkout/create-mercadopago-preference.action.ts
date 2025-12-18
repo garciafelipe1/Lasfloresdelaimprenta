@@ -31,7 +31,10 @@ export const createMercadoPagoPreference = cartActionClient
 
       // PASO 0: Asegurar que existe una sesión de pago de MercadoPago
       // Esto es crítico para que el plugin pueda procesar el pago cuando se complete el carrito
+      // IMPORTANTE: El plugin busca el pago usando el paymentSessionId como external_reference
       console.log('[MP] Verificando/creando sesión de pago de MercadoPago...');
+      let paymentSessionId: string | undefined;
+      
       try {
         // Obtener el carrito con sesiones de pago
         const cartWithSessions = await medusa.store.cart.retrieve(cart.id, {
@@ -68,14 +71,33 @@ export const createMercadoPagoPreference = cartActionClient
             provider_id: mercadoPagoProvider.id,
           });
 
-          console.log('[MP] Sesión de pago de MercadoPago creada exitosamente');
+          // Obtener la sesión recién creada
+          const updatedCartWithSessions = await medusa.store.cart.retrieve(cart.id, {
+            fields: 'payment_collection.payment_sessions.*',
+          });
+
+          paymentSession = updatedCartWithSessions.cart?.payment_collection?.payment_sessions?.find(
+            (session) => session.provider_id?.startsWith('pp_mercadopago_')
+          );
+
+          if (!paymentSession) {
+            throw new Error('No se pudo crear la sesión de pago');
+          }
+
+          console.log('[MP] Sesión de pago de MercadoPago creada exitosamente:', paymentSession.id);
         } else {
           console.log('[MP] Sesión de pago de MercadoPago ya existe:', paymentSession.id);
         }
+
+        // Guardar el paymentSessionId para usarlo como external_reference
+        paymentSessionId = paymentSession.id;
+        console.log('[MP] ✅ PaymentSessionId obtenido para usar como external_reference:', paymentSessionId);
       } catch (sessionError: any) {
         console.error('[MP] Error al crear/verificar sesión de pago:', sessionError);
-        // Continuar de todas formas, pero registrar el error
-        console.warn('[MP] Continuando sin sesión de pago (puede causar problemas al completar el carrito)');
+        // Si no podemos obtener el paymentSessionId, usamos el cart.id como fallback
+        // pero esto causará que el plugin no pueda encontrar el pago
+        console.warn('[MP] ⚠️ Continuando sin paymentSessionId (el plugin puede no encontrar el pago)');
+        paymentSessionId = undefined;
       }
       console.log('[MP] Verificando mercadoPagoClient...');
       console.log('[MP] mercadoPagoClient existe:', !!mercadoPagoClient);
@@ -478,6 +500,17 @@ export const createMercadoPagoPreference = cartActionClient
         hasNotificationUrl: !!medusaBackendUrl,
       });
 
+      // CRÍTICO: El plugin de MercadoPago busca el pago usando el paymentSessionId como external_reference
+      // Si usamos cart.id, el plugin no podrá encontrar el pago cuando se complete el carrito
+      const externalReference = paymentSessionId || cart.id;
+      
+      if (!paymentSessionId) {
+        console.warn('[MP] ⚠️ ADVERTENCIA: No se pudo obtener paymentSessionId. Usando cart.id como external_reference.');
+        console.warn('[MP] ⚠️ Esto puede causar que el plugin no encuentre el pago cuando se complete el carrito.');
+      } else {
+        console.log('[MP] ✅ Usando paymentSessionId como external_reference:', externalReference);
+      }
+
       const preferenceBody = {
         items,
         payer: payerData,
@@ -487,9 +520,10 @@ export const createMercadoPagoPreference = cartActionClient
           pending: `${cleanAppUrl}/${locale}/${countryCode}/checkout/pending`,
         },
       auto_return: 'approved' as const,
-      external_reference: cart.id,
+      external_reference: externalReference, // CRÍTICO: Debe ser el paymentSessionId para que el plugin lo encuentre
       metadata: {
-        cart_id: cart.id,
+        cart_id: cart.id, // Guardamos el cart_id en metadata para referencia
+        payment_session_id: paymentSessionId, // También guardamos el paymentSessionId en metadata
         order_type: 'checkout',
       },
       notification_url: medusaBackendUrl
