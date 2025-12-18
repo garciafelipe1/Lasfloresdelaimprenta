@@ -162,12 +162,12 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
         // El plugin debería poder usar estos datos directamente si están presentes.
         const authorizeData = {
           data: {
-            // El plugin espera session_id para buscar el pago en MercadoPago usando external_reference
-            // Pero como usamos cart_id como external_reference, pasamos el cart_id como session_id
-            // para que el plugin pueda encontrar el pago buscando por external_reference con el cart_id
-            session_id: cartId, // Usar cart_id como session_id porque es el external_reference en MercadoPago
             // Incluir todos los datos del pago para que el plugin pueda usarlos directamente
             ...updatedSessionData,
+            // CRÍTICO: El plugin busca el pago usando session_id como external_reference
+            // Como usamos cart_id como external_reference en la preferencia, debemos pasar cart_id como session_id
+            // Esto debe ir DESPUÉS del spread para sobrescribir cualquier session_id que venga de updatedSessionData
+            session_id: cartId, // Usar cart_id porque es el external_reference en MercadoPago
             // Asegurar que estos campos estén presentes (pueden sobrescribir los de updatedSessionData)
             id: payment.id,
             status: payment.status,
