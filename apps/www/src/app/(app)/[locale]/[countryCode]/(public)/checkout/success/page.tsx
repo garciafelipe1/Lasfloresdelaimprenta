@@ -132,8 +132,9 @@ export default async function CheckoutSuccessPage(props: Props) {
         // CRÍTICO: Esperar un momento para que la autorización se propague en la base de datos
         // Esto es necesario porque puede haber un pequeño delay entre cuando autorizamos la sesión
         // y cuando Medusa puede verificar que está autorizada durante cart.complete()
-        console.log('[CheckoutSuccess] Esperando 2 segundos para que la autorización se propague...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Aumentamos el tiempo de espera a 3 segundos para asegurar que la autorización se haya propagado completamente
+        console.log('[CheckoutSuccess] Esperando 3 segundos para que la autorización se propague completamente...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
         console.log('[CheckoutSuccess] Espera completada, procediendo a recuperar el carrito...');
       } else {
         console.log('[CheckoutSuccess] ⚠️ No hay payment_id, saltando actualización de sesión');
