@@ -184,11 +184,28 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
       );
       
       logger.info(`[PaymentSessionUpdate] ✅ authorizePaymentSession completado`);
-      logger.info(`[PaymentSessionUpdate] Estado de la sesión después de autorizar: ${authorizedSession?.status || 'unknown'}`);
+      logger.info(`[PaymentSessionUpdate] Respuesta de authorizePaymentSession:`);
+      logger.info(`[PaymentSessionUpdate]   - status: ${authorizedSession?.status || 'unknown'}`);
+      logger.info(`[PaymentSessionUpdate]   - id: ${authorizedSession?.id || 'unknown'}`);
+      logger.info(`[PaymentSessionUpdate]   - amount: ${authorizedSession?.amount || 'unknown'}`);
+      logger.info(`[PaymentSessionUpdate] Respuesta completa (stringified): ${JSON.stringify({
+        status: authorizedSession?.status,
+        id: authorizedSession?.id,
+        provider_id: authorizedSession?.provider_id,
+        amount: authorizedSession?.amount,
+        authorized_at: authorizedSession?.authorized_at,
+      }, null, 2)}`);
       
       // Verificar que la sesión fue autorizada correctamente
       const finalSession = await paymentModuleService.retrievePaymentSession(paymentSessionId);
       logger.info(`[PaymentSessionUpdate] Estado final de la sesión (después de retrieve): ${finalSession?.status}`);
+      logger.info(`[PaymentSessionUpdate] Detalles completos de la sesión autorizada:`);
+      logger.info(`[PaymentSessionUpdate]   - id: ${finalSession?.id}`);
+      logger.info(`[PaymentSessionUpdate]   - provider_id: ${finalSession?.provider_id}`);
+      logger.info(`[PaymentSessionUpdate]   - status: ${finalSession?.status}`);
+      logger.info(`[PaymentSessionUpdate]   - amount: ${finalSession?.amount}`);
+      logger.info(`[PaymentSessionUpdate]   - authorized_at: ${finalSession?.authorized_at || 'null'}`);
+      logger.info(`[PaymentSessionUpdate]   - data keys: ${finalSession?.data ? Object.keys(finalSession.data).join(', ') : 'null'}`);
       
       if (finalSession?.status !== 'authorized' && finalSession?.status !== 'captured') {
         logger.error(`[PaymentSessionUpdate] ❌ ERROR: La sesión NO fue autorizada. Estado: ${finalSession?.status}`);
@@ -196,6 +213,7 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
         logger.warn(`[PaymentSessionUpdate] ⚠️ El plugin podría intentar autorizar durante cart.complete() usando external_reference=${payment.external_reference}`);
       } else {
         logger.info(`[PaymentSessionUpdate] ✅✅✅ Sesión autorizada correctamente. Estado: ${finalSession?.status}`);
+        logger.info(`[PaymentSessionUpdate] ✅ La sesión está lista para que cart.complete() la procese correctamente.`);
       }
     } catch (authError: any) {
       logger.error(`[PaymentSessionUpdate] ❌ Error al autorizar sesión de pago: ${authError.message}`, authError);
