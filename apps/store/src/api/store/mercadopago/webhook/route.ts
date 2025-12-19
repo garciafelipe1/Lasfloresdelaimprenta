@@ -97,7 +97,7 @@ export async function POST(
               },
             });
 
-            const cart = carts?.[0];
+            const cart = carts?.[0] as any;
             const paymentSessions = cart?.payment_collection?.payment_sessions?.filter(
               (session: any) => session.provider_id === "pp_mercadopago_mercadopago"
             ) || [];
@@ -112,16 +112,34 @@ export async function POST(
                 throw new Error("Payment ID is undefined");
               }
 
+              // Obtener el monto del carrito para pasarlo en authorizeData
+              const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+              const { data: cartData } = await query.graph({
+                entity: "cart",
+                fields: [
+                  "id",
+                  "payment_collection.amount",
+                ],
+                filters: {
+                  id: payment.external_reference,
+                },
+              });
+              
+              const cartAmount = cartData?.[0]?.payment_collection?.amount || payment.transaction_amount;
+              logger.info(`[Webhook] Monto del carrito para autorización: ${cartAmount}`);
+
               // Si la sesión no está autorizada, intentar autorizarla
               if (paymentSession.status !== "authorized" && paymentSession.status !== "captured") {
                 logger.info(`[Webhook] Autorizando sesión de pago ${paymentSession.id}...`);
                 const authorizeResult = await paymentModuleService.authorizePaymentSession(
                   paymentSession.id,
                   {
+                    amount: cartAmount, // CRÍTICO: Pasar el amount para actualizar payment_collection.authorized_amount
                     data: {
                       session_id: payment.external_reference, // Pasar el cart_id como session_id para que el plugin lo encuentre
                       payment_id: payment.id.toString(),
                       payment_status: payment.status,
+                      payment_status_detail: payment.status_detail,
                       external_reference: payment.external_reference,
                       transaction_amount: payment.transaction_amount,
                     },
@@ -133,11 +151,152 @@ export async function POST(
 
                 if (finalSession?.status === "authorized" || finalSession?.status === "captured") {
                   logger.info(`[Webhook] ✅ Sesión de pago ${paymentSession.id} autorizada exitosamente por webhook.`);
+                  
+                  // SOLUCIÓN COMPLETA: Intentar completar el carrito automáticamente
+                  logger.info(`[Webhook] Intentando completar el carrito ${payment.external_reference}...`);
+                  try {
+                    // Verificar que el carrito esté listo para completarse
+                    const { data: cartCheck } = await query.graph({
+                      entity: "cart",
+                      fields: [
+                        "id",
+                        "email",
+                        "shipping_address.id",
+                        "billing_address.id",
+                        "shipping_methods.id",
+                        "payment_collection.id",
+                        "payment_collection.status",
+                        "payment_collection.authorized_amount",
+                        "payment_collection.amount",
+                      ],
+                      filters: {
+                        id: payment.external_reference,
+                      },
+                    });
+                    
+                    const cartToComplete = cartCheck?.[0];
+                    if (cartToComplete) {
+                      logger.info(`[Webhook] Carrito verificado: ${JSON.stringify({
+                        id: cartToComplete.id,
+                        hasEmail: !!cartToComplete.email,
+                        hasShippingAddress: !!cartToComplete.shipping_address,
+                        hasBillingAddress: !!cartToComplete.billing_address,
+                        hasShippingMethods: !!cartToComplete.shipping_methods?.length,
+                        paymentCollectionStatus: cartToComplete.payment_collection?.status,
+                        authorizedAmount: cartToComplete.payment_collection?.authorized_amount,
+                        amount: cartToComplete.payment_collection?.amount,
+                      })}`);
+                      
+                      // Verificar que el carrito esté completo antes de intentar completarlo
+                      if (
+                        cartToComplete.email &&
+                        cartToComplete.shipping_address &&
+                        cartToComplete.billing_address &&
+                        cartToComplete.shipping_methods?.length > 0 &&
+                        cartToComplete.payment_collection?.authorized_amount &&
+                        cartToComplete.payment_collection.authorized_amount > 0
+                      ) {
+                        logger.info(`[Webhook] ✅ Carrito listo para completarse. Llamando a Store API...`);
+                        
+                        // Usar el Store API interno para completar el carrito
+                        // Nota: Esto requiere hacer una llamada HTTP al endpoint de store API
+                        // O podemos usar los módulos directamente si están disponibles
+                        const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL || process.env.APP_URL || 'http://localhost:9000';
+                        const storeApiUrl = `${medusaBackendUrl}/store/carts/${payment.external_reference}/complete`;
+                        
+                        logger.info(`[Webhook] URL del Store API: ${storeApiUrl}`);
+                        
+                        try {
+                          const completeResponse = await fetch(storeApiUrl, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                          
+                          if (completeResponse.ok) {
+                            const completeData = await completeResponse.json();
+                            logger.info(`[Webhook] ✅✅✅ Carrito completado exitosamente desde webhook!`);
+                            logger.info(`[Webhook] Respuesta: ${JSON.stringify({
+                              type: completeData.type,
+                              orderId: completeData.order?.id,
+                              orderDisplayId: completeData.order?.display_id,
+                            })}`);
+                          } else {
+                            const errorData = await completeResponse.json().catch(() => ({}));
+                            logger.warn(`[Webhook] ⚠️ Error al completar carrito desde webhook: ${completeResponse.status} - ${JSON.stringify(errorData)}`);
+                            logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
+                          }
+                        } catch (fetchError: any) {
+                          logger.warn(`[Webhook] ⚠️ Error de red al completar carrito desde webhook: ${fetchError.message}`);
+                          logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
+                        }
+                      } else {
+                        logger.warn(`[Webhook] ⚠️ Carrito no está listo para completarse. Faltan datos requeridos.`);
+                        logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
+                      }
+                    } else {
+                      logger.warn(`[Webhook] ⚠️ No se pudo verificar el carrito antes de completarlo`);
+                    }
+                  } catch (completeError: any) {
+                    logger.error(`[Webhook] ❌ Error al intentar completar carrito desde webhook: ${completeError.message}`);
+                    logger.error(`[Webhook] Stack: ${completeError.stack}`);
+                    logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
+                  }
                 } else {
                   logger.warn(`[Webhook] ⚠️ Sesión de pago ${paymentSession.id} no autorizada por webhook. Estado: ${finalSession?.status}`);
                 }
               } else {
                 logger.info(`[Webhook] Sesión de pago ${paymentSession.id} ya está ${paymentSession.status}. No se requiere autorización.`);
+                
+                // Si ya está autorizada, intentar completar el carrito también
+                if (paymentSession.status === "authorized" || paymentSession.status === "captured") {
+                  logger.info(`[Webhook] Sesión ya autorizada, intentando completar carrito...`);
+                  try {
+                    const { data: cartCheck } = await query.graph({
+                      entity: "cart",
+                      fields: [
+                        "id",
+                        "email",
+                        "shipping_address.id",
+                        "billing_address.id",
+                        "shipping_methods.id",
+                        "payment_collection.id",
+                        "payment_collection.status",
+                        "payment_collection.authorized_amount",
+                      ],
+                      filters: {
+                        id: payment.external_reference,
+                      },
+                    });
+                    
+                    const cartToComplete = cartCheck?.[0];
+                    if (
+                      cartToComplete?.email &&
+                      cartToComplete?.shipping_address &&
+                      cartToComplete?.billing_address &&
+                      cartToComplete?.shipping_methods?.length > 0 &&
+                      cartToComplete?.payment_collection?.authorized_amount &&
+                      cartToComplete.payment_collection.authorized_amount > 0
+                    ) {
+                      const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL || process.env.APP_URL || 'http://localhost:9000';
+                      const storeApiUrl = `${medusaBackendUrl}/store/carts/${payment.external_reference}/complete`;
+                      
+                      const completeResponse = await fetch(storeApiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                      });
+                      
+                      if (completeResponse.ok) {
+                        const completeData = await completeResponse.json();
+                        logger.info(`[Webhook] ✅✅✅ Carrito completado exitosamente (sesión ya autorizada)!`);
+                        logger.info(`[Webhook] Order ID: ${completeData.order?.id}, Display ID: ${completeData.order?.display_id}`);
+                      }
+                    }
+                  } catch (error: any) {
+                    logger.warn(`[Webhook] ⚠️ Error al completar carrito (sesión ya autorizada): ${error.message}`);
+                  }
+                }
               }
             } else {
               logger.warn(`[Webhook] ⚠️ No se encontró sesión de pago para cart_id: ${payment.external_reference}`);
