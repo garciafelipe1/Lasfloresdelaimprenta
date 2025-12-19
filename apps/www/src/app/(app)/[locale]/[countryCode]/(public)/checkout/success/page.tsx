@@ -393,6 +393,15 @@ export default async function CheckoutSuccessPage(props: Props) {
         }
       }
       
+      // Verificar que cartResponse fue asignado (si no, todos los reintentos fallaron)
+      if (!cartResponse) {
+        const errorMessage = 'El carrito no se pudo completar después de varios intentos. El pago fue procesado en MercadoPago, pero la orden no se creó en Medusa.';
+        console.error('[CheckoutSuccess] ❌❌❌ ERROR CRÍTICO:', errorMessage);
+        console.error('[CheckoutSuccess] Payment ID de MercadoPago:', payment_id);
+        console.error('[CheckoutSuccess] External Reference (cart_id):', external_reference);
+        throw new Error(errorMessage + ' Por favor, contactá con soporte e incluye el ID de pago: ' + (payment_id || 'N/A'));
+      }
+      
       console.log('[CheckoutSuccess] Respuesta de cart.complete:', {
         type: cartResponse?.type,
         hasOrder: !!cartResponse?.order,
@@ -459,10 +468,12 @@ export default async function CheckoutSuccessPage(props: Props) {
         throw new Error('Respuesta inesperada al completar el carrito. Por favor, contactá con soporte.');
       }
     } catch (error: any) {
-      console.error('[CheckoutSuccess] ❌ Error al completar el carrito:', error);
+      console.error('[CheckoutSuccess] ❌❌❌ ERROR CRÍTICO AL COMPLETAR EL CARRITO ❌❌❌');
       console.error('[CheckoutSuccess] Tipo de error:', error?.constructor?.name);
       console.error('[CheckoutSuccess] Mensaje:', error?.message);
       console.error('[CheckoutSuccess] Stack:', error?.stack);
+      console.error('[CheckoutSuccess] Payment ID de MercadoPago:', payment_id);
+      console.error('[CheckoutSuccess] External Reference (cart_id):', external_reference);
       
       // Loggear detalles adicionales si están disponibles
       if (error.response) {
@@ -473,9 +484,14 @@ export default async function CheckoutSuccessPage(props: Props) {
         });
       }
       
-      // Continuar mostrando la página de éxito aunque haya un error
-      // El pago fue procesado en MercadoPago, pero la orden no se creó en Medusa
-      // Esto puede ser un problema temporal o de configuración
+      // CRÍTICO: NO mostrar la página de éxito si no se creó la orden
+      // El pago fue procesado en MercadoPago, pero la orden NO se creó en Medusa
+      // Esto es un error crítico que debe ser resuelto
+      throw new Error(
+        'Error al crear la orden. El pago fue procesado en MercadoPago, pero la orden no se pudo crear en el sistema. ' +
+        'Por favor, contactá con soporte e incluye el ID de pago: ' + (payment_id || 'N/A') +
+        ' y el mensaje de error: ' + (error?.message || 'Error desconocido')
+      );
     }
   }
 
