@@ -128,7 +128,13 @@ export default async function CheckoutSuccessPage(props: Props) {
           // Continuar de todas formas, el plugin puede usar el external_reference
         }
         console.log('[CheckoutSuccess] ========== FIN PASO 2 ==========');
-        console.log('[CheckoutSuccess] ℹ️ El endpoint solo verifica el pago. El plugin autorizará automáticamente durante cart.complete()');
+        console.log('[CheckoutSuccess] ℹ️ Esperando 2 segundos para que el estado de la sesión se propague...');
+        
+        // CRÍTICO: Agregar un delay para asegurar que el estado de la sesión se propague completamente
+        // en la base de datos antes de intentar completar el carrito
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        console.log('[CheckoutSuccess] ✅ Delay completado. Continuando con la recuperación del carrito...');
       } else {
         console.log('[CheckoutSuccess] ⚠️ No hay payment_id, saltando actualización de sesión');
       }
@@ -137,9 +143,32 @@ export default async function CheckoutSuccessPage(props: Props) {
       console.log('[CheckoutSuccess] ========== PASO 3: RECUPERAR CARRITO ACTUALIZADO ==========');
       console.log('[CheckoutSuccess] Obteniendo carrito con sesión de pago actualizada...');
       
-      // CRÍTICO: NO especificar fields para que Medusa devuelva TODOS los datos del carrito
-      // Esto asegura que la validación de cart.complete() tenga acceso a todos los datos necesarios
-      const finalCartResponse = await medusa.store.cart.retrieve(external_reference);
+      // CRÍTICO: Especificar explícitamente los campos del payment_collection para asegurar
+      // que Medusa devuelva la información más reciente de las sesiones de pago
+      const fieldsString = [
+        'id',
+        'email',
+        'currency_code',
+        'total',
+        'subtotal',
+        'tax_total',
+        'discount_total',
+        'shipping_total',
+        'items.*',
+        'shipping_address.*',
+        'billing_address.*',
+        'shipping_methods.*',
+        'payment_collection.id',
+        'payment_collection.status',
+        'payment_collection.amount',
+        'payment_collection.authorized_amount',
+        'payment_collection.captured_amount',
+        'payment_collection.payment_sessions.*',
+      ].join(',');
+      
+      const finalCartResponse = await medusa.store.cart.retrieve(external_reference, {
+        fields: fieldsString,
+      });
 
       if (!finalCartResponse.cart) {
         throw new Error('Carrito no encontrado después de actualizar sesión');
@@ -272,6 +301,25 @@ export default async function CheckoutSuccessPage(props: Props) {
       if (authorizedSessions.length === 0) {
         console.warn('[CheckoutSuccess] ⚠️ ADVERTENCIA: No hay sesiones autorizadas en el payment_collection');
         console.warn('[CheckoutSuccess] Estado actual de las sesiones:', paymentCollection?.payment_sessions?.map(s => `${s.id}:${s.status}`).join(', '));
+        console.warn('[CheckoutSuccess] Esperando 3 segundos adicionales y reintentando recuperar el carrito...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Reintentar recuperar el carrito después del delay
+        console.log('[CheckoutSuccess] Reintentando recuperar el carrito después del delay...');
+        const retryCartResponse = await medusa.store.cart.retrieve(external_reference, {
+          fields: fieldsString,
+        });
+        
+        if (retryCartResponse.cart?.payment_collection?.payment_sessions) {
+          const retryAuthorizedSessions = retryCartResponse.cart.payment_collection.payment_sessions.filter(
+            s => s.status === 'authorized' || s.status === 'captured'
+          );
+          console.log('[CheckoutSuccess] Sesiones autorizadas después del retry:', retryAuthorizedSessions.length);
+          if (retryAuthorizedSessions.length > 0) {
+            console.log('[CheckoutSuccess] ✅ Sesión autorizada encontrada después del retry. Continuando...');
+          }
+        }
+        
         console.warn('[CheckoutSuccess] Intentando cart.complete() de todas formas - el plugin de MercadoPago puede autorizar automáticamente');
         console.warn('[CheckoutSuccess] El plugin buscará el pago en MercadoPago usando external_reference (cart_id):', external_reference);
       } else {
@@ -280,40 +328,69 @@ export default async function CheckoutSuccessPage(props: Props) {
       console.log('[CheckoutSuccess] ========== FIN VERIFICACIÓN FINAL ==========');
       
       let cartResponse;
+      const maxRetries = 3;
+      let retryCount = 0;
       
-      try {
-        const startTime = Date.now();
-        console.log('[CheckoutSuccess] Ejecutando medusa.store.cart.complete()...');
-        cartResponse = await medusa.store.cart.complete(external_reference);
-        const endTime = Date.now();
-        console.log('[CheckoutSuccess] ✅✅✅ cart.complete ejecutado SIN errores');
-        console.log('[CheckoutSuccess] Tiempo de ejecución:', endTime - startTime, 'ms');
-        console.log('[CheckoutSuccess] Tipo de respuesta:', cartResponse?.type);
-      } catch (completeError: any) {
+      while (retryCount < maxRetries) {
+        try {
+          const startTime = Date.now();
+          console.log(`[CheckoutSuccess] Ejecutando medusa.store.cart.complete() (intento ${retryCount + 1}/${maxRetries})...`);
+          cartResponse = await medusa.store.cart.complete(external_reference);
+          const endTime = Date.now();
+          console.log('[CheckoutSuccess] ✅✅✅ cart.complete ejecutado SIN errores');
+          console.log('[CheckoutSuccess] Tiempo de ejecución:', endTime - startTime, 'ms');
+          console.log('[CheckoutSuccess] Tipo de respuesta:', cartResponse?.type);
+          break; // Éxito, salir del loop
+        } catch (completeError: any) {
         console.error('[CheckoutSuccess] ❌❌❌ cart.complete() FALLÓ');
         console.error('[CheckoutSuccess] ========== DETALLES DEL ERROR ==========');
         console.error('[CheckoutSuccess] Mensaje del error:', completeError?.message);
         console.error('[CheckoutSuccess] Tipo de error:', completeError?.constructor?.name);
         
-        // Si el error es "Payment sessions are required to complete cart"
-        if (completeError?.message?.includes('Payment sessions are required')) {
-          console.error('[CheckoutSuccess] ⚠️⚠️⚠️ ERROR ESPERADO: La sesión de pago no está autorizada');
-          console.error('[CheckoutSuccess] Esto significa que authorizePaymentSession NO cambió el estado correctamente');
-          console.error('[CheckoutSuccess] La sesión debe estar en estado "authorized" o "captured"');
+          // Si el error es "Payment sessions are required to complete cart"
+          if (completeError?.message?.includes('Payment sessions are required')) {
+            console.error(`[CheckoutSuccess] ⚠️⚠️⚠️ ERROR: La sesión de pago no está autorizada (intento ${retryCount + 1}/${maxRetries})`);
+            console.error('[CheckoutSuccess] Esto significa que authorizePaymentSession NO cambió el estado correctamente');
+            console.error('[CheckoutSuccess] La sesión debe estar en estado "authorized" o "captured"');
+            
+            retryCount++;
+            if (retryCount < maxRetries) {
+              console.log(`[CheckoutSuccess] Reintentando en 2 segundos... (intento ${retryCount + 1}/${maxRetries})`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              
+              // Recuperar el carrito nuevamente para verificar el estado actualizado
+              console.log('[CheckoutSuccess] Recuperando carrito nuevamente para verificar estado...');
+              const retryFinalCartResponse = await medusa.store.cart.retrieve(external_reference, {
+                fields: fieldsString,
+              });
+              
+              if (retryFinalCartResponse.cart?.payment_collection?.payment_sessions) {
+                const retrySessions = retryFinalCartResponse.cart.payment_collection.payment_sessions;
+                console.log('[CheckoutSuccess] Estado de las sesiones después del retry:', retrySessions.map(s => `${s.id}:${s.status}`).join(', '));
+              }
+              
+              continue; // Reintentar
+            } else {
+              console.error('[CheckoutSuccess] ❌ Se agotaron todos los intentos. El carrito no se pudo completar.');
+            }
+          }
+          
+          console.error('[CheckoutSuccess] Status HTTP:', completeError?.response?.status);
+          console.error('[CheckoutSuccess] StatusText:', completeError?.response?.statusText);
+          console.error('[CheckoutSuccess] Data del error:', JSON.stringify(completeError?.response?.data, null, 2));
+          console.error('[CheckoutSuccess] Error completo:', JSON.stringify(completeError, Object.getOwnPropertyNames(completeError), 2));
+          console.error('[CheckoutSuccess] ========== FIN DETALLES DEL ERROR ==========');
+          
+          // Si hay un error, intentar obtener más información
+          if (completeError?.response?.data) {
+            console.error('[CheckoutSuccess] Datos del error de Medusa:', JSON.stringify(completeError.response.data, null, 2));
+          }
+          
+          // Si no es un error de "Payment sessions required" o ya intentamos todas las veces, lanzar el error
+          if (!completeError?.message?.includes('Payment sessions are required') || retryCount >= maxRetries) {
+            throw completeError;
+          }
         }
-        
-        console.error('[CheckoutSuccess] Status HTTP:', completeError?.response?.status);
-        console.error('[CheckoutSuccess] StatusText:', completeError?.response?.statusText);
-        console.error('[CheckoutSuccess] Data del error:', JSON.stringify(completeError?.response?.data, null, 2));
-        console.error('[CheckoutSuccess] Error completo:', JSON.stringify(completeError, Object.getOwnPropertyNames(completeError), 2));
-        console.error('[CheckoutSuccess] ========== FIN DETALLES DEL ERROR ==========');
-        
-        // Si hay un error, intentar obtener más información
-        if (completeError?.response?.data) {
-          console.error('[CheckoutSuccess] Datos del error de Medusa:', JSON.stringify(completeError.response.data, null, 2));
-        }
-        
-        throw completeError;
       }
       
       console.log('[CheckoutSuccess] Respuesta de cart.complete:', {
