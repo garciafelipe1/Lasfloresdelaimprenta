@@ -80,19 +80,52 @@ export async function POST(
           );
           
           try {
-            // Intentar encontrar la sesión de pago del carrito
-            // El plugin debería manejar esto, pero intentamos ayudar
+            // Buscar la sesión de pago asociada al carrito
+            // El plugin de MercadoPago busca el pago usando el external_reference (cart_id)
             logger.info(`[Webhook] Buscando sesión de pago para carrito ${payment.external_reference}...`);
             
-            // NOTA: El plugin de MercadoPago debería manejar la autorización automáticamente
-            // cuando se complete el carrito. Este webhook solo registra la información.
-            // Si el plugin no autoriza durante cart.complete(), podría ser un problema de configuración.
-            
-            logger.info(
-              `[Webhook] El plugin debería autorizar automáticamente la sesión cuando se complete el carrito ${payment.external_reference}.`
-            );
+            const paymentSessions = await paymentModuleService.listPaymentSessions({
+              cart_id: payment.external_reference,
+              provider_id: "pp_mercadopago_mercadopago", // Asegurarse de que sea el provider correcto
+            });
+
+            if (paymentSessions.length > 0) {
+              const paymentSession = paymentSessions[0];
+              logger.info(`[Webhook] Sesión de pago encontrada: ${paymentSession.id}, estado actual: ${paymentSession.status}`);
+
+              // Si la sesión no está autorizada, intentar autorizarla
+              if (paymentSession.status !== "authorized" && paymentSession.status !== "captured") {
+                logger.info(`[Webhook] Autorizando sesión de pago ${paymentSession.id}...`);
+                const authorizeResult = await paymentModuleService.authorizePaymentSession(
+                  paymentSession.id,
+                  {
+                    data: {
+                      session_id: payment.external_reference, // Pasar el cart_id como session_id para que el plugin lo encuentre
+                      payment_id: payment.id.toString(),
+                      payment_status: payment.status,
+                      external_reference: payment.external_reference,
+                      transaction_amount: payment.transaction_amount,
+                    },
+                  }
+                );
+                logger.info(`[Webhook] Resultado de autorización: ${JSON.stringify(authorizeResult, null, 2)}`);
+                const finalSession = await paymentModuleService.retrievePaymentSession(paymentSession.id);
+                logger.info(`[Webhook] Estado final de la sesión después de webhook: ${finalSession?.status}`);
+
+                if (finalSession?.status === "authorized" || finalSession?.status === "captured") {
+                  logger.info(`[Webhook] ✅ Sesión de pago ${paymentSession.id} autorizada exitosamente por webhook.`);
+                } else {
+                  logger.warn(`[Webhook] ⚠️ Sesión de pago ${paymentSession.id} no autorizada por webhook. Estado: ${finalSession?.status}`);
+                }
+              } else {
+                logger.info(`[Webhook] Sesión de pago ${paymentSession.id} ya está ${paymentSession.status}. No se requiere autorización.`);
+              }
+            } else {
+              logger.warn(`[Webhook] ⚠️ No se encontró sesión de pago para cart_id: ${payment.external_reference}`);
+            }
           } catch (error: any) {
             logger.error(`[Webhook] Error al procesar pago aprobado: ${error.message}`, error);
+            logger.error(`[Webhook] Stack: ${error.stack}`);
           }
         } else {
           logger.warn(`[Webhook] Payment ${paymentId} approved but has no external_reference (cart_id)`);
