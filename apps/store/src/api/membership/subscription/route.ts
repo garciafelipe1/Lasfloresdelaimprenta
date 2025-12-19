@@ -27,49 +27,83 @@ export async function POST(
   const logger = req.scope.resolve("logger");
   const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
 
+  logger.info(`[MembershipWebhook] ========== INICIO DE WEBHOOK DE MEMBRESÍA ==========`);
+  logger.info(`[MembershipWebhook] Timestamp: ${new Date().toISOString()}`);
+  logger.info(`[MembershipWebhook] Body recibido: ${JSON.stringify(req.body, null, 2)}`);
+
   // Validar webhook secret si está configurado
   if (webhookSecret) {
     const xSignature = req.headers["x-signature"] as string;
     const xRequestId = req.headers["x-request-id"] as string;
 
     if (!xSignature) {
-      logger.warn("Webhook received without signature header");
+      logger.warn("[MembershipWebhook] Webhook received without signature header");
       // En producción, podrías rechazar el webhook si no tiene firma
       // return res.status(401).json({ error: "Missing signature" });
     } else {
-      logger.info(`Webhook signature received: ${xSignature.substring(0, 20)}...`);
+      logger.info(`[MembershipWebhook] Webhook signature received: ${xSignature.substring(0, 20)}...`);
       // Aquí deberías validar la firma del webhook comparándola con webhookSecret
       // Por ahora, confiamos en que viene de MercadoPago si tiene el header
     }
   }
 
   try {
-    if (req.validatedBody.type === "subscription_preapproval") {
+    const { type, data, action } = req.validatedBody;
+    
+    logger.info(`[MembershipWebhook] Webhook recibido: type=${type}, action=${action}, id=${data.id}`);
+
+    if (type === "subscription_preapproval") {
+      logger.info(`[MembershipWebhook] Procesando webhook de suscripción (preapproval)...`);
+      logger.info(`[MembershipWebhook] ID del preapproval: ${data.id}`);
+      
       const preapproval = await new PreApproval(mercadoPagoClient).get({
         id: req.validatedBody.data.id,
       });
 
       logger.info(
-        `Subscription preapproval ${preapproval.id} status: ${preapproval.status}`
+        `[MembershipWebhook] Preapproval ${preapproval.id} obtenido de MercadoPago. Status: ${preapproval.status}`
       );
+      logger.info(`[MembershipWebhook] External reference: ${preapproval.external_reference}`);
+      logger.info(`[MembershipWebhook] Next payment date: ${preapproval.next_payment_date}`);
 
       // Si se aprueba, actualizamos el usuario con el id de la suscripción
       if (preapproval.status === "authorized") {
-        const result = externalReferenceSchema.safeParse(
-          JSON.parse(preapproval.external_reference!)
-        );
+        logger.info(`[MembershipWebhook] ✅ Preapproval ${preapproval.id} está autorizado. Creando suscripción...`);
+        
+        let externalReferenceData;
+        try {
+          externalReferenceData = JSON.parse(preapproval.external_reference!);
+          logger.info(`[MembershipWebhook] External reference parseado: ${JSON.stringify(externalReferenceData)}`);
+        } catch (parseError: any) {
+          logger.error(`[MembershipWebhook] ❌ Error al parsear external_reference: ${parseError.message}`);
+          logger.error(`[MembershipWebhook] External reference raw: ${preapproval.external_reference}`);
+          return res.status(400).json({
+            error: "Invalid external reference format",
+            message: parseError.message,
+          });
+        }
+        
+        const result = externalReferenceSchema.safeParse(externalReferenceData);
 
         if (!result.success) {
           logger.error(
-            `Invalid external reference: ${preapproval.external_reference}`
+            `[MembershipWebhook] ❌ Invalid external reference structure: ${JSON.stringify(result.error.errors)}`
           );
+          logger.error(`[MembershipWebhook] External reference recibido: ${JSON.stringify(externalReferenceData)}`);
           return res.status(400).json({
             error: "External reference doesnt have enough information",
+            details: result.error.errors,
           });
         }
 
+        logger.info(`[MembershipWebhook] Datos para crear suscripción:`);
+        logger.info(`[MembershipWebhook]   - customer_id (userId): ${result.data.userId}`);
+        logger.info(`[MembershipWebhook]   - membership_id: ${result.data.membershipId}`);
+        logger.info(`[MembershipWebhook]   - external_id (preapproval.id): ${preapproval.id}`);
+        logger.info(`[MembershipWebhook]   - ended_at: ${preapproval.next_payment_date}`);
+
         try {
-          await createSubscriptionWorkflow(req.scope).run({
+          const workflowResult = await createSubscriptionWorkflow(req.scope).run({
             input: {
               customer_id: result.data.userId,
               external_id: preapproval.id!,
@@ -79,10 +113,13 @@ export async function POST(
           });
 
           logger.info(
-            `Subscription created successfully for customer ${result.data.userId}`
+            `[MembershipWebhook] ✅✅✅ Suscripción creada exitosamente para customer ${result.data.userId}`
           );
+          logger.info(`[MembershipWebhook] Resultado del workflow: ${JSON.stringify(workflowResult, null, 2)}`);
         } catch (error: any) {
-          logger.error(`Error creating subscription: ${error.message}`, error);
+          logger.error(`[MembershipWebhook] ❌ Error al crear suscripción: ${error.message}`, error);
+          logger.error(`[MembershipWebhook] Stack: ${error.stack}`);
+          logger.error(`[MembershipWebhook] Error completo: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
           return res.status(500).json({
             error: "Failed to create subscription",
             message: error.message,
@@ -90,19 +127,27 @@ export async function POST(
         }
       } else {
         logger.info(
-          `Preapproval ${preapproval.id} not authorized. Status: ${preapproval.status}`
+          `[MembershipWebhook] ⚠️ Preapproval ${preapproval.id} NO está autorizado. Status: ${preapproval.status}`
         );
+        logger.info(`[MembershipWebhook] No se creará la suscripción hasta que el preapproval esté autorizado.`);
       }
     } else {
-      logger.info(`Unhandled webhook type: ${req.validatedBody.type}`);
+      logger.info(`[MembershipWebhook] ⚠️ Tipo de webhook no manejado: ${type}`);
+      logger.info(`[MembershipWebhook] Tipos esperados: subscription_preapproval`);
     }
 
+    logger.info(`[MembershipWebhook] ========== FIN DE WEBHOOK DE MEMBRESÍA (ÉXITO) ==========`);
     return res.json({ received: true });
   } catch (error: any) {
-    logger.error(`Error processing subscription webhook: ${error.message}`, error);
-    return res.status(500).json({
-      error: "Failed to process webhook",
-      message: error.message,
+    logger.error(`[MembershipWebhook] ❌ Error procesando webhook de suscripción: ${error.message}`, error);
+    logger.error(`[MembershipWebhook] Stack: ${error.stack}`);
+    logger.error(`[MembershipWebhook] Error completo: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
+    logger.info(`[MembershipWebhook] ========== FIN DE WEBHOOK DE MEMBRESÍA (ERROR) ==========`);
+    
+    // Aún respondemos 200 para que MercadoPago no reintente, pero logueamos el error
+    return res.status(200).json({
+      received: true,
+      error: error.message,
     });
   }
 }

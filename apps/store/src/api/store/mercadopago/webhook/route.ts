@@ -80,18 +80,37 @@ export async function POST(
           );
           
           try {
-            // Buscar la sesión de pago asociada al carrito
+            // Buscar la sesión de pago asociada al carrito usando query module
             // El plugin de MercadoPago busca el pago usando el external_reference (cart_id)
             logger.info(`[Webhook] Buscando sesión de pago para carrito ${payment.external_reference}...`);
             
-            const paymentSessions = await paymentModuleService.listPaymentSessions({
-              cart_id: payment.external_reference,
-              provider_id: "pp_mercadopago_mercadopago", // Asegurarse de que sea el provider correcto
+            const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+            const { data: carts } = await query.graph({
+              entity: "cart",
+              fields: [
+                "payment_collection.payment_sessions.id",
+                "payment_collection.payment_sessions.provider_id",
+                "payment_collection.payment_sessions.status",
+              ],
+              filters: {
+                id: payment.external_reference,
+              },
             });
+
+            const cart = carts?.[0];
+            const paymentSessions = cart?.payment_collection?.payment_sessions?.filter(
+              (session: any) => session.provider_id === "pp_mercadopago_mercadopago"
+            ) || [];
 
             if (paymentSessions.length > 0) {
               const paymentSession = paymentSessions[0];
               logger.info(`[Webhook] Sesión de pago encontrada: ${paymentSession.id}, estado actual: ${paymentSession.status}`);
+
+              // Validar que payment.id existe antes de usarlo
+              if (!payment.id) {
+                logger.error(`[Webhook] ❌ Payment ID no está definido. No se puede autorizar la sesión.`);
+                throw new Error("Payment ID is undefined");
+              }
 
               // Si la sesión no está autorizada, intentar autorizarla
               if (paymentSession.status !== "authorized" && paymentSession.status !== "captured") {

@@ -37,6 +37,10 @@ export const mercadoPagoService = {
       membershipId: membershipResult.id,
     };
 
+    // URL del webhook para recibir notificaciones cuando se apruebe la suscripción
+    const notificationUrl = `${envs.MEDUSA_BACKEND_URL}/membership/subscription`;
+    console.log('[Membership Subscribe] Notification URL:', notificationUrl);
+
     const subscription = await new PreApproval(mercadoPagoClient).create({
       body: {
         back_url: envs.APP_URL,
@@ -50,6 +54,7 @@ export const mercadoPagoService = {
         payer_email: email,
         status: 'pending',
         external_reference: JSON.stringify(external_reference),
+        notification_url: notificationUrl, // CRÍTICO: URL para recibir webhooks de MercadoPago
       },
     });
 
