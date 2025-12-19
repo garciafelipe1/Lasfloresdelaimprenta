@@ -26,7 +26,8 @@ export default async function CheckoutSuccessPage(props: Props) {
   const searchParams = await props.searchParams;
   const { external_reference, collection_status, payment_id, status } = searchParams;
 
-  console.log('[CheckoutSuccess] Parámetros recibidos:', searchParams);
+  console.log('[CheckoutSuccess] ========== INICIO DE PÁGINA DE ÉXITO ==========');
+  console.log('[CheckoutSuccess] Parámetros recibidos:', JSON.stringify(searchParams, null, 2));
 
   // Obtener información del método de envío antes de completar el carrito
   let shippingMessage = 'Te enviaremos un correo con los detalles de tu pedido. Si tenés alguna duda, no dudes en contactarnos.';
@@ -35,20 +36,41 @@ export default async function CheckoutSuccessPage(props: Props) {
 
   // Si tenemos un external_reference (cart_id) y el pago fue aprobado, intentar completar el carrito
   if (external_reference && collection_status === 'approved' && status === 'approved') {
+    console.log('[CheckoutSuccess] ✅ Condiciones cumplidas para completar carrito');
+    console.log('[CheckoutSuccess]   - external_reference:', external_reference);
+    console.log('[CheckoutSuccess]   - collection_status:', collection_status);
+    console.log('[CheckoutSuccess]   - status:', status);
+    console.log('[CheckoutSuccess]   - payment_id:', payment_id);
+    console.log('[CheckoutSuccess] Intentando completar carrito:', external_reference);
+    
     try {
-      console.log('[CheckoutSuccess] Intentando completar carrito:', external_reference);
-      console.log('[CheckoutSuccess] Payment ID recibido:', payment_id);
       
       // Paso 1: Asegurar que existe una sesión de pago de MercadoPago
+      console.log('[CheckoutSuccess] ========== PASO 1: ASEGURAR SESIÓN DE PAGO ==========');
       console.log('[CheckoutSuccess] Asegurando sesión de pago de MercadoPago...');
-      const sessionResult = await ensureMercadoPagoPaymentSession(external_reference);
+      console.log('[CheckoutSuccess] cartId:', external_reference);
       
-      if (!sessionResult.success) {
-        console.error('[CheckoutSuccess] Error al asegurar sesión de pago:', sessionResult.error);
-        throw new Error(`Error al asegurar sesión de pago: ${sessionResult.error}`);
+      let sessionResult;
+      try {
+        sessionResult = await ensureMercadoPagoPaymentSession(external_reference);
+        console.log('[CheckoutSuccess] ✅ ensureMercadoPagoPaymentSession completado');
+        console.log('[CheckoutSuccess] Resultado:', JSON.stringify(sessionResult, null, 2));
+      } catch (ensureError: any) {
+        console.error('[CheckoutSuccess] ❌ Error al llamar ensureMercadoPagoPaymentSession:');
+        console.error('[CheckoutSuccess] Tipo:', ensureError?.constructor?.name);
+        console.error('[CheckoutSuccess] Mensaje:', ensureError?.message);
+        console.error('[CheckoutSuccess] Stack:', ensureError?.stack);
+        throw new Error(`Error al asegurar sesión de pago: ${ensureError?.message || 'Error desconocido'}`);
+      }
+      
+      if (!sessionResult || !sessionResult.success) {
+        const errorMsg = sessionResult?.error || 'Error desconocido al asegurar sesión de pago';
+        console.error('[CheckoutSuccess] ❌ Error al asegurar sesión de pago:', errorMsg);
+        throw new Error(`Error al asegurar sesión de pago: ${errorMsg}`);
       }
 
-      console.log('[CheckoutSuccess] Sesión de pago verificada/creada:', sessionResult.paymentSessionId);
+      console.log('[CheckoutSuccess] ✅ Sesión de pago verificada/creada:', sessionResult.paymentSessionId);
+      console.log('[CheckoutSuccess] ========== FIN PASO 1 ==========');
 
       // Paso 2: Actualizar la sesión de pago con el payment_id de MercadoPago
       if (payment_id) {
@@ -469,6 +491,7 @@ export default async function CheckoutSuccessPage(props: Props) {
       }
     } catch (error: any) {
       console.error('[CheckoutSuccess] ❌❌❌ ERROR CRÍTICO AL COMPLETAR EL CARRITO ❌❌❌');
+      console.error('[CheckoutSuccess] ========== DETALLES DEL ERROR ==========');
       console.error('[CheckoutSuccess] Tipo de error:', error?.constructor?.name);
       console.error('[CheckoutSuccess] Mensaje:', error?.message);
       console.error('[CheckoutSuccess] Stack:', error?.stack);
@@ -476,7 +499,7 @@ export default async function CheckoutSuccessPage(props: Props) {
       console.error('[CheckoutSuccess] External Reference (cart_id):', external_reference);
       
       // Loggear detalles adicionales si están disponibles
-      if (error.response) {
+      if (error?.response) {
         console.error('[CheckoutSuccess] Error response:', {
           status: error.response.status,
           statusText: error.response.statusText,
@@ -484,14 +507,39 @@ export default async function CheckoutSuccessPage(props: Props) {
         });
       }
       
+      // Loggear el error completo serializado
+      try {
+        console.error('[CheckoutSuccess] Error completo (JSON):', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      } catch (jsonError) {
+        console.error('[CheckoutSuccess] No se pudo serializar el error:', jsonError);
+      }
+      
+      console.error('[CheckoutSuccess] ========== FIN DETALLES DEL ERROR ==========');
+      
       // CRÍTICO: NO mostrar la página de éxito si no se creó la orden
       // El pago fue procesado en MercadoPago, pero la orden NO se creó en Medusa
       // Esto es un error crítico que debe ser resuelto
-      throw new Error(
-        'Error al crear la orden. El pago fue procesado en MercadoPago, pero la orden no se pudo crear en el sistema. ' +
-        'Por favor, contactá con soporte e incluye el ID de pago: ' + (payment_id || 'N/A') +
-        ' y el mensaje de error: ' + (error?.message || 'Error desconocido')
-      );
+      // 
+      // IMPORTANTE: En producción, Next.js oculta los detalles del error en Server Components.
+      // Por lo tanto, necesitamos asegurarnos de que el error se propague correctamente
+      // para que el usuario vea un mensaje de error apropiado.
+      const errorMessage = error?.message || 'Error desconocido al crear la orden';
+      const fullErrorMessage = `Error al crear la orden. El pago fue procesado en MercadoPago, pero la orden no se pudo crear en el sistema. Por favor, contactá con soporte e incluye el ID de pago: ${payment_id || 'N/A'} y el mensaje de error: ${errorMessage}`;
+      
+      console.error('[CheckoutSuccess] Lanzando error con mensaje:', fullErrorMessage);
+      throw new Error(fullErrorMessage      );
+    }
+  } else {
+    // Si no se cumplen las condiciones, mostrar mensaje apropiado
+    console.log('[CheckoutSuccess] ⚠️ Condiciones NO cumplidas para completar carrito');
+    console.log('[CheckoutSuccess]   - external_reference:', external_reference || 'NO HAY');
+    console.log('[CheckoutSuccess]   - collection_status:', collection_status || 'NO HAY');
+    console.log('[CheckoutSuccess]   - status:', status || 'NO HAY');
+    console.log('[CheckoutSuccess] Mostrando página de éxito sin completar carrito');
+    
+    // Si hay un payment_id pero el status no es approved, mostrar mensaje de pago pendiente
+    if (payment_id && (collection_status !== 'approved' || status !== 'approved')) {
+      shippingMessage = 'Tu pago está siendo procesado. Te notificaremos cuando esté confirmado.';
     }
   }
 
