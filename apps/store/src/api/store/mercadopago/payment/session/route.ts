@@ -148,17 +148,54 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
     
     logger.info(`[PaymentSessionUpdate] ✅ El external_reference coincide con el cart_id. El plugin podrá encontrar el pago.`);
     
+    // CRÍTICO: Obtener el monto del carrito para actualizar el payment_collection.authorized_amount
+    // Medusa requiere que el payment_collection.authorized_amount coincida con el total del carrito
+    logger.info(`[PaymentSessionUpdate] Paso 6: Obteniendo monto del carrito...`);
+    let cartAmount = 0;
+    try {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const { data: carts } = await query.graph({
+        entity: "cart",
+        fields: [
+          "id",
+          "payment_collection.amount",
+        ],
+        filters: {
+          id: cartId,
+        },
+      });
+      
+      const cart = carts?.[0];
+      if (cart) {
+        // Usar el amount del payment_collection (que es el total del carrito)
+        cartAmount = cart.payment_collection?.amount || 0;
+        logger.info(`[PaymentSessionUpdate] ✅ Monto del carrito obtenido: ${cartAmount}`);
+        logger.info(`[PaymentSessionUpdate]   - payment_collection.amount: ${cart.payment_collection?.amount}`);
+      } else {
+        logger.warn(`[PaymentSessionUpdate] ⚠️ No se pudo obtener el carrito, usando transaction_amount de MercadoPago`);
+        cartAmount = payment.transaction_amount || 0;
+      }
+    } catch (cartError: any) {
+      logger.error(`[PaymentSessionUpdate] ❌ Error al obtener monto del carrito: ${cartError.message}`, cartError);
+      logger.warn(`[PaymentSessionUpdate] ⚠️ Usando transaction_amount de MercadoPago como fallback`);
+      cartAmount = payment.transaction_amount || 0;
+    }
+    
     // CRÍTICO: Autorizar explícitamente la sesión de pago
     // El plugin de MercadoPago necesita que la sesión esté autorizada ANTES de cart.complete()
     // Si la sesión está en 'pending', cart.complete() fallará con "Payment sessions are required to complete cart"
-    logger.info(`[PaymentSessionUpdate] Paso 6: Autorizando sesión de pago...`);
+    // IMPORTANTE: Incluir el amount para que Medusa actualice el payment_collection.authorized_amount
+    logger.info(`[PaymentSessionUpdate] Paso 7: Autorizando sesión de pago...`);
     logger.info(`[PaymentSessionUpdate] Estado actual de la sesión: ${paymentSession.status}`);
+    logger.info(`[PaymentSessionUpdate] Monto a autorizar: ${cartAmount}`);
     
     let authorizedSession;
     try {
       // Preparar los datos para autorizar la sesión
       // El plugin de MercadoPago buscará el pago usando el external_reference (cart_id)
+      // CRÍTICO: Incluir el amount para que Medusa actualice el payment_collection.authorized_amount
       const authorizeData = {
+        amount: cartAmount, // CRÍTICO: Incluir el amount para actualizar payment_collection.authorized_amount
         data: {
           // El plugin usa 'session_id' como external_reference para buscar el pago en MercadoPago
           session_id: payment.external_reference || cartId,
@@ -171,10 +208,12 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
       };
       
       logger.info(`[PaymentSessionUpdate] Datos para autorizar sesión: ${JSON.stringify({
+        amount: authorizeData.amount,
         session_id: authorizeData.data.session_id,
         payment_id: authorizeData.data.payment_id,
         payment_status: authorizeData.data.payment_status,
         external_reference: authorizeData.data.external_reference,
+        transaction_amount: authorizeData.data.transaction_amount,
       })}`);
       
       logger.info(`[PaymentSessionUpdate] Llamando a paymentModuleService.authorizePaymentSession...`);
@@ -206,6 +245,67 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
       logger.info(`[PaymentSessionUpdate]   - amount: ${finalSession?.amount}`);
       logger.info(`[PaymentSessionUpdate]   - authorized_at: ${finalSession?.authorized_at || 'null'}`);
       logger.info(`[PaymentSessionUpdate]   - data keys: ${finalSession?.data ? Object.keys(finalSession.data).join(', ') : 'null'}`);
+      
+      // CRÍTICO: Verificar el estado del payment_collection después de autorizar la sesión
+      // Medusa requiere que el payment_collection tenga authorized_amount > 0 para completar el carrito
+      logger.info(`[PaymentSessionUpdate] Paso 7: Verificando estado del payment_collection...`);
+      try {
+        const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+        const { data: carts } = await query.graph({
+          entity: "cart",
+          fields: [
+            "id",
+            "payment_collection.id",
+            "payment_collection.status",
+            "payment_collection.amount",
+            "payment_collection.authorized_amount",
+            "payment_collection.captured_amount",
+            "payment_collection.payment_sessions.id",
+            "payment_collection.payment_sessions.status",
+            "payment_collection.payment_sessions.amount",
+          ],
+          filters: {
+            id: cartId,
+          },
+        });
+        
+        const cart = carts?.[0];
+        if (cart?.payment_collection) {
+          const paymentCollection = cart.payment_collection;
+          logger.info(`[PaymentSessionUpdate] Payment Collection después de autorizar sesión:`);
+          logger.info(`[PaymentSessionUpdate]   - id: ${paymentCollection.id}`);
+          logger.info(`[PaymentSessionUpdate]   - status: ${paymentCollection.status}`);
+          logger.info(`[PaymentSessionUpdate]   - amount: ${paymentCollection.amount}`);
+          logger.info(`[PaymentSessionUpdate]   - authorized_amount: ${paymentCollection.authorized_amount}`);
+          logger.info(`[PaymentSessionUpdate]   - captured_amount: ${paymentCollection.captured_amount}`);
+          
+          // CRÍTICO: Verificar si el authorized_amount es 0
+          if (!paymentCollection.authorized_amount || paymentCollection.authorized_amount === 0) {
+            logger.error(`[PaymentSessionUpdate] ❌❌❌ PROBLEMA CRÍTICO: payment_collection.authorized_amount es 0`);
+            logger.error(`[PaymentSessionUpdate] Esto causará que cart.complete() falle con "Payment sessions are required to complete cart"`);
+            logger.error(`[PaymentSessionUpdate] El problema es que authorizePaymentSession NO actualiza el payment_collection.authorized_amount`);
+            logger.error(`[PaymentSessionUpdate] La sesión está authorized, pero el payment_collection no refleja esto`);
+            logger.warn(`[PaymentSessionUpdate] ⚠️ El plugin de MercadoPago debería actualizar el payment_collection durante cart.complete()`);
+            logger.warn(`[PaymentSessionUpdate] ⚠️ Pero si el payment_collection.authorized_amount es 0, cart.complete() fallará antes de llegar al plugin`);
+          } else {
+            logger.info(`[PaymentSessionUpdate] ✅ payment_collection.authorized_amount es > 0: ${paymentCollection.authorized_amount}`);
+            logger.info(`[PaymentSessionUpdate] ✅✅✅ El payment_collection está listo para cart.complete()`);
+            logger.info(`[PaymentSessionUpdate] ✅ La orden se creará correctamente cuando se llame a cart.complete()`);
+            logger.info(`[PaymentSessionUpdate] ✅ Monto autorizado coincide con el monto del carrito: ${paymentCollection.authorized_amount} === ${paymentCollection.amount}`);
+            
+            // Verificar que el monto autorizado coincide con el monto del carrito
+            if (paymentCollection.authorized_amount === paymentCollection.amount) {
+              logger.info(`[PaymentSessionUpdate] ✅✅✅ PERFECTO: authorized_amount coincide con amount`);
+            } else {
+              logger.warn(`[PaymentSessionUpdate] ⚠️ authorized_amount (${paymentCollection.authorized_amount}) no coincide con amount (${paymentCollection.amount})`);
+            }
+          }
+        } else {
+          logger.warn(`[PaymentSessionUpdate] ⚠️ No se pudo obtener el payment_collection del carrito`);
+        }
+      } catch (pcError: any) {
+        logger.error(`[PaymentSessionUpdate] ❌ Error al verificar payment_collection: ${pcError.message}`, pcError);
+      }
       
       if (finalSession?.status !== 'authorized' && finalSession?.status !== 'captured') {
         logger.error(`[PaymentSessionUpdate] ❌ ERROR: La sesión NO fue autorizada. Estado: ${finalSession?.status}`);

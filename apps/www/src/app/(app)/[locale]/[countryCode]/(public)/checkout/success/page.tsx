@@ -281,7 +281,8 @@ export default async function CheckoutSuccessPage(props: Props) {
       
       // Establecer el mensaje de envío basado en el método de envío
       const shippingMethod = finalCart.shipping_methods?.[0];
-      const shippingTypeCode = shippingMethod?.type?.code;
+      // Acceder al código del tipo de método de envío de manera segura
+      const shippingTypeCode = (shippingMethod as any)?.shipping_option?.type?.code;
       
       if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.retiroLocal) {
         shippingMessage = 'Tu pedido ya puede ser retirado en el local.';
@@ -313,6 +314,20 @@ export default async function CheckoutSuccessPage(props: Props) {
           authorized_at: s.authorized_at,
         })),
       }, null, 2));
+      
+      // CRÍTICO: Verificar que el payment_collection tenga authorized_amount > 0
+      // Medusa requiere que el payment_collection tenga authorized_amount > 0 para completar el carrito
+      if (paymentCollection && (!paymentCollection.authorized_amount || paymentCollection.authorized_amount === 0)) {
+        console.error('[CheckoutSuccess] ❌❌❌ PROBLEMA CRÍTICO: payment_collection.authorized_amount es 0 o no existe');
+        console.error('[CheckoutSuccess]   - authorized_amount:', paymentCollection.authorized_amount);
+        console.error('[CheckoutSuccess]   - amount:', paymentCollection.amount);
+        console.error('[CheckoutSuccess]   - status:', paymentCollection.status);
+        console.error('[CheckoutSuccess] Esto causará que cart.complete() falle con "Payment sessions are required to complete cart"');
+        console.error('[CheckoutSuccess] El problema es que authorizePaymentSession no actualiza el payment_collection.authorized_amount');
+        console.error('[CheckoutSuccess] Necesitamos actualizar el payment_collection manualmente o usar el plugin correctamente');
+      } else if (paymentCollection && paymentCollection.authorized_amount !== undefined && paymentCollection.authorized_amount > 0) {
+        console.log('[CheckoutSuccess] ✅ payment_collection.authorized_amount es > 0:', paymentCollection.authorized_amount);
+      }
       
       // Verificar si hay sesiones autorizadas (solo para logging, NO lanzar error)
       const authorizedSessions = paymentCollection?.payment_sessions?.filter(
@@ -357,11 +372,23 @@ export default async function CheckoutSuccessPage(props: Props) {
         try {
           const startTime = Date.now();
           console.log(`[CheckoutSuccess] Ejecutando medusa.store.cart.complete() (intento ${retryCount + 1}/${maxRetries})...`);
+          console.log('[CheckoutSuccess] ⏳ Esperando que Medusa cree la orden en el backend...');
           cartResponse = await medusa.store.cart.complete(external_reference);
           const endTime = Date.now();
           console.log('[CheckoutSuccess] ✅✅✅ cart.complete ejecutado SIN errores');
           console.log('[CheckoutSuccess] Tiempo de ejecución:', endTime - startTime, 'ms');
           console.log('[CheckoutSuccess] Tipo de respuesta:', cartResponse?.type);
+          
+          // Verificar inmediatamente si se creó la orden
+          if (cartResponse?.type === 'order') {
+            console.log('[CheckoutSuccess] ✅✅✅ ORDEN CREADA INMEDIATAMENTE');
+            console.log('[CheckoutSuccess] ✅ La orden se guardó en el backend durante cart.complete()');
+            console.log('[CheckoutSuccess] ✅ Order ID:', cartResponse.order?.id);
+            console.log('[CheckoutSuccess] ✅ Order Display ID:', cartResponse.order?.display_id);
+          } else {
+            console.log('[CheckoutSuccess] ⚠️ Respuesta no es de tipo "order", es:', cartResponse?.type);
+          }
+          
           break; // Éxito, salir del loop
         } catch (completeError: any) {
         console.error('[CheckoutSuccess] ❌❌❌ cart.complete() FALLÓ');
@@ -424,13 +451,22 @@ export default async function CheckoutSuccessPage(props: Props) {
         throw new Error(errorMessage + ' Por favor, contactá con soporte e incluye el ID de pago: ' + (payment_id || 'N/A'));
       }
       
+      // Type guard para verificar el tipo de respuesta
+      const isOrderResponse = (response: typeof cartResponse): response is { type: 'order'; order: any } => {
+        return response?.type === 'order' && 'order' in response;
+      };
+      
+      const isCartResponse = (response: typeof cartResponse): response is { type: 'cart'; cart: any; error: any } => {
+        return response?.type === 'cart' && 'cart' in response;
+      };
+      
       console.log('[CheckoutSuccess] Respuesta de cart.complete:', {
         type: cartResponse?.type,
-        hasOrder: !!cartResponse?.order,
-        hasCart: !!cartResponse?.cart,
-        orderId: cartResponse?.order?.id,
-        orderDisplayId: cartResponse?.order?.display_id,
-        cartId: cartResponse?.cart?.id,
+        hasOrder: isOrderResponse(cartResponse),
+        hasCart: isCartResponse(cartResponse),
+        orderId: isOrderResponse(cartResponse) ? cartResponse.order?.id : undefined,
+        orderDisplayId: isOrderResponse(cartResponse) ? cartResponse.order?.display_id : undefined,
+        cartId: isCartResponse(cartResponse) ? cartResponse.cart?.id : undefined,
       });
       
       // Log completo de la respuesta para debugging
@@ -438,40 +474,66 @@ export default async function CheckoutSuccessPage(props: Props) {
       
       console.log('[CheckoutSuccess] ========== ANALIZANDO RESPUESTA ==========');
       console.log('[CheckoutSuccess] Tipo de respuesta:', cartResponse?.type);
-      console.log('[CheckoutSuccess] Tiene order:', !!cartResponse?.order);
-      console.log('[CheckoutSuccess] Tiene cart:', !!cartResponse?.cart);
+      console.log('[CheckoutSuccess] Tiene order:', isOrderResponse(cartResponse));
+      console.log('[CheckoutSuccess] Tiene cart:', isCartResponse(cartResponse));
       
-      if (cartResponse?.type === 'order' && cartResponse?.order) {
-        console.log('[CheckoutSuccess] ========== ✅ ORDEN CREADA EXITOSAMENTE ==========');
-        console.log('[CheckoutSuccess] Detalles de la orden:', {
+      if (isOrderResponse(cartResponse)) {
+        console.log('[CheckoutSuccess] ========== ✅✅✅ ORDEN CREADA Y GUARDADA EN EL BACKEND ✅✅✅ ==========');
+        console.log('[CheckoutSuccess] 🎉🎉🎉 LA ORDEN SE HA GUARDADO CORRECTAMENTE EN MEDUSA 🎉🎉🎉');
+        console.log('[CheckoutSuccess] Detalles completos de la orden guardada:');
+        console.log('[CheckoutSuccess]   - id (UUID):', cartResponse.order.id);
+        console.log('[CheckoutSuccess]   - display_id (número de orden):', cartResponse.order.display_id);
+        console.log('[CheckoutSuccess]   - email:', cartResponse.order.email);
+        console.log('[CheckoutSuccess]   - status:', cartResponse.order.status);
+        console.log('[CheckoutSuccess]   - total:', cartResponse.order.total);
+        console.log('[CheckoutSuccess]   - currency_code:', cartResponse.order.currency_code);
+        console.log('[CheckoutSuccess]   - created_at:', cartResponse.order.created_at);
+        console.log('[CheckoutSuccess]   - items_count:', cartResponse.order.items?.length || 0);
+        console.log('[CheckoutSuccess]   - shipping_address:', cartResponse.order.shipping_address ? 'presente' : 'ausente');
+        console.log('[CheckoutSuccess]   - billing_address:', cartResponse.order.billing_address ? 'presente' : 'ausente');
+        console.log('[CheckoutSuccess]   - payment_status:', cartResponse.order.payment_status);
+        console.log('[CheckoutSuccess]   - fulfillment_status:', cartResponse.order.fulfillment_status);
+        console.log('[CheckoutSuccess] ✅ La orden está guardada en la base de datos de Medusa');
+        console.log('[CheckoutSuccess] ✅ La orden aparecerá en el panel de administración');
+        console.log('[CheckoutSuccess] ✅ El evento "order.placed" se ha disparado');
+        console.log('[CheckoutSuccess] ✅ El email de confirmación se enviará automáticamente');
+        console.log('[CheckoutSuccess] Payment ID de MercadoPago:', payment_id);
+        console.log('[CheckoutSuccess] External Reference (cart_id original):', external_reference);
+        
+        // Log completo de la orden en formato JSON para debugging
+        console.log('[CheckoutSuccess] Orden completa (JSON):', JSON.stringify({
           id: cartResponse.order.id,
           display_id: cartResponse.order.display_id,
           email: cartResponse.order.email,
           status: cartResponse.order.status,
           total: cartResponse.order.total,
           currency_code: cartResponse.order.currency_code,
-        });
+          items_count: cartResponse.order.items?.length || 0,
+          payment_status: cartResponse.order.payment_status,
+          fulfillment_status: cartResponse.order.fulfillment_status,
+        }, null, 2));
         
         // Limpiar el carrito
         console.log('[CheckoutSuccess] Limpiando cookie del carrito...');
         await cookies.removeCartId();
+        console.log('[CheckoutSuccess] ✅ Cookie del carrito eliminada');
         
         // Redirigir a la página de confirmación de orden
         const redirectUrl = `/${params.locale}/${params.countryCode}/order/${cartResponse.order.display_id}/confirmed`;
-        console.log('[CheckoutSuccess] Redirigiendo a:', redirectUrl);
+        console.log('[CheckoutSuccess] Redirigiendo a la página de confirmación:', redirectUrl);
+        console.log('[CheckoutSuccess] ========== FIN DEL PROCESO DE CHECKOUT (ÉXITO) ==========');
         redirect(redirectUrl);
-      } else if (cartResponse?.type === 'cart' || cartResponse?.cart) {
+      } else if (isCartResponse(cartResponse)) {
         console.error('[CheckoutSuccess] ========== ❌ ERROR: CARRITO NO COMPLETADO ==========');
         console.error('[CheckoutSuccess] cart.complete retornó un carrito en lugar de una orden');
         console.error('[CheckoutSuccess] Esto significa que el carrito no se pudo completar');
         console.error('[CheckoutSuccess] Tipo de respuesta:', cartResponse.type);
         console.error('[CheckoutSuccess] Estado del carrito retornado:', {
           id: cartResponse.cart?.id,
-          status: cartResponse.cart?.status,
           email: cartResponse.cart?.email,
           hasPaymentCollection: !!cartResponse.cart?.payment_collection,
           paymentSessionsCount: cartResponse.cart?.payment_collection?.payment_sessions?.length || 0,
-          paymentSessions: cartResponse.cart?.payment_collection?.payment_sessions?.map(s => ({
+          paymentSessions: cartResponse.cart?.payment_collection?.payment_sessions?.map((s: any) => ({
             id: s.id,
             provider_id: s.provider_id,
             status: s.status,
@@ -527,7 +589,7 @@ export default async function CheckoutSuccessPage(props: Props) {
       const fullErrorMessage = `Error al crear la orden. El pago fue procesado en MercadoPago, pero la orden no se pudo crear en el sistema. Por favor, contactá con soporte e incluye el ID de pago: ${payment_id || 'N/A'} y el mensaje de error: ${errorMessage}`;
       
       console.error('[CheckoutSuccess] Lanzando error con mensaje:', fullErrorMessage);
-      throw new Error(fullErrorMessage      );
+      throw new Error(fullErrorMessage);
     }
   } else {
     // Si no se cumplen las condiciones, mostrar mensaje apropiado
