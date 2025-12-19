@@ -181,70 +181,49 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
       cartAmount = payment.transaction_amount || 0;
     }
     
-    // CRÍTICO: Autorizar explícitamente la sesión de pago
-    // El plugin de MercadoPago necesita que la sesión esté autorizada ANTES de cart.complete()
-    // Si la sesión está en 'pending', cart.complete() fallará con "Payment sessions are required to complete cart"
-    // IMPORTANTE: Incluir el amount para que Medusa actualice el payment_collection.authorized_amount
-    logger.info(`[PaymentSessionUpdate] Paso 7: Autorizando sesión de pago...`);
+    // SOLUCIÓN SIMPLIFICADA: Solo actualizar la sesión con los datos del pago
+    // El plugin de MercadoPago manejará la autorización automáticamente durante cart.complete()
+    // Actualizar la sesión con los datos del pago para que el plugin los tenga disponibles
+    logger.info(`[PaymentSessionUpdate] Paso 7: Actualizando sesión de pago con datos de MercadoPago...`);
     logger.info(`[PaymentSessionUpdate] Estado actual de la sesión: ${paymentSession.status}`);
-    logger.info(`[PaymentSessionUpdate] Monto a autorizar: ${cartAmount}`);
     
-    let authorizedSession;
     try {
-      // Preparar los datos para autorizar la sesión
-      // El plugin de MercadoPago buscará el pago usando el external_reference (cart_id)
-      // CRÍTICO: Incluir el amount para que Medusa actualice el payment_collection.authorized_amount
-      const authorizeData = {
-        amount: cartAmount, // CRÍTICO: Incluir el amount para actualizar payment_collection.authorized_amount
-        data: {
-          // El plugin usa 'session_id' como external_reference para buscar el pago en MercadoPago
-          session_id: payment.external_reference || cartId,
-          payment_id: payment.id.toString(),
-          payment_status: payment.status,
-          payment_status_detail: payment.status_detail,
-          external_reference: payment.external_reference,
-          transaction_amount: payment.transaction_amount,
-        },
+      // Actualizar la sesión con los datos del pago aprobado
+      // El plugin usará estos datos cuando se llame a cart.complete()
+      const updatedSessionData = {
+        ...paymentSession.data,
+        payment_id: payment.id.toString(),
+        payment_status: payment.status,
+        payment_status_detail: payment.status_detail,
+        external_reference: payment.external_reference,
+        transaction_amount: payment.transaction_amount,
+        session_id: payment.external_reference || cartId,
+        updated_at: new Date().toISOString(),
       };
       
-      logger.info(`[PaymentSessionUpdate] Datos para autorizar sesión: ${JSON.stringify({
-        amount: authorizeData.amount,
-        session_id: authorizeData.data.session_id,
-        payment_id: authorizeData.data.payment_id,
-        payment_status: authorizeData.data.payment_status,
-        external_reference: authorizeData.data.external_reference,
-        transaction_amount: authorizeData.data.transaction_amount,
+      logger.info(`[PaymentSessionUpdate] Datos del pago para autorizar: ${JSON.stringify({
+        payment_id: updatedSessionData.payment_id,
+        payment_status: updatedSessionData.payment_status,
+        external_reference: updatedSessionData.external_reference,
       })}`);
       
-      logger.info(`[PaymentSessionUpdate] Llamando a paymentModuleService.authorizePaymentSession...`);
-      authorizedSession = await paymentModuleService.authorizePaymentSession(
+      // Autorizar la sesión directamente con todos los datos del pago
+      logger.info(`[PaymentSessionUpdate] Autorizando sesión de pago con datos de MercadoPago...`);
+      const authorizeData = {
+        amount: cartAmount, // CRÍTICO: El amount es necesario para actualizar payment_collection.authorized_amount
+        data: updatedSessionData,
+      };
+      
+      await paymentModuleService.authorizePaymentSession(
         paymentSessionId,
         authorizeData
       );
       
-      logger.info(`[PaymentSessionUpdate] ✅ authorizePaymentSession completado`);
-      logger.info(`[PaymentSessionUpdate] Respuesta de authorizePaymentSession:`);
-      logger.info(`[PaymentSessionUpdate]   - status: ${authorizedSession?.status || 'unknown'}`);
-      logger.info(`[PaymentSessionUpdate]   - id: ${authorizedSession?.id || 'unknown'}`);
-      logger.info(`[PaymentSessionUpdate]   - amount: ${authorizedSession?.amount || 'unknown'}`);
-      logger.info(`[PaymentSessionUpdate] Respuesta completa (stringified): ${JSON.stringify({
-        status: authorizedSession?.status,
-        id: authorizedSession?.id,
-        provider_id: authorizedSession?.provider_id,
-        amount: authorizedSession?.amount,
-        authorized_at: authorizedSession?.authorized_at,
-      }, null, 2)}`);
+      logger.info(`[PaymentSessionUpdate] ✅ Sesión autorizada`);
       
-      // Verificar que la sesión fue autorizada correctamente
+      // Verificar el estado final
       const finalSession = await paymentModuleService.retrievePaymentSession(paymentSessionId);
-      logger.info(`[PaymentSessionUpdate] Estado final de la sesión (después de retrieve): ${finalSession?.status}`);
-      logger.info(`[PaymentSessionUpdate] Detalles completos de la sesión autorizada:`);
-      logger.info(`[PaymentSessionUpdate]   - id: ${finalSession?.id}`);
-      logger.info(`[PaymentSessionUpdate]   - provider_id: ${finalSession?.provider_id}`);
-      logger.info(`[PaymentSessionUpdate]   - status: ${finalSession?.status}`);
-      logger.info(`[PaymentSessionUpdate]   - amount: ${finalSession?.amount}`);
-      logger.info(`[PaymentSessionUpdate]   - authorized_at: ${finalSession?.authorized_at || 'null'}`);
-      logger.info(`[PaymentSessionUpdate]   - data keys: ${finalSession?.data ? Object.keys(finalSession.data).join(', ') : 'null'}`);
+      logger.info(`[PaymentSessionUpdate] Estado final de la sesión: ${finalSession?.status}`);
       
       // CRÍTICO: Verificar el estado del payment_collection después de autorizar la sesión
       // Medusa requiere que el payment_collection tenga authorized_amount > 0 para completar el carrito

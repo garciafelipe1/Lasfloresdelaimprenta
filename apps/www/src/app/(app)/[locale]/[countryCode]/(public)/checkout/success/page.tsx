@@ -315,6 +315,18 @@ export default async function CheckoutSuccessPage(props: Props) {
         })),
       }, null, 2));
       
+      // CRÍTICO: Verificar el status del payment_collection
+      console.log('[CheckoutSuccess] ⚠️⚠️⚠️ VERIFICACIÓN CRÍTICA DEL PAYMENT_COLLECTION.STATUS ⚠️⚠️⚠️');
+      console.log('[CheckoutSuccess] payment_collection.status:', paymentCollection?.status);
+      console.log('[CheckoutSuccess] Medusa puede requerir que payment_collection.status sea "authorized" o "awaiting"');
+      if (paymentCollection?.status && paymentCollection.status !== 'authorized' && paymentCollection.status !== 'awaiting') {
+        console.error('[CheckoutSuccess] ❌❌❌ PROBLEMA: payment_collection.status no es "authorized" ni "awaiting"');
+        console.error('[CheckoutSuccess] Status actual:', paymentCollection.status);
+        console.error('[CheckoutSuccess] Esto podría causar que cart.complete() falle');
+      } else {
+        console.log('[CheckoutSuccess] ✅ payment_collection.status es válido:', paymentCollection?.status);
+      }
+      
       // CRÍTICO: Verificar que el payment_collection tenga authorized_amount > 0
       // Medusa requiere que el payment_collection tenga authorized_amount > 0 para completar el carrito
       if (paymentCollection && (!paymentCollection.authorized_amount || paymentCollection.authorized_amount === 0)) {
