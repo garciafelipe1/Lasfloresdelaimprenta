@@ -153,60 +153,73 @@ export async function POST(
                   logger.info(`[Webhook] ✅ Sesión de pago ${paymentSession.id} autorizada exitosamente por webhook.`);
                   
                   // SOLUCIÓN COMPLETA: Intentar completar el carrito automáticamente
+                  // Esperar un poco para que la base de datos se sincronice
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  
                   logger.info(`[Webhook] Intentando completar el carrito ${payment.external_reference}...`);
-                  try {
-                    // Verificar que el carrito esté listo para completarse
-                    const { data: cartCheck } = await query.graph({
-                      entity: "cart",
-                      fields: [
-                        "id",
-                        "email",
-                        "shipping_address.id",
-                        "billing_address.id",
-                        "shipping_methods.id",
-                        "payment_collection.id",
-                        "payment_collection.status",
-                        "payment_collection.authorized_amount",
-                        "payment_collection.amount",
-                      ],
-                      filters: {
-                        id: payment.external_reference,
-                      },
-                    });
-                    
-                    const cartToComplete = cartCheck?.[0];
-                    if (cartToComplete) {
-                      logger.info(`[Webhook] Carrito verificado: ${JSON.stringify({
-                        id: cartToComplete.id,
-                        hasEmail: !!cartToComplete.email,
-                        hasShippingAddress: !!cartToComplete.shipping_address,
-                        hasBillingAddress: !!cartToComplete.billing_address,
-                        hasShippingMethods: !!cartToComplete.shipping_methods?.length,
-                        paymentCollectionStatus: cartToComplete.payment_collection?.status,
-                        authorizedAmount: cartToComplete.payment_collection?.authorized_amount,
-                        amount: cartToComplete.payment_collection?.amount,
-                      })}`);
-                      
-                      // Verificar que el carrito esté completo antes de intentar completarlo
-                      if (
-                        cartToComplete.email &&
-                        cartToComplete.shipping_address &&
-                        cartToComplete.billing_address &&
-                        cartToComplete.shipping_methods?.length > 0 &&
-                        cartToComplete.payment_collection?.authorized_amount &&
-                        cartToComplete.payment_collection.authorized_amount > 0
-                      ) {
-                        logger.info(`[Webhook] ✅ Carrito listo para completarse. Llamando a Store API...`);
+                  
+                  // Función auxiliar para intentar completar el carrito con reintentos
+                  const attemptCartCompletion = async (retries = 3): Promise<boolean> => {
+                    for (let attempt = 1; attempt <= retries; attempt++) {
+                      try {
+                        logger.info(`[Webhook] Intento ${attempt}/${retries} de completar carrito...`);
                         
-                        // Usar el Store API interno para completar el carrito
-                        // Nota: Esto requiere hacer una llamada HTTP al endpoint de store API
-                        // O podemos usar los módulos directamente si están disponibles
-                        const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL || process.env.APP_URL || 'http://localhost:9000';
-                        const storeApiUrl = `${medusaBackendUrl}/store/carts/${payment.external_reference}/complete`;
+                        // Verificar que el carrito esté listo para completarse
+                        const { data: cartCheck } = await query.graph({
+                          entity: "cart",
+                          fields: [
+                            "id",
+                            "email",
+                            "shipping_address.id",
+                            "billing_address.id",
+                            "shipping_methods.id",
+                            "payment_collection.id",
+                            "payment_collection.status",
+                            "payment_collection.authorized_amount",
+                            "payment_collection.amount",
+                          ],
+                          filters: {
+                            id: payment.external_reference,
+                          },
+                        });
                         
-                        logger.info(`[Webhook] URL del Store API: ${storeApiUrl}`);
+                        const cartToComplete = cartCheck?.[0];
+                        if (!cartToComplete) {
+                          logger.warn(`[Webhook] ⚠️ No se encontró el carrito en el intento ${attempt}`);
+                          if (attempt < retries) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            continue;
+                          }
+                          return false;
+                        }
                         
-                        try {
+                        logger.info(`[Webhook] Carrito verificado (intento ${attempt}): ${JSON.stringify({
+                          id: cartToComplete.id,
+                          hasEmail: !!cartToComplete.email,
+                          hasShippingAddress: !!cartToComplete.shipping_address,
+                          hasBillingAddress: !!cartToComplete.billing_address,
+                          hasShippingMethods: !!cartToComplete.shipping_methods?.length,
+                          paymentCollectionStatus: cartToComplete.payment_collection?.status,
+                          authorizedAmount: cartToComplete.payment_collection?.authorized_amount,
+                          amount: cartToComplete.payment_collection?.amount,
+                        })}`);
+                        
+                        // Verificar que el carrito esté completo antes de intentar completarlo
+                        if (
+                          cartToComplete.email &&
+                          cartToComplete.shipping_address &&
+                          cartToComplete.billing_address &&
+                          cartToComplete.shipping_methods?.length > 0 &&
+                          cartToComplete.payment_collection?.authorized_amount &&
+                          cartToComplete.payment_collection.authorized_amount > 0
+                        ) {
+                          logger.info(`[Webhook] ✅ Carrito listo para completarse. Llamando a Store API...`);
+                          
+                          const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL || process.env.APP_URL || 'http://localhost:9000';
+                          const storeApiUrl = `${medusaBackendUrl}/store/carts/${payment.external_reference}/complete`;
+                          
+                          logger.info(`[Webhook] URL del Store API: ${storeApiUrl}`);
+                          
                           const completeResponse = await fetch(storeApiUrl, {
                             method: 'POST',
                             headers: {
@@ -222,25 +235,38 @@ export async function POST(
                               orderId: completeData.order?.id,
                               orderDisplayId: completeData.order?.display_id,
                             })}`);
+                            return true;
                           } else {
-                            const errorData = await completeResponse.json().catch(() => ({}));
-                            logger.warn(`[Webhook] ⚠️ Error al completar carrito desde webhook: ${completeResponse.status} - ${JSON.stringify(errorData)}`);
-                            logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
+                            const errorText = await completeResponse.text().catch(() => '');
+                            logger.warn(`[Webhook] ⚠️ Error al completar carrito desde webhook (intento ${attempt}): ${completeResponse.status} - ${errorText}`);
+                            if (attempt < retries) {
+                              await new Promise(resolve => setTimeout(resolve, 1000));
+                              continue;
+                            }
                           }
-                        } catch (fetchError: any) {
-                          logger.warn(`[Webhook] ⚠️ Error de red al completar carrito desde webhook: ${fetchError.message}`);
-                          logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
+                        } else {
+                          logger.warn(`[Webhook] ⚠️ Carrito no está listo para completarse (intento ${attempt}). Faltan datos requeridos.`);
+                          if (attempt < retries) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            continue;
+                          }
                         }
-                      } else {
-                        logger.warn(`[Webhook] ⚠️ Carrito no está listo para completarse. Faltan datos requeridos.`);
-                        logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
+                      } catch (completeError: any) {
+                        logger.error(`[Webhook] ❌ Error al intentar completar carrito desde webhook (intento ${attempt}): ${completeError.message}`);
+                        logger.error(`[Webhook] Stack: ${completeError.stack}`);
+                        if (attempt < retries) {
+                          await new Promise(resolve => setTimeout(resolve, 1000));
+                          continue;
+                        }
                       }
-                    } else {
-                      logger.warn(`[Webhook] ⚠️ No se pudo verificar el carrito antes de completarlo`);
                     }
-                  } catch (completeError: any) {
-                    logger.error(`[Webhook] ❌ Error al intentar completar carrito desde webhook: ${completeError.message}`);
-                    logger.error(`[Webhook] Stack: ${completeError.stack}`);
+                    return false;
+                  };
+                  
+                  // Intentar completar el carrito
+                  const completed = await attemptCartCompletion(3);
+                  if (!completed) {
+                    logger.warn(`[Webhook] ⚠️ No se pudo completar el carrito desde el webhook después de 3 intentos.`);
                     logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
                   }
                 } else {
@@ -252,49 +278,83 @@ export async function POST(
                 // Si ya está autorizada, intentar completar el carrito también
                 if (paymentSession.status === "authorized" || paymentSession.status === "captured") {
                   logger.info(`[Webhook] Sesión ya autorizada, intentando completar carrito...`);
-                  try {
-                    const { data: cartCheck } = await query.graph({
-                      entity: "cart",
-                      fields: [
-                        "id",
-                        "email",
-                        "shipping_address.id",
-                        "billing_address.id",
-                        "shipping_methods.id",
-                        "payment_collection.id",
-                        "payment_collection.status",
-                        "payment_collection.authorized_amount",
-                      ],
-                      filters: {
-                        id: payment.external_reference,
-                      },
-                    });
-                    
-                    const cartToComplete = cartCheck?.[0];
-                    if (
-                      cartToComplete?.email &&
-                      cartToComplete?.shipping_address &&
-                      cartToComplete?.billing_address &&
-                      cartToComplete?.shipping_methods?.length > 0 &&
-                      cartToComplete?.payment_collection?.authorized_amount &&
-                      cartToComplete.payment_collection.authorized_amount > 0
-                    ) {
-                      const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL || process.env.APP_URL || 'http://localhost:9000';
-                      const storeApiUrl = `${medusaBackendUrl}/store/carts/${payment.external_reference}/complete`;
-                      
-                      const completeResponse = await fetch(storeApiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                      });
-                      
-                      if (completeResponse.ok) {
-                        const completeData = await completeResponse.json();
-                        logger.info(`[Webhook] ✅✅✅ Carrito completado exitosamente (sesión ya autorizada)!`);
-                        logger.info(`[Webhook] Order ID: ${completeData.order?.id}, Display ID: ${completeData.order?.display_id}`);
+                  
+                  // Usar la misma lógica de reintentos
+                  const attemptCartCompletion = async (retries = 3): Promise<boolean> => {
+                    for (let attempt = 1; attempt <= retries; attempt++) {
+                      try {
+                        logger.info(`[Webhook] Intento ${attempt}/${retries} de completar carrito (sesión ya autorizada)...`);
+                        
+                        const { data: cartCheck } = await query.graph({
+                          entity: "cart",
+                          fields: [
+                            "id",
+                            "email",
+                            "shipping_address.id",
+                            "billing_address.id",
+                            "shipping_methods.id",
+                            "payment_collection.id",
+                            "payment_collection.status",
+                            "payment_collection.authorized_amount",
+                            "payment_collection.amount",
+                          ],
+                          filters: {
+                            id: payment.external_reference,
+                          },
+                        });
+                        
+                        const cartToComplete = cartCheck?.[0];
+                        if (
+                          cartToComplete?.email &&
+                          cartToComplete?.shipping_address &&
+                          cartToComplete?.billing_address &&
+                          cartToComplete?.shipping_methods?.length > 0 &&
+                          cartToComplete?.payment_collection?.authorized_amount &&
+                          cartToComplete.payment_collection.authorized_amount > 0
+                        ) {
+                          const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL || process.env.APP_URL || 'http://localhost:9000';
+                          const storeApiUrl = `${medusaBackendUrl}/store/carts/${payment.external_reference}/complete`;
+                          
+                          const completeResponse = await fetch(storeApiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                          });
+                          
+                          if (completeResponse.ok) {
+                            const completeData = await completeResponse.json();
+                            logger.info(`[Webhook] ✅✅✅ Carrito completado exitosamente (sesión ya autorizada)!`);
+                            logger.info(`[Webhook] Order ID: ${completeData.order?.id}, Display ID: ${completeData.order?.display_id}`);
+                            return true;
+                          } else {
+                            const errorText = await completeResponse.text().catch(() => '');
+                            logger.warn(`[Webhook] ⚠️ Error al completar carrito (intento ${attempt}): ${completeResponse.status} - ${errorText}`);
+                            if (attempt < retries) {
+                              await new Promise(resolve => setTimeout(resolve, 1000));
+                              continue;
+                            }
+                          }
+                        } else {
+                          logger.warn(`[Webhook] ⚠️ Carrito no está listo (intento ${attempt}).`);
+                          if (attempt < retries) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            continue;
+                          }
+                        }
+                      } catch (error: any) {
+                        logger.warn(`[Webhook] ⚠️ Error al completar carrito (intento ${attempt}): ${error.message}`);
+                        if (attempt < retries) {
+                          await new Promise(resolve => setTimeout(resolve, 1000));
+                          continue;
+                        }
                       }
                     }
-                  } catch (error: any) {
-                    logger.warn(`[Webhook] ⚠️ Error al completar carrito (sesión ya autorizada): ${error.message}`);
+                    return false;
+                  };
+                  
+                  const completed = await attemptCartCompletion(3);
+                  if (!completed) {
+                    logger.warn(`[Webhook] ⚠️ No se pudo completar el carrito (sesión ya autorizada) después de 3 intentos.`);
+                    logger.warn(`[Webhook] La página de éxito intentará completar el carrito cuando el usuario llegue`);
                   }
                 }
               }
