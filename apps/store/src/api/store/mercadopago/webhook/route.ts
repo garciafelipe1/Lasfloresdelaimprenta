@@ -113,6 +113,8 @@ export async function POST(
               }
 
               // Obtener el monto del carrito para pasarlo en authorizeData
+              // CRÍTICO: Siempre usar el monto del carrito, nunca el transaction_amount de MercadoPago como fallback
+              // porque puede haber discrepancias debido a redondeos o conversiones de moneda
               const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
               const { data: cartData } = await query.graph({
                 entity: "cart",
@@ -125,8 +127,24 @@ export async function POST(
                 },
               });
               
-              const cartAmount = cartData?.[0]?.payment_collection?.amount || payment.transaction_amount;
+              const cartFromDB = cartData?.[0];
+              const cartAmount = cartFromDB?.payment_collection?.amount;
+              
+              if (!cartAmount || cartAmount <= 0) {
+                logger.error(`[Webhook] ❌ ERROR: No se pudo obtener el monto del carrito. payment_collection.amount: ${cartAmount}`);
+                logger.error(`[Webhook] transaction_amount de MercadoPago: ${payment.transaction_amount}`);
+                logger.error(`[Webhook] Esto causará que la autorización falle o use un monto incorrecto.`);
+                throw new Error(`No se pudo obtener el monto del carrito para autorización. Cart ID: ${payment.external_reference}`);
+              }
+              
               logger.info(`[Webhook] Monto del carrito para autorización: ${cartAmount}`);
+              logger.info(`[Webhook] transaction_amount de MercadoPago (solo para referencia): ${payment.transaction_amount}`);
+              
+              // Verificar si hay discrepancia (advertencia, pero continuar con el monto del carrito)
+              if (payment.transaction_amount && Math.abs(cartAmount - payment.transaction_amount) > 0.01) {
+                logger.warn(`[Webhook] ⚠️ ADVERTENCIA: Discrepancia entre monto del carrito (${cartAmount}) y transaction_amount de MercadoPago (${payment.transaction_amount})`);
+                logger.warn(`[Webhook] Usando el monto del carrito (${cartAmount}) para mantener consistencia con Medusa`);
+              }
 
               // Si la sesión no está autorizada, intentar autorizarla
               if (paymentSession.status !== "authorized" && paymentSession.status !== "captured") {

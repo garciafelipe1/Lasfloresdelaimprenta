@@ -150,6 +150,8 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
     
     // CRÍTICO: Obtener el monto del carrito para actualizar el payment_collection.authorized_amount
     // Medusa requiere que el payment_collection.authorized_amount coincida con el total del carrito
+    // IMPORTANTE: Siempre usar el monto del carrito, nunca el transaction_amount de MercadoPago como fallback
+    // porque puede haber discrepancias debido a redondeos o conversiones de moneda
     logger.info(`[PaymentSessionUpdate] Paso 6: Obteniendo monto del carrito...`);
     let cartAmount = 0;
     try {
@@ -166,19 +168,27 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
       });
       
       const cart = carts?.[0];
-      if (cart) {
+      if (cart && cart.payment_collection?.amount) {
         // Usar el amount del payment_collection (que es el total del carrito)
-        cartAmount = cart.payment_collection?.amount || 0;
+        cartAmount = cart.payment_collection.amount;
         logger.info(`[PaymentSessionUpdate] ✅ Monto del carrito obtenido: ${cartAmount}`);
-        logger.info(`[PaymentSessionUpdate]   - payment_collection.amount: ${cart.payment_collection?.amount}`);
+        logger.info(`[PaymentSessionUpdate]   - payment_collection.amount: ${cart.payment_collection.amount}`);
+        
+        // Verificar si hay discrepancia (advertencia, pero continuar con el monto del carrito)
+        if (payment.transaction_amount && Math.abs(cartAmount - payment.transaction_amount) > 0.01) {
+          logger.warn(`[PaymentSessionUpdate] ⚠️ ADVERTENCIA: Discrepancia entre monto del carrito (${cartAmount}) y transaction_amount de MercadoPago (${payment.transaction_amount})`);
+          logger.warn(`[PaymentSessionUpdate] Usando el monto del carrito (${cartAmount}) para mantener consistencia con Medusa`);
+        }
       } else {
-        logger.warn(`[PaymentSessionUpdate] ⚠️ No se pudo obtener el carrito, usando transaction_amount de MercadoPago`);
-        cartAmount = payment.transaction_amount || 0;
+        logger.error(`[PaymentSessionUpdate] ❌ ERROR: No se pudo obtener el monto del carrito. payment_collection.amount: ${cart?.payment_collection?.amount}`);
+        logger.error(`[PaymentSessionUpdate] transaction_amount de MercadoPago (solo para referencia): ${payment.transaction_amount}`);
+        logger.error(`[PaymentSessionUpdate] Esto causará que la autorización falle o use un monto incorrecto.`);
+        throw new Error(`No se pudo obtener el monto del carrito para autorización. Cart ID: ${cartId}`);
       }
     } catch (cartError: any) {
       logger.error(`[PaymentSessionUpdate] ❌ Error al obtener monto del carrito: ${cartError.message}`, cartError);
-      logger.warn(`[PaymentSessionUpdate] ⚠️ Usando transaction_amount de MercadoPago como fallback`);
-      cartAmount = payment.transaction_amount || 0;
+      logger.error(`[PaymentSessionUpdate] No se puede usar transaction_amount como fallback porque puede causar discrepancias.`);
+      throw new Error(`No se pudo obtener el monto del carrito para autorización: ${cartError.message}`);
     }
     
     // SOLUCIÓN SIMPLIFICADA: Solo actualizar la sesión con los datos del pago

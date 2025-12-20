@@ -5,6 +5,7 @@ import { cartActionClient } from '@/lib/next-safe-action/cart-action-client';
 import { mercadoPagoClient } from '@/lib/mp-client';
 import { Preference } from 'mercadopago';
 import { z } from 'zod';
+import envs from '@/config/envs';
 
 /**
  * Crea una preferencia de pago en MercadoPago y retorna la URL de pago
@@ -50,6 +51,10 @@ export const createMercadoPagoPreference = cartActionClient
           console.log('[MP] No se encontró sesión de pago, creando una nueva...');
           
           // Obtener los providers disponibles
+          if (!cart.region_id) {
+            throw new Error('El carrito no tiene una región asociada');
+          }
+          
           const providersResponse = await medusa.store.payment.listPaymentProviders({
             region_id: cart.region_id,
           });
@@ -474,7 +479,8 @@ export const createMercadoPagoPreference = cartActionClient
       }
 
       const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-      const medusaBackendUrl = process.env.MEDUSA_BACKEND_URL;
+      // Usar envs para obtener MEDUSA_BACKEND_URL correctamente
+      const medusaBackendUrl = envs.MEDUSA_BACKEND_URL || process.env.MEDUSA_BACKEND_URL || '';
 
       // Limpiar la URL para evitar dobles barras
       const cleanAppUrl = appUrl.replace(/\/+$/, '');
@@ -619,7 +625,6 @@ export const createMercadoPagoPreference = cartActionClient
       preferenceId: preference.id,
       hasInitPoint: !!preference.init_point,
       initPoint: preference.init_point?.substring(0, 50) + '...',
-      status: preference.status,
       payer: preference.payer,
       items: preference.items?.length,
     });
@@ -628,10 +633,7 @@ export const createMercadoPagoPreference = cartActionClient
       console.error('[MP] ERROR: La preferencia no tiene init_point');
       console.error('[MP] Respuesta completa de MercadoPago:', JSON.stringify(preference, null, 2));
       
-      // Verificar si hay errores en la respuesta
-      if (preference.status === 'rejected' || preference.status === 'cancelled') {
-        throw new Error(`La preferencia fue ${preference.status}. Por favor, verificá tus datos e intentá nuevamente.`);
-      }
+      // Verificar si hay errores en la respuesta (preference no tiene status en PreferenceResponse)
       
       throw new Error('No se pudo crear la preferencia de pago. MercadoPago no devolvió una URL de pago válida.');
     }
