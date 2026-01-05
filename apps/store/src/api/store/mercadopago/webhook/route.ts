@@ -37,7 +37,10 @@ export async function POST(
   try {
     const { type, data, action } = req.validatedBody;
 
-    logger.info(`Received MercadoPago webhook: type=${type}, action=${action}, id=${data.id}`);
+    logger.info(`[Webhook] ========== WEBHOOK RECIBIDO ==========`);
+    logger.info(`[Webhook] Timestamp: ${new Date().toISOString()}`);
+    logger.info(`[Webhook] type=${type}, action=${action}, id=${data.id}`);
+    logger.info(`[Webhook] Body completo: ${JSON.stringify(req.validatedBody, null, 2)}`);
 
     // Validar el webhook secret si está presente en los headers
     const xSignature = req.headers["x-signature"] as string;

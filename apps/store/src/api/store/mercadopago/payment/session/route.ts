@@ -36,10 +36,61 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
     const { paymentSessionId, paymentId, cartId } = body;
 
     logger.info(`[PaymentSessionUpdate] ✅ Body parseado correctamente`);
-    logger.info(`[PaymentSessionUpdate] paymentSessionId: ${paymentSessionId}`);
+    logger.info(`[PaymentSessionUpdate] paymentSessionId: ${paymentSessionId || 'NO PROPORCIONADO (se buscará por cartId)'}`);
     logger.info(`[PaymentSessionUpdate] paymentId: ${paymentId}`);
     logger.info(`[PaymentSessionUpdate] cartId: ${cartId}`);
-    logger.info(`[PaymentSessionUpdate] Verificando pago ${paymentId} para sesión ${paymentSessionId} y carrito ${cartId}`);
+    logger.info(`[PaymentSessionUpdate] Verificando pago ${paymentId} para carrito ${cartId}`);
+
+    // Si no se proporciona paymentSessionId, buscar la sesión de pago del carrito
+    let finalPaymentSessionId: string = paymentSessionId || '';
+    if (!finalPaymentSessionId) {
+      logger.info(`[PaymentSessionUpdate] paymentSessionId no proporcionado, buscando sesión de pago del carrito...`);
+      try {
+        const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+        const { data: carts } = await query.graph({
+          entity: "cart",
+          fields: [
+            "id",
+            "payment_collection.payment_sessions.id",
+            "payment_collection.payment_sessions.provider_id",
+          ],
+          filters: {
+            id: cartId,
+          },
+        });
+        
+        const cart = carts?.[0] as any;
+        const paymentSessions = cart?.payment_collection?.payment_sessions?.filter(
+          (session: any) => session.provider_id?.startsWith("pp_mercadopago_")
+        ) || [];
+        
+        if (paymentSessions.length > 0 && paymentSessions[0].id) {
+          finalPaymentSessionId = paymentSessions[0].id;
+          logger.info(`[PaymentSessionUpdate] ✅ Sesión de pago encontrada: ${finalPaymentSessionId}`);
+        } else {
+          logger.error(`[PaymentSessionUpdate] ❌ No se encontró sesión de pago de MercadoPago para el carrito ${cartId}`);
+          return res.status(404).json({
+            error: "Payment session not found",
+            message: `No se encontró sesión de pago de MercadoPago para el carrito ${cartId}`,
+          });
+        }
+      } catch (searchError: any) {
+        logger.error(`[PaymentSessionUpdate] ❌ Error al buscar sesión de pago: ${searchError.message}`, searchError);
+        return res.status(500).json({
+          error: "Failed to find payment session",
+          message: searchError.message,
+        });
+      }
+    }
+
+    // Verificación de seguridad: asegurar que finalPaymentSessionId esté definido
+    if (!finalPaymentSessionId) {
+      logger.error(`[PaymentSessionUpdate] ❌ Error crítico: finalPaymentSessionId no está definido`);
+      return res.status(500).json({
+        error: "Payment session ID is required",
+        message: "No se pudo obtener el ID de la sesión de pago",
+      });
+    }
 
     // Verificar el pago en MercadoPago
     logger.info(`[PaymentSessionUpdate] Paso 2: Creando cliente de MercadoPago...`);
@@ -90,12 +141,12 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
 
     // Obtener la sesión de pago actual
     logger.info(`[PaymentSessionUpdate] Paso 4: Obteniendo sesión de pago de Medusa...`);
-    logger.info(`[PaymentSessionUpdate] paymentSessionId a buscar: ${paymentSessionId}`);
+    logger.info(`[PaymentSessionUpdate] paymentSessionId a buscar: ${finalPaymentSessionId}`);
     
-    const paymentSession = await paymentModuleService.retrievePaymentSession(paymentSessionId);
+    const paymentSession = await paymentModuleService.retrievePaymentSession(finalPaymentSessionId);
 
     if (!paymentSession) {
-      logger.error(`[PaymentSessionUpdate] ❌ Payment session ${paymentSessionId} not found`);
+      logger.error(`[PaymentSessionUpdate] ❌ Payment session ${finalPaymentSessionId} not found`);
       return res.status(404).json({
         error: "Payment session not found",
       });
@@ -225,14 +276,14 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
       };
       
       await paymentModuleService.authorizePaymentSession(
-        paymentSessionId,
+        finalPaymentSessionId,
         authorizeData
       );
       
       logger.info(`[PaymentSessionUpdate] ✅ Sesión autorizada`);
       
       // Verificar el estado final
-      const finalSession = await paymentModuleService.retrievePaymentSession(paymentSessionId);
+      const finalSession = await paymentModuleService.retrievePaymentSession(finalPaymentSessionId);
       logger.info(`[PaymentSessionUpdate] Estado final de la sesión: ${finalSession?.status}`);
       
       // CRÍTICO: Verificar el estado del payment_collection después de autorizar la sesión
@@ -314,7 +365,7 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
     }
     
     // Obtener el estado final de la sesión para la respuesta
-    const finalSessionStatus = await paymentModuleService.retrievePaymentSession(paymentSessionId)
+    const finalSessionStatus = await paymentModuleService.retrievePaymentSession(finalPaymentSessionId)
       .then(s => s?.status)
       .catch(() => paymentSession.status);
     
@@ -328,7 +379,7 @@ export async function POST(req: MedusaRequest<UpdatePaymentSessionSchemaType>, r
         transaction_amount: payment.transaction_amount,
       },
       payment_session: {
-        id: paymentSessionId,
+        id: finalPaymentSessionId,
         status: finalSessionStatus,
       },
       message: finalSessionStatus === 'authorized' || finalSessionStatus === 'captured'

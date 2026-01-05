@@ -49,6 +49,36 @@ export const cartService = {
     //   ...(await getAuthHeaders()),
     // };
 
+    // Si el carrito existe, verificar si está completado
+    // Un carrito completado no puede ser modificado
+    if (cart) {
+      try {
+        // Intentar recuperar el carrito con campos adicionales para verificar su estado
+        // Si el carrito está completado, Medusa puede lanzar un error o el carrito tendrá completed_at
+        const cartCheck = await medusa.store.cart.retrieve(cart.id, {
+          fields: 'id',
+        });
+        
+        // Si llegamos aquí sin error, el carrito existe y no está completado (o al menos podemos intentar usarlo)
+        // Si el carrito está completado, el error se capturará cuando intentemos modificarlo
+      } catch (error: any) {
+        // Si el error indica que el carrito está completado o no existe, crear uno nuevo
+        if (
+          error?.message?.includes('already completed') || 
+          error?.message?.includes('completed') ||
+          error?.message?.includes('not found') ||
+          error?.status === 404
+        ) {
+          console.log('[CartService] Carrito completado o no encontrado, creando nuevo carrito...');
+          await cookies.removeCartId();
+          cart = null; // Forzar creación de nuevo carrito
+        } else {
+          // Si es otro error, relanzarlo
+          throw error;
+        }
+      }
+    }
+
     if (!cart) {
       const cartResp = await medusa.store.cart.create({
         region_id: region.id,
