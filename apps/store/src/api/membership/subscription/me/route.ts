@@ -30,11 +30,13 @@ export async function GET(
     const graphQuery = {
       entity: "customer",
       fields: [
+        "subscriptions.id",
         "subscriptions.ended_at",
         "subscriptions.started_at",
         "subscriptions.membership_id",
         "subscriptions.status",
         "subscriptions.price",
+        "subscriptions.external_id",
         "subscriptions.membership.id",
         "subscriptions.membership.name",
       ],
@@ -142,14 +144,81 @@ export async function GET(
     }
   }
 
-  logger.info(`[SubscriptionMe] Total de suscripciones encontradas: ${subscriptions.length}`);
-  logger.info(`[SubscriptionMe] Suscripciones (raw): ${JSON.stringify(subscriptions, null, 2)}`);
+  logger.info(`[SubscriptionMe] Total de suscripciones encontradas (antes de búsqueda directa): ${subscriptions.length}`);
+  
+  // SIEMPRE buscar también directamente por customer_id, incluso si GraphQL devolvió resultados
+  // Esto asegura que encontremos todas las suscripciones, independientemente del estado del link
+  logger.info(`[SubscriptionMe] 🔍 Buscando también directamente por customer_id (fallback/verificación)...`);
+  try {
+    const allSubscriptions = await membershipModuleService.listSubscriptions();
+    logger.info(`[SubscriptionMe] ✅ Total de suscripciones en el sistema: ${allSubscriptions.length}`);
+    
+    // Filtrar por customer_id manualmente
+    const customerSubscriptionsDirect = allSubscriptions.filter((sub: any) => {
+      return sub.customer_id === memberId;
+    });
+    
+    logger.info(`[SubscriptionMe] ✅ Suscripciones encontradas directamente para customer ${memberId}: ${customerSubscriptionsDirect.length}`);
+    
+    if (customerSubscriptionsDirect.length > 0) {
+      logger.info(`[SubscriptionMe] Detalles de suscripciones encontradas directamente:`);
+      customerSubscriptionsDirect.forEach((sub: any, index: number) => {
+        logger.info(`[SubscriptionMe]   [${index}] id=${sub.id}, customer_id=${sub.customer_id}, status=${sub.status}, membership_id=${sub.membership_id}, external_id=${sub.external_id}`);
+      });
+      
+      // Si encontramos suscripciones directamente que no estaban en GraphQL, agregarlas
+      const existingIds = new Set(subscriptions.map((s: any) => s.id));
+      const newSubscriptions = customerSubscriptionsDirect.filter((sub: any) => !existingIds.has(sub.id));
+      
+      if (newSubscriptions.length > 0) {
+        logger.info(`[SubscriptionMe] ⚠️ Se encontraron ${newSubscriptions.length} suscripciones directamente que no estaban en GraphQL. Agregándolas...`);
+        
+        // Obtener información de membresía para las nuevas suscripciones
+        const newSubscriptionsWithMembership = await Promise.all(
+          newSubscriptions.map(async (sub: any) => {
+            try {
+              const membership = await membershipModuleService.retrieveMembership(sub.membership_id);
+              return {
+                ...sub,
+                membership: {
+                  id: membership.id,
+                  name: membership.name,
+                },
+              };
+            } catch (error: any) {
+              logger.error(`[SubscriptionMe] ❌ Error al obtener membresía ${sub.membership_id}: ${error.message}`);
+              return {
+                ...sub,
+                membership: {
+                  id: sub.membership_id,
+                  name: 'Unknown',
+                },
+              };
+            }
+          })
+        );
+        
+        subscriptions = [...subscriptions, ...newSubscriptionsWithMembership];
+        logger.info(`[SubscriptionMe] ✅ Total de suscripciones después de agregar las encontradas directamente: ${subscriptions.length}`);
+      }
+    }
+  } catch (error: any) {
+    logger.error(`[SubscriptionMe] ❌ Error en búsqueda directa: ${error.message}`);
+    logger.error(`[SubscriptionMe] Stack: ${error.stack}`);
+  }
+
+  logger.info(`[SubscriptionMe] Total de suscripciones encontradas (final): ${subscriptions.length}`);
+  logger.info(`[SubscriptionMe] Suscripciones (raw, antes del filtro): ${JSON.stringify(subscriptions, null, 2)}`);
 
   // Filtrar solo suscripciones activas y ordenar por fecha de inicio (más reciente primero)
+  logger.info(`[SubscriptionMe] 🔍 Filtrando suscripciones activas...`);
   const activeSubscriptions = subscriptions
     .filter((sub: any) => {
       const isActive = sub.status === 'active';
-      logger.info(`[SubscriptionMe] Suscripción ${sub.membership_id}: status=${sub.status}, isActive=${isActive}`);
+      logger.info(`[SubscriptionMe]   Suscripción id=${sub.id}, membership_id=${sub.membership_id}, status="${sub.status}", isActive=${isActive}`);
+      if (!isActive) {
+        logger.info(`[SubscriptionMe]     ⚠️ Suscripción NO activa. Filtrada.`);
+      }
       return isActive;
     })
     .sort((a: any, b: any) => {
@@ -158,9 +227,15 @@ export async function GET(
       return dateB - dateA; // Más reciente primero
     });
 
-  logger.info(`[SubscriptionMe] Suscripciones activas después del filtro: ${activeSubscriptions.length}`);
-  logger.info(`[SubscriptionMe] Suscripciones activas: ${JSON.stringify(activeSubscriptions, null, 2)}`);
-  logger.info(`[SubscriptionMe] ===============================================`);
+  logger.info(`[SubscriptionMe] ✅ Suscripciones activas después del filtro: ${activeSubscriptions.length}`);
+  if (activeSubscriptions.length === 0 && subscriptions.length > 0) {
+    logger.warn(`[SubscriptionMe] ⚠️⚠️⚠️ PROBLEMA DETECTADO: Se encontraron ${subscriptions.length} suscripción(es) pero NINGUNA está activa:`);
+    subscriptions.forEach((sub: any, index: number) => {
+      logger.warn(`[SubscriptionMe]   [${index}] id=${sub.id}, status="${sub.status}", membership_id=${sub.membership_id}`);
+    });
+  }
+  logger.info(`[SubscriptionMe] Suscripciones activas (final): ${JSON.stringify(activeSubscriptions, null, 2)}`);
+  logger.info(`[SubscriptionMe] ========== FIN DE OBTENCIÓN DE SUSCRIPCIONES ==========`);
 
   // Devolver array de suscripciones activas (el frontend toma el primer elemento)
   return res.json(activeSubscriptions);
