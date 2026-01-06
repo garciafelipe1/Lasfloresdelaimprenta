@@ -148,7 +148,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             window.location.href = result.data;
             return;
           }
-          
+
           // Si no hay data pero tampoco hay error, revisar el result
           if (result?.serverError) {
             console.error('[PaymentForms] Error del servidor en result:', result.serverError);

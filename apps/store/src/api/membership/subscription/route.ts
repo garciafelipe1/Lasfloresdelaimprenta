@@ -29,7 +29,12 @@ export async function POST(
 
   logger.info(`[MembershipWebhook] ========== INICIO DE WEBHOOK DE MEMBRESÍA ==========`);
   logger.info(`[MembershipWebhook] Timestamp: ${new Date().toISOString()}`);
+  logger.info(`[MembershipWebhook] URL: ${req.url}`);
+  logger.info(`[MembershipWebhook] Method: ${req.method}`);
+  logger.info(`[MembershipWebhook] Headers: ${JSON.stringify(req.headers, null, 2)}`);
   logger.info(`[MembershipWebhook] Body recibido: ${JSON.stringify(req.body, null, 2)}`);
+  logger.info(`[MembershipWebhook] Body type: ${typeof req.body}`);
+  logger.info(`[MembershipWebhook] Body keys: ${Object.keys(req.body || {}).join(', ')}`);
 
   // Validar webhook secret si está configurado
   if (webhookSecret) {
@@ -53,21 +58,27 @@ export async function POST(
     logger.info(`[MembershipWebhook] Webhook recibido: type=${type}, action=${action}, id=${data.id}`);
 
     if (type === "subscription_preapproval") {
+      logger.info(`[MembershipWebhook] ✅ Tipo de webhook correcto: subscription_preapproval`);
       logger.info(`[MembershipWebhook] Procesando webhook de suscripción (preapproval)...`);
       logger.info(`[MembershipWebhook] ID del preapproval: ${data.id}`);
+      logger.info(`[MembershipWebhook] Action: ${action}`);
       
+      logger.info(`[MembershipWebhook] Obteniendo PreApproval de MercadoPago...`);
       const preapproval = await new PreApproval(mercadoPagoClient).get({
         id: req.validatedBody.data.id,
       });
 
-      logger.info(
-        `[MembershipWebhook] Preapproval ${preapproval.id} obtenido de MercadoPago. Status: ${preapproval.status}`
-      );
-      logger.info(`[MembershipWebhook] External reference: ${preapproval.external_reference}`);
-      logger.info(`[MembershipWebhook] Next payment date: ${preapproval.next_payment_date}`);
+      logger.info(`[MembershipWebhook] ✅ Preapproval obtenido de MercadoPago:`);
+      logger.info(`[MembershipWebhook]   - id: ${preapproval.id}`);
+      logger.info(`[MembershipWebhook]   - status: ${preapproval.status}`);
+      logger.info(`[MembershipWebhook]   - external_reference: ${preapproval.external_reference}`);
+      logger.info(`[MembershipWebhook]   - next_payment_date: ${preapproval.next_payment_date}`);
+      logger.info(`[MembershipWebhook]   - payer_email: ${preapproval.payer_email}`);
+      logger.info(`[MembershipWebhook]   - reason: ${preapproval.reason}`);
+      logger.info(`[MembershipWebhook] Preapproval completo: ${JSON.stringify(preapproval, null, 2)}`);
 
-      // Si se aprueba, actualizamos el usuario con el id de la suscripción
-      if (preapproval.status === "authorized") {
+    // Si se aprueba, actualizamos el usuario con el id de la suscripción
+    if (preapproval.status === "authorized") {
         logger.info(`[MembershipWebhook] ✅ Preapproval ${preapproval.id} está autorizado. Creando suscripción...`);
         
         let externalReferenceData;
@@ -85,7 +96,7 @@ export async function POST(
         
         const result = externalReferenceSchema.safeParse(externalReferenceData);
 
-        if (!result.success) {
+      if (!result.success) {
           logger.error(
             `[MembershipWebhook] ❌ Invalid external reference structure: ${JSON.stringify(result.error.errors)}`
           );
@@ -94,7 +105,7 @@ export async function POST(
             error: "External reference doesnt have enough information",
             details: result.error.errors,
           });
-        }
+      }
 
         logger.info(`[MembershipWebhook] Datos para crear suscripción:`);
         logger.info(`[MembershipWebhook]   - customer_id (userId): ${result.data.userId}`);
@@ -104,13 +115,13 @@ export async function POST(
 
         try {
           const workflowResult = await createSubscriptionWorkflow(req.scope).run({
-            input: {
-              customer_id: result.data.userId,
-              external_id: preapproval.id!,
-              membership_id: result.data.membershipId,
-              ended_at: new Date(preapproval.next_payment_date!),
-            },
-          });
+          input: {
+            customer_id: result.data.userId,
+            external_id: preapproval.id!,
+            membership_id: result.data.membershipId,
+            ended_at: new Date(preapproval.next_payment_date!),
+          },
+        });
 
           logger.info(
             `[MembershipWebhook] ✅✅✅ Suscripción creada exitosamente para customer ${result.data.userId}`
