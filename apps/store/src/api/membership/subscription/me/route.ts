@@ -19,6 +19,7 @@ export async function GET(
       "subscriptions.membership_id",
       "subscriptions.status",
       "subscriptions.price",
+      "subscriptions.membership.id",
       "subscriptions.membership.name",
     ],
     filters: {
@@ -29,5 +30,14 @@ export async function GET(
   const customer = data[0];
   const subscriptions = customer?.subscriptions ?? [];
 
-  return res.json(subscriptions);
+  // Filtrar solo suscripciones activas y ordenar por fecha de inicio (más reciente primero)
+  const activeSubscriptions = subscriptions
+    .filter((sub: any) => sub.status === 'active')
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.started_at).getTime();
+      const dateB = new Date(b.started_at).getTime();
+      return dateB - dateA; // Más reciente primero
+    });
+
+  return res.json(activeSubscriptions);
 }

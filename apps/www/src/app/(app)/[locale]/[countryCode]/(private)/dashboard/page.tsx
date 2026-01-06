@@ -1,14 +1,25 @@
-'use client';
-
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 import NewsSection from '@/app/components/NewSection';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
+import { userService } from '@/services/user.service';
 
-export default function DashboardPage() {
-  const [userMembership, setUserMembership] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const t = useTranslations(); 
+// Mapeo de IDs del backend a IDs del frontend
+const membershipIdMap: Record<string, string> = {
+  esencial: 'basico',
+  premium: 'mediano',
+  elite: 'premium',
+};
+
+export default async function DashboardPage() {
+  const t = await getTranslations();
+  
+  // Obtener la suscripción del usuario desde el backend
+  const subscription = await userService.getSubscriptionInfo();
+  
+  // Mapear el ID de la membresía del backend al formato del frontend
+  const userMembership = subscription?.membership?.id 
+    ? membershipIdMap[subscription.membership.id] || null 
+    : null; 
 
  
   const membershipConfig: {
@@ -61,42 +72,7 @@ export default function DashboardPage() {
     },
   };
 
-  useEffect(() => {
-    const fetchMembership = setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        const storedMembership = localStorage.getItem('userMembership');
-        if (storedMembership) {
-          setUserMembership(storedMembership);
-        }
-      }
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(fetchMembership);
-  }, []);
-
   const renderMembershipInfo = () => {
-    if (isLoading) {
-      return (
-        <div className='flex h-full flex-col items-center justify-center'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            className='text-primary mr-2 h-7 w-7 animate-spin'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          >
-            <path d='M21 12a9 9 0 1 1-6.219-8.56' />
-          </svg>
-          <p className='text-primary text-lg font-semibold'>
-            {t('DashboardPage.loadingMembership.text')}
-          </p>
-        </div>
-      );
-    }
 
     if (!userMembership) {
       return (
