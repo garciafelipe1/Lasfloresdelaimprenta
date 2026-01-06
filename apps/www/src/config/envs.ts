@@ -51,7 +51,26 @@ export default envsSchema.parse({
     CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
     CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || "",
   },
-  MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || "",
+  MEDUSA_BACKEND_URL: (() => {
+    const value =
+      process.env.MEDUSA_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "";
+    
+    // Log para diagnóstico (solo en desarrollo o si está vacío)
+    if (!value || value.trim() === "") {
+      console.warn("[envs] ⚠️ MEDUSA_BACKEND_URL está vacío. Variables disponibles:", {
+        MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || "(no definida)",
+        NEXT_PUBLIC_MEDUSA_BACKEND_URL: process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "(no definida)",
+        NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || "(no definida)",
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "(no definida)",
+      });
+    }
+    
+    return value;
+  })(),
   DEFAULT_REGION: process.env.DEFAULT_REGION || "ar",
   PAYLOAD_SECRET: process.env.PAYLOAD_SECRET || "supersecret",
 })

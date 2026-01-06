@@ -29,8 +29,15 @@ export const mercadoPagoService = {
     console.log('[Membership Subscribe]   - email:', email);
     console.log('[Membership Subscribe]   - userId:', userId);
     console.log('[Membership Subscribe]   - membership:', membership);
-    console.log('[Membership Subscribe]   - MEDUSA_BACKEND_URL:', envs.MEDUSA_BACKEND_URL);
-    console.log('[Membership Subscribe]   - APP_URL:', envs.APP_URL);
+    
+    // Log detallado de todas las variables de entorno relacionadas
+    console.log('[Membership Subscribe] 🔍 DIAGNÓSTICO DE VARIABLES DE ENTORNO:');
+    console.log('[Membership Subscribe]   - process.env.MEDUSA_BACKEND_URL:', process.env.MEDUSA_BACKEND_URL || '(no definida)');
+    console.log('[Membership Subscribe]   - process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL:', process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || '(no definida)');
+    console.log('[Membership Subscribe]   - process.env.NEXT_PUBLIC_BACKEND_URL:', process.env.NEXT_PUBLIC_BACKEND_URL || '(no definida)');
+    console.log('[Membership Subscribe]   - process.env.NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || '(no definida)');
+    console.log('[Membership Subscribe]   - envs.MEDUSA_BACKEND_URL (resuelto):', envs.MEDUSA_BACKEND_URL || '(vacío)');
+    console.log('[Membership Subscribe]   - envs.APP_URL:', envs.APP_URL || '(vacío)');
 
     console.log('[Membership Subscribe] Obteniendo información de la membresía...');
     const membershipResult = await medusa.client.fetch<MembershipType>(
@@ -57,8 +64,35 @@ export const mercadoPagoService = {
     console.log('[Membership Subscribe]   - membershipId:', external_reference.membershipId);
     console.log('[Membership Subscribe]   - JSON:', JSON.stringify(external_reference));
 
+    // Validar que MEDUSA_BACKEND_URL esté definido y no esté vacío
+    const medusaBackendUrl = envs.MEDUSA_BACKEND_URL?.trim();
+    if (!medusaBackendUrl || medusaBackendUrl === '') {
+      console.error('[Membership Subscribe] ❌ ERROR: MEDUSA_BACKEND_URL no está definido o está vacío');
+      console.error('[Membership Subscribe] Variables de entorno disponibles (raw):', {
+        MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || '(no definida)',
+        NEXT_PUBLIC_MEDUSA_BACKEND_URL: process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || '(no definida)',
+        NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || '(no definida)',
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || '(no definida)',
+      });
+      console.error('[Membership Subscribe] envs.MEDUSA_BACKEND_URL (resuelto):', envs.MEDUSA_BACKEND_URL || '(vacío)');
+      console.error('[Membership Subscribe] Longitud de envs.MEDUSA_BACKEND_URL:', envs.MEDUSA_BACKEND_URL?.length || 0);
+      throw new Error('MEDUSA_BACKEND_URL no está configurado. Verifica que NEXT_PUBLIC_MEDUSA_BACKEND_URL tenga un valor válido en Railway.');
+    }
+
+    // Validar que APP_URL esté definido
+    if (!envs.APP_URL || envs.APP_URL.trim() === '') {
+      console.error('[Membership Subscribe] ❌ ERROR: APP_URL no está definido');
+      throw new Error('APP_URL no está configurado. No se puede crear la suscripción sin la URL de retorno.');
+    }
+
     // URL del webhook para recibir notificaciones cuando se apruebe la suscripción
-    const notificationUrl = `${envs.MEDUSA_BACKEND_URL}/membership/subscription`;
+    // Asegurar que la URL base no termine con / y no tenga espacios
+    const baseUrl = medusaBackendUrl.replace(/\/$/, '').trim();
+    const notificationUrl = `${baseUrl}/membership/subscription`;
+    
+    console.log('[Membership Subscribe] ✅ URL del webhook construida correctamente:');
+    console.log('[Membership Subscribe]   - Base URL:', baseUrl);
+    console.log('[Membership Subscribe]   - Notification URL:', notificationUrl);
     console.log('[Membership Subscribe] Notification URL:', notificationUrl);
     console.log('[Membership Subscribe] Back URL:', envs.APP_URL);
 
