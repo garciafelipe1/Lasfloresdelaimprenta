@@ -64,21 +64,50 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             if (!existingSubscription) {
               logger.info(`[MembershipSubscription] No existe suscripción. Creando suscripción...`);
               
-              const workflowResult = await createSubscriptionWorkflow(req.scope).run({
-                input: {
-                  customer_id: result.data.userId,
-                  external_id: preapprovalId,
-                  membership_id: result.data.membershipId,
-                  ended_at: new Date(preapproval.next_payment_date!),
-                },
-              });
+              // Asegurar que next_payment_date sea un objeto Date válido
+              let endedAt: Date;
+              if (preapproval.next_payment_date) {
+                const nextPaymentDate = new Date(preapproval.next_payment_date);
+                if (isNaN(nextPaymentDate.getTime())) {
+                  logger.warn(`[MembershipSubscription] next_payment_date no es válido: ${preapproval.next_payment_date}. Usando fecha de 1 mes desde ahora.`);
+                  endedAt = new Date();
+                  endedAt.setMonth(endedAt.getMonth() + 1);
+                } else {
+                  endedAt = nextPaymentDate;
+                }
+              } else {
+                logger.warn(`[MembershipSubscription] next_payment_date no está disponible. Usando fecha de 1 mes desde ahora.`);
+                endedAt = new Date();
+                endedAt.setMonth(endedAt.getMonth() + 1);
+              }
               
-              logger.info(`[MembershipSubscription] ✅ Suscripción creada exitosamente`);
-              return res.json({
-                success: true,
-                message: "Subscription created successfully",
-                subscription: workflowResult.result,
-              });
+              logger.info(`[MembershipSubscription] ended_at calculado: ${endedAt.toISOString()}`);
+              
+              try {
+                const workflowResult = await createSubscriptionWorkflow(req.scope).run({
+                  input: {
+                    customer_id: result.data.userId,
+                    external_id: preapprovalId,
+                    membership_id: result.data.membershipId,
+                    ended_at: endedAt,
+                  },
+                });
+                
+                logger.info(`[MembershipSubscription] ✅ Suscripción creada exitosamente`);
+                return res.json({
+                  success: true,
+                  message: "Subscription created successfully",
+                  subscription: workflowResult.result,
+                });
+              } catch (workflowError: any) {
+                logger.error(`[MembershipSubscription] ❌ Error al ejecutar workflow: ${workflowError.message}`);
+                logger.error(`[MembershipSubscription] Stack: ${workflowError.stack}`);
+                return res.status(500).json({
+                  success: false,
+                  error: "Failed to create subscription",
+                  message: workflowError.message,
+                });
+              }
             } else {
               logger.info(`[MembershipSubscription] ✅ Suscripción ya existe`);
               return res.json({
@@ -87,9 +116,23 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
                 subscription: existingSubscription,
               });
             }
+          } else {
+            logger.error(`[MembershipSubscription] ❌ External reference inválido: ${JSON.stringify(result.error.errors)}`);
+            return res.status(400).json({
+              success: false,
+              error: "Invalid external reference",
+              message: "External reference doesn't have enough information",
+              details: result.error.errors,
+            });
           }
         } catch (parseError: any) {
-          logger.error(`[MembershipSubscription] Error al parsear external_reference: ${parseError.message}`);
+          logger.error(`[MembershipSubscription] ❌ Error al parsear external_reference: ${parseError.message}`);
+          logger.error(`[MembershipSubscription] Stack: ${parseError.stack}`);
+          return res.status(400).json({
+            success: false,
+            error: "Invalid external reference format",
+            message: parseError.message,
+          });
         }
       } else {
         logger.info(`[MembershipSubscription] PreApproval no está autorizado. Status: ${preapproval.status}`);
@@ -231,7 +274,26 @@ export async function POST(
         logger.info(`[MembershipWebhook]   - customer_id (userId): ${result.data.userId}`);
         logger.info(`[MembershipWebhook]   - membership_id: ${result.data.membershipId}`);
         logger.info(`[MembershipWebhook]   - external_id (preapproval.id): ${preapproval.id}`);
-        logger.info(`[MembershipWebhook]   - ended_at: ${preapproval.next_payment_date}`);
+        logger.info(`[MembershipWebhook]   - next_payment_date (raw): ${preapproval.next_payment_date}`);
+        
+        // Asegurar que next_payment_date sea un objeto Date válido
+        let endedAt: Date;
+        if (preapproval.next_payment_date) {
+          const nextPaymentDate = new Date(preapproval.next_payment_date);
+          if (isNaN(nextPaymentDate.getTime())) {
+            logger.warn(`[MembershipWebhook] next_payment_date no es válido: ${preapproval.next_payment_date}. Usando fecha de 1 mes desde ahora.`);
+            endedAt = new Date();
+            endedAt.setMonth(endedAt.getMonth() + 1);
+          } else {
+            endedAt = nextPaymentDate;
+          }
+        } else {
+          logger.warn(`[MembershipWebhook] next_payment_date no está disponible. Usando fecha de 1 mes desde ahora.`);
+          endedAt = new Date();
+          endedAt.setMonth(endedAt.getMonth() + 1);
+        }
+        
+        logger.info(`[MembershipWebhook]   - ended_at calculado: ${endedAt.toISOString()}`);
 
         try {
           const workflowResult = await createSubscriptionWorkflow(req.scope).run({
@@ -239,7 +301,7 @@ export async function POST(
             customer_id: result.data.userId,
             external_id: preapproval.id!,
             membership_id: result.data.membershipId,
-            ended_at: new Date(preapproval.next_payment_date!),
+            ended_at: endedAt,
           },
         });
 

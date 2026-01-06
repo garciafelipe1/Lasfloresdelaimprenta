@@ -39,7 +39,9 @@ const createSubscriptionStep = createStep(
     logger.info(`[CreateSubscriptionWorkflow]   - external_id: ${external_id}`);
     logger.info(`[CreateSubscriptionWorkflow]   - membership_id: ${membership_id}`);
     logger.info(`[CreateSubscriptionWorkflow]   - ended_at: ${ended_at}`);
-    logger.info(`[CreateSubscriptionWorkflow]   - ended_at (ISO): ${ended_at?.toISOString()}`);
+    logger.info(`[CreateSubscriptionWorkflow]   - ended_at type: ${typeof ended_at}`);
+    logger.info(`[CreateSubscriptionWorkflow]   - ended_at instanceof Date: ${ended_at instanceof Date}`);
+    logger.info(`[CreateSubscriptionWorkflow]   - ended_at (ISO): ${ended_at instanceof Date ? ended_at.toISOString() : 'N/A (not a Date object)'}`);
 
     // Verificar que el customer existe
     try {
@@ -75,7 +77,7 @@ const createSubscriptionStep = createStep(
     logger.info(`[CreateSubscriptionWorkflow]   - external_id: ${subscriptionData.external_id}`);
     logger.info(`[CreateSubscriptionWorkflow]   - membership_id: ${subscriptionData.membership_id}`);
     logger.info(`[CreateSubscriptionWorkflow]   - started_at: ${subscriptionData.started_at.toISOString()}`);
-    logger.info(`[CreateSubscriptionWorkflow]   - ended_at: ${subscriptionData.ended_at?.toISOString()}`);
+    logger.info(`[CreateSubscriptionWorkflow]   - ended_at: ${subscriptionData.ended_at instanceof Date ? subscriptionData.ended_at.toISOString() : 'N/A (not a Date object)'}`);
     logger.info(`[CreateSubscriptionWorkflow]   - status: ${subscriptionData.status}`);
     logger.info(`[CreateSubscriptionWorkflow]   - price: ${subscriptionData.price}`);
     logger.info(`[CreateSubscriptionWorkflow] Datos completos: ${JSON.stringify(subscriptionData, null, 2)}`);

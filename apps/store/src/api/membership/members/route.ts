@@ -39,26 +39,38 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     ],
   });
 
-  const output = result.data.map((customer) => {
-    if (!customer.subscriptions) {
-      return;
-    }
+  const output = result.data
+    .map((customer) => {
+      // Filtrar clientes sin email
+      if (!customer.email) {
+        return null;
+      }
 
-    const primarySubscription = customer.subscriptions[0];
+      if (!customer.subscriptions || customer.subscriptions.length === 0) {
+        return null;
+      }
 
-    if (!primarySubscription) {
-      return;
-    }
+      const primarySubscription = customer.subscriptions[0];
 
-    return memberSchema.parse({
-      email: customer.email,
-      id: customer.id,
-      name: `${customer.first_name} ${customer.last_name}`,
-      status: primarySubscription.status,
-      membershipId: primarySubscription.membership_id,
-      startedAt: primarySubscription.started_at,
-    });
-  });
+      if (!primarySubscription) {
+        return null;
+      }
+
+      try {
+        return memberSchema.parse({
+          email: customer.email,
+          id: customer.id,
+          name: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
+          status: primarySubscription.status,
+          membershipId: primarySubscription.membership_id,
+          startedAt: primarySubscription.started_at,
+        });
+      } catch (error) {
+        // Si el parseo falla, retornar null para filtrarlo después
+        return null;
+      }
+    })
+    .filter((member): member is NonNullable<typeof member> => member !== null);
 
   res.json(output);
 }

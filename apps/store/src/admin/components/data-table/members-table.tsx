@@ -19,9 +19,14 @@ export function MembersTable({ data }: Props) {
 
   const shownMembers = useMemo(() => {
     return data
-      .filter((member) =>
-        member.email.toLowerCase().includes(search.toLowerCase())
-      )
+      .filter((member) => {
+        // Filtrar miembros que no tienen email
+        if (!member || !member.email) {
+          return false;
+        }
+        // Filtrar por búsqueda de email
+        return member.email.toLowerCase().includes(search.toLowerCase());
+      })
       .filter((member) => {
         return Object.entries(filtering).every(([key, value]) => {
           if (!value) return true;
@@ -63,7 +68,7 @@ export function MembersTable({ data }: Props) {
   const table = useDataTable({
     data: shownMembers,
     columns,
-    getRowId: (product) => product.email,
+    getRowId: (product) => product.email || product.id,
     rowCount: data.length,
     isLoading: false,
     filters,
