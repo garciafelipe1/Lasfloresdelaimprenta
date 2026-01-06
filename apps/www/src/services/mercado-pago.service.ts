@@ -117,9 +117,41 @@ export const mercadoPagoService = {
     console.log('[Membership Subscribe] Creando PreApproval en MercadoPago...');
     console.log('[Membership Subscribe] Body completo:', JSON.stringify(preapprovalBody, null, 2));
 
-    const subscription = await new PreApproval(mercadoPagoClient).create({
-      body: preapprovalBody,
-    });
+    let subscription;
+    try {
+      subscription = await new PreApproval(mercadoPagoClient).create({
+        body: preapprovalBody,
+      });
+      console.log('[Membership Subscribe] ✅ Respuesta de MercadoPago recibida');
+    } catch (mpError: any) {
+      console.error('[Membership Subscribe] ❌ ERROR AL CREAR PREAPPROVAL EN MERCADOPAGO:');
+      console.error('[Membership Subscribe]   - Tipo:', mpError?.constructor?.name || typeof mpError);
+      console.error('[Membership Subscribe]   - Mensaje:', mpError?.message);
+      console.error('[Membership Subscribe]   - Status:', mpError?.status);
+      console.error('[Membership Subscribe]   - Status Code:', mpError?.statusCode);
+      
+      if (mpError?.response) {
+        console.error('[Membership Subscribe]   - Response status:', mpError.response.status);
+        console.error('[Membership Subscribe]   - Response data:', JSON.stringify(mpError.response.data, null, 2));
+      }
+      
+      if (mpError?.cause) {
+        console.error('[Membership Subscribe]   - Cause:', mpError.cause);
+      }
+      
+      console.error('[Membership Subscribe]   - Stack:', mpError?.stack);
+      console.error('[Membership Subscribe]   - Error completo:', JSON.stringify(mpError, Object.getOwnPropertyNames(mpError), 2));
+      
+      // Crear un mensaje de error más descriptivo
+      let errorMessage = 'No se pudo crear la suscripción en MercadoPago';
+      if (mpError?.response?.data?.message) {
+        errorMessage = `MercadoPago: ${mpError.response.data.message}`;
+      } else if (mpError?.message) {
+        errorMessage = `Error: ${mpError.message}`;
+      }
+      
+      throw new Error(errorMessage);
+    }
 
     console.log('[Membership Subscribe] ✅ PreApproval creado en MercadoPago:');
     console.log('[Membership Subscribe]   - id:', subscription.id);

@@ -33,11 +33,23 @@ export function MembershipForm({ membership }: Props) {
 
   const { execute, isPending } = useAction(subscribeAction, {
     onError({ error }) {
-      console.error({ error });
-      toast('Hubo un error');
+      console.error('[MembershipForm] Error al ejecutar subscribeAction:', error);
+      console.error('[MembershipForm] Error details:', {
+        message: error?.serverError || error?.validationErrors || error,
+        type: typeof error,
+      });
+      
+      // Mostrar el mensaje de error específico si está disponible
+      const errorMessage = error?.serverError || error?.message || 'Hubo un error al procesar la suscripción';
+      toast.error(errorMessage, {
+        duration: 5000,
+      });
     },
     onSuccess() {
-      toast('Suscripción iniciada correctamente. Redirigiendo a Mercado Pago.');
+      console.log('[MembershipForm] Suscripción iniciada correctamente');
+      toast.success('Suscripción iniciada correctamente. Redirigiendo a Mercado Pago...', {
+        duration: 3000,
+      });
     },
   });
 
