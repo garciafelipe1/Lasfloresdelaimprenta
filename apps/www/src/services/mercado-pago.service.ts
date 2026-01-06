@@ -94,10 +94,13 @@ export const mercadoPagoService = {
     console.log('[Membership Subscribe]   - Base URL:', baseUrl);
     console.log('[Membership Subscribe]   - Notification URL:', notificationUrl);
     console.log('[Membership Subscribe] Notification URL:', notificationUrl);
-    console.log('[Membership Subscribe] Back URL:', envs.APP_URL);
+    
+    // Construir la URL de éxito para suscripciones
+    const successUrl = `${envs.APP_URL}/es/ar/membership/success`;
+    console.log('[Membership Subscribe] Back URL (success):', successUrl);
 
     const preapprovalBody = {
-      back_url: envs.APP_URL,
+      back_url: successUrl,
       reason: `Suscripción - La Florería De La Imprenta - ${membershipResult.name}`,
       auto_recurring: {
         frequency: 1,
