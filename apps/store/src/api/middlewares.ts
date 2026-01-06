@@ -42,6 +42,20 @@ export default defineMiddlewares({
     },
     {
       matcher: "/membership/subscription",
+      middlewares: [
+        (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
+          const configModule: ConfigModule = req.scope.resolve("configModule");
+          return cors({
+            origin: parseCorsOrigins(configModule.projectConfig.http.storeCors) || "*",
+            credentials: true,
+            methods: ["GET", "POST", "OPTIONS"],
+            allowedHeaders: ["Content-Type"],
+          })(req, res, next);
+        },
+      ],
+    },
+    {
+      matcher: "/membership/subscription",
       method: "POST",
       middlewares: [validateAndTransformBody(webhookSubscriptionSchema)],
     },

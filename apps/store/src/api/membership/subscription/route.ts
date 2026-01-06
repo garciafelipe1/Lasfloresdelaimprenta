@@ -14,8 +14,22 @@ export const mercadoPagoClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 });
 
+// Handler para peticiones OPTIONS (CORS preflight)
+export async function OPTIONS(req: MedusaRequest, res: MedusaResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Max-Age", "86400");
+  return res.status(200).end();
+}
+
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger");
+  
+  // Agregar headers CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   
   // Si hay un query parameter 'preapproval_id', verificar y crear suscripción si es necesario
   const preapprovalId = req.query.preapproval_id as string | undefined;
@@ -107,6 +121,12 @@ export async function POST(
   res: MedusaResponse
 ) {
   const logger = req.scope.resolve("logger");
+  
+  // Agregar headers CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  
   const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
 
   logger.info(`[MembershipWebhook] ========== INICIO DE WEBHOOK DE MEMBRESÍA ==========`);
