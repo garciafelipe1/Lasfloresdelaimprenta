@@ -3,7 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { MEMBERSHIP_MODULE } from "../../../modules/membership";
+import { MEMBERSHIP_MODULE } from "../../../../modules/membership";
 
 export async function GET(
   req: AuthenticatedMedusaRequest,
