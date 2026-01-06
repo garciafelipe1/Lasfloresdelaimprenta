@@ -59,15 +59,6 @@ export default envsSchema.parse({
       process.env.NEXT_PUBLIC_API_URL ||
       "";
     
-    // Log para diagnóstico
-    console.log("[envs] 🔍 Resolviendo MEDUSA_BACKEND_URL:", {
-      MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || "(no definida)",
-      NEXT_PUBLIC_MEDUSA_BACKEND_URL: process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "(no definida)",
-      NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || "(no definida)",
-      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "(no definida)",
-      valorResuelto: value || "(vacío)",
-    });
-    
     if (!value || value.trim() === "") {
       console.warn("[envs] ⚠️ MEDUSA_BACKEND_URL está vacío después de resolver todas las variables.");
     }

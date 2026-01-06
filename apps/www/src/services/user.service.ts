@@ -8,10 +8,12 @@ class UserService {
 
     // 👇 Si no hay header Authorization, no hay usuario autenticado
     if (!('authorization' in authHeaders)) {
+      console.log('[userService.getSubscriptionInfo] No hay header Authorization. Usuario no autenticado.');
       return null;
     }
 
     try {
+      console.log('[userService.getSubscriptionInfo] Obteniendo suscripciones del backend...');
       // OJO: medusa.client.fetch devuelve directamente el body ya parseado,
       // NO es un Response. Si la respuesta es 401/403/500, lanza un Error.
       const subscriptions = await medusa.client.fetch<
@@ -20,14 +22,31 @@ class UserService {
         headers: authHeaders,
       });
 
+      console.log('[userService.getSubscriptionInfo] Respuesta del backend:', {
+        esArray: Array.isArray(subscriptions),
+        cantidad: Array.isArray(subscriptions) ? subscriptions.length : 0,
+        datos: subscriptions,
+      });
+
       if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
+        console.log('[userService.getSubscriptionInfo] No se encontraron suscripciones activas.');
         return null;
       }
 
-      return subscriptions[0];
+      const subscription = subscriptions[0];
+      console.log('[userService.getSubscriptionInfo] ✅ Suscripción encontrada:', {
+        id: subscription.id,
+        membership_id: subscription.membership?.id,
+        membership_name: subscription.membership?.name,
+        status: subscription.status,
+        started_at: subscription.started_at,
+        ended_at: subscription.ended_at,
+      });
+
+      return subscription;
     } catch (error) {
       console.error(
-        '[userService.getSubscriptionInfo] Error al obtener subscripción',
+        '[userService.getSubscriptionInfo] ❌ Error al obtener subscripción',
         error
       );
       // Si falla (401, 500, etc.), devolvemos null en vez de romper el render
