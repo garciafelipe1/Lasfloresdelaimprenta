@@ -59,17 +59,20 @@ export default envsSchema.parse({
       process.env.NEXT_PUBLIC_API_URL ||
       "";
     
-    // Log para diagnóstico (solo en desarrollo o si está vacío)
+    // Log para diagnóstico
+    console.log("[envs] 🔍 Resolviendo MEDUSA_BACKEND_URL:", {
+      MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || "(no definida)",
+      NEXT_PUBLIC_MEDUSA_BACKEND_URL: process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "(no definida)",
+      NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || "(no definida)",
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "(no definida)",
+      valorResuelto: value || "(vacío)",
+    });
+    
     if (!value || value.trim() === "") {
-      console.warn("[envs] ⚠️ MEDUSA_BACKEND_URL está vacío. Variables disponibles:", {
-        MEDUSA_BACKEND_URL: process.env.MEDUSA_BACKEND_URL || "(no definida)",
-        NEXT_PUBLIC_MEDUSA_BACKEND_URL: process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "(no definida)",
-        NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || "(no definida)",
-        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "(no definida)",
-      });
+      console.warn("[envs] ⚠️ MEDUSA_BACKEND_URL está vacío después de resolver todas las variables.");
     }
     
-    return value;
+    return value.trim();
   })(),
   DEFAULT_REGION: process.env.DEFAULT_REGION || "ar",
   PAYLOAD_SECRET: process.env.PAYLOAD_SECRET || "supersecret",
