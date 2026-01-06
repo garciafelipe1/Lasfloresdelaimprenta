@@ -4,6 +4,7 @@ import {
 } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { MEMBERSHIP_MODULE } from "../../../../modules/membership";
+import MembershipModuleService from "../../../../modules/membership/service";
 
 export async function GET(
   req: AuthenticatedMedusaRequest,
@@ -12,7 +13,8 @@ export async function GET(
   const logger = req.scope.resolve("logger");
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
   const memberId = req.auth_context.actor_id;
-  const membershipModuleService = req.scope.resolve(MEMBERSHIP_MODULE);
+  const membershipModuleService: MembershipModuleService =
+    req.scope.resolve(MEMBERSHIP_MODULE);
 
   logger.info(`[SubscriptionMe] ========== OBTENIENDO SUSCRIPCIONES ==========`);
   logger.info(`[SubscriptionMe] Timestamp: ${new Date().toISOString()}`);
