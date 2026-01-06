@@ -1,6 +1,5 @@
 'use client';
 
-import { envs } from '@/config/envs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -24,10 +23,17 @@ export default function MembershipSuccessPage() {
       try {
         console.log('[MembershipSuccess] Verificando PreApproval:', preapprovalId);
         
-        const medusaBackendUrl = envs.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || '';
+        // En el cliente, solo podemos acceder a variables con prefijo NEXT_PUBLIC_
+        const medusaBackendUrl = 
+          process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
+          process.env.NEXT_PUBLIC_BACKEND_URL ||
+          process.env.NEXT_PUBLIC_API_URL ||
+          '';
+        
+        console.log('[MembershipSuccess] MEDUSA_BACKEND_URL resuelto:', medusaBackendUrl);
         
         if (!medusaBackendUrl) {
-          throw new Error('MEDUSA_BACKEND_URL no está configurado');
+          throw new Error('MEDUSA_BACKEND_URL no está configurado. Verifica que NEXT_PUBLIC_MEDUSA_BACKEND_URL tenga un valor válido en Railway.');
         }
 
         const response = await fetch(
