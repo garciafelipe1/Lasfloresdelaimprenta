@@ -210,15 +210,72 @@ export async function GET(
   logger.info(`[SubscriptionMe] Total de suscripciones encontradas (final): ${subscriptions.length}`);
   logger.info(`[SubscriptionMe] Suscripciones (raw, antes del filtro): ${JSON.stringify(subscriptions, null, 2)}`);
 
-  // Filtrar solo suscripciones activas y ordenar por fecha de inicio (más reciente primero)
+  // Paso 1: Verificar y actualizar suscripciones expiradas
+  logger.info(`[SubscriptionMe] 🔍 Verificando suscripciones expiradas...`);
+  const now = new Date();
+  const expiredSubscriptionsToUpdate: any[] = [];
+
+  for (const sub of subscriptions) {
+    if (sub.status === 'active' && sub.ended_at) {
+      const endedAt = new Date(sub.ended_at);
+      
+      // Si la fecha de finalización ya pasó, marcar como expirada
+      if (endedAt < now) {
+        logger.warn(`[SubscriptionMe] ⚠️ Suscripción expirada detectada: id=${sub.id}, ended_at=${sub.ended_at}`);
+        expiredSubscriptionsToUpdate.push(sub);
+      }
+    }
+  }
+
+  // Actualizar suscripciones expiradas a "cancelled"
+  if (expiredSubscriptionsToUpdate.length > 0) {
+    logger.info(`[SubscriptionMe] 🔄 Actualizando ${expiredSubscriptionsToUpdate.length} suscripción(es) expirada(s)...`);
+    for (const sub of expiredSubscriptionsToUpdate) {
+      try {
+        logger.info(`[SubscriptionMe] Actualizando suscripción ${sub.id} de "active" a "cancelled"...`);
+        await membershipModuleService.updateSubscriptions({
+          id: sub.id,
+          status: 'cancelled',
+        });
+        logger.info(`[SubscriptionMe] ✅ Suscripción ${sub.id} actualizada a "cancelled"`);
+        
+        // Actualizar también en el array local para que el filtro funcione correctamente
+        sub.status = 'cancelled';
+      } catch (updateError: any) {
+        logger.error(`[SubscriptionMe] ❌ Error al actualizar suscripción ${sub.id}: ${updateError.message}`);
+        logger.error(`[SubscriptionMe] Stack: ${updateError.stack}`);
+        // Continuar con las demás suscripciones
+      }
+    }
+  } else {
+    logger.info(`[SubscriptionMe] ✅ No se encontraron suscripciones expiradas`);
+  }
+
+  // Paso 2: Filtrar solo suscripciones realmente activas (status active Y ended_at en el futuro)
   logger.info(`[SubscriptionMe] 🔍 Filtrando suscripciones activas...`);
   const activeSubscriptions = subscriptions
     .filter((sub: any) => {
-      const isActive = sub.status === 'active';
-      logger.info(`[SubscriptionMe]   Suscripción id=${sub.id}, membership_id=${sub.membership_id}, status="${sub.status}", isActive=${isActive}`);
-      if (!isActive) {
-        logger.info(`[SubscriptionMe]     ⚠️ Suscripción NO activa. Filtrada.`);
+      const isActiveStatus = sub.status === 'active';
+      let isNotExpired = true;
+      
+      // Verificar también que la fecha de finalización no haya pasado
+      if (sub.ended_at) {
+        const endedAt = new Date(sub.ended_at);
+        isNotExpired = endedAt >= now;
       }
+      
+      const isActive = isActiveStatus && isNotExpired;
+      
+      logger.info(`[SubscriptionMe]   Suscripción id=${sub.id}, membership_id=${sub.membership_id}, status="${sub.status}", ended_at=${sub.ended_at}, isActiveStatus=${isActiveStatus}, isNotExpired=${isNotExpired}, isActive=${isActive}`);
+      
+      if (!isActive) {
+        if (!isActiveStatus) {
+          logger.info(`[SubscriptionMe]     ⚠️ Suscripción NO activa (status="${sub.status}"). Filtrada.`);
+        } else if (!isNotExpired) {
+          logger.info(`[SubscriptionMe]     ⚠️ Suscripción EXPIRADA (ended_at=${sub.ended_at}). Filtrada.`);
+        }
+      }
+      
       return isActive;
     })
     .sort((a: any, b: any) => {

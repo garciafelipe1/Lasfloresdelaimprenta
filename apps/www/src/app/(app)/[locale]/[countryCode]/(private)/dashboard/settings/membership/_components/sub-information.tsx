@@ -26,7 +26,16 @@ export function SubInformation({ subscription }: Props) {
     ? format(new Date(ended_at), "dd 'de' MMMM 'de' yyyy", { locale: es })
     : null;
 
-  const differenceDays = differenceInCalendarDays(started_at, ended_at);
+  // Verificar si la membresía está expirada
+  const now = new Date();
+  const endDate = ended_at ? new Date(ended_at) : null;
+  const isExpired = endDate ? endDate < now : false;
+  const isCancelled = status === 'cancelled';
+  const isActive = status === 'active' && !isExpired;
+
+  const differenceDays = ended_at
+    ? differenceInCalendarDays(new Date(), new Date(ended_at))
+    : 0;
 
   return (
     <Section className='max-w-2xl'>
@@ -42,7 +51,17 @@ export function SubInformation({ subscription }: Props) {
         </section>
         <section className='flex justify-between gap-2'>
           <p>Estado:</p>
-          <code className='w-fit'>{status}</code>
+          <code
+            className={`w-fit font-semibold ${
+              isExpired || isCancelled
+                ? 'text-red-600 dark:text-red-400'
+                : isActive
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-yellow-600 dark:text-yellow-400'
+            }`}
+          >
+            {isExpired || isCancelled ? 'Expirada' : status === 'active' ? 'Activa' : status}
+          </code>
         </section>
         <section className='flex justify-between gap-2'>
           <p>Fecha inicio:</p>
@@ -54,7 +73,23 @@ export function SubInformation({ subscription }: Props) {
         </section>
         <section className='flex justify-between gap-2'>
           <p>Días restantes:</p>
-          <code className='w-fit'>{differenceDays} días restantes</code>
+          <code
+            className={`w-fit ${
+              isExpired || isCancelled
+                ? 'text-red-600 dark:text-red-400 font-semibold'
+                : differenceDays <= 7
+                ? 'text-yellow-600 dark:text-yellow-400'
+                : ''
+            }`}
+          >
+            {isExpired || isCancelled
+              ? 'Expirada'
+              : differenceDays > 0
+              ? `${differenceDays} días restantes`
+              : differenceDays === 0
+              ? 'Expira hoy'
+              : `Expirada hace ${Math.abs(differenceDays)} días`}
+          </code>
         </section>
       </section>
     </Section>

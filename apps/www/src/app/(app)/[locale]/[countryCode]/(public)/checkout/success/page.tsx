@@ -59,8 +59,8 @@ export default async function CheckoutSuccessPage(props: Props) {
             'x-publishable-api-key': publishableKey,
           },
           body: JSON.stringify({
-            payment_id: payment_id,
-            cart_id: external_reference,
+            paymentId: payment_id,
+            cartId: external_reference,
           }),
         });
         
