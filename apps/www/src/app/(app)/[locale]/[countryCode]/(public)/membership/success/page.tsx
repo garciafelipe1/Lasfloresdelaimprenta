@@ -18,8 +18,12 @@ export default function MembershipSuccessPage() {
       return;
     }
 
+    let retryTimeout: NodeJS.Timeout | null = null;
+    let isMounted = true;
+
     // Verificar el estado del PreApproval y crear la suscripción si es necesario
     const verifySubscription = async () => {
+      if (!isMounted) return;
       try {
         console.log('[MembershipSuccess] Verificando PreApproval:', preapprovalId);
         
@@ -54,39 +58,76 @@ export default function MembershipSuccessPage() {
         const data = await response.json();
         console.log('[MembershipSuccess] Respuesta del backend:', data);
 
+        console.log('[MembershipSuccess] Estado de la respuesta:', {
+          success: data.success,
+          message: data.message,
+          status: data.status,
+          subscription: data.subscription ? 'presente' : 'ausente',
+        });
+
         if (data.success) {
-          if (data.message === 'Subscription created successfully') {
+          if (data.message === 'Subscription created successfully' || data.message === 'Subscription already exists') {
             setStatus('success');
-            setMessage('¡Tu suscripción se ha activado correctamente!');
-            
-            // Redirigir al dashboard después de 3 segundos
-            setTimeout(() => {
-              router.push('/es/ar/dashboard');
-            }, 3000);
-          } else if (data.message === 'Subscription already exists') {
-            setStatus('success');
-            setMessage('¡Tu suscripción ya está activa!');
+            setMessage(data.message === 'Subscription created successfully' 
+              ? '¡Tu suscripción se ha activado correctamente!' 
+              : '¡Tu suscripción ya está activa!');
             
             // Redirigir al dashboard después de 3 segundos
             setTimeout(() => {
               router.push('/es/ar/dashboard');
             }, 3000);
           } else {
+            // Si success es true pero el mensaje no es de creación exitosa, 
+            // puede ser que el PreApproval aún esté en "pending"
             setStatus('pending');
-            setMessage('Tu pago está siendo procesado. Te notificaremos cuando tu suscripción esté activa.');
+            setMessage(data.message || 'Tu pago está siendo procesado. Te notificaremos cuando tu suscripción esté activa.');
+            
+            // Si el status es "pending", intentar verificar nuevamente después de 5 segundos
+            if (data.status === 'pending') {
+              console.log('[MembershipSuccess] PreApproval en estado "pending". Reintentando verificación en 5 segundos...');
+              retryTimeout = setTimeout(() => {
+                if (isMounted) {
+                  verifySubscription();
+                }
+              }, 5000);
+            }
           }
         } else {
-          setStatus('pending');
-          setMessage(data.message || 'Tu pago está siendo procesado. Te notificaremos cuando tu suscripción esté activa.');
+          // Si success es false, verificar el status
+          if (data.status === 'pending') {
+            setStatus('pending');
+            setMessage('Tu pago está siendo procesado. MercadoPago está verificando tu pago. Intentaremos verificar nuevamente en unos momentos...');
+            
+            // Reintentar verificación después de 5 segundos
+            console.log('[MembershipSuccess] PreApproval en estado "pending". Reintentando verificación en 5 segundos...');
+            retryTimeout = setTimeout(() => {
+              if (isMounted) {
+                verifySubscription();
+              }
+            }, 5000);
+          } else {
+            setStatus('error');
+            setMessage(data.message || 'Hubo un problema al procesar tu suscripción. Por favor, contacta con soporte.');
+          }
         }
       } catch (error: any) {
         console.error('[MembershipSuccess] Error al verificar suscripción:', error);
-        setStatus('error');
-        setMessage(error.message || 'Hubo un error al verificar tu suscripción. Por favor, contacta con soporte.');
+        if (isMounted) {
+          setStatus('error');
+          setMessage(error.message || 'Hubo un error al verificar tu suscripción. Por favor, contacta con soporte.');
+        }
       }
     };
 
     verifySubscription();
+
+    // Cleanup: cancelar el timeout si el componente se desmonta
+    return () => {
+      isMounted = false;
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
   }, [searchParams, router]);
 
   return (

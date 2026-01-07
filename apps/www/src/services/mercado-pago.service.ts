@@ -53,6 +53,15 @@ export const mercadoPagoService = {
     console.log('[Membership Subscribe]   - id:', membershipResult.id);
     console.log('[Membership Subscribe]   - name:', membershipResult.name);
     console.log('[Membership Subscribe]   - price:', membershipResult.price);
+    console.log('[Membership Subscribe]   - price type:', typeof membershipResult.price);
+
+    // Validar que el precio de la membresía no sea menor a 15.00 ARS (mínimo de MercadoPago)
+    if (typeof membershipResult.price !== 'number' || membershipResult.price < 15) {
+      console.error(`[Membership Subscribe] ❌ ERROR: El precio de la membresía (${membershipResult.price}) es menor al mínimo permitido por MercadoPago ($15.00 ARS)`);
+      throw new Error(`El precio de la membresía debe ser al menos $15.00 ARS. El precio actual es $${membershipResult.price.toFixed(2)} ARS. Por favor, contacta con el administrador para ajustar el precio.`);
+    }
+
+    console.log('[Membership Subscribe] ✅ Precio válido (>= $15.00 ARS)');
 
     const external_reference: ExternalReference = {
       userId,

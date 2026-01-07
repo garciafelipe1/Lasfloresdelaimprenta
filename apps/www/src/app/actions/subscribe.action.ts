@@ -66,10 +66,14 @@ export const subscribeAction = actionClient
 
       console.log('[Subscribe Action] Paso 5: Redirigiendo a MercadoPago...');
       console.log('[Subscribe Action] ========== FIN DE ACCIÓN DE SUSCRIPCIÓN (ÉXITO) ==========');
-      
-      // Usar redirect de Next.js para redirigir al usuario
-      redirect(redirectUrl);
     } catch (error: any) {
+      // Si el error es un NEXT_REDIRECT, re-lanzarlo sin modificarlo
+      // Next.js usa este error especial para manejar redirects internamente
+      if (error?.message === 'NEXT_REDIRECT' || error?.digest?.startsWith('NEXT_REDIRECT')) {
+        console.log('[Subscribe Action] ✅ Error NEXT_REDIRECT detectado (esto es normal)');
+        throw error;
+      }
+
       console.error('[Subscribe Action] ========== ERROR EN SUSCRIPCIÓN ==========');
       console.error('[Subscribe Action] Timestamp:', new Date().toISOString());
       console.error('[Subscribe Action] Tipo de error:', error?.constructor?.name || typeof error);
@@ -102,4 +106,8 @@ export const subscribeAction = actionClient
       // Re-lanzar el error con el mensaje mejorado para que next-safe-action lo maneje
       throw new Error(userMessage);
     }
+
+    // El redirect() debe estar FUERA del try-catch para que Next.js pueda manejar el NEXT_REDIRECT correctamente
+    // Next.js lanza un error especial (NEXT_REDIRECT) que debe propagarse sin ser capturado
+    redirect(redirectUrl);
   });
