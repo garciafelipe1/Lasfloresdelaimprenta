@@ -48,23 +48,23 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
       if (!customer.subscriptions || customer.subscriptions.length === 0) {
         return null;
-      }
+    }
 
-      const primarySubscription = customer.subscriptions[0];
+    const primarySubscription = customer.subscriptions[0];
 
-      if (!primarySubscription) {
+    if (!primarySubscription) {
         return null;
-      }
+    }
 
       try {
-        return memberSchema.parse({
-          email: customer.email,
-          id: customer.id,
+    return memberSchema.parse({
+      email: customer.email,
+      id: customer.id,
           name: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
-          status: primarySubscription.status,
-          membershipId: primarySubscription.membership_id,
-          startedAt: primarySubscription.started_at,
-        });
+      status: primarySubscription.status,
+      membershipId: primarySubscription.membership_id,
+      startedAt: primarySubscription.started_at,
+    });
       } catch (error) {
         // Si el parseo falla, retornar null para filtrarlo después
         return null;

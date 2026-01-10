@@ -28,21 +28,21 @@ export async function GET(
   logger.info(`[SubscriptionMe] Intentando buscar suscripciones via GraphQL (usando links)...`);
   try {
     const graphQuery = {
-      entity: "customer",
-      fields: [
+    entity: "customer",
+    fields: [
         "subscriptions.id",
-        "subscriptions.ended_at",
-        "subscriptions.started_at",
-        "subscriptions.membership_id",
-        "subscriptions.status",
-        "subscriptions.price",
+      "subscriptions.ended_at",
+      "subscriptions.started_at",
+      "subscriptions.membership_id",
+      "subscriptions.status",
+      "subscriptions.price",
         "subscriptions.external_id",
         "subscriptions.membership.id",
-        "subscriptions.membership.name",
-      ],
-      filters: {
-        id: memberId,
-      },
+      "subscriptions.membership.name",
+    ],
+    filters: {
+      id: memberId,
+    },
     };
     
     logger.info(`[SubscriptionMe] GraphQL query: ${JSON.stringify(graphQuery, null, 2)}`);
@@ -50,8 +50,8 @@ export async function GET(
     const { data } = await query.graph(graphQuery);
 
     logger.info(`[SubscriptionMe] GraphQL response recibida. Total de customers: ${data.length}`);
-    
-    const customer = data[0];
+
+  const customer = data[0];
     logger.info(`[SubscriptionMe] Customer encontrado: ${customer ? 'Sí' : 'No'}`);
     
     if (customer) {

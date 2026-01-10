@@ -14,8 +14,26 @@
   * {
     @apply border-border outline-ring/50 font-geist;
   }
+  
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
   body {
     @apply bg-background text-foreground scroll-smooth;
+    overflow-x: hidden;
+  }
+  
+  /* Optimizaciones de rendimiento para scroll fluido */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  img, video {
+    content-visibility: auto;
   }
 }
 
@@ -26,5 +44,24 @@
 
   .w-full.rounded-xl.transition.group-hover\:shadow-xl {
     list-style-type: none;
+  }
+}
+
+@layer utilities {
+  /* Optimizaciones de rendimiento para scroll y animaciones */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Contener layout para mejor rendimiento */
+  .contain-layout {
+    contain: layout style paint;
+  }
+  
+  /* GPU acceleration para elementos que se animan */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
   }
 }

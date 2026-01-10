@@ -16,7 +16,9 @@ export function AboutUs() {
             alt='Flores'
             fill
             priority
-            className='object-cover'
+            className='object-cover will-change-transform'
+            quality={85}
+            sizes="(max-width: 768px) 100vw, 90vw"
           />
           <div className='absolute right-0 bottom-0 left-0 p-6 md:right-auto md:left-6 md:max-w-xs'>
             <div className='rounded-2xl bg-white px-5 py-4 md:p-7'>

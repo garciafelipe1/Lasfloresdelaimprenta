@@ -110,16 +110,16 @@ export const mercadoPagoService = {
 
     const preapprovalBody = {
       back_url: successUrl,
-      reason: `Suscripción - La Florería De La Imprenta - ${membershipResult.name}`,
-      auto_recurring: {
-        frequency: 1,
-        frequency_type: 'months',
-        transaction_amount: membershipResult.price,
-        currency_id: 'ARS',
-      },
-      payer_email: email,
-      status: 'pending',
-      external_reference: JSON.stringify(external_reference),
+        reason: `Suscripción - La Florería De La Imprenta - ${membershipResult.name}`,
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: 'months',
+          transaction_amount: membershipResult.price,
+          currency_id: 'ARS',
+        },
+        payer_email: email,
+        status: 'pending',
+        external_reference: JSON.stringify(external_reference),
       notification_url: notificationUrl,
     };
 

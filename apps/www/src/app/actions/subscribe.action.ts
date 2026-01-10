@@ -38,7 +38,7 @@ export const subscribeAction = actionClient
       console.log('[Subscribe Action]   - userId:', user.id);
       console.log('[Subscribe Action]   - email:', email);
       console.log('[Subscribe Action]   - membership:', membership);
-      
+
       redirectUrl = await mercadoPagoService.subscribe({
         userId: user.id,
         email: email,
@@ -87,8 +87,8 @@ export const subscribeAction = actionClient
       
       if (error?.cause) {
         console.error('[Subscribe Action] Error cause:', error.cause);
-      }
-      
+    }
+
       console.error('[Subscribe Action] Error completo:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       console.error('[Subscribe Action] ========== FIN DE ERROR ==========');
       

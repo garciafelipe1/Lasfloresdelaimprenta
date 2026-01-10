@@ -111,8 +111,8 @@ export function Testimonials() {
           {testimonials.map((testimonial, index) => (
             <SwiperSlide key={index}>
               <div
-                className="group bg-white border border-solid border-gray-300 rounded-xl p-6 transition-all duration-500 w-full mx-auto 
-                hover:border-indigo-600 hover:shadow-sm"
+                className="group bg-white border border-solid border-gray-300 rounded-xl p-6 transition-transform duration-300 ease-out will-change-transform w-full mx-auto 
+                hover:border-indigo-600 hover:shadow-sm hover:-translate-y-1"
               >
                 <div>
          
@@ -139,9 +139,10 @@ export function Testimonials() {
              
                 <div className="flex items-center gap-5 border-t border-solid border-gray-200 pt-5">
                   <img
-                    className="rounded-full h-10 w-10 object-cover"
+                    className="rounded-full h-10 w-10 object-cover will-change-transform"
                     src={testimonial.image}
                     alt={testimonial.name}
+                    loading="lazy"
                   />
                   <div className="block">
                     <h5 className="text-gray-900 font-medium transition-all duration-500 mb-1">

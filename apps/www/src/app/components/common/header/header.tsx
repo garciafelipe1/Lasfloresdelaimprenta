@@ -12,7 +12,7 @@ export function Header({ Desktop, Mobile }: Props) {
   const isMobile = useIsMobile();
 
   return (
-    <header className='bg-background px-layout sticky top-0 right-0 left-0 z-50 w-full border-b'>
+    <header className='bg-background px-layout sticky top-0 right-0 left-0 z-50 w-full border-b will-change-transform backdrop-blur-sm bg-background/95'>
       {isMobile ? Mobile : Desktop}
     </header>
   );

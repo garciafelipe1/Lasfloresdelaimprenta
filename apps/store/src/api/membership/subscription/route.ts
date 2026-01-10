@@ -221,9 +221,9 @@ export async function POST(
       logger.info(`[MembershipWebhook] Action: ${action}`);
       
       logger.info(`[MembershipWebhook] Obteniendo PreApproval de MercadoPago...`);
-      const preapproval = await new PreApproval(mercadoPagoClient).get({
-        id: req.validatedBody.data.id,
-      });
+    const preapproval = await new PreApproval(mercadoPagoClient).get({
+      id: req.validatedBody.data.id,
+    });
 
       logger.info(`[MembershipWebhook] ✅ Preapproval obtenido de MercadoPago:`);
       logger.info(`[MembershipWebhook]   - id: ${preapproval.id}`);
@@ -291,11 +291,11 @@ export async function POST(
           logger.warn(`[MembershipWebhook] next_payment_date no está disponible. Usando fecha de 1 mes desde ahora.`);
           endedAt = new Date();
           endedAt.setMonth(endedAt.getMonth() + 1);
-        }
+      }
         
         logger.info(`[MembershipWebhook]   - ended_at calculado: ${endedAt.toISOString()}`);
 
-        try {
+      try {
           const workflowResult = await createSubscriptionWorkflow(req.scope).run({
           input: {
             customer_id: result.data.userId,

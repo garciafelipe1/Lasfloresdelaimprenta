@@ -51,7 +51,7 @@ export const addToCartAction = cartActionClient
         console.log('[AddToCart] Producto añadido al nuevo carrito exitosamente');
       } else {
         // Si es otro error, lanzarlo normalmente
-        throw new Error('Error al agregar al carrito');
+      throw new Error('Error al agregar al carrito');
       }
     }
   });

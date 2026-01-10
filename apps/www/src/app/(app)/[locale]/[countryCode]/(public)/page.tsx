@@ -43,7 +43,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   return (
-    <div className='landing'>
+    <div className='landing overflow-x-hidden'>
       <Hero />
       <Categories />
       {/* <Suspense fallback={<ExamplesSkeleton />}>

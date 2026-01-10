@@ -5,13 +5,6 @@ import { EscencialIcon } from '@/app/components/icons/escencial-icon';
 import { PremiumIcon } from '@/app/components/icons/premium-icon';
 import { Button } from '@/app/components/ui/button';
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/app/components/ui/carousel';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -21,7 +14,6 @@ import {
 import { StoreCustomer } from '@medusajs/types';
 import { MembershipId } from '@server/constants';
 import { MembershipType } from '@server/types';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useState } from 'react';
 import { toast } from 'sonner';
@@ -85,15 +77,14 @@ export function MembershipDetails({ user }: Props) {
 
   return (
     <>
-      <section className='flex w-full flex-col divide-y border-y'>
-        {membershipsDetails.map((membership, index) => (
-          <div
-            data-odd={index % 2 === 1 ? '' : null}
-            id={membership.id}
-            key={membership.title}
-            className='group scroll-mt-44 px-6'
-          >
-            <div className='max-w-desktop mx-auto flex w-full items-center gap-4 py-32 group-data-odd:flex-row-reverse'>
+      <section className='w-full px-6 py-12'>
+        <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 md:justify-center'>
+          {membershipsDetails.map((membership) => (
+            <div
+              key={membership.title}
+              id={membership.id}
+              className='scroll-mt-24 flex justify-center'
+            >
               <div
                 className={`${membership.id} h-fit w-[300px] overflow-hidden rounded-md border`}
               >
@@ -112,41 +103,17 @@ export function MembershipDetails({ user }: Props) {
                   </div>
                 </div>
                 <footer className='bg-background border-t p-2'>
-                  <Button onClick={() => handleClick(membership.id)}>
+                  <Button
+                    onClick={() => handleClick(membership.id)}
+                    className='w-full'
+                  >
                     Obtener membresía
                   </Button>
                 </footer>
               </div>
-              <div className='flex-1 px-20'>
-                <Carousel
-                  opts={{
-                    loop: true,
-                  }}
-                >
-                  <CarouselContent className='-ml-4'>
-                    {Array(5)
-                      .fill(1)
-                      .map((n, index) => (
-                        <CarouselItem
-                          key={index}
-                          className='relative aspect-square pl-4 md:basis-1/2 lg:basis-1/3'
-                        >
-                          <Image
-                            className='bg-card h-full w-full rounded-md border object-cover'
-                            src='/assets/img/flor-4.jpg'
-                            alt='Membership rewards'
-                            fill
-                          />
-                        </CarouselItem>
-                      ))}
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
-              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </section>
 
       <Dialog

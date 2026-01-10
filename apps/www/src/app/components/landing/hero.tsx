@@ -31,13 +31,16 @@ export function Hero() {
         <CarouselContent>
           <CarouselItem
             key='hero-1'
-            className='relative h-[80dvh] min-h-[620px] w-full'
+            className='relative h-[75dvh] min-h-[500px] w-full'
           >
             <Image
               src='/assets/img/hero-1.webp'
               alt={i18n('landing.hero.title')}
-              className='h-full w-full object-cover'
+              className='h-full w-full object-cover object-top'
               fill
+              priority
+              quality={85}
+              sizes="100vw"
             />
             <div
               data-odd={0 % 2 === 0 ? '' : null}
@@ -62,13 +65,16 @@ export function Hero() {
 
           <CarouselItem
             key='hero-2'
-            className='relative h-[80dvh] min-h-[620px] w-full'
+            className='relative h-[75dvh] min-h-[500px] w-full'
           >
             <Image
               src='/assets/img/hero-2.webp'
               alt={i18n('landing.heros.title')}
-              className='h-full w-full object-cover'
+              className='h-full w-full object-cover object-top'
               fill
+              loading="lazy"
+              quality={85}
+              sizes="100vw"
             />
             <div
               data-odd={1 % 2 === 0 ? '' : null}

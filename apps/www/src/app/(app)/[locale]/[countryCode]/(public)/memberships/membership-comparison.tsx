@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MembershipId } from '@server/constants';
 import { Check, X } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { membershipColors } from './constants';
 
 const comparison = {
@@ -116,9 +118,21 @@ function renderValue(value: string, feature: string) {
 const plans: MembershipId[] = ['esencial', 'premium', 'elite'];
 
 export default function MembershipsComparison() {
+  const params = useParams();
+  const locale = params.locale as string;
+  const countryCode = params.countryCode as string;
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const getPortfolioUrl = (plan: MembershipId) => {
+    return `/${locale}/${countryCode}/memberships/portfolio/${plan}`;
+  };
+
+  const getPortfolioUrlWithForm = (plan: MembershipId) => {
+    return `/${locale}/${countryCode}/memberships/portfolio/${plan}#obtener-membresia`;
   };
 
   return (
@@ -172,20 +186,35 @@ export default function MembershipsComparison() {
                 {plans.map((plan) => (
                   <td
                     key={plan}
-                    className='p-4 text-center'
+                    className='p-4 text-center space-y-2'
                   >
-                    <Button
-                      className={`w-full ${
-                        plan === 'esencial'
-                          ? 'bg-slate-600 hover:bg-slate-700'
-                          : plan === 'premium'
-                            ? 'bg-blue-600 hover:bg-blue-700'
-                            : 'bg-purple-600 hover:bg-purple-700'
-                      }`}
-                      onClick={() => scrollToSection(plan)}
+                    <Link
+                      href={getPortfolioUrlWithForm(plan)}
+                      className='block'
                     >
-                      Elegir Plan
-                    </Button>
+                      <Button
+                        className={`w-full ${
+                          plan === 'esencial'
+                            ? 'bg-slate-600 hover:bg-slate-700'
+                            : plan === 'premium'
+                              ? 'bg-blue-600 hover:bg-blue-700'
+                              : 'bg-purple-600 hover:bg-purple-700'
+                        }`}
+                      >
+                        Elegir Plan
+                      </Button>
+                    </Link>
+                    <Link
+                      href={getPortfolioUrl(plan)}
+                      className='block'
+                    >
+                      <Button
+                        variant='outline'
+                        className='w-full'
+                      >
+                        Ver Portfolio de Membresía
+                      </Button>
+                    </Link>
                   </td>
                 ))}
               </tr>
@@ -226,19 +255,34 @@ export default function MembershipsComparison() {
                   </div>
                 );
               })}
-              <div className='mt-4 border-t pt-4'>
-                <Button
-                  className={`w-full ${
-                    plan === 'esencial'
-                      ? 'bg-slate-600 hover:bg-slate-700'
-                      : plan === 'premium'
-                        ? 'bg-blue-600 hover:bg-blue-700'
-                        : 'bg-purple-600 hover:bg-purple-700'
-                  }`}
-                  onClick={() => scrollToSection(plan)}
+              <div className='mt-4 space-y-2 border-t pt-4'>
+                <Link
+                  href={getPortfolioUrlWithForm(plan)}
+                  className='block'
                 >
-                  Elegir Plan
-                </Button>
+                  <Button
+                    className={`w-full ${
+                      plan === 'esencial'
+                        ? 'bg-slate-600 hover:bg-slate-700'
+                        : plan === 'premium'
+                          ? 'bg-blue-600 hover:bg-blue-700'
+                          : 'bg-purple-600 hover:bg-purple-700'
+                    }`}
+                  >
+                    Elegir Plan
+                  </Button>
+                </Link>
+                <Link
+                  href={getPortfolioUrl(plan)}
+                  className='block'
+                >
+                  <Button
+                    variant='outline'
+                    className='w-full'
+                  >
+                    Ver Portfolio de Membresía
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>

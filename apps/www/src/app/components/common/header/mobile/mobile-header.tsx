@@ -7,7 +7,7 @@ export async function MobileHeader() {
   const cart = await cartService.getCart();
 
   return (
-    <div className='flex items-center justify-between py-2'>
+    <div className='flex items-center justify-between '>
       <MobileMenu />
       <MobileThemedLogo />
       <ShoppingCart cart={cart} />

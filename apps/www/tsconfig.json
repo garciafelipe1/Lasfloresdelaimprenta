@@ -28,7 +28,7 @@
       "@server/*": ["../store/src/shared/*"],
       "@payloadcms/db-sqlite": ["./node_modules/@payloadcms/db-sqlite"],
       "@/lib/*": ["./src/lib/*"]
-    },
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules", ".next"],

@@ -15,7 +15,7 @@ interface BannerProps {
 }
 
 const CategoryCard = ({ title, imageUrl }: BannerProps) => (
-  <div className='group relative h-50 overflow-hidden rounded-lg transition-all duration-300 hover:shadow-md'>
+  <div className='group relative h-50 overflow-hidden rounded-lg transition-shadow duration-300 ease-out will-change-shadow hover:shadow-md'>
     <div className='relative z-20 p-4'>
       <p className='text-sm text-white'>ALWAYS NEW</p>
       <Badge>{title}</Badge>
@@ -25,7 +25,10 @@ const CategoryCard = ({ title, imageUrl }: BannerProps) => (
       fill
       src={imageUrl}
       alt='category'
-      className='absolute inset-0 h-full w-full rounded-lg object-cover transition-all duration-300 group-hover:scale-105'
+      className='absolute inset-0 h-full w-full rounded-lg object-cover transition-transform duration-300 ease-out will-change-transform group-hover:scale-105'
+      loading="lazy"
+      quality={80}
+      sizes="(max-width: 768px) 100vw, 50vw"
     />
     <div className='absolute inset-0 z-10 rounded-lg bg-gradient-to-br from-black/50 to-transparent transition-opacity duration-300 group-hover:opacity-0 hover:bg-black/0' />
   </div>

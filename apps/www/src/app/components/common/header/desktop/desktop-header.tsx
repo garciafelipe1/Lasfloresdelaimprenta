@@ -4,7 +4,7 @@ import { HeaderMenu } from './header-menu';
 
 export function DesktopHeader() {
   return (
-    <div className='max-w-desktop mx-auto flex items-center justify-between py-2'>
+    <div className='max-w-desktop mx-auto flex items-center justify-between py-4'>
       <NavLinks />
       <Logo />
       <HeaderMenu />
