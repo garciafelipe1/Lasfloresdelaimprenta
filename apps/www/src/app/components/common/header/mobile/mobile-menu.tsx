@@ -32,7 +32,7 @@ export function MobileMenu() {
         </Button>
       </SheetTrigger>
       <SheetContent
-        side='left'
+        side='right'
         className='flex flex-col space-y-4'
       >
         <SheetHeader>
