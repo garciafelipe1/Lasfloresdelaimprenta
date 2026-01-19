@@ -45,7 +45,41 @@
     },
     "questions": {
       "title": "Frequently Asked Questions",
-      "description": "Find the answers to your questions"
+      "description": "Find the answers to your questions",
+      "items": [
+        {
+          "question": "How can I place an order?",
+          "answer": "You can place your order through our website by selecting the products you want and following the checkout process. You can also contact us by phone or WhatsApp."
+        },
+        {
+          "question": "What is the delivery time?",
+          "answer": "Delivery time depends on your location. We generally deliver the same day if the order is placed before 12:00 PM, or the next day."
+        },
+        {
+          "question": "Do you offer home delivery?",
+          "answer": "Yes, we offer home delivery throughout the city. Shipping costs vary by area. We also offer free delivery for orders that exceed a certain amount."
+        },
+        {
+          "question": "What payment methods do you accept?",
+          "answer": "We accept cash, debit and credit cards, bank transfers, and payments through Mercado Pago. We also offer cash on delivery."
+        },
+        {
+          "question": "Can I customize my floral arrangement?",
+          "answer": "Of course! We love creating customized arrangements according to your preferences. You can choose the types of flowers, colors, and style. Contact us and we'll help you create the perfect arrangement."
+        },
+        {
+          "question": "Do you offer event services?",
+          "answer": "Yes, we offer complete services for events such as weddings, birthdays, anniversaries, and corporate events. We work with you to create the perfect floral decoration for your special occasion."
+        },
+        {
+          "question": "What if I'm not satisfied with my order?",
+          "answer": "Your satisfaction is our priority. If you are not completely satisfied with your order, contact us within 24 hours of delivery and we will do everything possible to resolve it."
+        },
+        {
+          "question": "Do you offer subscriptions or memberships?",
+          "answer": "Yes, we offer different membership plans that allow you to receive regular floral arrangements with exclusive discounts. You can choose from monthly, quarterly, or annual plans depending on your needs."
+        }
+      ]
     }
   }
 }

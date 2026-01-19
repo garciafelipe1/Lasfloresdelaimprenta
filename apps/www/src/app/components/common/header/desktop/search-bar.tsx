@@ -33,7 +33,7 @@ export function SearchBar() {
           {isPending ? (
             <Loader className='text-primary/70 w-5 animate-spin' />
           ) : (
-            <Search className='text-primary/70 w-5' />
+            <Search className='text-primary w-5' />
           )}
         </div>
         <button

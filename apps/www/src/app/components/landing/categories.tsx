@@ -67,10 +67,10 @@ export function Categories() {
         size='desktop'
       >
         <SectionHeader className='flex flex-col items-center justify-center'>
-          <SectionTitle className='text-4xl'>
+          <SectionTitle className='text-4xl text-primary'>
             {t('landing.categories.title')}
           </SectionTitle>
-          <SectionSubtitle className='text-center'>
+          <SectionSubtitle className='text-center text-primary'>
             {t('landing.categories.description')}
           </SectionSubtitle>
         </SectionHeader>

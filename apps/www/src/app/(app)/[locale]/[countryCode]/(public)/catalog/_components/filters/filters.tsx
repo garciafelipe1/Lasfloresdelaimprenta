@@ -178,7 +178,8 @@ export function Filters() {
                             key={option.value}
                             value={option.value}
                           >
-                            {option.label}
+                            {/* @ts-expect-error - dynamic translation key */}
+                            {t(`form.orderByOptions.${option.value}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -198,7 +199,7 @@ export function Filters() {
                   </AccordionTrigger>
                   <AccordionContent>
                     <ul>
-                      {Object.values(CATEGORIES).map((category) => (
+                      {Object.entries(CATEGORIES).map(([key, category]) => (
                         <FormField
                           key={category}
                           control={form.control}
@@ -222,7 +223,8 @@ export function Filters() {
                                     }}
                                   />
                                 </FormControl>
-                                {category}
+                                {/* @ts-expect-error - dynamic translation key */}
+                                {t(`categoriesAccordion.options.${key}`)}
                               </FormLabel>
                             </FormItem>
                           )}

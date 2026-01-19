@@ -11,8 +11,8 @@ export function ShoppingCartFooter({ totalPrice }: Props) {
   return (
     <div className='sticky bottom-0 flex w-full flex-col gap-4 border-t p-8'>
       <header className='flex items-center justify-between px-4'>
-        <div className='text-lg font-semibold'>TOTAL</div>
-        <div className='text-lg font-semibold'>{formatARS(totalPrice)}</div>
+        <div className='text-lg font-semibold text-primary'>TOTAL</div>
+        <div className='text-lg font-semibold text-primary'>{formatARS(totalPrice)}</div>
       </header>
       <Link href='/checkout/cart'>
         <Button
@@ -28,7 +28,7 @@ export function ShoppingCartFooter({ totalPrice }: Props) {
         className=''
       >
         <Button className='w-full'>
-          <ChevronLeft />
+          <ChevronLeft className='text-primary' />
           <span>Seguir comprando</span>
         </Button>
       </Link>

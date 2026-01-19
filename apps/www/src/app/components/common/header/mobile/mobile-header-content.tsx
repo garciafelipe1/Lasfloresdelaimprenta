@@ -27,7 +27,7 @@ export function MobileHeaderContent({ cart }: Props) {
             size='icon'
             onClick={() => setSearchOpen(true)}
           >
-            <Search className='h-5 w-5' />
+            <Search className='h-5 w-5 text-primary' />
             <span className='sr-only'>Buscar</span>
           </Button>
           <ShoppingCart cart={cart} />
@@ -36,7 +36,7 @@ export function MobileHeaderContent({ cart }: Props) {
               variant='outline'
               size='icon'
             >
-              <UserCircleIcon className='h-5 w-5' />
+              <UserCircleIcon className='h-5 w-5 text-primary' />
               <span className='sr-only'>Usuario</span>
             </Button>
           </Link>

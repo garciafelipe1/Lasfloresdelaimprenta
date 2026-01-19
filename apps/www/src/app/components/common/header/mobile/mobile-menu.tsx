@@ -28,7 +28,7 @@ export function MobileMenu() {
           variant='outline'
           size='icon'
         >
-          <MenuIcon />
+          <MenuIcon className='text-primary' />
         </Button>
       </SheetTrigger>
       <SheetContent

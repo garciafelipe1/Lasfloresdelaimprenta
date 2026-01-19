@@ -22,17 +22,17 @@ export default function ServiceSection({
 
   return (
     <section
-      className='px-layout py-vertical group/section scroll-mt-12 border-b md:pt-16 md:pb-16'
+      className='px-layout py-vertical group/section scroll-mt-12 border-b md:pt-16 md:pb-16 text-primary'
       id={hash}
     >
       <div className='max-w-desktop mx-auto flex flex-col gap-12'>
         <header>
           <h2 className='text-primary text-center tracking-tight'>{title}</h2>
-          <p className='mt-3 text-center'>{subtitle}</p>
+          <p className='mt-3 text-center text-primary'>{subtitle}</p>
         </header>
 
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[auto_auto]'>
-          <div className='relative col-span-full overflow-hidden shadow-lg md:col-span-2 lg:col-span-3 lg:row-span-1'>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[auto_auto] text-primary'>
+          <div className='relative col-span-full overflow-hidden shadow-lg md:col-span-2 lg:col-span-3 lg:row-span-1 text-primary'>
             <Image
               src={image1}
               alt='Arreglo floral exquisito en chimenea'
@@ -74,17 +74,17 @@ export default function ServiceSection({
         </div>
         <footer className='bg-secondary flex flex-wrap items-center gap-4 rounded-md p-4 group-even/section:flex-row-reverse'>
           <div
-            className='prose w-[300px] flex-1'
+            className='prose w-[300px] flex-1 text-primary'
             dangerouslySetInnerHTML={{ __html: description }}
           />
           <div className='flex flex-1 items-center justify-center'>
             <Link
               href='#'
-              className='group'
+              className='group text-primary'
             >
               <Button size='lg'>
                 Contratar servicio{' '}
-                <ArrowUpRight className='transition group-hover:translate-x-[2px] group-hover:translate-y-[-2px]' />
+                <ArrowUpRight className='transition group-hover:translate-x-[2px] group-hover:translate-y-[-2px] text-primary' />
               </Button>
             </Link>
           </div>

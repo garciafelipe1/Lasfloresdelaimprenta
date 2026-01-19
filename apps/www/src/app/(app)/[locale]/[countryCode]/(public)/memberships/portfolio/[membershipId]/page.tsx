@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/carousel';
 import { MembershipId } from '@server/constants';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -82,15 +83,16 @@ export default function MembershipPortfolioPage() {
   const locale = params.locale as string;
   const countryCode = params.countryCode as string;
   const [open, setOpen] = useState(false);
+  const t = useTranslations('membership.portfolio');
 
   // Validar que la membresía existe
   if (!membershipId || !membershipPortfolios[membershipId]) {
     return (
       <div className='flex min-h-screen items-center justify-center px-4'>
         <div className='text-center'>
-          <h1 className='mb-4 text-2xl font-bold'>Membresía no encontrada</h1>
+          <h1 className='mb-4 text-2xl font-bold'>{t('notFound.title')}</h1>
           <Link href={`/${locale}/${countryCode}/memberships`}>
-            <Button>Volver a Membresías</Button>
+            <Button>{t('notFound.backButton')}</Button>
           </Link>
         </div>
       </div>
@@ -136,10 +138,10 @@ export default function MembershipPortfolioPage() {
             </Link>
             <div>
               <h1 className='text-3xl font-bold md:text-4xl'>
-                Portfolio - Membresía {membershipName}
+                {t('header.title')} {membershipName}
               </h1>
               <p className='mt-2 text-muted-foreground'>
-                Explora todas nuestras creaciones para esta membresía
+                {t('header.description')}
               </p>
             </div>
           </div>
@@ -183,7 +185,7 @@ export default function MembershipPortfolioPage() {
         ) : (
           <div className='mb-8 flex min-h-[400px] items-center justify-center rounded-lg border'>
             <p className='text-muted-foreground'>
-              No hay imágenes disponibles para esta membresía
+              {t('noImages')}
             </p>
           </div>
         )}
@@ -191,7 +193,7 @@ export default function MembershipPortfolioPage() {
         {/* Grid de imágenes (vista completa) */}
         {images.length > 0 && (
           <div className='mb-12'>
-            <h2 className='mb-6 text-2xl font-semibold'>Galería Completa</h2>
+            <h2 className='mb-6 text-2xl font-semibold'>{t('galleryTitle')}</h2>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
               {images.map((imageUrl, index) => (
                 <div
@@ -231,7 +233,7 @@ export default function MembershipPortfolioPage() {
                   <p className='m-0'>{membershipName}</p>
                 </header>
                 <div>
-                  <p className='m-0'>Precio por mes</p>
+                  <p className='m-0'>{t('pricePerMonth')}</p>
                   <p className='m-0 text-2xl font-semibold'>
                     {formatARS(membershipPrice)}
                   </p>
@@ -242,7 +244,7 @@ export default function MembershipPortfolioPage() {
                   onClick={handleClick}
                   className='w-full'
                 >
-                  Obtener membresía
+                  {t('getMembership')}
                 </Button>
               </footer>
             </div>
@@ -256,10 +258,9 @@ export default function MembershipPortfolioPage() {
         >
           <DialogContent className='sm:max-w-[425px]'>
             <DialogHeader>
-              <DialogTitle>Suscribirse | {membershipName}</DialogTitle>
+              <DialogTitle>{t('subscribe')} | {membershipName}</DialogTitle>
               <DialogDescription>
-                Necesitamos vincular tu cuenta de mercado pago con tu cuenta de
-                las flores de la imprenta
+                {t('subscribeDescription')}
               </DialogDescription>
             </DialogHeader>
             <MembershipForm membership={membershipId} />
@@ -274,7 +275,7 @@ export default function MembershipPortfolioPage() {
               size='lg'
             >
               <ArrowLeft className='mr-2 h-4 w-4' />
-              Volver a Comparación de Membresías
+              {t('backToComparison')}
             </Button>
           </Link>
         </div>

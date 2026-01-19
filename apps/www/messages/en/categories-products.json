@@ -2,6 +2,9 @@
   "filters": {
     "header": "Filters",
     "clearFiltersButton": "Clear Filters",
+    "mobileButton": "Filters",
+    "mobileTitle": "Filter products",
+    "mobileDescription": "Apply filters to adjust your search",
     "form": {
       "nameLabel": "Name",
       "namePlaceholder": "Bouquet of ...",
@@ -10,8 +13,10 @@
       "orderByOptions": {
         "mostRecent": "Most recent",
         "older": "Older",
-        "priceAsc": "Price: Low to High",
-        "priceDesc": "Price: High to Low"
+        "price_asc": "Price: Low to High",
+        "price_desc": "Price: High to Low",
+        "created_at_desc": "Newest first",
+        "created_at_asc": "Oldest first"
       },
       "applyButton": "Apply filters",
       "applyingButton": "Filtering..."
@@ -19,14 +24,16 @@
     "categoriesAccordion": {
       "trigger": "Categories",
       "options": {
-        "primaveral": "Spring Bouquets",
+        "ramosPrimaverales": "Spring Bouquets",
         "rosas": "Roses",
         "box": "Box",
         "follaje": "Foliage",
         "florero": "Vase",
         "funebre": "Funeral",
         "fragancias": "Fragrances",
-        "velas": "Candles"
+        "velas": "Candles",
+        "complementos": "Accessories",
+        "diseniosExclusivos": "Exclusive Designs"
       }
     },
     "dynamicFilters": {

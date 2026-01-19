@@ -46,13 +46,34 @@ export function Hero() {
               data-odd={0 % 2 === 0 ? '' : null}
               className='max-w-desktop absolute inset-0 z-20 mx-auto flex w-full items-end p-6 data-odd:justify-end'
             >
-              <Card>
-                <CardHeader>
+              <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs'>
+                {/* Bordes decorativos florales dentro del card */}
+                <div className='absolute -left-46 top-3 hidden h-full w-full md:block'>
+                  <Image
+                    src='/assets/img/flor-decorativa-izquierda-nueva.png'
+                    alt=''
+                    width={400}
+                    height={2200}
+                    className='h-full w-full object-contain ml-10'
+                    aria-hidden='true'
+                  />
+                </div>
+                <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
+                  <Image
+                    src='/assets/img/flor-decorativa-derecha-flama.png'
+                    alt=''
+                    width={400}
+                    height={2000}
+                    className='h-full w-200'
+                    aria-hidden='true'
+                  />
+                </div>
+                <CardHeader className='relative z-10'>
                   <CardTitle className='text-center capitalize'>
                     {i18n('landing.hero.title')}{' '}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className='relative z-10 flex justify-center'>
                   <Link href={'/catalog/'}>
                     <Button>
                       {i18n('landing.hero.button')} <ChevronRight />{' '}
@@ -80,13 +101,34 @@ export function Hero() {
               data-odd={1 % 2 === 0 ? '' : null}
               className='max-w-desktop absolute inset-0 z-20 mx-auto flex w-full items-end p-6 data-odd:justify-end'
             >
-              <Card>
-                <CardHeader>
+              <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs'>
+                {/* Bordes decorativos florales dentro del card */}
+                <div className='absolute -left-46 top-3 hidden h-full w-full md:block'>
+                  <Image
+                    src='/assets/img/flor-decorativa-izquierda-nueva.png'
+                    alt=''
+                    width={400}
+                    height={2200}
+                    className='h-full w-full object-contain ml-10'
+                    aria-hidden='true'
+                  />
+                </div>
+                <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
+                  <Image
+                    src='/assets/img/flor-decorativa-derecha-flama.png'
+                    alt=''
+                    width={400}
+                    height={2000}
+                    className='h-full w-200'
+                    aria-hidden='true'
+                  />
+                </div>
+                <CardHeader className='relative z-10'>
                   <CardTitle className='text-center capitalize'>
                     {i18n('landing.heros.title')}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className='relative z-10 flex justify-center'>
                   <Link href={'/catalog/'}>
                     <Button>
                       {i18n('landing.heros.button')}

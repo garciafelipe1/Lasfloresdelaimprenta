@@ -9,19 +9,22 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/app/components/ui/sheet';
+import { useTranslations } from 'next-intl';
 import { Filters } from './filters';
 
 export function MobileFilters() {
+  const t = useTranslations('filters');
+
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button>Filtros</Button>
+        <Button>{t('mobileButton')}</Button>
       </SheetTrigger>
       <SheetContent className='flex flex-col space-y-4'>
         <SheetHeader className='sr-only'>
-          <SheetTitle>Filtrar productos</SheetTitle>
+          <SheetTitle>{t('mobileTitle')}</SheetTitle>
           <SheetDescription className='m-0'>
-            Aplica filtros para ajustar tu búsqueda
+            {t('mobileDescription')}
           </SheetDescription>
         </SheetHeader>
         <div className='pt-20'>

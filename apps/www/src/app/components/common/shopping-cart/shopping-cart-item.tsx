@@ -33,8 +33,8 @@ export function ShoppingCartItem({ item }: Props) {
       />
 
       <div className='flex-1'>
-        <h6 className='m-0'>{item.title}</h6>
-        <p className='mt-0 text-sm text-gray-500'>
+        <h6 className='m-0 text-primary'>{item.title}</h6>
+        <p className='mt-0 text-sm text-primary'>
           {formatARS(item.unit_price)}
         </p>
       </div>
@@ -46,7 +46,7 @@ export function ShoppingCartItem({ item }: Props) {
         size='icon'
         aria-label={`Remove ${item.title}`}
       >
-        <Trash />
+        <Trash className='text-primary' />
       </Button>
     </div>
   );

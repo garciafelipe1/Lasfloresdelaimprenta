@@ -18,7 +18,7 @@ export async function HeaderMenu() {
           variant='outline'
           size='icon'
         >
-          <UserCircleIcon className='h-5 w-5' />
+          <UserCircleIcon className='h-5 w-5 text-primary' />
           <span className='sr-only'>Usuario</span>
         </Button>
       </Link>

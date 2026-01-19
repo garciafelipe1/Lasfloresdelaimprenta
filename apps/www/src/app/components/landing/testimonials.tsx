@@ -69,10 +69,10 @@ export function Testimonials() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
         
-          <span className="text-sm text-gray-500 font-medium block mb-2">
-            {t('landing.testimonials.title')}
+          <span className="text-sm text-primary font-medium block mb-2">
+           
           </span>
-          <h2 className="text-4xl font-bold text-gray-900">
+          <h2 className="text-4xl font-bold text-primary">
             {t('landing.testimonials.title')}
           </h2>
         </div>
@@ -132,7 +132,7 @@ export function Testimonials() {
                     </span>
                   </div>
              
-                  <p className="text-base text-gray-600 leading-6 transition-all duration-500 pb-8 group-hover:text-gray-800">
+                  <p className="text-base text-primary leading-6 transition-all duration-500 pb-8 group-hover:text-gray-800">
                     {testimonial.quote}
                   </p>
                 </div>

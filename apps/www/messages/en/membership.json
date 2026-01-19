@@ -50,9 +50,98 @@
       "title": "Try subscription",
       "subtitle": "Email associated to your Mercado Pago account.",
       "button1": "Suscribe",
-      "button2": "Redireccionando a Mercado Pago..."
-
+      "button2": "Redirecting to Mercado Pago..."
+    },
+    "comparison": {
+      "title": "Compare our memberships",
+      "subtitle": "Choose the perfect plan for you",
+      "characteristics": "Features",
+      "choosePlan": "Choose Plan",
+      "viewPortfolio": "View Membership Portfolio",
+      "features": {
+        "frequency": {
+          "label": "Delivery frequency",
+          "esencial": "Once per week",
+          "premium": "Once per week",
+          "elite": "Once per week"
+        },
+        "bouquetSize": {
+          "label": "Bouquet size"
+        },
+        "flowerType": {
+          "label": "Flower type",
+          "esencial": "Seasonal flowers",
+          "premium": "Premium flowers + aromatic foliage",
+          "elite": "Supreme flowers + chromotherapy"
+        },
+        "candle": {
+          "label": "Aromatic candles",
+          "esencial": "1 aromatic candle per month",
+          "premium": "1 large aromatic candle per month",
+          "elite": "1 large artisanal candle per month"
+        },
+        "fragrance": {
+          "label": "Aromatic fragrances",
+          "none": "—",
+          "premium": "1 large fragrance",
+          "elite": "2 large fragrances"
+        },
+        "vases": {
+          "label": "Included vases",
+          "none": "—",
+          "premium": "First and third shipment",
+          "elite": "First and third shipment"
+        },
+        "loyaltyCard": {
+          "label": "Loyalty card",
+          "esencial": "Virtual, with rewards",
+          "premium": "Virtual, special benefits",
+          "elite": "Virtual, exclusive benefits"
+        },
+        "support": {
+          "label": "Personalized attention",
+          "none": "—",
+          "premium": "Private support",
+          "elite": "VIP consultation + floral artist"
+        },
+        "exclusiveProducts": {
+          "label": "Unique product proposals",
+          "no": "No",
+          "yes": "Yes"
+        },
+        "customization": {
+          "label": "Arrangement customization",
+          "no": "No",
+          "premium": "Based on monthly consumption",
+          "elite": "Total, with floral advice"
+        },
+        "idealFor": {
+          "label": "Ideal for",
+          "esencial": "Those who want to start with flowers",
+          "premium": "Wellness and detail lovers",
+          "elite": "Elegant and unique spaces"
+        },
+        "price": {
+          "label": "Monthly price (ARS)"
+        }
+      }
+    },
+    "portfolio": {
+      "notFound": {
+        "title": "Membership not found",
+        "backButton": "Back to Memberships"
+      },
+      "header": {
+        "title": "Portfolio - Membership",
+        "description": "Explore all our creations for this membership"
+      },
+      "noImages": "No images available for this membership",
+      "galleryTitle": "Complete Gallery",
+      "pricePerMonth": "Price per month",
+      "getMembership": "Get membership",
+      "subscribe": "Subscribe",
+      "subscribeDescription": "We need to link your Mercado Pago account with your Las Flores de la Imprenta account",
+      "backToComparison": "Back to Membership Comparison"
     }
-  
   }
 }

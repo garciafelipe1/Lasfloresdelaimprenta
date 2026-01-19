@@ -1,0 +1,129 @@
+/* Layout base */
+.wrapper {
+  display: grid;
+  grid-template-columns: minmax(60px, 120px) 1fr minmax(60px, 120px);
+  align-items: center;
+  justify-items: center;
+  background: #ffffff;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 40px 24px;
+}
+
+/* Columnas laterales */
+.side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* SVG flor */
+.flor {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+}
+
+.flip {
+  transform: scaleX(-1);
+}
+
+/* Contenido central */
+.content {
+  text-align: center;
+  max-width: 720px;
+  padding: 0 32px;
+}
+
+.title {
+  font-family: 'Morgan', serif;
+  font-weight: 700;
+  font-size: 2.4rem;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: #222;
+  text-transform: uppercase;
+  margin: 0 0 28px 0;
+}
+
+/* Botón ovalado */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 36px;
+  border: none;
+  border-radius: 999px;
+  background: #d1b3ff; /* lila suave */
+  color: #2b2b2b;
+  font-size: 1rem;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.05s ease;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  text-decoration: none;
+}
+
+.cta:hover {
+  background: #c29aff;
+}
+
+.cta:active {
+  transform: translateY(1px);
+}
+
+/* Responsivo sin romper el diseño */
+@media (max-width: 1024px) {
+  .title {
+    font-size: 2.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    row-gap: 20px;
+    padding: 28px 16px;
+  }
+
+  .side {
+    height: auto;
+  }
+
+  .flor {
+    max-width: 90px;
+  }
+
+  .content {
+    padding: 0 12px;
+    max-width: 560px;
+  }
+
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 22px;
+  }
+
+  .cta {
+    padding: 12px 28px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .flor {
+    max-width: 72px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .cta {
+    padding: 11px 24px;
+    font-size: 0.9rem;
+  }
+}

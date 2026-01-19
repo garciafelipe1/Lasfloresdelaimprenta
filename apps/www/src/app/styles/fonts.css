@@ -2,3 +2,11 @@
   font-family: 'Geist';
   src: url('/fonts/GeistVF.woff') format('woff');
 }
+
+@font-face {
+  font-family: 'Morgan';
+  src: url('/fonts/Morgan.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

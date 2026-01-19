@@ -49,7 +49,97 @@
       "subtitle": "Correo electrónico asociado a tu cuenta de Mercado Pago.",
       "button1": "Suscribirse",
       "button2": "Redireccionando a Mercado Pago..."
-
+    },
+    "comparison": {
+      "title": "Compara nuestras membresías",
+      "subtitle": "Elige el plan perfecto para ti",
+      "characteristics": "Características",
+      "choosePlan": "Elegir Plan",
+      "viewPortfolio": "Ver Portfolio de Membresía",
+      "features": {
+        "frequency": {
+          "label": "Frecuencia de entrega",
+          "esencial": "1 vez por semana",
+          "premium": "1 vez por semana",
+          "elite": "1 vez por semana"
+        },
+        "bouquetSize": {
+          "label": "Tamaño del ramo"
+        },
+        "flowerType": {
+          "label": "Tipo de flores",
+          "esencial": "Flores de temporada",
+          "premium": "Flores premium + follajes aromáticos",
+          "elite": "Flores supremas + cromoterapia"
+        },
+        "candle": {
+          "label": "Velas aromáticas",
+          "esencial": "1 vela aromática por mes",
+          "premium": "1 vela grande aromática por mes",
+          "elite": "1 vela grande artesanal por mes"
+        },
+        "fragrance": {
+          "label": "Fragancias aromáticas",
+          "none": "—",
+          "premium": "1 fragancia grande",
+          "elite": "2 fragancias grandes"
+        },
+        "vases": {
+          "label": "Floreros incluidos",
+          "none": "—",
+          "premium": "Primer y tercer envío",
+          "elite": "Primer y tercer envío"
+        },
+        "loyaltyCard": {
+          "label": "Tarjeta de lealtad",
+          "esencial": "Virtual, con recompensas",
+          "premium": "Virtual, beneficios especiales",
+          "elite": "Virtual, beneficios exclusivos"
+        },
+        "support": {
+          "label": "Atención personalizada",
+          "none": "—",
+          "premium": "Soporte privado",
+          "elite": "Consultoría VIP + artista floral"
+        },
+        "exclusiveProducts": {
+          "label": "Propuestas de productos únicos",
+          "no": "No",
+          "yes": "Sí"
+        },
+        "customization": {
+          "label": "Personalización de arreglos",
+          "no": "No",
+          "premium": "Según consumo mensual",
+          "elite": "Total, con asesoramiento floral"
+        },
+        "idealFor": {
+          "label": "Ideal para",
+          "esencial": "Quienes quieren empezar con flores",
+          "premium": "Amantes del bienestar y el detalle",
+          "elite": "Espacios elegantes y únicos"
+        },
+        "price": {
+          "label": "Precio mensual (ARS)"
+        }
+      }
+    },
+    "portfolio": {
+      "notFound": {
+        "title": "Membresía no encontrada",
+        "backButton": "Volver a Membresías"
+      },
+      "header": {
+        "title": "Portfolio - Membresía",
+        "description": "Explora todas nuestras creaciones para esta membresía"
+      },
+      "noImages": "No hay imágenes disponibles para esta membresía",
+      "galleryTitle": "Galería Completa",
+      "pricePerMonth": "Precio por mes",
+      "getMembership": "Obtener membresía",
+      "subscribe": "Suscribirse",
+      "subscribeDescription": "Necesitamos vincular tu cuenta de mercado pago con tu cuenta de las flores de la imprenta",
+      "backToComparison": "Volver a Comparación de Membresías"
     }
-    }
+  }
 }

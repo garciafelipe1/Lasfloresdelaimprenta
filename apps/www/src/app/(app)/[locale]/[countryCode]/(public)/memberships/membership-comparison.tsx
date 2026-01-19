@@ -5,87 +5,33 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MembershipId } from '@server/constants';
 import { Check, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { membershipColors } from './constants';
 
-const comparison = {
-  frequency: {
-    label: 'Frecuencia de entrega',
-    esencial: '1 vez por semana',
-    premium: '1 vez por semana',
-    elite: '1 vez por semana',
-  },
-  bouquetSize: {
-    label: 'Tamaño del ramo',
-    esencial: 'S',
-    premium: 'M',
-    elite: 'XL',
-  },
-  flowerType: {
-    label: 'Tipo de flores',
-    esencial: 'Flores de temporada',
-    premium: 'Flores premium + follajes aromáticos',
-    elite: 'Flores supremas + cromoterapia',
-  },
-  candle: {
-    label: 'Velas aromáticas',
-    esencial: '1 vela aromática por mes',
-    premium: '1 vela grande aromática por mes',
-    elite: '1 vela grande artesanal por mes',
-  },
-  fragrance: {
-    label: 'Fragancias aromáticas',
-    esencial: '—',
-    premium: '1 fragancia grande',
-    elite: '2 fragancias grandes',
-  },
-  vases: {
-    label: 'Floreros incluidos',
-    esencial: '—',
-    premium: 'Primer y tercer envío',
-    elite: 'Primer y tercer envío',
-  },
-  loyaltyCard: {
-    label: 'Tarjeta de lealtad',
-    esencial: 'Virtual, con recompensas',
-    premium: 'Virtual, beneficios especiales',
-    elite: 'Virtual, beneficios exclusivos',
-  },
-  support: {
-    label: 'Atención personalizada',
-    esencial: '—',
-    premium: 'Soporte privado',
-    elite: 'Consultoría VIP + artista floral',
-  },
-  exclusiveProducts: {
-    label: 'Propuestas de productos únicos',
-    esencial: 'No',
-    premium: 'Sí',
-    elite: 'Sí',
-  },
-  customization: {
-    label: 'Personalización de arreglos',
-    esencial: 'No',
-    premium: 'Según consumo mensual',
-    elite: 'Total, con asesoramiento floral',
-  },
-  idealFor: {
-    label: 'Ideal para',
-    esencial: 'Quienes quieren empezar con flores',
-    premium: 'Amantes del bienestar y el detalle',
-    elite: 'Espacios elegantes y únicos',
-  },
-  price: {
-    label: 'Precio mensual (ARS)',
-    esencial: '$110.000',
-    premium: '$185.000',
-    elite: '$285.000',
-  },
+const priceValues: Record<MembershipId, string> = {
+  esencial: '$110.000',
+  premium: '$185.000',
+  elite: '$285.000',
 };
 
-function renderValue(value: string, feature: string) {
-  if (value === '—' || value === 'No') {
+const bouquetSizeValues: Record<MembershipId, string> = {
+  esencial: 'S',
+  premium: 'M',
+  elite: 'XL',
+};
+
+function renderValue(
+  value: string,
+  feature: string,
+  t: ReturnType<typeof useTranslations<'membership.comparison'>>
+) {
+  const noValue = t('features.fragrance.none');
+  const noLabel = t('features.exclusiveProducts.no');
+  const yesLabel = t('features.exclusiveProducts.yes');
+
+  if (value === noValue || value === noLabel) {
     return (
       <div className='flex items-center justify-center'>
         <X className='h-4 w-4 text-red-500' />
@@ -93,7 +39,7 @@ function renderValue(value: string, feature: string) {
     );
   }
 
-  if (value === 'Sí') {
+  if (value === yesLabel) {
     return (
       <div className='flex items-center justify-center'>
         <Check className='h-4 w-4 text-green-500' />
@@ -117,15 +63,26 @@ function renderValue(value: string, feature: string) {
 
 const plans: MembershipId[] = ['esencial', 'premium', 'elite'];
 
+const featureKeys = [
+  'frequency',
+  'bouquetSize',
+  'flowerType',
+  'candle',
+  'fragrance',
+  'vases',
+  'loyaltyCard',
+  'support',
+  'exclusiveProducts',
+  'customization',
+  'idealFor',
+  'price',
+] as const;
+
 export default function MembershipsComparison() {
   const params = useParams();
   const locale = params.locale as string;
   const countryCode = params.countryCode as string;
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    element?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const t = useTranslations('membership.comparison');
 
   const getPortfolioUrl = (plan: MembershipId) => {
     return `/${locale}/${countryCode}/memberships/portfolio/${plan}`;
@@ -133,6 +90,46 @@ export default function MembershipsComparison() {
 
   const getPortfolioUrlWithForm = (plan: MembershipId) => {
     return `/${locale}/${countryCode}/memberships/portfolio/${plan}#obtener-membresia`;
+  };
+
+  const getFeatureValue = (featureKey: string, plan: MembershipId): string => {
+    if (featureKey === 'price') {
+      return priceValues[plan];
+    }
+    if (featureKey === 'bouquetSize') {
+      return bouquetSizeValues[plan];
+    }
+
+    // Casos especiales que usan valores específicos
+    if (featureKey === 'fragrance' && plan === 'esencial') {
+      return t('features.fragrance.none');
+    }
+    if (featureKey === 'vases' && plan === 'esencial') {
+      return t('features.vases.none');
+    }
+    if (featureKey === 'support' && plan === 'esencial') {
+      return t('features.support.none');
+    }
+    if (featureKey === 'exclusiveProducts') {
+      if (plan === 'esencial') {
+        return t('features.exclusiveProducts.no');
+      }
+      return t('features.exclusiveProducts.yes');
+    }
+    if (featureKey === 'customization' && plan === 'esencial') {
+      return t('features.customization.no');
+    }
+
+    // Casos normales: intentar acceder a la traducción directamente
+    // @ts-expect-error - Dynamic translation key
+    const translationKey = `features.${featureKey}.${plan}`;
+    // @ts-expect-error - Dynamic translation key
+    return t(translationKey);
+  };
+
+  const getFeatureLabel = (featureKey: string): string => {
+    // @ts-expect-error - Dynamic translation key
+    return t(`features.${featureKey}.label`);
   };
 
   return (
@@ -143,7 +140,7 @@ export default function MembershipsComparison() {
           <table className='w-full'>
             <thead>
               <tr className='bg-muted/50 border-b'>
-                <th className='p-4 text-left font-semibold'>Características</th>
+                <th className='p-4 text-left font-semibold'>{t('characteristics')}</th>
                 {plans.map((plan) => (
                   <th
                     key={plan}
@@ -159,12 +156,12 @@ export default function MembershipsComparison() {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(comparison).map(([key, feature], index) => (
+              {featureKeys.map((key, index) => (
                 <tr
                   key={key}
                   className={`border-b ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}
                 >
-                  <td className='p-4 text-sm font-medium'>{feature.label}</td>
+                  <td className='p-4 text-sm font-medium'>{getFeatureLabel(key)}</td>
                   {plans.map((plan) => (
                     <td
                       key={plan}
@@ -172,10 +169,10 @@ export default function MembershipsComparison() {
                     >
                       {key === 'price' ? (
                         <div className='text-primary text-lg font-bold'>
-                          {feature[plan]}
+                          {getFeatureValue(key, plan)}
                         </div>
                       ) : (
-                        renderValue(feature[plan], key)
+                        renderValue(getFeatureValue(key, plan), key, t)
                       )}
                     </td>
                   ))}
@@ -201,7 +198,7 @@ export default function MembershipsComparison() {
                               : 'bg-purple-600 hover:bg-purple-700'
                         }`}
                       >
-                        Elegir Plan
+                        {t('choosePlan')}
                       </Button>
                     </Link>
                     <Link
@@ -212,7 +209,7 @@ export default function MembershipsComparison() {
                         variant='outline'
                         className='w-full'
                       >
-                        Ver Portfolio de Membresía
+                        {t('viewPortfolio')}
                       </Button>
                     </Link>
                   </td>
@@ -235,11 +232,11 @@ export default function MembershipsComparison() {
                 <Badge className={membershipColors[plan].accent}>{plan}</Badge>
               </CardTitle>
               <div className='text-primary text-2xl font-bold'>
-                {comparison.price[plan]}
+                {getFeatureValue('price', plan)}
               </div>
             </CardHeader>
             <CardContent className='space-y-4'>
-              {Object.entries(comparison).map(([key, feature]) => {
+              {featureKeys.map((key) => {
                 if (key === 'price') return null;
                 return (
                   <div
@@ -247,10 +244,10 @@ export default function MembershipsComparison() {
                     className='border-muted flex items-center justify-between border-b py-2'
                   >
                     <span className='text-muted-foreground text-sm font-medium'>
-                      {feature.label}
+                      {getFeatureLabel(key)}
                     </span>
                     <div className='max-w-[60%] text-right'>
-                      {renderValue(feature[plan], key)}
+                      {renderValue(getFeatureValue(key, plan), key, t)}
                     </div>
                   </div>
                 );
@@ -269,7 +266,7 @@ export default function MembershipsComparison() {
                           : 'bg-purple-600 hover:bg-purple-700'
                     }`}
                   >
-                    Elegir Plan
+                    {t('choosePlan')}
                   </Button>
                 </Link>
                 <Link
@@ -280,7 +277,7 @@ export default function MembershipsComparison() {
                     variant='outline'
                     className='w-full'
                   >
-                    Ver Portfolio de Membresía
+                    {t('viewPortfolio')}
                   </Button>
                 </Link>
               </div>

@@ -4,7 +4,7 @@ import { Header } from '@/app/components/common/header/header';
 import { MobileHeader } from '@/app/components/common/header/mobile/mobile-header';
 import { PropsWithChildren } from 'react';
 
-export default function PublicLayout({ children }: PropsWithChildren) {
+export default async function PublicLayout({ children }: PropsWithChildren) {
   return (
     <>
       <Header

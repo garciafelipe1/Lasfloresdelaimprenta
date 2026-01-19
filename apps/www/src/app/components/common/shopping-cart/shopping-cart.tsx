@@ -62,7 +62,7 @@ export const ShoppingCart = ({ cart }: Props) => {
           variant='outline'
           size='icon'
         >
-          <ShoppingBagIcon className='h-5 w-5' />
+          <ShoppingBagIcon className='h-5 w-5 text-primary' />
           <span className='sr-only'>{t('ariaLabel')}</span>
           {totalProducts > 0 && (
             <span className='bg-accent absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full text-xs text-amber-400'>
@@ -73,10 +73,10 @@ export const ShoppingCart = ({ cart }: Props) => {
       </SheetTrigger>
       <SheetContent className='flex flex-col space-y-4'>
         <SheetHeader>
-          <SheetTitle className='flex items-center gap-2'>
+          <SheetTitle className='flex items-center gap-2 text-primary'>
             {t('sheetTitle')}
           </SheetTitle>
-          <SheetDescription className='m-0'>
+          <SheetDescription className='m-0 text-primary'>
             {t('sheetDescription')}
           </SheetDescription>
         </SheetHeader>

@@ -2,27 +2,15 @@ import Link from 'next/link';
 
 const links = [
   {
-    title: 'Features',
+    title: 'Catalogo',
     href: '#',
   },
   {
-    title: 'Solution',
+    title: 'Servicios',
     href: '#',
   },
   {
-    title: 'Customers',
-    href: '#',
-  },
-  {
-    title: 'Pricing',
-    href: '#',
-  },
-  {
-    title: 'Help',
-    href: '#',
-  },
-  {
-    title: 'About',
+    title: 'Membresías',
     href: '#',
   },
 ];
@@ -42,7 +30,7 @@ export function Footer() {
             <Link
               key={index}
               href={link.href}
-              className='text-muted-foreground hover:text-primary block duration-150'
+              className='text-muted-foreground hover:text-primary block duration-150 text-primary'
             >
               <span>{link.title}</span>
             </Link>
@@ -54,10 +42,10 @@ export function Footer() {
             target='_blank'
             rel='noopener noreferrer'
             aria-label='Facebook'
-            className='text-muted-foreground hover:text-primary block'
+            className='text-muted-foreground hover:text-primary block '
           >
             <svg
-              className='size-6'
+              className='size-6 text-primary'
               xmlns='http://www.w3.org/2000/svg'
               width='1em'
               height='1em'
@@ -78,7 +66,7 @@ export function Footer() {
             className='text-muted-foreground hover:text-primary block'
           >
             <svg
-              className='size-6'
+              className='size-6 text-primary'
               xmlns='http://www.w3.org/2000/svg'
               width='1em'
               height='1em'
@@ -98,7 +86,7 @@ export function Footer() {
             className='text-muted-foreground hover:text-primary block'
           >
             <svg
-              className='size-6'
+              className='size-6 text-primary'
               xmlns='http://www.w3.org/2000/svg'
               width='1em'
               height='1em'
@@ -111,7 +99,7 @@ export function Footer() {
             </svg>
           </Link>
         </div>
-        <span className='text-muted-foreground block text-center text-sm'>
+        <span className='text-muted-foreground block text-center text-sm text-primary'>
           {' '}
           © {new Date().getFullYear()} Las Flores de la imprenta, Derechos
           Reservados.

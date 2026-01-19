@@ -2,6 +2,9 @@
   "filters": {
     "header": "Filtros",
     "clearFiltersButton": "Limpiar Filtros",
+    "mobileButton": "Filtros",
+    "mobileTitle": "Filtrar productos",
+    "mobileDescription": "Aplica filtros para ajustar tu búsqueda",
     "form": {
       "nameLabel": "Nombre",
       "namePlaceholder": "Ramo de ...",
@@ -10,8 +13,10 @@
       "orderByOptions": {
         "mostRecent": "Más reciente",
         "older": "Más Antiguo",
-        "priceAsc": "Precio: Menor a Mayor",
-        "priceDesc": "Precio: Mayor a Menor"
+        "price_asc": "Precio: Menor a Mayor",
+        "price_desc": "Precio: Mayor a Menor",
+        "created_at_desc": "Nuevos primero",
+        "created_at_asc": "Antiguos primero"
       },
       "applyButton": "Aplicar filtros",
       "applyingButton": "Filtrando..."
@@ -19,14 +24,16 @@
     "categoriesAccordion": {
       "trigger": "Categorías",
       "options": {
-        "primaveral": "Ramos primaverales",
+        "ramosPrimaverales": "Ramos primaverales",
         "rosas": "Rosas",
         "box": "Box",
         "follaje": "Follaje",
         "florero": "Florero",
-        "funebre": "Fúnebre",
+        "funebre": "Funebre",
         "fragancias": "Fragancias",
-        "velas": "Velas"
+        "velas": "Velas",
+        "complementos": "Complementos",
+        "diseniosExclusivos": "Diseños exclusivos"
       }
     },
     "dynamicFilters": {

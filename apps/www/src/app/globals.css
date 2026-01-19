@@ -65,3 +65,11 @@
     will-change: transform;
   }
 }
+
+/* Aplicar fuente Morgan solo a la landing page */
+@layer base {
+  .landing,
+  .landing * {
+    font-family: 'Morgan', sans-serif;
+  }
+}
