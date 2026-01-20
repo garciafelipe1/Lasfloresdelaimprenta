@@ -34,7 +34,7 @@ export default async function DashboardLayout({
       <DashboardSidebar />
       <main className="relative flex min-h-screen w-full flex-col">
         <DashboardHeader />
-        <div className="flex-1 px-12 py-12">{children}</div>
+        <div className="flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-12 lg:py-12">{children}</div>
       </main>
     </SidebarProvider>
   );

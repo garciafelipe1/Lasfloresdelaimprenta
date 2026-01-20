@@ -43,16 +43,16 @@ export function SubInformation({ subscription }: Props) {
         <SectionTitle>Datos de tu membresía</SectionTitle>
       </SectionHeader>
       <section className='flex flex-col divide-y text-sm *:py-2'>
-        <section className='flex justify-between gap-2'>
-          <p>Membresía:</p>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Membresía:</p>
           <div className='flex items-center'>
-            <code className='w-fit'>{membership.name}</code>
+            <code className='text-xs sm:text-sm w-fit break-all sm:break-normal'>{membership.name}</code>
           </div>
         </section>
-        <section className='flex justify-between gap-2'>
-          <p>Estado:</p>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Estado:</p>
           <code
-            className={`w-fit font-semibold ${
+            className={`text-xs sm:text-sm w-fit font-semibold ${
               isExpired || isCancelled
                 ? 'text-red-600 dark:text-red-400'
                 : isActive
@@ -63,18 +63,18 @@ export function SubInformation({ subscription }: Props) {
             {isExpired || isCancelled ? 'Expirada' : status === 'active' ? 'Activa' : status}
           </code>
         </section>
-        <section className='flex justify-between gap-2'>
-          <p>Fecha inicio:</p>
-          <code className='w-fit'>{formattedStart}</code>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Fecha inicio:</p>
+          <code className='text-xs sm:text-sm w-fit break-all sm:break-normal'>{formattedStart}</code>
         </section>
-        <section className='flex justify-between gap-2'>
-          <p>Fecha finalización:</p>
-          <code className='w-fit'>{formattedEnd}</code>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Fecha finalización:</p>
+          <code className='text-xs sm:text-sm w-fit break-all sm:break-normal'>{formattedEnd}</code>
         </section>
-        <section className='flex justify-between gap-2'>
-          <p>Días restantes:</p>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Días restantes:</p>
           <code
-            className={`w-fit ${
+            className={`text-xs sm:text-sm w-fit ${
               isExpired || isCancelled
                 ? 'text-red-600 dark:text-red-400 font-semibold'
                 : differenceDays <= 7

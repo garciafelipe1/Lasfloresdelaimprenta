@@ -11,6 +11,7 @@ export function SignOutButton() {
     <Button
       variant='outline'
       onClick={() => execute()}
+      className='w-full sm:w-auto'
     >
       Cerrar sesión
     </Button>

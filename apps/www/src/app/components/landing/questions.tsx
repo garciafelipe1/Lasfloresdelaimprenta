@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 
 export function Questions() {
   const i18n = useTranslations();
-  
+
   // Obtener todas las preguntas desde las traducciones
   const questionsCount = 8; // Número total de preguntas
   const questions = Array.from({ length: questionsCount }, (_, index) => ({
@@ -35,7 +35,7 @@ export function Questions() {
               .map((q, index) => (
                 <AccordionItem
                   key={index}
-                  value={`item-left-${index }`}
+                  value={`item-left-${index}`}
                 >
                   <AccordionTrigger className='text-left text-base text-primary font-semibold md:text-lg'>
                     {q.question}

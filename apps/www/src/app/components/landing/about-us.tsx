@@ -23,7 +23,7 @@ export function AboutUs() {
           {/* Overlay centrado */}
           <div className='absolute inset-0 flex items-center justify-center p-8'>
             <div className='relative max-w-lg w-full py-4'>
-              
+
               {/* Card principal */}
               <div className='relative rounded-xl bg-white px-12 pt-6 pb-10 shadow-xl overflow-visible'>
                 {/* Bordes decorativos florales dentro del card */}
@@ -52,16 +52,16 @@ export function AboutUs() {
                 <div className='relative z-10'>
                   <h3 className='text-center text-3xl font-bold text-primary mb-4 uppercase tracking-wide' style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}>
                     {/* Imagen de texto arriba del card */}
-              <div className='mb-2 flex justify-center'>
-                <Image
-                  src='/assets/img/texto-parrafo-about-us.png'
-                  alt=''
-                  width={100}
-                  height={100}
-                  className='object-contain '
-                  aria-hidden='true'
-                />
-              </div>
+                    <div className='mb-2 flex justify-center'>
+                      <Image
+                        src='/assets/img/texto-parrafo-about-us.png'
+                        alt=''
+                        width={100}
+                        height={100}
+                        className='object-contain '
+                        aria-hidden='true'
+                      />
+                    </div>
                     {t('landing.about-us.title')}
                   </h3>
                   <div className='flex justify-center'>
@@ -70,7 +70,7 @@ export function AboutUs() {
                       className='group flex items-center gap-2 rounded-full bg-[#d1b3ff] px-8 py-4 text-white font-semibold text-black transition-all hover:bg-[#c29aff] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#7c4dff] focus:ring-offset-2'
                     >
                       {t('landing.about-us.button')}
-                      
+
                     </a>
                   </div>
                 </div>

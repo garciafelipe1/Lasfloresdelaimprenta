@@ -65,7 +65,7 @@ export default function AccountForm({ name }: Props) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className='w-full max-w-3xl space-y-8 py-10'
+        className='w-full max-w-3xl space-y-6 py-6 md:space-y-8 md:py-10'
       >
         {/* <FormField
           control={form.control}

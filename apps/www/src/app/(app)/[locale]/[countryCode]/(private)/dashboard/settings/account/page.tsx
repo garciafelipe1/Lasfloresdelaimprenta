@@ -19,11 +19,11 @@ export default async function AccountSettingsPage() {
 
   return (
     <section className=''>
-      <header>
-        <h2>Configuraciones de la cuenta</h2>
-        <p>Modifica las configuraciones de tu cuenta</p>
+      <header className='mb-6 md:mb-8'>
+        <h2 className='text-2xl md:text-3xl font-bold'>Configuraciones de la cuenta</h2>
+        <p className='text-sm md:text-base text-muted-foreground mt-2'>Modifica las configuraciones de tu cuenta</p>
       </header>
-      <section className='grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] divide-x [&>[data-role=section]:first-child]:pr-4 [&>[data-role=section]:last-child]:pl-4'>
+      <section className='grid grid-cols-1 lg:grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] gap-6 lg:gap-0 lg:divide-x [&>[data-role=section]:first-child]:lg:pr-4 [&>[data-role=section]:last-child]:lg:pl-4'>
         <Section>
           <SectionHeader>
             <SectionTitle>Datos de tu cuenta</SectionTitle>

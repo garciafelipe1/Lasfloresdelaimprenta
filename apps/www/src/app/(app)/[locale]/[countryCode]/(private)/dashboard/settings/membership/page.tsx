@@ -7,9 +7,9 @@ export default async function MembershipPage() {
 
   return (
     <section>
-      <header>
-        <h2>Membresía</h2>
-        <p>Modifica las configuraciones de tu cuenta</p>
+      <header className='mb-6 md:mb-8'>
+        <h2 className='text-2xl md:text-3xl font-bold'>Membresía</h2>
+        <p className='text-sm md:text-base text-muted-foreground mt-2'>Modifica las configuraciones de tu cuenta</p>
       </header>
       {membership ? <SubInformation subscription={membership} /> : <SubEmpty />}
     </section>

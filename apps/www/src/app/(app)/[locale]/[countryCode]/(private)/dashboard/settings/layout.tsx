@@ -3,7 +3,7 @@ import { Tabs } from './_components/tabs';
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
   return (
-    <section className='flex flex-col gap-12 [&>:nth-child(2)]:divide-y'>
+    <section className='flex flex-col gap-6 md:gap-12 [&>:nth-child(2)]:divide-y'>
       <Tabs />
       {children}
     </section>

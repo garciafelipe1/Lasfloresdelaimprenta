@@ -11,9 +11,9 @@ import { SignOutButton } from './_components/sign-out-button';
 export default function SettingsPage() {
   return (
     <section className='flex flex-col [&>[data-role=section]]:pb-8'>
-      <header>
-        <h2>Configuraciones Generales</h2>
-        <p>
+      <header className='mb-6 md:mb-8'>
+        <h2 className='text-2xl md:text-3xl font-bold'>Configuraciones Generales</h2>
+        <p className='text-sm md:text-base text-muted-foreground mt-2'>
           Personalizá tu experiencia y ajustá las opciones según tus necesidades
         </p>
       </header>
@@ -30,8 +30,8 @@ export default function SettingsPage() {
         <SectionHeader>
           <SectionTitle>Acciones rápidas</SectionTitle>
         </SectionHeader>
-        <section className='flex gap-4'>
-          <Button variant='outline'>Cambiar contraseña</Button>
+        <section className='flex flex-col gap-3 sm:flex-row sm:gap-4'>
+          <Button variant='outline' className='w-full sm:w-auto'>Cambiar contraseña</Button>
           <SignOutButton />
         </section>
       </Section>

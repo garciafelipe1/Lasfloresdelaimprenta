@@ -44,9 +44,9 @@ export function ProfileDropdown({ user }: Props) {
       <DropdownMenuTrigger asChild>
         <Button
           variant='outline'
-          className='flex gap-2'
+          className='flex gap-2 px-2 md:px-3'
         >
-          <div className='relative flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border'>
+          <div className='relative flex h-5 w-5 md:h-6 md:w-6 items-center justify-center overflow-hidden rounded-full border'>
             {userImage ? (
               <Image
                 className='h-full w-full object-cover'
@@ -55,10 +55,10 @@ export function ProfileDropdown({ user }: Props) {
                 fill
               />
             ) : (
-              <UserCircleIcon />
+              <UserCircleIcon className='h-4 w-4 md:h-5 md:w-5' />
             )}
           </div>
-          <p className='m-0'>{user.first_name}</p>
+          <p className='m-0 text-xs md:text-sm hidden sm:block'>{user.first_name}</p>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

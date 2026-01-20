@@ -21,26 +21,26 @@ export function UserInfo({ createdAt, id, email }: Props) {
         <SectionSubtitle>Datos</SectionSubtitle>
       </SectionHeader>
       <section className='flex flex-col divide-y text-sm *:py-2'>
-        <section className='flex justify-between gap-2'>
-          <p>ID:</p>
-          <div className='flex items-center'>
-            <code className='w-fit'>{id}</code>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>ID:</p>
+          <div className='flex items-center gap-2 sm:gap-1'>
+            <code className='text-xs sm:text-sm break-all sm:break-normal'>{id}</code>
             <CopyButton value={id} />
           </div>
         </section>
-        <section className='flex justify-between gap-2'>
-          <p>Email:</p>
-          <code className='w-fit'>{email}</code>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Email:</p>
+          <code className='text-xs sm:text-sm break-all sm:break-normal w-fit'>{email}</code>
         </section>
-        <section className='flex justify-between gap-2'>
-          <p>Fecha creación:</p>
-          <code className='w-fit'>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Fecha creación:</p>
+          <code className='text-xs sm:text-sm w-fit'>
             {format(new Date(createdAt), 'dd-MM-yyyy')}
           </code>
         </section>
-        <section className='flex justify-between gap-2'>
-          <p>Fecha actualización perfil:</p>
-          <code className='w-fit'>
+        <section className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <p className='font-medium'>Fecha actualización perfil:</p>
+          <code className='text-xs sm:text-sm w-fit'>
             {format(new Date(createdAt), 'dd-MM-yyyy')}
           </code>
         </section>
