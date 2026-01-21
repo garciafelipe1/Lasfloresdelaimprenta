@@ -21,6 +21,8 @@ export default async function DashboardLayout({
   const { locale, countryCode } = await params;
 
   // 👇 chequeamos si hay usuario REAL en el backend
+  // authService.getUser() ahora tiene retry automático para manejar casos donde
+  // la cookie acaba de establecerse después de un redirect
   const user = await authService.getUser().catch(() => null);
 
   // 👇 si NO hay usuario (sin cookie o token inválido) → al login
