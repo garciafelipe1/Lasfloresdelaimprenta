@@ -26,11 +26,13 @@ export const cookies = {
 
   async setAuthToken(token: string) {
     const cookies = await nextCookies();
+    const isProduction = process.env.NODE_ENV === 'production';
     cookies.set('_medusa_jwt', token, {
       maxAge: 60 * 60 * 24 * 7,
       httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: isProduction ? 'lax' : 'strict', // "lax" permite cookies en redirects cross-site
+      secure: isProduction,
+      path: '/',
     });
   },
 

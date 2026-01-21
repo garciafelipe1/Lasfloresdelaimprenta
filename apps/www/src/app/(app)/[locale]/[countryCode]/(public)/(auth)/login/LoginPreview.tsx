@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
@@ -11,6 +11,8 @@ export default function LoginPreview() {
   const i18n = useTranslations('Auth.login')
   const router = useRouter()
   const params = useParams<{ locale: string; countryCode: string }>()
+  const searchParams = useSearchParams()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // 🚀 Si ya hay cookie _medusa_jwt, lo sacamos del login al dashboard
   useEffect(() => {
@@ -27,6 +29,39 @@ export default function LoginPreview() {
       router.replace(`/${locale}/${countryCode}/dashboard`)
     }
   }, [router, params])
+
+  // Verificar errores en la URL
+  useEffect(() => {
+    const error = searchParams.get('error')
+    const message = searchParams.get('message')
+
+    if (error) {
+      let errorText = ''
+      
+      switch (error) {
+        case 'redirect_uri_mismatch':
+          errorText = 'Error de configuración: La URI de redirección no está registrada en Google Cloud Console. Por favor, contacta al administrador o verifica la configuración de Google OAuth.'
+          break
+        case 'google_callback_failed':
+          errorText = 'Error al procesar la autenticación con Google. Por favor, intenta nuevamente.'
+          break
+        case 'google_no_token_from_callback':
+          errorText = 'No se recibió el token de autenticación. Por favor, intenta nuevamente.'
+          break
+        case 'backend_not_configured':
+          errorText = 'Error de configuración: El backend no está configurado correctamente.'
+          break
+        case 'site_url_not_configured':
+          errorText = 'Error de configuración: La URL del sitio no está configurada correctamente.'
+          break
+        default:
+          errorText = message || 'Ocurrió un error durante la autenticación. Por favor, intenta nuevamente.'
+      }
+
+      setErrorMessage(errorText)
+      toast.error(errorText)
+    }
+  }, [searchParams])
 
   const handleGoogleLogin = () => {
     const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
@@ -50,6 +85,12 @@ export default function LoginPreview() {
         </CardHeader>
 
         <CardContent>
+          {errorMessage && (
+            <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-3">
+              <p className="text-sm text-red-800">{errorMessage}</p>
+            </div>
+          )}
+          
           <div className="grid gap-4">
             <button
               onClick={handleGoogleLogin}
