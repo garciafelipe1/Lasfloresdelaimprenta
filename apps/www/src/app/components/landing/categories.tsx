@@ -51,9 +51,9 @@ const categories = [
     imageUrl: '/assets/img/boxprimaveral.webp', // Agregado: Imagen para box
   },
   {
-    value: 'Follaje',
-    href: '/catalog?category=Follaje',
-    imageUrl: '/assets/img/follaje.jpg', // Agregado: Imagen para follaje
+    value: 'Bodas', // ✅ Cambiado de 'Follaje' a 'Bodas'
+    href: '/catalog?category=Bodas',
+    imageUrl: '/assets/img/follaje.jpg', // Mantener imagen existente
   },
 ];
 

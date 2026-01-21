@@ -1,2 +1,3 @@
 export * from "./src/format-ars";
+export * from "./src/format-usd";
 export * from "./src/memberships";

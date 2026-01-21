@@ -2,11 +2,16 @@ export const CATEGORIES = {
   ramosPrimaverales: "Ramos primaverales",
   rosas: "Rosas",
   box: "Box",
-  follaje: "Follaje",
+  bodas: "Bodas", // ✅ Nueva categoría principal (reemplaza "Follaje")
   funebre: "Funebre",
   complementos: "Complementos",
   diseniosExclusivos: "Diseños exclusivos",
-};
+} as const;
+
+// Categorías legacy para compatibilidad durante migración
+export const LEGACY_CATEGORIES = {
+  follaje: "Follaje", // Mantener para productos existentes
+} as const;
 
 export const SIZES = ["S", "M", "XXL"];
 export const ROSAS_QUANTITY = ["3", "6", "9", "12"];
@@ -37,3 +42,6 @@ export type MembershipColors = {
 };
 
 export const MANUAL_PAYMENT_PROVIDER_ID = "pp_system_default";
+
+// Re-exportar category-mapping para uso en otros módulos
+export * from "./category-mapping";

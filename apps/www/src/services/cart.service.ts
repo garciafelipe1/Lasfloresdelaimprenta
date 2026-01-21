@@ -4,6 +4,7 @@ import { cookies } from '@/lib/data/cookies';
 import { getRegion } from '@/lib/data/regions';
 import { medusa } from '@/lib/medusa-client';
 import { StoreShippingOptionListResponse } from '@medusajs/types';
+import { getCurrencyFromLocale } from '@/lib/currency';
 
 export const cartService = {
   async getCart(cartId?: string) {
@@ -36,12 +37,15 @@ export const cartService = {
     return cart;
   },
 
-  async getOrSetCart(countryCode: string) {
+  async getOrSetCart(countryCode: string, locale?: string) {
     const region = await getRegion(countryCode);
 
     if (!region) {
       throw new Error(`Region not found for country code: ${countryCode}`);
     }
+
+    // Obtener moneda esperada según el locale
+    const expectedCurrency = getCurrencyFromLocale(locale || 'es');
 
     let cart = await this.getCart();
 
@@ -82,6 +86,7 @@ export const cartService = {
     if (!cart) {
       const cartResp = await medusa.store.cart.create({
         region_id: region.id,
+        currency_code: expectedCurrency, // ✅ Crear carrito con moneda según locale
       });
 
       cart = cartResp.cart;

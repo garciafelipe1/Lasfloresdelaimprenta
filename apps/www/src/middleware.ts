@@ -3,6 +3,24 @@ import { StoreRegion } from '@medusajs/types'
 import createIntlMiddleware from 'next-intl/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 import { routing } from './i18n/routing'
+// Función inline para evitar problemas con Edge Runtime
+// El middleware se ejecuta en Edge Runtime que tiene limitaciones de importación
+function getCurrencyFromLocale(locale: string): string {
+  return locale === 'en' ? 'usd' : 'ars';
+}
+
+// Función inline para redirección de categorías (Edge Runtime compatible)
+function getCategoryRedirect(pathname: string, searchParams: URLSearchParams): string | null {
+  const category = searchParams.get('category');
+  
+  if (category === 'Follaje') {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('category', 'Bodas');
+    return `${pathname}?${newSearchParams.toString()}`;
+  }
+  
+  return null;
+}
 
 const intlMiddleware = createIntlMiddleware(routing)
 
@@ -29,7 +47,7 @@ async function getRegionMap(cacheId: string) {
   if (!regionMap.keys().next().value || regionMapUpdated < Date.now() - 3600 * 1000) {
     const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
       headers: { "x-publishable-api-key": PUBLISHABLE_API_KEY! },
-      next: { revalidate: 3600 }
+      cache: 'no-store' // Edge Runtime no soporta next.revalidate
     }).then(async (r) => r.json())
 
     regions?.forEach((region: StoreRegion) => {
@@ -91,7 +109,21 @@ export async function middleware(request: NextRequest) {
     )
   }
 
+  // Redirección de categorías antiguas (SEO-friendly 301)
+  const categoryRedirect = getCategoryRedirect(pathname, request.nextUrl.searchParams);
+  if (categoryRedirect) {
+    const redirectUrl = new URL(categoryRedirect, request.url);
+    return NextResponse.redirect(redirectUrl, 301); // 301 = permanente para SEO
+  }
+
+  // Determinar locale y moneda esperada
+  const locale = segments[1] || 'es';
+  const expectedCurrency = getCurrencyFromLocale(locale);
+
   const response = intlMiddleware(request)
+
+  // Agregar header de moneda esperada para que el backend pueda usarlo
+  response.headers.set('x-expected-currency', expectedCurrency);
 
   if (!cacheIdCookie) {
     response.cookies.set('_medusa_cache_id', cacheId, { maxAge: 86400 })

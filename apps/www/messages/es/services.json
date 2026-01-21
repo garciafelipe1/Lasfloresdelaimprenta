@@ -2,13 +2,42 @@
   "services": {
     "Servicio1": {
       "title": "Eventos Florales",
-      "subtitle": "Compra arreglos de peonías de temporada",
-      "description": "<p>Transformá tus eventos en experiencias inolvidables con nuestros diseños florales a medida. Nos especializamos en <strong>arreglos de peonías de temporada</strong> y montajes personalizados que realzan cada celebración. Ya sea una reunión íntima o un evento a gran escala, nuestro equipo crea composiciones impactantes con flores frescas y locales.</p><p>Desde centros de mesa hasta muros florales, confiá en nosotros para darle vida a tu visión con elegancia y creatividad.</p>"
+      "subtitle": "Transformá tus celebraciones en momentos inolvidables con diseños florales únicos y personalizados",
+      "description": "<p>Transformá tus eventos en experiencias inolvidables con nuestros diseños florales a medida. Nos especializamos en <strong>arreglos de peonías de temporada</strong> y montajes personalizados que realzan cada celebración.</p><p>Ya sea una reunión íntima o un evento a gran escala, nuestro equipo de floristas expertos crea composiciones impactantes con flores frescas y locales, seleccionadas cuidadosamente para cada ocasión.</p><p>Desde elegantes centros de mesa hasta impresionantes muros florales, confiá en nosotros para darle vida a tu visión con elegancia, creatividad y atención al detalle.</p>",
+      "cta": "Solicitar Presupuesto",
+      "benefit1": "Flores frescas de temporada seleccionadas diariamente",
+      "benefit2": "Diseños personalizados que reflejan tu estilo único",
+      "benefit3": "Equipo experto con años de experiencia en eventos",
+      "feature1": "Consulta gratuita",
+      "feature2": "Diseño personalizado",
+      "feature3": "Montaje profesional",
+      "feature4": "Soporte el día del evento"
     },
     "Servicio2": {
       "title": "Bodas",
-      "subtitle": "Diseño floral personalizado para bodas, desde ramos hasta la decoración del lugar",
-      "description": "<p>Hacé que el día de tu boda florezca con belleza y significado. Nuestro servicio de flores para bodas ofrece <strong>diseños personalizados</strong> que reflejan tu historia y estilo. Desde el ramo de novia hasta el arco ceremonial y la ambientación de las mesas, cuidamos cada detalle con pasión y precisión.</p><p>Te ayudamos a crear una atmósfera romántica con <em>flores seleccionadas a mano, paletas pensadas</em> y arreglos encantadores que dejan una impresión duradera.</p>"
+      "subtitle": "Hacé que tu día especial sea perfecto con diseños florales que capturan la esencia de tu amor",
+      "description": "<p>Hacé que el día de tu boda florezca con belleza y significado. Nuestro servicio de flores para bodas ofrece <strong>diseños completamente personalizados</strong> que reflejan tu historia única y estilo personal.</p><p>Desde el ramo de novia hasta el arco ceremonial y la ambientación de las mesas, cuidamos cada detalle con pasión y precisión. Trabajamos contigo desde la planificación inicial hasta el día de tu boda, asegurándonos de que cada flor esté en su lugar perfecto.</p><p>Te ayudamos a crear una atmósfera romántica y elegante con <em>flores seleccionadas a mano, paletas cuidadosamente pensadas</em> y arreglos encantadores que dejan una impresión duradera en vos y tus invitados.</p>",
+      "cta": "Solicitar Presupuesto",
+      "benefit1": "Asesoramiento personalizado desde el inicio",
+      "benefit2": "Ramos de novia únicos y exclusivos",
+      "benefit3": "Decoración completa del lugar del evento",
+      "feature1": "Reunión de diseño",
+      "feature2": "Ramo de novia",
+      "feature3": "Decoración completa",
+      "feature4": "Coordinación el día del evento"
+    },
+    "common": {
+      "whyChooseUs": "¿Por qué elegirnos?",
+      "ourWork": "Nuestro Trabajo",
+      "whatIncludes": "Lo que incluye nuestro servicio",
+      "readyToTransform": "¿Listo para transformar tu evento?",
+      "contactToday": "Contactanos hoy y recibí una consulta gratuita para tu proyecto",
+      "callNow": "Llamar Ahora",
+      "sendEmail": "Enviar Email",
+      "requestQuote": "Solicitar Presupuesto",
+      "viewGallery": "Ver Galería",
+      "viewDetails": "Ver Detalles",
+      "premiumService": "Servicio Premium"
     }
   }
 }

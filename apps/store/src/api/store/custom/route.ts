@@ -52,6 +52,7 @@
 import { getLowestARSPrice } from "@/lib/get-lowest-ars-price";
 import { isExclusiveProduct } from "@/lib/is-exclusive-product";
 import { stableStringify } from "@/lib/stable-stringify";
+import { getExpandedCategories } from "@/shared/category-mapping";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import {
   ContainerRegistrationKeys,
@@ -144,10 +145,18 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   let result = data;
 
-  // Filter by category name
+  // Filter by category name with aliases support
   if (params.category) {
+    // Obtener categoría (puede ser string o array)
+    const categoryName = Array.isArray(params.category) 
+      ? params.category[0] 
+      : params.category;
+    
+    // Expandir categoría con aliases (ej: "Bodas" → ["Bodas", "Follaje"])
+    const expandedCategories = getExpandedCategories(categoryName);
+    
     result = result.filter((p) =>
-      p.categories?.some((c) => params.category!.includes(c?.name!))
+      p.categories?.some((c) => expandedCategories.includes(c?.name!))
     );
   }
 

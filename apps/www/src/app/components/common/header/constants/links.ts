@@ -9,12 +9,12 @@ export const getNavLinks = (i18n: TFunction) => [
     submenu: [
       {
         title: i18n('navigation.services.floralEvents.title'),
-        href: '/services#eventosflorales',
+        href: '/services/eventos-florales', // ✅ URL individual optimizada para SEO
         description: i18n('navigation.services.floralEvents.description'),
       },
       {
         title: i18n('navigation.services.weddings.title'),
-        href: '/services#bodas',
+        href: '/services/bodas', // ✅ URL individual optimizada para SEO
         description: i18n('navigation.services.weddings.description'),
       },
     ],

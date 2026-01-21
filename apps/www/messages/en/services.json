@@ -2,13 +2,42 @@
   "services": {
     "Servicio1": {
       "title": "Floral Events",
-      "subtitle": "Buy seasonal peony arrangements",
-      "description": "<p>Transform your events into unforgettable experiences with our bespoke floral designs. We specialize in <strong>seasonal peony arrangements</strong> and custom setups that elevate every celebration. Whether it’s an intimate gathering or a large-scale occasion, our team crafts stunning visuals with fresh, locally sourced blooms.</p><p>From centerpieces to flower walls, trust us to bring your vision to life with elegance and creativity.</p>"
+      "subtitle": "Transform your celebrations into unforgettable moments with unique and personalized floral designs",
+      "description": "<p>Transform your events into unforgettable experiences with our bespoke floral designs. We specialize in <strong>seasonal peony arrangements</strong> and custom setups that elevate every celebration.</p><p>Whether it's an intimate gathering or a large-scale occasion, our team of expert florists creates stunning compositions with fresh, locally sourced flowers, carefully selected for each occasion.</p><p>From elegant centerpieces to impressive flower walls, trust us to bring your vision to life with elegance, creativity, and attention to detail.</p>",
+      "cta": "Request Quote",
+      "benefit1": "Fresh seasonal flowers selected daily",
+      "benefit2": "Custom designs that reflect your unique style",
+      "benefit3": "Expert team with years of event experience",
+      "feature1": "Free consultation",
+      "feature2": "Custom design",
+      "feature3": "Professional setup",
+      "feature4": "Day-of-event support"
     },
     "Servicio2": {
       "title": "Weddings",
-      "subtitle": "Personalized floral design for weddings, from bouquets to venue decoration",
-      "description": "<p>Make your wedding day bloom with beauty and meaning. Our wedding floral service offers <strong>tailored designs</strong> that reflect your story and style. From the bridal bouquet to the ceremony arch and table settings, we craft every detail with passion and precision.</p><p>Let us help you create a romantic atmosphere with <em>handpicked flowers, thoughtful palettes</em>, and enchanting arrangements that leave lasting impressions.</p>"
+      "subtitle": "Make your special day perfect with floral designs that capture the essence of your love",
+      "description": "<p>Make your wedding day bloom with beauty and meaning. Our wedding floral service offers <strong>completely personalized designs</strong> that reflect your unique story and personal style.</p><p>From the bridal bouquet to the ceremony arch and table settings, we care for every detail with passion and precision. We work with you from initial planning to your wedding day, ensuring every flower is in its perfect place.</p><p>Let us help you create a romantic and elegant atmosphere with <em>handpicked flowers, carefully thought-out palettes</em> and enchanting arrangements that leave a lasting impression on you and your guests.</p>",
+      "cta": "Request Quote",
+      "benefit1": "Personalized consultation from the start",
+      "benefit2": "Unique and exclusive bridal bouquets",
+      "benefit3": "Complete venue decoration",
+      "feature1": "Design meeting",
+      "feature2": "Bridal bouquet",
+      "feature3": "Complete decoration",
+      "feature4": "Day-of-event coordination"
+    },
+    "common": {
+      "whyChooseUs": "Why choose us?",
+      "ourWork": "Our Work",
+      "whatIncludes": "What our service includes",
+      "readyToTransform": "Ready to transform your event?",
+      "contactToday": "Contact us today and receive a free consultation for your project",
+      "callNow": "Call Now",
+      "sendEmail": "Send Email",
+      "requestQuote": "Request Quote",
+      "viewGallery": "View Gallery",
+      "viewDetails": "View Details",
+      "premiumService": "Premium Service"
     }
   }
 }

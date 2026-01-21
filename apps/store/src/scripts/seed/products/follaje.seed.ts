@@ -7,7 +7,7 @@ export const follaje = [
     images: [
       "https://pub-9eabcb4d57274edea31fd1667fff4c88.r2.dev/la-floreria-de-la-imprenta/follaje-decorativo.webp",
     ],
-    category: CATEGORIES["follaje"],
+    category: CATEGORIES["bodas"], // ✅ Actualizado: productos de "Follaje" ahora están en "Bodas"
     price: {
       ars: {
         base: 1500,

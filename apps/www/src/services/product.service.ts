@@ -119,13 +119,34 @@ export const productService: ProductService = {
     console.log('Recommending products for product:', handle);
 
     const product = await this.getByHandle(handle);
-    const categoryId = product.categories?.[0]?.id;
+    const categoryName = product.categories?.[0]?.name;
 
-    if (!categoryId) return [];
+    if (!categoryName) return [];
+
+    // Usar aliases de categorías para incluir productos relacionados
+    const categories = await this.getCategories();
+    
+    // Importar función de mapeo (dinámico para evitar problemas de importación)
+    // Usar try-catch para manejar errores de importación
+    let expandedCategories = [categoryName];
+    try {
+      const { getExpandedCategories } = await import('@server/category-mapping');
+      expandedCategories = getExpandedCategories(categoryName);
+    } catch (error) {
+      // Si falla el import, usar solo la categoría original
+      console.warn('[ProductService] No se pudo importar category-mapping, usando categoría original:', error);
+    }
+    
+    // Obtener IDs de todas las categorías expandidas
+    const categoryIds = expandedCategories
+      .map(catName => categories.find(c => c.name === catName)?.id)
+      .filter(Boolean) as string[];
+
+    if (categoryIds.length === 0) return [];
 
     const { products } = await medusa.store.product.list({
       region_id: region.id,
-      category_id: categoryId,
+      category_id: categoryIds,
       limit: PRODUCTS_RECOMMENDED + 1,
       fields: 'categories.*',
     });
