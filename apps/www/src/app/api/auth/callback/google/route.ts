@@ -80,8 +80,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // 3) Creamos la respuesta de redirección AL DASHBOARD
-    const res = NextResponse.redirect(`${normalizedSiteUrl}/es/ar/dashboard`);
+    // 3) Creamos la respuesta de redirección a una página intermedia
+    // Esto asegura que la cookie esté disponible antes de renderizar el dashboard
+    const res = NextResponse.redirect(`${normalizedSiteUrl}/es/ar/callback`);
 
     // 4) Y ACÁ seteamos la cookie directo sobre la respuesta
     // En producción, sameSite debe ser "lax" para que funcione con redirects desde Google

@@ -50,13 +50,18 @@ export const cookies = {
   },
 
   async getAuthHeaders(): Promise<{ authorization: string } | {}> {
-    const cookies = await nextCookies();
-    const token = cookies.get('_medusa_jwt')?.value;
+    const cookieStore = await nextCookies();
+    const token = cookieStore.get('_medusa_jwt')?.value;
 
     if (!token) {
+      console.log('[cookies.getAuthHeaders] No se encontró token _medusa_jwt en las cookies del servidor');
+      // Listar todas las cookies disponibles para debugging
+      const allCookies = cookieStore.getAll();
+      console.log('[cookies.getAuthHeaders] Cookies disponibles:', allCookies.map(c => c.name));
       return {};
     }
 
+    console.log(`[cookies.getAuthHeaders] Token encontrado: ${token.substring(0, 20)}... (longitud: ${token.length})`);
     return { authorization: `Bearer ${token}` };
   },
 };
