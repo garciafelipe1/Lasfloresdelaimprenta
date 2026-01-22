@@ -25,7 +25,8 @@ export const CATEGORY_REDIRECTS = {
  */
 export function getExpandedCategories(categoryName: string): string[] {
   const aliases = CATEGORY_ALIASES[categoryName as keyof typeof CATEGORY_ALIASES];
-  return aliases || [categoryName];
+  // Hacer una copia del array para convertir de readonly a mutable
+  return aliases ? [...aliases] : [categoryName];
 }
 
 /**
