@@ -29,6 +29,7 @@ import { useFilterParams } from '@/app/hooks/use-filter-params';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CATEGORIES, sortOptions } from '@server/constants';
 import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiltersFormSchema, filtersFormSchema } from '../form-schema';
 
@@ -52,6 +53,7 @@ export function Filters() {
     setCategory,
     setName,
     setOrder,
+    setColor,
   } = useFilterParams();
 
   const form = useForm<FiltersFormSchema>({
@@ -71,7 +73,30 @@ export function Filters() {
     { label: t('dynamicFilters.sizeOptions.xxl'), value: 'XXL' },
   ];
 
-  const colors: ColorOption[] = [
+  // Colores para rosas (solo estos cuando la categoría es "Rosas")
+  const rosaColors: ColorOption[] = [
+    { label: t('colorsAccordion.options.red'), value: 'Rojo', hex: '#EF4444' },
+    {
+      label: t('colorsAccordion.options.orange'),
+      value: 'Naranja',
+      hex: '#F97316',
+    },
+    {
+      label: t('colorsAccordion.options.yellow'),
+      value: 'Amarillo',
+      hex: '#FACC15',
+    },
+    {
+      label: t('colorsAccordion.options.white'),
+      value: 'Blanco',
+      hex: '#FFFFFF',
+      border: true,
+    },
+    { label: t('colorsAccordion.options.pink'), value: 'Rosa', hex: '#EC4899' },
+  ];
+
+  // Todos los colores (para otras categorías si es necesario)
+  const allColors: ColorOption[] = [
     { label: t('colorsAccordion.options.red'), value: 'Rojo', hex: '#EF4444' },
     { label: t('colorsAccordion.options.blue'), value: 'Azul', hex: '#3B82F6' },
     {
@@ -109,16 +134,34 @@ export function Filters() {
     { label: t('colorsAccordion.options.gray'), value: 'Gris', hex: '#6B7280' },
   ];
 
+  // Usar colores de rosas solo cuando la categoría es "Rosas"
+  const colors = category === 'Rosas' ? rosaColors : allColors;
+
   const handleSubmit = (data: FiltersFormSchema) => {
     setCategory(data.category!);
     setName(data.name!);
     setOrder(data.order!);
+    // Solo aplicar color si la categoría es "Rosas"
+    if (data.category === 'Rosas' && data.color) {
+      setColor(data.color);
+    } else {
+      setColor('');
+    }
   };
 
   const handleClearFilters = () => {
     form.reset();
     cleanFilters();
   };
+
+  // Limpiar color cuando se cambia de categoría (si no es "Rosas")
+  useEffect(() => {
+    const currentCategory = category;
+    if (currentCategory !== 'Rosas' && color) {
+      setColor('');
+      form.setValue('color', '');
+    }
+  }, [category, color, setColor, form]);
 
   return (
     <aside className='relative'>
@@ -276,13 +319,8 @@ export function Filters() {
                     </AccordionContent>
                   </AccordionItem>
                 ) : null}
-                {form.watch('category')?.length &&
-                Object.values(CATEGORIES).find(
-                  (c) => c === form.watch('category'),
-                )! !== 'Velas' &&
-                Object.values(CATEGORIES).find(
-                  (c) => c === form.watch('category'),
-                )! !== 'Fragancias' ? (
+                {/* Mostrar filtro de colores solo para categoría "Rosas" */}
+                {form.watch('category') === 'Rosas' ? (
                   <AccordionItem value='colors'>
                     <AccordionTrigger className='py-4 text-base font-medium'>
                       {t('colorsAccordion.trigger')}

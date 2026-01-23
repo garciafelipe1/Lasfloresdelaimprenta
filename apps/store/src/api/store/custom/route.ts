@@ -108,7 +108,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const requiresManualHandling =
     params.order === "price_asc" ||
     params.order === "price_desc" ||
-    !!params.category;
+    !!params.category ||
+    !!params.color;
 
   const { data, metadata } = await query.graph({
     entity: "product",
@@ -122,6 +123,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       "variants.id",
       "variants.calculated_price.calculated_amount",
       "images.url",
+      "metadata",
     ],
     filters: {
       ...filterByTitle,
@@ -158,6 +160,14 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     result = result.filter((p) =>
       p.categories?.some((c) => expandedCategories.includes(c?.name!))
     );
+  }
+
+  // Filter by color (only for "Rosas" category)
+  if (params.color && params.category === "Rosas") {
+    result = result.filter((p) => {
+      const productColor = p.metadata?.color;
+      return productColor === params.color;
+    });
   }
 
   // Sort by price (excluding "Diseños exclusivos" category)

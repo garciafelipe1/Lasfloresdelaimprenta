@@ -34,7 +34,7 @@ type GetAllResponse = {
 const PRODUCTS_PER_PAGE = 12;
 
 export const productService: ProductService = {
-  async getAll({ page = 1, name, category, order }) {
+  async getAll({ page = 1, name, category, order, color }) {
     const region = await getRegion('ar');
 
     if (!region) {
@@ -61,11 +61,16 @@ export const productService: ProductService = {
       q: name,
     };
 
+    const colorOptions = color && {
+      color,
+    };
+
     const queryParams = {
       page,
       ...orderOptions,
       ...categoryOption,
       ...qOptions,
+      ...colorOptions,
       region_id: region.id,
       currency_code: region.currency_code,
     };

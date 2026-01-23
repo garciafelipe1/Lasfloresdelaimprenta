@@ -7,6 +7,7 @@ export const GetStoreCustomSchema = z.object({
   q: z.string().optional(),
   order: z.enum(sortOptionValues as [string, ...string[]]).optional(),
   category: z.enum(categories as [string, ...string[]]).optional(),
+  color: z.string().optional(),
   page: z.preprocess((val) => {
     if (val && typeof val === "string") {
       return parseInt(val);

@@ -60,6 +60,9 @@ export function useFilterParams() {
   const setOrder = (newSort: string) => {
     setParams({ order: newSort === undefined ? null : newSort });
   };
+  const setColor = (newColor: string) => {
+    setParams({ color: newColor === undefined ? null : newColor, page: '1' });
+  };
   const cleanFilters = () => {
     setParams(null);
   };
@@ -72,5 +75,6 @@ export function useFilterParams() {
     setPage,
     setName,
     setOrder,
+    setColor,
   };
 }
