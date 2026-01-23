@@ -100,8 +100,7 @@ export default async function verifyRosaAmarilla({ container }: ExecArgs) {
     const newImages = [...currentImages, { url: imageUrl }];
     
     try {
-      await productModuleService.updateProducts({
-        id: product.id,
+      await productModuleService.updateProducts(product.id, {
         images: newImages,
       });
       

@@ -52,8 +52,7 @@ export default async function updateRosaAmarillaImage({ container }: ExecArgs) {
       { url: newImageUrl },
     ];
     
-    await productModuleService.updateProducts({
-      id: product.id,
+    await productModuleService.updateProducts(product.id, {
       images: allImages,
     });
 
