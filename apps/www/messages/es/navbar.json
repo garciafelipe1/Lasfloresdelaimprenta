@@ -15,6 +15,12 @@
         "title": "Bodas",
         "description": "Diseño floral y decoración personalizado para bodas, desde la ceremonia hasta la recepción."
       }
+    },
+    "footer": {
+      "catalog": "Catálogo",
+      "services": "Servicios",
+      "memberships": "Membresías",
+      "copyright": "Las Flores de la imprenta, Derechos Reservados."
     }
   }
 }

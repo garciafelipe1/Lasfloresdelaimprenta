@@ -5,5 +5,10 @@
     "sheetDescription": "Productos en tu carrito:",
     "empty": "Tu carrito está vacío.",
     "emptyDescription": "¿Todavía no elegiste nada? ¡Explorá nuestros productos y agregá tus favoritos!"
+  },
+  "footer": {
+    "total": "TOTAL",
+    "finishPurchase": "Finalizar Compra",
+    "continueShopping": "Seguir comprando"
   }
 }

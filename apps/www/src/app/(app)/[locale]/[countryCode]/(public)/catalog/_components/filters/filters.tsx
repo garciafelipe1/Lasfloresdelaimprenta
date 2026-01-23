@@ -43,7 +43,7 @@ interface ColorOption extends FilterOption {
 }
 
 export function Filters() {
-  const t = useTranslations('filters');
+  const t = useTranslations('categories-products.filters');
 
   const {
     filters: { name, order, category, size, color },

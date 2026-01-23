@@ -1,4 +1,5 @@
 import { productService } from '@/services/product.service';
+import { getTranslations, getLocale } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -7,15 +8,17 @@ interface Props {
 }
 
 export async function ProductComplements({ productId }: Props) {
+  const locale = await getLocale();
+  const t = await getTranslations('categories-products.products.complements');
   const complements = await productService.getComplements(productId);
 
   return (
     <div className='flex flex-col'>
-      <h4>Complementos</h4>
+      <h4>{t('title')}</h4>
       <ul className='grid grid-cols-2 gap-4'>
         {complements.map((c) => (
           <Link
-            href={`/products/${c.handle}`}
+            href={`/${locale}/ar/products/${c.handle}`}
             key={c.id}
             className='flex-col'
           >

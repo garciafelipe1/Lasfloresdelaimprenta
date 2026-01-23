@@ -1,5 +1,6 @@
 import { listRegions } from '@/lib/data/regions';
 import { medusa } from '@/lib/medusa-client';
+import { getLocale } from 'next-intl/server';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { FooterBanner } from './_components/footer-banner';
@@ -16,6 +17,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
+  const locale = await getLocale();
 
   let product;
   try {
@@ -28,9 +30,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `[generateMetadata] Error al buscar producto para handle ${handle}:`,
       error,
     );
+    const notFoundTitle = locale === 'en' 
+      ? 'Product not found - La Florería de la Imprenta'
+      : 'Producto no encontrado - La Florería de la Imprenta';
+    const notFoundDesc = locale === 'en'
+      ? 'The product you are looking for is not available or does not exist.'
+      : 'El producto que buscas no está disponible o no existe.';
     return {
-      title: 'Producto no encontrado - La Florería de la Imprenta',
-      description: 'El producto que buscas no está disponible o no existe.',
+      title: notFoundTitle,
+      description: notFoundDesc,
       robots: 'noindex, nofollow',
     };
   }
@@ -39,44 +47,58 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     console.log(
       `[generateMetadata] Producto no encontrado para handle: ${handle}`,
     );
+    const notFoundTitle = locale === 'en' 
+      ? 'Product not found - La Florería de la Imprenta'
+      : 'Producto no encontrado - La Florería de la Imprenta';
+    const notFoundDesc = locale === 'en'
+      ? 'The product you are looking for is not available or does not exist.'
+      : 'El producto que buscas no está disponible o no existe.';
     return {
-      title: 'Producto no encontrado - La Florería de la Imprenta',
-      description: 'El producto que buscas no está disponible o no existe.',
+      title: notFoundTitle,
+      description: notFoundDesc,
       robots: 'noindex, nofollow',
     };
   }
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const productUrl = `${BASE_URL}/products/${product.handle}`;
+  const productUrl = `${BASE_URL}/${locale}/ar/products/${product.handle}`;
   const initialImage = product.images?.[0]?.url;
 
+  const siteName = 'La Florería de la Imprenta';
+  const title = `${product.title} - ${siteName}`;
+  const description = product.description ?? (
+    locale === 'en'
+      ? `Buy ${product.title} at La Florería de la Imprenta. Fresh flowers and floral arrangements with home delivery in Bahía Blanca.`
+      : `Comprar ${product.title} en La Florería de la Imprenta. Flores frescas y arreglos florales con envío a domicilio en Bahía Blanca.`
+  );
+  const ogDescription = product.description ?? (
+    locale === 'en'
+      ? `Find ${product.title} and other unique floral arrangements in Bahía Blanca.`
+      : `Encuentra el ${product.title} y otros arreglos florales únicos en Bahía Blanca.`
+  );
+
   const metadataOutput: Metadata = {
-    title: `${product.title} - La Florería de la Imprenta`,
-    description:
-      product.description ??
-      `Comprar ${product.title} en La Florería de la Imprenta. Flores frescas y arreglos florales con envío a domicilio en Bahía Blanca.`,
+    title,
+    description,
     keywords: [
       product.title,
-      'flores',
-      'ramos',
+      locale === 'en' ? 'flowers' : 'flores',
+      locale === 'en' ? 'bouquets' : 'ramos',
       'Bahía Blanca',
-      'envio a domicilio',
-
-      product.collection?.title ?? 'florería',
+      locale === 'en' ? 'home delivery' : 'envio a domicilio',
+      product.collection?.title ?? (locale === 'en' ? 'florist' : 'florería'),
     ].filter(Boolean) as string[],
 
     openGraph: {
-      title: `${product.title} - La Florería de la Imprenta`,
-      description:
-        product.description ??
-        `Encuentra el ${product.title} y otros arreglos florales únicos en Bahía Blanca.`,
+      title,
+      description: ogDescription,
       url: productUrl,
-      siteName: 'La Florería de la Imprenta',
+      siteName,
       images: initialImage
-        ? [{ url: initialImage, alt: product.title ?? 'Imagen de producto' }]
+        ? [{ url: initialImage, alt: product.title ?? (locale === 'en' ? 'Product image' : 'Imagen de producto') }]
         : [],
       type: 'website',
-      locale: 'es_AR',
+      locale: locale === 'en' ? 'en_US' : 'es_AR',
     },
     alternates: {
       canonical: productUrl,

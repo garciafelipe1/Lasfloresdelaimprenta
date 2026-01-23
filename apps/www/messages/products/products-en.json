@@ -1,0 +1,74 @@
+{
+  "ramo-primaveral": {
+    "title": "Spring Bouquet",
+    "description": "<p>A cheerful and colorful bouquet that captures the essence of spring. Composed of seasonal flowers such as daisies, lilies, freesias and more, depending on availability. Ideal for brightening any corner or giving pure positive energy.</p>"
+  },
+  "rosas-nacionales": {
+    "title": "National Roses",
+    "description": "<p>Cultivated with dedication on Argentine soil, our national roses offer natural beauty at an excellent price. Vibrant colors and guaranteed freshness. A classic option that never fails.</p>"
+  },
+  "rosas-premium": {
+    "title": "Premium Roses",
+    "description": "<p>Imported roses with long stems and large buds. Their intense color and superior durability make them the ideal choice for those seeking to <em>make an elegant impact</em>. Perfect for anniversaries, proposals or special moments.</p>"
+  },
+  "box-de-rosas-y-flores-de-estacion": {
+    "title": "Box of Roses and Seasonal Flowers",
+    "description": "<p>A unique combination of <em>fresh roses</em> with hand-selected seasonal flowers. This box is ideal for gifting on any occasion: from a birthday to a spontaneous gesture. It comes presented in an elegant box, ready to surprise.</p>"
+  },
+  "follaje-decorativo": {
+    "title": "Decorative Foliage",
+    "description": "Fresh foliage to complement your floral arrangements."
+  },
+  "arreglo-funebre-corona": {
+    "title": "Funeral Wreath Arrangement",
+    "description": "A traditional funeral wreath to express your condolences."
+  },
+  "arreglo-funebre-cruz": {
+    "title": "Funeral Cross Arrangement",
+    "description": "A floral arrangement in the shape of a cross, suitable for funeral services."
+  },
+  "arreglo-funebre-en-forma-de-corazon": {
+    "title": "Funeral Heart-Shaped Arrangement",
+    "description": "A delicate floral heart to pay tribute to a loved one."
+  },
+  "centro-de-mesa-funebre": {
+    "title": "Funeral Centerpiece",
+    "description": "A sober and elegant floral centerpiece, ideal for accompanying wakes or intimate farewells."
+  },
+  "arreglo-funebre-cruz-2": {
+    "title": "Funeral Cross Arrangement 2",
+    "description": "A floral arrangement in the shape of a cross, suitable for funeral services."
+  },
+  "florero-de-cristal-clasico": {
+    "title": "Classic Crystal Vase",
+    "description": "A classic crystal vase, perfect for any floral arrangement."
+  },
+  "florero-de-ceramica-rustico": {
+    "title": "Rustic Ceramic Vase",
+    "description": "A ceramic vase with a rustic finish, ideal for a country touch."
+  },
+  "florero-de-vidrio-moderno": {
+    "title": "Modern Glass Vase",
+    "description": "A modern design vase, ideal for contemporary arrangements."
+  },
+  "vela-aromatica-de-lavanda": {
+    "title": "Lavender Aromatic Candle",
+    "description": "Handcrafted candle with a relaxing lavender scent, ideal for setting the mood in any space."
+  },
+  "difusor-de-ambiente-vainilla": {
+    "title": "Vanilla Room Diffuser",
+    "description": "Room diffuser with reeds, with a sweet and warm vanilla scent."
+  },
+  "diseno-exclusivo-1": {
+    "title": "Exclusive Design 1",
+    "description": "<p>A cheerful and colorful bouquet that captures the essence of spring. Composed of seasonal flowers such as daisies, lilies, freesias and more, depending on availability. Ideal for brightening any corner or giving pure positive energy.</p>"
+  },
+  "diseno-exclusivo-2": {
+    "title": "Exclusive Design 2",
+    "description": "<p>A cheerful and colorful bouquet that captures the essence of spring. Composed of seasonal flowers such as daisies, lilies, freesias and more, depending on availability. Ideal for brightening any corner or giving pure positive energy.</p>"
+  },
+  "diseno-exclusivo-3": {
+    "title": "Exclusive Design 3",
+    "description": "<p>A cheerful and colorful bouquet that captures the essence of spring. Composed of seasonal flowers such as daisies, lilies, freesias and more, depending on availability. Ideal for brightening any corner or giving pure positive energy.</p>"
+  }
+}

@@ -4,6 +4,7 @@ import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ArrowRight } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { EliteIcon } from '../icons/elite-icon';
@@ -38,8 +39,64 @@ export async function Memberships() {
   const t = await getTranslations();
 
   return (
-    <section className='bg-zinc-50 py-16 md:py-32 dark:bg-transparent'>
-      <div className='@container mx-auto max-w-5xl px-6'>
+    <section className='relative bg-zinc-50 py-16 md:py-32 dark:bg-transparent overflow-hidden'>
+      {/* Imagen decorativa izquierda - 3 imágenes completas para línea completa */}
+      <div className='absolute left-0 top-1/2 -translate-y-1/2 w-32 md:w-48 hidden md:flex flex-col pointer-events-none h-full'>
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={100}
+          height={800}
+          className='w-full h-auto object-contain opacity-60'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={100}
+          height={800}
+          className='w-full h-auto object-contain opacity-60'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='w-full h-auto object-contain opacity-60'
+          aria-hidden='true'
+        />
+      </div>
+
+      {/* Imagen decorativa derecha - 3 imágenes completas para línea completa */}
+      <div className='absolute right-0 top-1/2 -translate-y-1/2  w-32 md:w-48 hidden md:flex flex-col pointer-events-none h-full'>
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='w-full h-auto object-contain opacity-60 scale-x-[-1]'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='w-full h-auto object-contain opacity-60 scale-x-[-1]'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='w-full h-auto object-contain opacity-60 scale-x-[-1]'
+          aria-hidden='true'
+        />
+      </div>
+
+      <div className='@container mx-auto max-w-5xl px-6 relative z-10'>
         <div className='text-center'>
           <h2 className='text-4xl text-primary'>{t('landing.memberships.title')}</h2>
           <p className='text-primary'> {t('landing.memberships.description')}</p>

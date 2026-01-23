@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { getNavLinks } from '../constants/links';
+import { LocaleToggle } from '../nav-links/locale-toggle';
 
 interface Props {
   onClose: () => void;
@@ -43,8 +44,9 @@ export function Links({ onClose }: Props) {
   };
 
   return (
-    <ul className='flex flex-col divide-y'>
-      {links.map((link) => {
+    <div className='flex flex-col'>
+      <ul className='flex flex-col divide-y'>
+        {links.map((link) => {
         const normalizedHref = normalizeHref(link.href);
         const isActive = path.includes(normalizedHref.split('?')[0]);
 
@@ -123,6 +125,12 @@ export function Links({ onClose }: Props) {
           </li>
         );
       })}
-    </ul>
+      </ul>
+      <div className='border-t pt-4 mt-4'>
+        <div className='px-4'>
+          <LocaleToggle />
+        </div>
+      </div>
+    </div>
   );
 }

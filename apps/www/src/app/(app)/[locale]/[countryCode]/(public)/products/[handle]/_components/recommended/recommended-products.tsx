@@ -10,6 +10,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/app/components/ui/carousel';
+import { getTranslations } from 'next-intl/server';
 import { productService } from '@/services/product.service';
 import { ProductCard } from '../../../../catalog/_components/products/product-card';
 
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export async function RecommendedProducts({ handle }: Props) {
+  const t = await getTranslations('categories-products.products');
   const recommendedProducts = await productService.getRecommended(handle);
 
   if (!recommendedProducts.length) {
@@ -27,7 +29,7 @@ export async function RecommendedProducts({ handle }: Props) {
   return (
     <Section>
       <SectionHeader>
-        <SectionTitle>Productos recomendados</SectionTitle>
+        <SectionTitle>{t('recommended')}</SectionTitle>
       </SectionHeader>
       <section className='px-12'>
         <Carousel>

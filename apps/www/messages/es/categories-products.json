@@ -1,4 +1,44 @@
 {
+  "catalog": {
+    "title": "Catálogo de productos",
+    "empty": {
+      "title": "No hay productos",
+      "description": "No hemos encontrado productos que coincidan con tus criterios de búsqueda."
+    }
+  },
+  "products": {
+    "addToCart": "AÑADIR AL CARRITO",
+    "addToCartError": "Hubo un error al agregar el producto al carrito",
+    "selectVariant": "Por favor, selecciona una variante del producto.",
+    "installments": "Hasta 12 cuotas sin interés en bancos seleccionados",
+    "recommended": "Productos recomendados",
+    "consult": "Consultar",
+    "from": "Desde",
+    "gallery": {
+      "deliveryInfo": "Información de Delivery",
+      "sizeGuide": "Guía de tallas",
+      "image": "Imagen",
+      "previousImage": "Imagen anterior",
+      "nextImage": "Imagen siguiente",
+      "close": "Cerrar",
+      "sizeGuideAlt": "Tallas"
+    },
+    "sizes": {
+      "label": "Tallas",
+      "select": "Seleccionar"
+    },
+    "exclusive": {
+      "title": "Diseños Exclusivos",
+      "description": "Este producto es parte de nuestra colección exclusiva. Descubre más sobre nuestros diseños únicos y limitados.",
+      "consultPrices": "Consultar precios"
+    },
+    "complements": {
+      "title": "Complementos"
+    },
+    "commonQuestions": {
+      "title": "Preguntas frecuentes"
+    }
+  },
   "filters": {
     "header": "Filtros",
     "clearFiltersButton": "Limpiar Filtros",
@@ -27,8 +67,9 @@
         "ramosPrimaverales": "Ramos primaverales",
         "rosas": "Rosas",
         "box": "Box",
-        "bodas": "Bodas",
-        "follaje": "Bodas",
+        "sanValentin": "San Valentín",
+        "bodas": "San Valentín",
+        "follaje": "San Valentín",
         "florero": "Florero",
         "funebre": "Funebre",
         "fragancias": "Fragancias",

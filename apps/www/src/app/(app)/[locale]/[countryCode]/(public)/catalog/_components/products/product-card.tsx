@@ -1,14 +1,19 @@
+'use client';
+
 import { isExclusive } from '@/lib/isExclusive';
+import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { ProductDTO } from '@server/types';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatARS } from 'utils';
 
 interface Props {
   product: ProductDTO;
 }
 
 export const ProductCard = ({ product }: Props) => {
+  const locale = useLocale();
+  const t = useTranslations('categories-products.products');
   let initialImage;
   let hoverImage;
 
@@ -18,7 +23,7 @@ export const ProductCard = ({ product }: Props) => {
       product.images.length > 1 ? product.images[1].url : initialImage;
   }
 
-  const productUrl = `/products/${product.handle}`;
+  const productUrl = `/${locale}/ar/products/${product.handle}`;
 
   const lowestPrice = product.variants.reduce(
     (min, variant) =>
@@ -26,7 +31,8 @@ export const ProductCard = ({ product }: Props) => {
     Infinity,
   );
 
-  const currency = 'ARS';
+  const currency = locale === 'en' ? 'USD' : 'ARS';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://api.nomeimporta.xyz';
 
   const productSchema = {
     '@context': 'https://schema.org',
@@ -34,7 +40,7 @@ export const ProductCard = ({ product }: Props) => {
     name: product.title,
     description: product.description,
     image: initialImage,
-    url: `https://api.nomeimporta.xyz${productUrl}`,
+    url: `${baseUrl}${productUrl}`,
     brand: {
       '@type': 'Brand',
       name: 'Collection',
@@ -44,8 +50,8 @@ export const ProductCard = ({ product }: Props) => {
       priceCurrency: currency,
       price: lowestPrice,
       itemCondition: 'https://schema.org/NewCondition',
-      availability: 'https://schema.org/InStock', // O "OutOfStock"
-      url: `https://api.nomeimporta.xyz${productUrl}`,
+      availability: 'https://schema.org/InStock',
+      url: `${baseUrl}${productUrl}`,
     },
   };
 
@@ -80,11 +86,11 @@ export const ProductCard = ({ product }: Props) => {
         )}
       </div>
       <div className='flex flex-col items-center justify-center *:text-center **:m-0'>
-        <p className='text-sm font-semibold'>{product.title}</p>
-        <p className='text-primary/50 text-sm font-semibold'>
+        <p className='text-sm font-semibold font-cinzel'>{product.title}</p>
+        <p className='text-primary/50 text-sm font-semibold font-cinzel'>
           {isExclusive(product.categories ?? [])
-            ? 'Consultar'
-            : `Desde ${formatARS(lowestPrice)}`}
+            ? t('consult')
+            : `${t('from')} ${formatMoneyByLocale(lowestPrice, locale)}`}
         </p>
       </div>
     </Link>

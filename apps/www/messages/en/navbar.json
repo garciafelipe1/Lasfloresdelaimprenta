@@ -15,6 +15,12 @@
         "title": "Weddings",
         "description": "Personalized floral design and decoration for weddings, from the ceremony to the reception."
       }
+    },
+    "footer": {
+      "catalog": "Catalog",
+      "services": "Services",
+      "memberships": "Memberships",
+      "copyright": "Las Flores de la imprenta, All Rights Reserved."
     }
   }
 }

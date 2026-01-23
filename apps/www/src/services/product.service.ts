@@ -1,6 +1,8 @@
 import { getRegion } from '@/lib/data/regions';
 import { medusa } from '@/lib/medusa-client';
+import { translateProduct, translateProducts } from '@/lib/product-translations';
 import { FilterParams } from '@/lib/search-params-cache';
+import { getLocale } from 'next-intl/server';
 import { StoreProduct, StoreProductCategory } from '@medusajs/types';
 import { CATEGORIES } from '@server/constants';
 import { mapProductDTO } from '@server/mappers';
@@ -83,13 +85,27 @@ export const productService: ProductService = {
 
     const totalPages = Math.ceil(totalItems / PRODUCTS_PER_PAGE);
 
-    return {
-      products: data.result,
-      info: {
-        totalItems,
-        totalPages,
-      },
-    };
+    // Aplicar traducciones según el locale
+    try {
+      const locale = (await getLocale()) as 'es' | 'en';
+      const translatedProducts = await translateProducts(data.result, locale);
+      return {
+        products: translatedProducts,
+        info: {
+          totalItems,
+          totalPages,
+        },
+      };
+    } catch {
+      // Si no se puede obtener el locale, devolver sin traducir
+      return {
+        products: data.result,
+        info: {
+          totalItems,
+          totalPages,
+        },
+      };
+    }
   },
   async getOne(id: string) {
     const region = await getRegion('ar');
@@ -173,7 +189,15 @@ export const productService: ProductService = {
       ];
     }
 
-    return recommended.map((storeProduct) => mapProductDTO(storeProduct));
+    const mappedProducts = recommended.map((storeProduct) => mapProductDTO(storeProduct));
+    
+    // Aplicar traducciones
+    try {
+      const locale = (await getLocale()) as 'es' | 'en';
+      return await translateProducts(mappedProducts, locale);
+    } catch {
+      return mappedProducts;
+    }
   },
 
   async getByHandle(handle: string) {
@@ -188,7 +212,18 @@ export const productService: ProductService = {
       fields: 'categories.*',
     });
 
-    return products[0];
+    const product = products[0];
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    // Aplicar traducciones según el locale
+    try {
+      const locale = (await getLocale()) as 'es' | 'en';
+      return await translateProduct(product, locale);
+    } catch {
+      return product;
+    }
   },
 
   async getCategories() {
@@ -213,7 +248,13 @@ export const productService: ProductService = {
       limit: 2,
     });
 
-    return results.products;
+    // Aplicar traducciones
+    try {
+      const locale = (await getLocale()) as 'es' | 'en';
+      return await translateProducts(results.products, locale);
+    } catch {
+      return results.products;
+    }
   },
 
   async getLatests() {
@@ -229,7 +270,13 @@ export const productService: ProductService = {
       order: 'created_at',
     });
 
-    return products;
+    // Aplicar traducciones
+    try {
+      const locale = (await getLocale()) as 'es' | 'en';
+      return await translateProducts(products, locale);
+    } catch {
+      return products;
+    }
   },
 
   async getExclusives() {
@@ -250,6 +297,14 @@ export const productService: ProductService = {
       )?.id,
     });
 
-    return products.map((p) => mapProductDTO(p));
+    const mappedProducts = products.map((p) => mapProductDTO(p));
+    
+    // Aplicar traducciones
+    try {
+      const locale = (await getLocale()) as 'es' | 'en';
+      return await translateProducts(mappedProducts, locale);
+    } catch {
+      return mappedProducts;
+    }
   },
 };

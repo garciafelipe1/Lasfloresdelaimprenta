@@ -13,9 +13,9 @@ function getCurrencyFromLocale(locale: string): string {
 function getCategoryRedirect(pathname: string, searchParams: URLSearchParams): string | null {
   const category = searchParams.get('category');
   
-  if (category === 'Follaje') {
+  if (category === 'Follaje' || category === 'Bodas') {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('category', 'Bodas');
+    newSearchParams.set('category', 'San Valentín');
     return `${pathname}?${newSearchParams.toString()}`;
   }
   
@@ -42,21 +42,52 @@ const regionMapCache = {
 async function getRegionMap(cacheId: string) {
   const { regionMap, regionMapUpdated } = regionMapCache
 
-  if (!BACKEND_URL) throw new Error("Missing MEDUSA_BACKEND_URL")
+  if (!BACKEND_URL) {
+    console.error("[Middleware] Missing MEDUSA_BACKEND_URL")
+    // Retornar mapa vacío si no hay backend configurado
+    return regionMap
+  }
 
   if (!regionMap.keys().next().value || regionMapUpdated < Date.now() - 3600 * 1000) {
-    const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
-      headers: { "x-publishable-api-key": PUBLISHABLE_API_KEY! },
-      cache: 'no-store' // Edge Runtime no soporta next.revalidate
-    }).then(async (r) => r.json())
+    try {
+      // Usar AbortController para timeout en Edge Runtime
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 segundos timeout
 
-    regions?.forEach((region: StoreRegion) => {
-      region.countries?.forEach((c) => {
-        regionMap.set(c.iso_2!, region)
+      const response = await fetch(`${BACKEND_URL}/store/regions`, {
+        headers: { "x-publishable-api-key": PUBLISHABLE_API_KEY || "" },
+        cache: 'no-store', // Edge Runtime no soporta next.revalidate
+        signal: controller.signal
       })
-    })
 
-    regionMapCache.regionMapUpdated = Date.now()
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        console.error(`[Middleware] Error fetching regions: ${response.status} ${response.statusText}`)
+        return regionMap
+      }
+
+      const { regions } = await response.json()
+
+      if (regions && Array.isArray(regions)) {
+        regions.forEach((region: StoreRegion) => {
+          region.countries?.forEach((c) => {
+            if (c?.iso_2) {
+              regionMap.set(c.iso_2, region)
+            }
+          })
+        })
+
+        regionMapCache.regionMapUpdated = Date.now()
+      }
+    } catch (error) {
+      // Ignorar errores de abort (timeout) y otros errores de red
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error("[Middleware] Error fetching regions:", error.message)
+      }
+      // Retornar el mapa existente si hay error, para no bloquear la aplicación
+      return regionMap
+    }
   }
 
   return regionMap
@@ -67,13 +98,26 @@ async function getCountryCode(
   regionMap: Map<string, StoreRegion>
 ) {
   const vercelCountry = request.headers.get("x-vercel-ip-country")?.toLowerCase()
-  const urlCountry = request.nextUrl.pathname.split('/')[1]?.toLowerCase()
+  const segments = request.nextUrl.pathname.split('/').filter(Boolean)
+  
+  // Si el regionMap está vacío (backend no disponible), usar DEFAULT_REGION
+  if (!regionMap || regionMap.size === 0) {
+    return DEFAULT_REGION
+  }
+  
+  // El countryCode está en el segundo segmento: /[locale]/[countryCode]/...
+  // Los locales válidos son 'es' y 'en', así que si el segundo segmento existe y no es un locale, es el countryCode
+  const urlCountry = segments.length >= 2 && !routing.locales.includes(segments[1] as any) 
+    ? segments[1]?.toLowerCase() 
+    : segments.find(seg => regionMap.has(seg.toLowerCase()))?.toLowerCase()
 
   if (urlCountry && regionMap.has(urlCountry)) return urlCountry
   if (vercelCountry && regionMap.has(vercelCountry)) return vercelCountry
   if (regionMap.has(DEFAULT_REGION)) return DEFAULT_REGION
 
-  return [...regionMap.keys()][0]
+  // Si hay algún país en el mapa, usar el primero, sino usar DEFAULT_REGION
+  const firstCountry = [...regionMap.keys()][0]
+  return firstCountry || DEFAULT_REGION
 }
 
 // ===============================================
@@ -98,15 +142,60 @@ export async function middleware(request: NextRequest) {
   const regionMap = await getRegionMap(cacheId)
   const countryCode = await getCountryCode(request, regionMap)
 
-  const segments = pathname.split('/')
-  const urlCountry = segments[2]?.toLowerCase()
-  const hasCountry = urlCountry === countryCode
+  const segments = pathname.split('/').filter(Boolean)
+  
+  // Detectar locale y countryCode de la URL
+  // La estructura esperada es: /[locale]/[countryCode]/...
+  const urlLocale = segments[0] && routing.locales.includes(segments[0] as any) 
+    ? segments[0] 
+    : null
+  // Verificar si el segundo segmento es un countryCode válido
+  // Si el regionMap está vacío, aceptar cualquier valor como válido para evitar bloqueos
+  const urlCountry = segments[1] && (regionMap.size === 0 || regionMap.has(segments[1].toLowerCase()))
+    ? segments[1].toLowerCase()
+    : null
 
-  if (!hasCountry) {
-    return NextResponse.redirect(
-      `${request.nextUrl.origin}/es/${countryCode}${pathname}${request.nextUrl.search}`,
-      307,
-    )
+  // Si falta locale o countryCode, redirigir a la ruta correcta
+  if (!urlLocale || !urlCountry || urlCountry !== countryCode) {
+    const locale = urlLocale || 'es'
+    
+    // Si tiene locale pero no countryCode, insertar el countryCode
+    if (urlLocale && !urlCountry) {
+      // Caso: /en -> /en/ar
+      // Caso: /en/catalog -> /en/ar/catalog
+      const restOfPath = segments.length > 1 
+        ? '/' + segments.slice(1).join('/') 
+        : ''
+      const newPath = `/${locale}/${countryCode}${restOfPath}`
+      
+      return NextResponse.redirect(
+        `${request.nextUrl.origin}${newPath}${request.nextUrl.search}`,
+        307,
+      )
+    }
+    
+    // Si no tiene locale, redirigir a /es/[countryCode]
+    if (!urlLocale) {
+      const newPath = `/${locale}/${countryCode}${pathname === '/' ? '' : pathname}`
+      
+      return NextResponse.redirect(
+        `${request.nextUrl.origin}${newPath}${request.nextUrl.search}`,
+        307,
+      )
+    }
+    
+    // Si tiene locale y countryCode pero es diferente, redirigir al correcto
+    if (urlLocale && urlCountry && urlCountry !== countryCode) {
+      const restOfPath = segments.length > 2 
+        ? '/' + segments.slice(2).join('/') 
+        : ''
+      const newPath = `/${locale}/${countryCode}${restOfPath}`
+      
+      return NextResponse.redirect(
+        `${request.nextUrl.origin}${newPath}${request.nextUrl.search}`,
+        307,
+      )
+    }
   }
 
   // Redirección de categorías antiguas (SEO-friendly 301)
@@ -117,7 +206,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Determinar locale y moneda esperada
-  const locale = segments[1] || 'es';
+  const locale = urlLocale || 'es';
   const expectedCurrency = getCurrencyFromLocale(locale);
 
   const response = intlMiddleware(request)

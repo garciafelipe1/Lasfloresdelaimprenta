@@ -2,7 +2,7 @@ export const CATEGORIES = {
   ramosPrimaverales: "Ramos primaverales",
   rosas: "Rosas",
   box: "Box",
-  bodas: "Bodas", // ✅ Nueva categoría principal (reemplaza "Follaje")
+  sanValentin: "San Valentín", // ✅ Nueva categoría principal (reemplaza "Bodas")
   funebre: "Funebre",
   complementos: "Complementos",
   diseniosExclusivos: "Diseños exclusivos",
@@ -11,6 +11,7 @@ export const CATEGORIES = {
 // Categorías legacy para compatibilidad durante migración
 export const LEGACY_CATEGORIES = {
   follaje: "Follaje", // Mantener para productos existentes
+  bodas: "Bodas", // Mantener para productos existentes (redirige a "San Valentín")
 } as const;
 
 export const SIZES = ["S", "M", "XXL"];

@@ -48,23 +48,23 @@ export function Hero() {
             >
               <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs'>
                 {/* Bordes decorativos florales dentro del card */}
-                <div className='absolute -left-46 top-3 hidden h-full w-full md:block'>
+                <div className='absolute -left-34 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/flor-decorativa-izquierda-nueva.png'
+                    src='/assets/img/vuelta.png'
                     alt=''
                     width={400}
                     height={2200}
-                    className='h-full w-full object-contain ml-10'
+                    className='h-30 w-full object-contain mb-4 -mt-2 '
                     aria-hidden='true'
                   />
                 </div>
                 <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/flor-decorativa-derecha-flama.png'
+                    src='/assets/img/fondito.png'
                     alt=''
                     width={400}
                     height={2000}
-                    className='h-full w-200'
+                    className='h-30 w-full object-contain mb-4 -mt-2'
                     aria-hidden='true'
                   />
                 </div>
@@ -103,23 +103,23 @@ export function Hero() {
             >
               <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs'>
                 {/* Bordes decorativos florales dentro del card */}
-                <div className='absolute -left-46 top-3 hidden h-full w-full md:block'>
+                <div className='absolute -left-35 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/flor-decorativa-izquierda-nueva.png'
+                    src='/assets/img/vuelta.png'
                     alt=''
                     width={400}
                     height={2200}
-                    className='h-full w-full object-contain ml-10'
+                    className='h-30 w-full object-contain mb-4 -mt-2'
                     aria-hidden='true'
                   />
                 </div>
                 <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/flor-decorativa-derecha-flama.png'
+                    src='/assets/img/fondito.png'
                     alt=''
                     width={400}
                     height={2000}
-                    className='h-full w-200'
+                    className='h-30 w-full object-contain mb-4 -mt-2'
                     aria-hidden='true'
                   />
                 </div>

@@ -5,6 +5,7 @@ import {
 } from '@/app/components/common/section/section';
 import { searchParamsCache } from '@/lib/search-params-cache';
 import { SearchParams } from 'nuqs/server';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { Filters } from './_components/filters/filters';
 import { MobileFilters } from './_components/filters/mobile-filters';
@@ -18,6 +19,7 @@ interface Props {
 
 export default async function CatalogPage({ searchParams }: Props) {
   const filters = searchParamsCache.parse(await searchParams);
+  const t = await getTranslations('categories-products.catalog');
 
   return (
     <div className='px-layout'>
@@ -27,7 +29,7 @@ export default async function CatalogPage({ searchParams }: Props) {
         className='gap-12 py-12'
       >
         <SectionHeader>
-          <SectionTitle>Catálogo de productos</SectionTitle>
+          <SectionTitle>{t('title')}</SectionTitle>
         </SectionHeader>
         <GridLayout
           desktopFilter={<Filters />}

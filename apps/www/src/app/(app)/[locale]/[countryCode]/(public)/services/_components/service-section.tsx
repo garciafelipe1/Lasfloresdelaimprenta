@@ -32,7 +32,7 @@ export default function ServiceSection({
 
   return (
     <section
-      className='px-layout py-vertical group/section scroll-mt-12 border-b md:pt-16 md:pb-16 text-primary'
+      className='px-layout py-vertical group/section scroll-mt-12 border-b md:pt-16 md:pb-16 text-primary service-section'
       id={hash}
     >
       <div className='max-w-desktop mx-auto flex flex-col gap-12'>

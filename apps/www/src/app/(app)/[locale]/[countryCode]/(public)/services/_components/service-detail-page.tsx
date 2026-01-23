@@ -42,7 +42,7 @@ export default function ServiceDetailPage({
   const [image1, image2, image3, image4] = images;
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen service-detail-page'>
       {/* Hero Section */}
       <section className='relative overflow-hidden bg-gradient-to-b from-background to-secondary/30'>
         <div className='max-w-desktop mx-auto px-layout py-16 md:py-24'>

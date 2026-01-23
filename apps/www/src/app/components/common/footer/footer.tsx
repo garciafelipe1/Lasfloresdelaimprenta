@@ -1,26 +1,34 @@
-import Link from 'next/link';
+'use client';
 
-const links = [
-  {
-    title: 'Catalogo',
-    href: '#',
-  },
-  {
-    title: 'Servicios',
-    href: '#',
-  },
-  {
-    title: 'Membresías',
-    href: '#',
-  },
-];
+import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { routing } from '@/i18n/routing';
 
 export function Footer() {
+  const locale = useLocale();
+  const t = useTranslations('navigation.footer');
+
+  const links = [
+    {
+      title: t('catalog'),
+      href: `/${locale}/ar/catalog`,
+    },
+    {
+      title: t('services'),
+      href: `/${locale}/ar/services`,
+    },
+    {
+      title: t('memberships'),
+      href: `/${locale}/ar/memberships`,
+    },
+  ];
+
   return (
     <footer className='relative py-16 md:py-32'>
       <div className='relative z-10 mx-auto max-w-5xl px-6'>
         <Link
-          href='/'
+          href={`/${locale}/ar`}
           aria-label='go home'
           className='mx-auto block size-fit'
         ></Link>
@@ -100,9 +108,7 @@ export function Footer() {
           </Link>
         </div>
         <span className='text-muted-foreground block text-center text-sm text-primary'>
-          {' '}
-          © {new Date().getFullYear()} Las Flores de la imprenta, Derechos
-          Reservados.
+          © {new Date().getFullYear()} {t('copyright')}
         </span>
       </div>
     </footer>

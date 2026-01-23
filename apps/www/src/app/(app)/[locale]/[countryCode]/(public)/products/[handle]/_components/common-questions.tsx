@@ -1,24 +1,35 @@
+'use client';
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/app/components/ui/accordion';
-
-const questions = [
-  {
-    question: 'Lorem ipsum, dolor sit amet consectetur?',
-    answer:
-      'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Assumenda cum amet blanditiis quis vero saepe quo veritatis ab dicta ratione cumque, labore velit omnis sequi voluptatem harum distinctio reiciendis eveniet!',
-  },
-  {
-    question: 'Can I use this component in production?',
-    answer:
-      'Yes, it is designed to be production-ready and accessible by default.',
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function CommonQuestions() {
+  const t = useTranslations('landing.questions.items');
+
+  const questions = [
+    {
+      question: t('0.question'),
+      answer: t('0.answer'),
+    },
+    {
+      question: t('1.question'),
+      answer: t('1.answer'),
+    },
+    {
+      question: t('2.question'),
+      answer: t('2.answer'),
+    },
+    {
+      question: t('3.question'),
+      answer: t('3.answer'),
+    },
+  ];
+
   return (
     <Accordion
       type='single'

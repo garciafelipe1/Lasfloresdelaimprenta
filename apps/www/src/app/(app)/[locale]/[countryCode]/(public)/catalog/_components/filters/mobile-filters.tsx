@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 import { Filters } from './filters';
 
 export function MobileFilters() {
-  const t = useTranslations('filters');
+  const t = useTranslations('categories-products.filters');
 
   return (
     <Sheet>

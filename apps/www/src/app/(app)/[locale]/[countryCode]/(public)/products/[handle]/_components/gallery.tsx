@@ -7,40 +7,42 @@ import {
 } from '@/app/components/ui/accordion';
 import { Accordion } from '@radix-ui/react-accordion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-
-const questions = [
-  {
-    question: 'Informacion de Delivery',
-    answer:
-      'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Assumenda cum amet blanditiis quis vero saepe quo veritatis ab dicta ratione cumque, labore velit omnis sequi voluptatem harum distinctio reiciendis eveniet!',
-  },
-  {
-    question: 'Guia de tallas',
-    answer: (
-      <div className='relative mt-2 flex aspect-video justify-center'>
-        <Image
-          className='h-full w-full object-cover'
-          src='https://cdn.shopify.com/s/files/1/0584/4693/8291/files/Horizontal_size_guide_TEST_2_1.jpg?v=1633450865'
-          alt='Tallas'
-          fill
-        />
-      </div>
-    ),
-  },
-];
 
 interface Props {
   images: string[];
 }
 
 export function Gallery({ images }: Props) {
+  const t = useTranslations('categories-products.products.gallery');
   const [activeSection, setActiveSection] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState<number | null>(null);
   const [isModalZoomed, setIsModalZoomed] = useState(false);
   const modalImageRef = useRef<HTMLImageElement>(null);
+
+  const questions = [
+    {
+      question: t('deliveryInfo'),
+      answer:
+        'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Assumenda cum amet blanditiis quis vero saepe quo veritatis ab dicta ratione cumque, labore velit omnis sequi voluptatem harum distinctio reiciendis eveniet!',
+    },
+    {
+      question: t('sizeGuide'),
+      answer: (
+        <div className='relative mt-2 flex aspect-video justify-center'>
+          <Image
+            className='h-full w-full object-cover'
+            src='https://cdn.shopify.com/s/files/1/0584/4693/8291/files/Horizontal_size_guide_TEST_2_1.jpg?v=1633450865'
+            alt={t('sizeGuideAlt')}
+            fill
+          />
+        </div>
+      ),
+    },
+  ];
 
   const openModal = (index: number) => {
     setModalImageIndex(index);
@@ -122,7 +124,7 @@ export function Gallery({ images }: Props) {
               <Image
                 src={img}
                 className='h-auto w-full object-contain'
-                alt={`Imagen ${index + 1}`}
+                alt={`${t('image')} ${index + 1}`}
                 width={400}
                 height={400}
                 style={{ maxWidth: '100%', height: 'auto' }}
@@ -163,7 +165,7 @@ export function Gallery({ images }: Props) {
           >
             <Image
               src={currentModalImage}
-              alt='Imagen ampliada'
+              alt={t('image')}
               style={{
                 maxHeight: '90vh',
                 maxWidth: '90vw',
@@ -182,7 +184,7 @@ export function Gallery({ images }: Props) {
               <button
                 className='bg-primary text-secondary rounded-full p-2'
                 onClick={prevImage}
-                aria-label='Imagen anterior'
+                aria-label={t('previousImage')}
               >
                 <ChevronLeft className='h-6 w-6' />
               </button>
@@ -190,7 +192,7 @@ export function Gallery({ images }: Props) {
             <button
               className='bg-primary text-secondary rounded-full p-2'
               onClick={closeModal}
-              aria-label='Cerrar'
+              aria-label={t('close')}
             >
               <X className='h-6 w-6' />
             </button>
@@ -198,7 +200,7 @@ export function Gallery({ images }: Props) {
               <button
                 className='bg-primary text-secondary rounded-full p-2'
                 onClick={nextImage}
-                aria-label='Imagen siguiente'
+                aria-label={t('nextImage')}
               >
                 <ChevronRight className='h-6 w-6' />
               </button>

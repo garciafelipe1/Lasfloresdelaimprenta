@@ -1,13 +1,14 @@
 /**
  * Mapeo de categorías para compatibilidad y migración
  * 
- * Permite que productos con categoría "Follaje" aparezcan cuando se busca "Bodas"
+ * Permite que productos con categoría "Bodas" o "Follaje" aparezcan cuando se busca "San Valentín"
  * y viceversa, manteniendo compatibilidad durante la migración.
  */
 export const CATEGORY_ALIASES = {
-  // Mapeo bidireccional: "Bodas" incluye productos de "Follaje"
-  "Bodas": ["Bodas", "Follaje"],
-  "Follaje": ["Bodas", "Follaje"], // Mantener compatibilidad temporal
+  // Mapeo bidireccional: "San Valentín" incluye productos de "Bodas" y "Follaje"
+  "San Valentín": ["San Valentín", "Bodas", "Follaje"],
+  "Bodas": ["San Valentín", "Bodas", "Follaje"], // Redirige a "San Valentín"
+  "Follaje": ["San Valentín", "Bodas", "Follaje"], // Mantener compatibilidad temporal
 } as const;
 
 /**

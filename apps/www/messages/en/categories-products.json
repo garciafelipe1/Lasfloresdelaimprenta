@@ -1,4 +1,44 @@
 {
+  "catalog": {
+    "title": "Product Catalog",
+    "empty": {
+      "title": "No products found",
+      "description": "We couldn't find any products matching your search criteria."
+    }
+  },
+  "products": {
+    "addToCart": "ADD TO CART",
+    "addToCartError": "There was an error adding the product to the cart",
+    "selectVariant": "Please select a product variant.",
+    "installments": "Up to 12 interest-free installments at selected banks",
+    "recommended": "Recommended Products",
+    "consult": "Consult",
+    "from": "From",
+    "gallery": {
+      "deliveryInfo": "Delivery Information",
+      "sizeGuide": "Size Guide",
+      "image": "Image",
+      "previousImage": "Previous image",
+      "nextImage": "Next image",
+      "close": "Close",
+      "sizeGuideAlt": "Sizes"
+    },
+    "sizes": {
+      "label": "Sizes",
+      "select": "Select"
+    },
+    "exclusive": {
+      "title": "Exclusive Designs",
+      "description": "This product is part of our exclusive collection. Discover more about our unique and limited designs.",
+      "consultPrices": "Consult prices"
+    },
+    "complements": {
+      "title": "Complements"
+    },
+    "commonQuestions": {
+      "title": "Frequently Asked Questions"
+    }
+  },
   "filters": {
     "header": "Filters",
     "clearFiltersButton": "Clear Filters",
@@ -27,8 +67,9 @@
         "ramosPrimaverales": "Spring Bouquets",
         "rosas": "Roses",
         "box": "Box",
-        "bodas": "Weddings",
-        "follaje": "Weddings",
+        "sanValentin": "Valentine's Day",
+        "bodas": "Valentine's Day",
+        "follaje": "Valentine's Day",
         "florero": "Vase",
         "funebre": "Funeral",
         "fragancias": "Fragrances",

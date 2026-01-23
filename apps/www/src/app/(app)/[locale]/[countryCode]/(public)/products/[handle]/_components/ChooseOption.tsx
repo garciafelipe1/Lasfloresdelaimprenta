@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
 interface SizeSelectorProps {
@@ -7,6 +8,7 @@ interface SizeSelectorProps {
 }
 
 const SizeSelector: React.FC<SizeSelectorProps> = ({ sizes }) => {
+  const t = useTranslations('categories-products.products.sizes');
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -21,9 +23,9 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({ sizes }) => {
 
   const displayCurrentSelection = () => {
     if (selectedSize) {
-      return `Tallas: ${getDisplaySize(selectedSize)}`;
+      return `${t('label')}: ${getDisplaySize(selectedSize)}`;
     }
-    return 'Tallas: Seleccionar';
+    return `${t('label')}: ${t('select')}`;
   };
 
   const getDisplaySize = (size: string) => {

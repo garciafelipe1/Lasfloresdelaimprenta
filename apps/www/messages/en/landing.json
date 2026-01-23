@@ -37,7 +37,13 @@
     },
     "categories": {
       "title": "Categories",
-      "description": "Discover our peony arrangement categories, from elegant bouquets to event decorations."
+      "description": "Discover our peony arrangement categories, from elegant bouquets to event decorations.",
+      "items": {
+        "ramosPrimaverales": "Spring Bouquets",
+        "rosas": "Roses",
+        "box": "Box",
+        "sanValentin": "Valentine's Day"
+      }
     },
     "testimonials": {
       "title": "Testimonials",

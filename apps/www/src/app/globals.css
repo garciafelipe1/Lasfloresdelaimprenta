@@ -14,31 +14,32 @@
   * {
     @apply border-border outline-ring/50 font-geist;
   }
-  
+
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
-  
+
   body {
     @apply bg-background text-foreground scroll-smooth;
     overflow-x: hidden;
   }
-  
+
   /* Optimizaciones de rendimiento para scroll fluido */
   * {
     -webkit-tap-highlight-color: transparent;
   }
-  
-  img, video {
+
+  img,
+  video {
     content-visibility: auto;
   }
 }
 
 @layer base {
-  #recommended-products > li {
+  #recommended-products>li {
     list-style-type: none;
   }
 
@@ -48,28 +49,152 @@
 }
 
 @layer utilities {
+
   /* Optimizaciones de rendimiento para scroll y animaciones */
   .scroll-smooth {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Contener layout para mejor rendimiento */
   .contain-layout {
     contain: layout style paint;
   }
-  
+
   /* GPU acceleration para elementos que se animan */
   .gpu-accelerated {
     transform: translateZ(0);
     will-change: transform;
   }
+
+  /* Fuente Cinzel para títulos, descripciones, botones y subtítulos */
+  .font-cinzel {
+    font-family: var(--font-cinzel);
+    font-weight: 700;
+  }
 }
 
 /* Aplicar fuente Morgan solo a la landing page */
 @layer base {
+
   .landing,
   .landing * {
     font-family: 'Morgan', sans-serif;
+  }
+
+  /* Aplicar Cinzel a botones */
+  button:not(.not-cinzel, .not-cinzel *),
+  [role="button"]:not(.not-cinzel, .not-cinzel *) {
+    font-family: var(--font-cinzel);
+    font-weight: 700;
+  }
+
+  /* Aplicar Cinzel a subtítulos (small, caption, etc.) */
+  small:not(.not-cinzel, .not-cinzel *),
+  .subtitle:not(.not-cinzel, .not-cinzel *) {
+    font-family: var(--font-cinzel);
+    font-weight: 700;
+  }
+
+  /* Aplicar Cinzel a descripciones de productos */
+  .product-richtext-description,
+  .product-richtext-description * {
+    font-family: var(--font-cinzel);
+    font-weight: 700;
+  }
+
+  /* Navbar usa fuente normal (Geist) en lugar de Cinzel */
+  header,
+  header *,
+  header button,
+  header [role="button"],
+  header small,
+  header .subtitle,
+  header p,
+  header h1,
+  header h2,
+  header h3,
+  header h4,
+  header h5,
+  header h6 {
+    font-family: var(--font-geist-sans, var(--font-geist), 'Geist', sans-serif) !important;
+    font-weight: normal;
+  }
+
+  /* Servicios: todos los elementos dentro de prose usan color violeta (primary) - heredan del contenedor */
+  .service-section .prose *,
+  .service-section .prose p,
+  .service-section .prose strong,
+  .service-section .prose em,
+  .service-section .prose a,
+  .service-section .prose h1,
+  .service-section .prose h2,
+  .service-section .prose h3,
+  .service-section .prose h4,
+  .service-section .prose h5,
+  .service-section .prose h6,
+  .service-section .prose ul,
+  .service-section .prose ol,
+  .service-section .prose li,
+  .service-section .prose blockquote,
+  .service-detail-page .prose *,
+  .service-detail-page .prose p,
+  .service-detail-page .prose strong,
+  .service-detail-page .prose em,
+  .service-detail-page .prose a,
+  .service-detail-page .prose h1,
+  .service-detail-page .prose h2,
+  .service-detail-page .prose h3,
+  .service-detail-page .prose h4,
+  .service-detail-page .prose h5,
+  .service-detail-page .prose h6,
+  .service-detail-page .prose ul,
+  .service-detail-page .prose ol,
+  .service-detail-page .prose li,
+  .service-detail-page .prose blockquote {
+    color: inherit !important;
+  }
+
+  /* Servicios: usar fuente Cinzel Bold como antes */
+  .service-section,
+  .service-section *,
+  .service-section h1,
+  .service-section h2,
+  .service-section h3,
+  .service-section h4,
+  .service-section h5,
+  .service-section h6,
+  .service-section p,
+  .service-section .prose,
+  .service-section .prose *,
+  .service-detail-page,
+  .service-detail-page *,
+  .service-detail-page h1,
+  .service-detail-page h2,
+  .service-detail-page h3,
+  .service-detail-page h4,
+  .service-detail-page h5,
+  .service-detail-page h6,
+  .service-detail-page p,
+  .service-detail-page .prose,
+  .service-detail-page .prose * {
+    font-family: var(--font-cinzel) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Categorías: usar fuente Cinzel Bold */
+  .categories-section,
+  .categories-section *,
+  .categories-section h1,
+  .categories-section h2,
+  .categories-section h3,
+  .categories-section h4,
+  .categories-section h5,
+  .categories-section h6,
+  .categories-section p,
+  .categories-section span,
+  .categories-section a {
+    font-family: var(--font-cinzel) !important;
+    font-weight: 700 !important;
   }
 }

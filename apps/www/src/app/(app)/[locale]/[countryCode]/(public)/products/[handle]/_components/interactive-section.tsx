@@ -9,10 +9,12 @@ import { StoreProduct, StoreProductVariant } from '@medusajs/types';
 import { CATEGORIES } from '@server/constants';
 import { isEqual } from 'lodash';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useAction } from 'next-safe-action/hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { formatARS } from 'utils';
+import { formatMoneyByLocale } from '@/lib/money-formatter';
+import { useLocale } from 'next-intl';
 import { QuantitySelector } from './QuantitySelector';
 import { ProductOptions } from './product/product-options';
 
@@ -32,6 +34,8 @@ const optionsAsKeymap = (variantOptions: StoreProductVariant['options']) => {
 };
 
 export function InteractiveSection({ product }: Props) {
+  const locale = useLocale();
+  const t = useTranslations('categories-products.products');
   const [quantity, setQuantity] = useState<number>(1);
   const [options, setOptions] = useState<Record<string, string | undefined>>(
     {},
@@ -39,7 +43,7 @@ export function InteractiveSection({ product }: Props) {
   const { setOpenCart } = useCartQueryParam();
   const { execute, isExecuting } = useAction(addToCartAction, {
     onError() {
-      toast.error('Hubo un error al agregar el producto al carrito');
+      toast.error(t('addToCartError'));
     },
     onSuccess() {
       setOpenCart(true);
@@ -101,7 +105,7 @@ export function InteractiveSection({ product }: Props) {
 
   const handleAddToCart = () => {
     if (!selectedVariant?.id) {
-      toast.error('Por favor, selecciona una variante del producto.');
+      toast.error(t('selectVariant'));
       return;
     }
     execute({
@@ -113,7 +117,7 @@ export function InteractiveSection({ product }: Props) {
   return (
     <div className='flex flex-col gap-4'>
       <p className='text-xl'>
-        {formatARS(selectedVariant?.calculated_price?.calculated_amount ?? 0)}
+        {formatMoneyByLocale(selectedVariant?.calculated_price?.calculated_amount ?? 0, locale)}
       </p>
       <ul className='flex flex-col gap-2'>
         {product.options?.map((option) => (
@@ -140,14 +144,14 @@ export function InteractiveSection({ product }: Props) {
           disabled={isExecuting || !selectedVariant?.id}
           className='group'
         >
-          AÑADIR AL CARRITO
+          {t('addToCart')}
           <ArrowRight className='transition group-hover:translate-x-1' />
         </Button>
         <Badge
           variant='secondary'
           className='mx-auto text-center'
         >
-          Hasta 12 cuotas sin interés en bancos seleccionados
+          {t('installments')}
         </Badge>
       </footer>
     </div>

@@ -37,7 +37,13 @@
     },
     "categories": {
       "title": "Categorías",
-      "description": "Descubre nuestras categorías de arreglos de peonías, desde elegantes ramos hasta decoraciones para eventos."
+      "description": "Descubre nuestras categorías de arreglos de peonías, desde elegantes ramos hasta decoraciones para eventos.",
+      "items": {
+        "ramosPrimaverales": "Ramos primaverales",
+        "rosas": "Rosas",
+        "box": "Box",
+        "sanValentin": "San Valentín"
+      }
     },
     "testimonials": {
       "title": "Testimonios",
