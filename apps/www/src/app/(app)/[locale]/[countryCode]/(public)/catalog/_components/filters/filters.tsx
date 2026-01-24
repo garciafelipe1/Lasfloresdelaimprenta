@@ -46,6 +46,26 @@ interface ColorOption extends FilterOption {
 export function Filters() {
   const t = useTranslations('categories-products.filters');
 
+  const CATEGORY_KEYS_ORDER = [
+    'sanValentin',
+    'rosas',
+    'box',
+    'diseniosExclusivos',
+    'ramosPrimaverales',
+    'complementos',
+    'funebre',
+  ] as const;
+
+  const orderedCategories = [
+    ...CATEGORY_KEYS_ORDER.filter((k) => k in CATEGORIES).map((k) => [
+      k,
+      CATEGORIES[k],
+    ]),
+    ...Object.entries(CATEGORIES).filter(
+      ([key]) => !CATEGORY_KEYS_ORDER.includes(key as (typeof CATEGORY_KEYS_ORDER)[number]),
+    ),
+  ] as Array<[string, string]>;
+
   const {
     filters: { name, order, category, size, color },
     isPending,
@@ -242,7 +262,7 @@ export function Filters() {
                   </AccordionTrigger>
                   <AccordionContent>
                     <ul>
-                      {Object.entries(CATEGORIES).map(([key, category]) => (
+                      {orderedCategories.map(([key, category]) => (
                         <FormField
                           key={category}
                           control={form.control}

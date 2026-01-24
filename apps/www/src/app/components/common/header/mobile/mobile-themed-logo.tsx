@@ -5,7 +5,7 @@ export function MobileThemedLogo() {
   return (
     <Link href='/'>
       <Image
-        src='/assets/img/logodelaimprenta.svg'
+        src='/assets/img/logo3.png'
         alt='Logo Flores Imprenta'
         height={60}
         width={60}

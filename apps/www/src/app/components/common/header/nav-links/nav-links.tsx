@@ -31,7 +31,7 @@ export function NavLinks() {
   return (
     <nav
       aria-label='Global'
-      className='flex flex-grow items-center justify-start gap-2'
+      className='flex items-center justify-start gap-2'
     >
       <NavigationMenu delayDuration={0}>
         <NavigationMenuList>

@@ -4,10 +4,14 @@ import { HeaderMenu } from './header-menu';
 
 export function DesktopHeader() {
   return (
-    <div className='max-w-desktop mx-auto flex items-center justify-between py-4'>
-      <NavLinks />
+    <div className='max-w-desktop mx-auto relative flex items-center py-4'>
+      <div className='flex flex-1 items-center justify-start lg:-translate-x-10'>
+        <NavLinks />
+      </div>
       <Logo />
-      <HeaderMenu />
+      <div className='flex flex-1 items-center justify-end lg:translate-x-10'>
+        <HeaderMenu />
+      </div>
     </div>
   );
 }

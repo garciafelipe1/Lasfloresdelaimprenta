@@ -4,6 +4,8 @@ import { Badge } from '@/app/components/ui/badge';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { WhatsAppIcon } from '@/app/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 interface Props {
   title: string;
@@ -109,8 +111,19 @@ export default function ServiceSection({
                     <ArrowRight className='ml-2 w-5 h-5 transition-transform group-hover:translate-x-1' />
                   </Link>
                 </Button>
-                <Button size='lg' variant='outline' className='text-base px-8 py-6' asChild>
-                  <Link href={`/services/${slug}#contacto`}>
+                <Button
+                  size='lg'
+                  className='text-base px-8 py-6 bg-[#25D366] hover:bg-[#1ebe5d] text-white border border-transparent'
+                  asChild
+                >
+                  <Link
+                    href={getWhatsAppUrl({
+                      text: `Hola! Quiero solicitar presupuesto para: ${title}.`,
+                    })}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    <WhatsAppIcon className='mr-2 h-5 w-5' />
                     {translations.requestQuote}
                   </Link>
                 </Button>

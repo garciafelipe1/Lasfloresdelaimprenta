@@ -3,14 +3,14 @@ import Link from 'next/link';
 
 export function Logo() {
   return (
-    <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center mt-4 mb-1">
-      <Link href="/" className="block mt-10.5 md:mt-0">
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+      <Link href="/" className="block">
         <Image
-          src="/assets/img/logodelaimprenta.svg"
+          src="/assets/img/logo3.png"
           alt="Logo Flores Imprenta"
-          width={160}
-          height={100}
-          className="object-contain dark:invert"
+          width={180}
+          height={120}
+          className="object-contain dark:invert lg:scale-[1.08] mt-10 md:mt-0"
           priority
         />
       </Link>

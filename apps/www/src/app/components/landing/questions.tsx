@@ -20,7 +20,7 @@ export function Questions() {
 
   return (
     <div className='bg-custom relative isolate overflow-hidden'>
-      <p className='text-primary justify-center text-center text-3xl font-extrabold sm:text-4xl'>
+      <p className='text-primary justify-center text-center text-3xl font-extrabold sm:text-4xl font-cinzel'>
         {i18n('landing.questions.title')}
       </p>
       <div className='mx-auto flex max-w-5xl flex-col gap-12 px-8 py-24 md:flex-row'>

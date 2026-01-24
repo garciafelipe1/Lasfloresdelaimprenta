@@ -4,6 +4,8 @@ import { Badge } from '@/app/components/ui/badge';
 import { ArrowRight, Check, Sparkles, Heart, Award, Phone, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { WhatsAppIcon } from '@/app/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 interface ServiceDetailPageProps {
   slug: string;
@@ -194,10 +196,20 @@ export default function ServiceDetailPage({
             </p>
           </div>
           <div className='flex flex-col sm:flex-row gap-4 justify-center items-center pt-6'>
-            <Button size='lg' variant='secondary' className='text-base px-8 py-6 group' asChild>
-              <Link href='tel:+5491123456789'>
-                <Phone className='mr-2 w-5 h-5' />
-                {translations.callNow}
+            <Button
+              size='lg'
+              className='text-base px-8 py-6 bg-[#25D366] hover:bg-[#1ebe5d] text-white border border-transparent'
+              asChild
+            >
+              <Link
+                href={getWhatsAppUrl({
+                  text: `Hola! Quiero solicitar presupuesto para: ${title}.`,
+                })}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <WhatsAppIcon className='mr-2 w-5 h-5' />
+                {translations.requestQuote}
               </Link>
             </Button>
             <Button size='lg' variant='outline' className='text-base px-8 py-6 bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 group' asChild>
@@ -206,10 +218,15 @@ export default function ServiceDetailPage({
                 {translations.sendEmail}
               </Link>
             </Button>
-            <Button size='lg' variant='outline' className='text-base px-8 py-6 bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 group' asChild>
-              <Link href='#contacto'>
-                {translations.requestQuote}
-                <ArrowRight className='ml-2 w-5 h-5 transition-transform group-hover:translate-x-1' />
+            <Button
+              size='lg'
+              variant='outline'
+              className='text-base px-8 py-6 bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 group'
+              asChild
+            >
+              <Link href='tel:+5491123456789'>
+                <Phone className='mr-2 w-5 h-5' />
+                {translations.callNow}
               </Link>
             </Button>
           </div>

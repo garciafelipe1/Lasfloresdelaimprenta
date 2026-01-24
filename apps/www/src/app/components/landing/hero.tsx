@@ -50,26 +50,26 @@ export function Hero() {
                 {/* Bordes decorativos florales dentro del card */}
                 <div className='absolute -left-34 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/vuelta.png'
+                    src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
                     height={2200}
-                    className='h-30 w-full object-contain mb-4 -mt-2 '
+                    className='h-26 w-full object-contain mb-4 '
                     aria-hidden='true'
                   />
                 </div>
                 <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/fondito.png'
+                    src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
-                    height={2000}
-                    className='h-30 w-full object-contain mb-4 -mt-2'
+                    height={400}
+                    className='h-26 w-full object-contain mb-4 scale-x-[-1]'
                     aria-hidden='true'
                   />
                 </div>
                 <CardHeader className='relative z-10'>
-                  <CardTitle className='text-center capitalize'>
+                  <CardTitle className='text-center capitalize font-cinzel'>
                     {i18n('landing.hero.title')}{' '}
                   </CardTitle>
                 </CardHeader>
@@ -105,26 +105,26 @@ export function Hero() {
                 {/* Bordes decorativos florales dentro del card */}
                 <div className='absolute -left-35 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/vuelta.png'
+                    src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
                     height={2200}
-                    className='h-30 w-full object-contain mb-4 -mt-2'
+                    className='h-26 w-full object-contain mb-4'
                     aria-hidden='true'
                   />
                 </div>
                 <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
                   <Image
-                    src='/assets/img/fondito.png'
+                    src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
                     height={2000}
-                    className='h-30 w-full object-contain mb-4 -mt-2'
+                    className='h-26 w-full object-contain mb-4 scale-x-[-1]'
                     aria-hidden='true'
                   />
                 </div>
                 <CardHeader className='relative z-10'>
-                  <CardTitle className='text-center capitalize'>
+                  <CardTitle className='text-center capitalize font-cinzel'>
                     {i18n('landing.heros.title')}
                   </CardTitle>
                 </CardHeader>

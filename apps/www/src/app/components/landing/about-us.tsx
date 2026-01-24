@@ -30,7 +30,7 @@ export function AboutUs() {
               <div className='relative rounded-lg sm:rounded-xl bg-white/95 sm:bg-white backdrop-blur-sm px-5 sm:px-8 md:px-12 pb-5 sm:pb-6 md:pb-8 pt-5 sm:pt-6 md:pt-8 shadow-2xl overflow-visible'>
                 {/* Contenido del card */}
                 <div className='relative z-10'>
-                  <h3 className='text-center text-lg sm:text-2xl md:text-3xl font-bold text-primary mb-3 sm:mb-4 uppercase tracking-wide leading-tight' style={{ fontFamily: 'var(--font-cinzel), Georgia, "Times New Roman", serif' }}>
+                  <h3 className='text-center text-lg sm:text-2xl md:text-3xl font-bold text-primary mb-3 sm:mb-4 uppercase tracking-wide leading-tight font-cinzel'>
                     {/* Imagen de texto arriba del card */}
                     <div className='mb-2 sm:mb-3 flex justify-center'>
                       <Image

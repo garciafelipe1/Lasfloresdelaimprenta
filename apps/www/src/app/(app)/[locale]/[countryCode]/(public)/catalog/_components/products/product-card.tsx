@@ -86,8 +86,8 @@ export const ProductCard = ({ product }: Props) => {
         )}
       </div>
       <div className='flex flex-col items-center justify-center *:text-center **:m-0'>
-        <p className='text-sm font-semibold font-cinzel'>{product.title}</p>
-        <p className='text-primary/50 text-sm font-semibold font-cinzel'>
+        <p className='text-sm font-semibold'>{product.title}</p>
+        <p className='text-primary/50 text-sm font-semibold'>
           {isExclusive(product.categories ?? [])
             ? t('consult')
             : `${t('from')} ${formatMoneyByLocale(lowestPrice, locale)}`}

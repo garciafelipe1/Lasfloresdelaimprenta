@@ -6,7 +6,7 @@ export function Logo() {
       <Image
         fill
         className='h-full w-full object-contain'
-        src='/assets/img/floresimprenta.png'
+        src='/assets/img/logo3.png'
         alt='Logo'
       />
     </div>

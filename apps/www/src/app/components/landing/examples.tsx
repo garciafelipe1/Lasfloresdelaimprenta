@@ -16,7 +16,7 @@ export async function Examples() {
     <div className='py-24 sm:py-32'>
       <Section className='max-w-desktop mx-auto w-full px-20'>
         <SectionHeader className='flex flex-col items-center justify-center'>
-          <SectionTitle className='justify-center text-center text-4xl'>
+          <SectionTitle className='justify-center text-center text-4xl font-cinzel'>
             {i18n('landing.examples.title')}
           </SectionTitle>
           <SectionSubtitle className='text-center'>

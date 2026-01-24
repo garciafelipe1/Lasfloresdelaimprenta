@@ -30,29 +30,32 @@ const CategoryCard = ({ title, imageUrl }: BannerProps) => (
     {/* Overlay gradient mejorado */}
     <div className='absolute inset-0 z-10 rounded-lg bg-gradient-to-br from-black/60 via-black/40 to-black/20 transition-all duration-500 group-hover:from-black/50 group-hover:via-black/30 group-hover:to-black/10' />
     
-    {/* Overlay negro transparente superior que aparece en hover */}
-    <div className='absolute top-0 left-0 right-0 z-30 bg-black/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out rounded-t-lg'>
-      <div className='p-4'>
-        <h3 className='text-xl font-bold text-white text-center drop-shadow-lg'>
+    {/* Overlay negro (hover) - más sutil/pro */}
+    <div className='absolute  left-0 right-0 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out rounded-t-lg'>
+      <div className='p-4 bg-gradient-to-b from-black/60 via-black/40 to-black/10 backdrop-blur-[2px]'>
+        <h3 className='text-lg sm:text-xl font-semibold text-white text-center tracking-wide drop-shadow-md'>
           {title}
         </h3>
       </div>
     </div>
     
     {/* Contenido de la tarjeta */}
-    <div className='relative z-20 p-4'>
+    {/* <div className='relative z-20 p-4'>
       <Badge variant='secondary' className='bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-colors'>
         {title}
       </Badge>
-    </div>
+    </div> */}
   </div>
 );
 
 const categories = [
+  // Orden desktop (2 columnas): fila 1 (izq/der), fila 2 (izq/der)
+  // San Valentín | Rosas
+  // Box          | Ramos primaverales
   {
-    key: 'ramosPrimaverales',
-    href: '/catalog?category=Ramos+primaverales',
-    imageUrl: '/assets/img/flor-4.jpg',
+    key: 'sanValentin',
+    href: '/catalog?category=San+Valentín',
+    imageUrl: '/assets/img/follaje.jpg',
   },
   {
     key: 'rosas',
@@ -65,9 +68,9 @@ const categories = [
     imageUrl: '/assets/img/boxprimaveral.webp',
   },
   {
-    key: 'sanValentin',
-    href: '/catalog?category=San+Valentín',
-    imageUrl: '/assets/img/follaje.jpg',
+    key: 'ramosPrimaverales',
+    href: '/catalog?category=Ramos+primaverales',
+    imageUrl: '/assets/img/flor-4.jpg',
   },
 ];
 
@@ -80,11 +83,15 @@ export function Categories() {
         variant='page'
         size='desktop'
       >
-        <SectionHeader className='flex flex-col items-center justify-center'>
-          <SectionTitle className='text-4xl text-primary'>
+        <SectionHeader className='flex flex-col items-center justify-center mt-16'>
+          {/* SectionTitle no aplica className -> usar h2 para forzar Cinzel Bold local */}
+          <h2
+            className='text-4xl text-primary font-cinzel'
+            style={{ fontFamily: 'var(--font-cinzel), Georgia, \"Times New Roman\", serif' }}
+          >
             {t('landing.categories.title')}
-          </SectionTitle>
-          <SectionSubtitle className='text-center text-primary'>
+          </h2>
+          <SectionSubtitle className='text-center text-primary font-cinzel '>
             {t('landing.categories.description')}
           </SectionSubtitle>
         </SectionHeader>
@@ -96,6 +103,7 @@ export function Categories() {
               className='block h-full'
             >
               <CategoryCard
+                // @ts-expect-error - dynamic translation key
                 title={t(`landing.categories.items.${c.key}`)}
                 imageUrl={c.imageUrl}
               />
