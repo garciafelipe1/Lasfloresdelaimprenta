@@ -30,6 +30,13 @@ const CategoryCard = ({ title, imageUrl }: BannerProps) => (
     {/* Overlay gradient mejorado */}
     <div className='absolute inset-0 z-10 rounded-lg bg-gradient-to-br from-black/60 via-black/40 to-black/20 transition-all duration-500 group-hover:from-black/50 group-hover:via-black/30 group-hover:to-black/10' />
     
+    {/* Etiqueta (extremo izquierdo) con nombre */}
+    <div className='absolute left-0 top-1/2 z-20 -translate-y-1/2 md:hidden'>
+      <span className='al rounded-r-md bg-black/45 px-3 py-1 text-[11px] font-semibold tracking-wide text-white/95 backdrop-blur-[2px]'>
+        <span className='truncate'>{title}</span>
+      </span>
+    </div>
+    
     {/* Overlay negro (hover) - más sutil/pro */}
     <div className='absolute  left-0 right-0 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out rounded-t-lg'>
       <div className='p-4 bg-gradient-to-b from-black/60 via-black/40 to-black/10 backdrop-blur-[2px]'>

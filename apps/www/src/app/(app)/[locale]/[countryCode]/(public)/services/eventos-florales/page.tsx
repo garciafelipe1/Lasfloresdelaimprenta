@@ -10,8 +10,9 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'services' });
+  const { locale: rawLocale } = await params;
+  const locale: 'en' | 'es' = rawLocale === 'en' ? 'en' : 'es';
+  const t = await getTranslations({ locale, namespace: 'services' as const });
 
   return {
     title: `${t('Servicio1.title')} | La Florería de la Imprenta`,
@@ -32,8 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function EventosFloralesPage({ params }: Props) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'services' });
+  const { locale: rawLocale } = await params;
+  const locale: 'en' | 'es' = rawLocale === 'en' ? 'en' : 'es';
+  const t = await getTranslations({ locale, namespace: 'services' as const });
   const sampleImages: string[] = new Array(4).fill('/assets/img/service.webp');
 
   const benefits = [

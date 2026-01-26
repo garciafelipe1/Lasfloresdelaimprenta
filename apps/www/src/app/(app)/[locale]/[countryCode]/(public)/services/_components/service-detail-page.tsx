@@ -32,6 +32,7 @@ interface ServiceDetailPageProps {
 }
 
 export default function ServiceDetailPage({
+  slug,
   description,
   images,
   subtitle,
@@ -41,7 +42,29 @@ export default function ServiceDetailPage({
   features = [],
   translations,
 }: ServiceDetailPageProps) {
-  const [image1, image2, image3, image4] = images;
+  const heroImage = images?.[0] || '/assets/img/service.webp';
+  const galleryImages = (images || []).slice(1).filter(Boolean);
+
+  const getGalleryTileClass = (index: number) => {
+    // Mosaico editorial: variación sin romper responsive.
+    // - base: 1 columna (sin huecos)
+    // - sm: 2 columnas
+    // - lg: 3 columnas
+    switch (index % 8) {
+      case 0:
+        return 'sm:col-span-2 sm:row-span-2 lg:col-span-2';
+      case 1:
+        return 'row-span-2';
+      case 2:
+        return 'lg:row-span-2';
+      case 3:
+        return 'sm:row-span-2';
+      case 4:
+        return 'lg:col-span-2';
+      default:
+        return '';
+    }
+  };
 
   return (
     <div className='min-h-screen service-detail-page'>
@@ -76,7 +99,7 @@ export default function ServiceDetailPage({
             </div>
             <div className='relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl'>
               <Image
-                src={image1}
+                src={heroImage}
                 alt={`${title} - Imagen principal`}
                 fill
                 className='object-cover'
@@ -131,35 +154,33 @@ export default function ServiceDetailPage({
             <h2 className='text-3xl font-bold text-center mb-12 text-primary'>
               {translations.ourWork}
             </h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            <div className='relative h-[300px] rounded-xl overflow-hidden shadow-lg group'>
-              <Image
-                src={image2}
-                alt={`${title} - Galería 1`}
-                fill
-                className='object-cover transition-transform duration-500 group-hover:scale-110'
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-              />
+          {galleryImages.length > 0 ? (
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 grid-flow-dense auto-rows-[160px] sm:auto-rows-[180px] lg:auto-rows-[200px]'>
+              {galleryImages.map((src, index) => (
+                // Bodas: forzar una pieza vertical para bodas-8 en "Nuestros trabajos"
+                // (más alto, estilo portrait)
+                <div
+                  key={`${src}-${index}`}
+                  className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-all duration-300 hover:shadow-md ${
+                    slug === 'bodas' && src.includes('/assets/img/services/bodas/bodas-7.')
+                      ? 'row-span-1 sm:row-span-1 lg:row-span-3'
+                      : getGalleryTileClass(index)
+                  }`}
+                >
+                  <Image
+                    src={src}
+                    alt={`${title} - Galería ${index + 1}`}
+                    fill
+                    className='object-cover transition-transform duration-500 group-hover:scale-110'
+                    sizes='(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                    loading={index < 3 ? 'eager' : 'lazy'}
+                    quality={85}
+                  />
+                  <div className='absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10' />
+                </div>
+              ))}
             </div>
-            <div className='relative h-[300px] rounded-xl overflow-hidden shadow-lg group'>
-              <Image
-                src={image3}
-                alt={`${title} - Galería 2`}
-                fill
-                className='object-cover transition-transform duration-500 group-hover:scale-110'
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-              />
-            </div>
-            <div className='relative h-[300px] rounded-xl overflow-hidden shadow-lg group'>
-              <Image
-                src={image4}
-                alt={`${title} - Galería 3`}
-                fill
-                className='object-cover transition-transform duration-500 group-hover:scale-110'
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-              />
-            </div>
-          </div>
+          ) : null}
         </div>
       </section>
 

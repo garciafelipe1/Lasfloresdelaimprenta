@@ -10,8 +10,9 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'services' });
+  const { locale: rawLocale } = await params;
+  const locale: 'en' | 'es' = rawLocale === 'en' ? 'en' : 'es';
+  const t = await getTranslations({ locale, namespace: 'services' as const });
 
   return {
     title: `${t('Servicio2.title')} | La Florería de la Imprenta`,
@@ -19,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: t('Servicio2.title'),
       description: t('Servicio2.subtitle'),
-      images: ['/assets/img/service.webp'],
+      images: ['/assets/img/services/bodas/bodas-3.png'],
+      
     },
     alternates: {
       canonical: `/${locale}/ar/services/bodas`,
@@ -32,9 +34,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BodasPage({ params }: Props) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'services' });
-  const sampleImages: string[] = new Array(4).fill('/assets/img/service.webp');
+  const { locale: rawLocale } = await params;
+  const locale: 'en' | 'es' = rawLocale === 'en' ? 'en' : 'es';
+  const t = await getTranslations({ locale, namespace: 'services' as const });
+  const images: string[] = [
+    '/assets/img/services/bodas/bodas-3.png',
+    '/assets/img/services/bodas/bodas-4.png',
+    '/assets/img/services/bodas/bodas-7.png',
+    '/assets/img/services/bodas/bodas-8.png',
+    '/assets/img/services/bodas/bodas-5.png',
+  ];
 
   const benefits = [
     t('Servicio2.benefit1'),
@@ -56,7 +65,7 @@ export default async function BodasPage({ params }: Props) {
       title={t('Servicio2.title')}
       subtitle={t('Servicio2.subtitle')}
       description={t.raw('Servicio2.description')}
-      images={sampleImages}
+      images={images}
       ctaText={t('Servicio2.cta')}
       benefits={benefits}
       features={features}

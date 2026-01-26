@@ -31,33 +31,169 @@ import { membershipColors } from '../../constants';
 import { MembershipForm } from '../../membership-form';
 
 // Portfolio de imágenes por membresía
-// TODO: Reemplazar estas imágenes con las imágenes reales de cada membresía
-const membershipPortfolios: Record<MembershipId, string[]> = {
+// Portfolio de ejemplo (velas) - reemplazable cuando haya fotos definitivas
+const candleGallery: string[] = [
+  '/assets/img/memberships/velas/vela-1.png',
+  // '/assets/img/memberships/velas/vela-2.png',
+  '/assets/img/memberships/velas/vela-3.png',
+  // '/assets/img/memberships/velas/vela-4.png',
+  '/assets/img/memberships/velas/vela-5.png',
+  '/assets/img/memberships/velas/vela-6.png',
+  '/assets/img/memberships/velas/vela-7.png',
+];
+
+// Ramos (3 fotos) - “héroes” para la composición premium de Esencial
+const esencialBouquet: string[] = [
+  '/assets/img/memberships/carousel/carousel-1.png',
+  '/assets/img/memberships/carousel/carousel-2.png',
+  '/assets/img/memberships/carousel/carousel-3.png',
+];
+
+const premiumGallery: string[] = [
+  '/assets/img/memberships/premium/premium-7.png',
+  '/assets/img/memberships/premium/premium-3.png',
+  '/assets/img/memberships/premium/premium-2.png',
+  '/assets/img/memberships/premium/premium-4.png',
+  '/assets/img/memberships/premium/premium-5.png',
+  '/assets/img/memberships/premium/premium-6.png',
+  // '/assets/img/memberships/premium/premium-7.png',
+];
+
+const eliteGallery: string[] = [
+  '/assets/img/memberships/elite/elite-1.png',
+  '/assets/img/memberships/elite/elite-2.png',
+  '/assets/img/memberships/elite/elite-3.png',
+  '/assets/img/memberships/elite/elite-4.png',
+  '/assets/img/memberships/elite/elite-5.png',
+  '/assets/img/memberships/elite/elite-6.png',
+];
+
+// Carrusel (3 fotos)
+const membershipCarousel: Record<MembershipId, string[]> = {
   esencial: [
-    '/assets/img/flor-4.jpg',
-    '/assets/img/hero-1.webp',
-    '/assets/img/hero-2.webp',
-    '/assets/img/flor-4.jpg',
-    '/assets/img/hero-3.webp',
-    '/assets/img/hero-4.webp',
+    '/assets/img/memberships/carousel/carousel-3.png',
+    '/assets/img/memberships/velas/vela-7.png',
+    '/assets/img/memberships/carousel/carousel-2.png',
+    
   ],
   premium: [
-    '/assets/img/flor-4.jpg',
-    '/assets/img/hero-2.webp',
-    '/assets/img/hero-1.webp',
-    '/assets/img/flor-4.jpg',
-    '/assets/img/hero-3.webp',
-    '/assets/img/hero-4.webp',
+    '/assets/img/memberships/premium/premium-1.png',
+    '/assets/img/memberships/premium/premium-2.png',
+    '/assets/img/memberships/premium/premium-3.png',
+    '/assets/img/memberships/premium/premium-4.png',
+    '/assets/img/memberships/premium/premium-5.png',
+    '/assets/img/memberships/premium/premium-6.png',
+    '/assets/img/memberships/premium/premium-7.png',
   ],
   elite: [
-    '/assets/img/flor-4.jpg',
-    '/assets/img/hero-3.webp',
-    '/assets/img/hero-4.webp',
-    '/assets/img/flor-4.jpg',
-    '/assets/img/hero-1.webp',
-    '/assets/img/hero-2.webp',
+    '/assets/img/memberships/elite/elite-1.png',
+    '/assets/img/memberships/elite/elite-2.png',
+    '/assets/img/memberships/elite/elite-3.png',
+    '/assets/img/memberships/elite/elite-4.png',
+    '/assets/img/memberships/elite/elite-5.png',
+    '/assets/img/memberships/elite/elite-6.png',
   ],
 };
+
+// Galería / grilla (velas)
+const membershipGallery: Record<MembershipId, string[]> = {
+  esencial: candleGallery,
+  premium: premiumGallery,
+  elite: eliteGallery,
+};
+
+function buildEsencialGallery(opts: {
+  bouquet: string[];
+  candles: string[];
+}): string[] {
+  const bouquet = (opts.bouquet || []).filter(Boolean);
+  const candles = (opts.candles || []).filter(Boolean);
+
+  // Mosaico premium: alternar "héroes" (ramos) con detalles (velas),
+  // y luego completar con el resto de velas.
+  const interleaved: string[] = [];
+  if (bouquet[0]) interleaved.push(bouquet[0]);
+  if (candles[0]) interleaved.push(candles[0]);
+  if (bouquet[1]) interleaved.push(bouquet[1]);
+  if (candles[1]) interleaved.push(candles[1]);
+  if (bouquet[2]) interleaved.push(bouquet[2]);
+
+  const used = new Set(interleaved);
+  const remainingCandles = candles.filter((c) => !used.has(c));
+  return [...interleaved, ...remainingCandles];
+}
+
+function getEsencialTileClass(index: number): string {
+  // Patrón con variación de alturas/anchos (sin forzar todo cuadrado).
+  switch (index) {
+    case 0:
+      // Hero bouquet (portrait 4:5) ancho
+      return 'col-span-2 row-span-4 md:col-span-2 md:row-span-4 lg:col-span-2 lg:row-span-4';
+    case 1:
+      // Detalle (vela) cuadrado
+      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+    case 2:
+      // Bouquet (portrait)
+      return 'col-span-1 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+    case 3:
+      // Detalle (vela)
+      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+    case 4:
+      // Bouquet (portrait) ancho en mobile
+      return 'col-span-2 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+    default:
+      // Resto detalles: cuadrados/horizontales pequeños
+      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+  }
+}
+
+function getPremiumTileClass(index: number): string {
+  // Premium: misma lógica de “recorrido visual”, pero con un ritmo más balanceado.
+  // (Verticales 4:5 + detalles cuadrados/horizontales).
+  switch (index) {
+    case 0:
+      // Hero bouquet (portrait) ancho
+      return 'col-span-2 row-span-4 md:col-span-2 md:row-span-4 lg:col-span-2 lg:row-span-4';
+    case 1:
+      // Detalle cuadrado
+      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+    case 2:
+      // Bouquet (portrait)
+      return 'col-span-1 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+    case 3:
+      // Horizontal pequeño para “respirar”
+      return 'col-span-2 row-span-2 md:col-span-2 md:row-span-2 lg:col-span-2 lg:row-span-2';
+    case 4:
+      // Bouquet (portrait) secundario
+      return 'col-span-1 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+    default:
+      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+  }
+}
+
+function getEliteTileClass(index: number): string {
+  // Elite: composición más “editorial” (más respiración + héroes más presentes).
+  // Mantiene verticales (4:5) como foco y piezas compactas como pausa.
+  switch (index) {
+    case 0:
+      // Hero 1 (portrait) ancho
+      return 'col-span-2 row-span-4 md:col-span-2 md:row-span-4 lg:col-span-2 lg:row-span-4';
+    case 1:
+      // Detalle / complemento
+      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+    case 2:
+      // Hero 2 (portrait)
+      return 'col-span-1 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+    case 3:
+      // Horizontal para dar ritmo
+      return 'col-span-2 row-span-2 md:col-span-2 md:row-span-2 lg:col-span-2 lg:row-span-2';
+    case 4:
+      // Hero 3 (portrait) ancho en mobile
+      return 'col-span-2 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+    default:
+      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+  }
+}
 
 const membershipNames: Record<MembershipId, string> = {
   esencial: 'Esencial',
@@ -86,7 +222,7 @@ export default function MembershipPortfolioPage() {
   const t = useTranslations('membership.portfolio');
 
   // Validar que la membresía existe
-  if (!membershipId || !membershipPortfolios[membershipId]) {
+  if (!membershipId || !(membershipId in membershipNames)) {
     return (
       <div className='flex min-h-screen items-center justify-center px-4'>
         <div className='text-center'>
@@ -99,7 +235,17 @@ export default function MembershipPortfolioPage() {
     );
   }
 
-  const images = membershipPortfolios[membershipId];
+  const isEsencial = membershipId === 'esencial';
+  const isPremium = membershipId === 'premium';
+  const isElite = membershipId === 'elite';
+  const isMosaic = isEsencial || isPremium || isElite;
+  const carouselImages = (membershipCarousel[membershipId] ?? []).filter(Boolean);
+  const galleryImages = isEsencial
+    ? buildEsencialGallery({
+        bouquet: esencialBouquet,
+        candles: candleGallery,
+      })
+    : (membershipGallery[membershipId] ?? []).filter(Boolean);
   const membershipName = membershipNames[membershipId];
   const colors = membershipColors[membershipId];
   const membershipIcon = membershipIcons[membershipId];
@@ -149,7 +295,7 @@ export default function MembershipPortfolioPage() {
         </div>
 
         {/* Carrusel de imágenes */}
-        {images.length > 0 ? (
+        {carouselImages.length > 0 ? (
           <div className='mb-8'>
             <Carousel
               opts={{
@@ -159,12 +305,16 @@ export default function MembershipPortfolioPage() {
               className='w-full'
             >
               <CarouselContent className='-ml-2 md:-ml-4'>
-                {images.map((imageUrl, index) => (
+                {carouselImages.map((imageUrl, index) => (
                   <CarouselItem
                     key={index}
                     className='pl-2 md:basis-1/2 lg:basis-1/3 md:pl-4'
                   >
-                    <div className='relative aspect-square overflow-hidden rounded-lg border'>
+                    <div
+                      className={`relative overflow-hidden rounded-lg border ${
+                        isMosaic ? 'aspect-[4/5]' : 'aspect-square'
+                      }`}
+                    >
                       <Image
                         src={imageUrl}
                         alt={`${membershipName} portfolio - Imagen ${index + 1}`}
@@ -191,14 +341,30 @@ export default function MembershipPortfolioPage() {
         )}
 
         {/* Grid de imágenes (vista completa) */}
-        {images.length > 0 && (
+        {galleryImages.length > 0 && (
           <div className='mb-12'>
             <h2 className='mb-6 text-2xl font-semibold'>{t('galleryTitle')}</h2>
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-              {images.map((imageUrl, index) => (
+            <div
+              className={
+                isMosaic
+                  ? 'grid grid-cols-2 gap-4 grid-flow-dense auto-rows-[90px] sm:auto-rows-[100px] md:grid-cols-3 md:auto-rows-[110px] lg:grid-cols-4'
+                  : 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              }
+            >
+              {galleryImages.map((imageUrl, index) => (
                 <div
                   key={index}
-                  className='group relative aspect-square overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg'
+                  className={
+                    isMosaic
+                      ? `group relative overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-lg ${
+                          isEsencial
+                            ? getEsencialTileClass(index)
+                            : isPremium
+                              ? getPremiumTileClass(index)
+                              : getEliteTileClass(index)
+                        }`
+                      : 'group relative aspect-square overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg'
+                  }
                 >
                   <Image
                     src={imageUrl}

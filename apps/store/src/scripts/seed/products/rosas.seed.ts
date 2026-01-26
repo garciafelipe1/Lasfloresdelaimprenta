@@ -2,33 +2,10 @@ import { CATEGORIES } from "@/shared/constants";
 
 export const rosas = [
   {
-    title: "Rosas Rojas",
-    description:
-      "<p>Hermosas <em>rosas rojas</em> que expresan pasión y amor verdadero. Perfectas para declaraciones de amor, aniversarios y momentos especiales. Cultivadas con cuidado para garantizar su frescura y durabilidad.</p>",
-    images: [
-      "/assets/img/productos/rosas/rosa-roja-1.png",
-    ],
-    category: CATEGORIES["rosas"],
-    metadata: {
-      color: "Rojo",
-    },
-    price: {
-      ars: {
-        base: 1500,
-        aument: 1500,
-      },
-      usd: {
-        base: 5,
-        aument: 5,
-      },
-    },
-  },
-  {
     title: "Rosas Naranjas",
     description:
       "<p>Vibrantes <em>rosas naranjas</em> que transmiten entusiasmo y energía. Ideales para celebrar logros, expresar gratitud o simplemente alegrar el día de alguien especial. Su color cálido y alegre las hace únicas.</p>",
     images: [
-      "/assets/img/productos/rosas/rosa-naranja-1.png",
       "/assets/img/productos/rosas/rosa-naranja-2.png",
       "/assets/img/productos/rosas/rosa-naranja-3.png",
     ],
