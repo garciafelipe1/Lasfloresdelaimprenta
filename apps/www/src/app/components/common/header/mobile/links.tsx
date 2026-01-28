@@ -47,7 +47,7 @@ export function Links({ onClose }: Props) {
   return (
     <div className='flex flex-col'>
       <div className='border-b'>
-        <div className='px-4 py-3 flex items-center justify-end gap-2'>
+        <div className='px-4 py-3 flex items-center justify-start gap-1'>
           <LocaleToggle />
           <ModeToggle />
         </div>

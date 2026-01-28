@@ -125,34 +125,63 @@
     /* Fila principal del header mobile (logo + botones) */
     header > .lg\:hidden > div.flex.items-center.justify-between.w-full {
       position: relative;
-      min-height: 3.5rem; /* 56px */
+      min-height: 3.25rem; /* 52px */
       justify-content: flex-end !important; /* logo absoluto, botones a la derecha */
     }
 
     /* Botones mobile: área táctil y altura tipo Nike */
     header > .lg\:hidden > div.flex.items-center.justify-between.w-full [data-slot="button"] {
-      height: 2.75rem !important; /* 44px */
-      min-height: 2.75rem !important;
-      width: 2.75rem !important;
-      min-width: 2.75rem !important;
+      height: 2.375rem !important; /* 38px */
+      min-height: 2.375rem !important;
+      width: 2.375rem !important;
+      min-width: 2.375rem !important;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
+    }
+
+    /* Íconos un poco más chicos (no cambia colores) */
+    header > .lg\:hidden > div.flex.items-center.justify-between.w-full [data-slot="button"] svg {
+      width: 1.125rem; /* 18px */
+      height: 1.125rem; /* 18px */
+    }
+
+    /* Separación entre íconos más compacta */
+    header > .lg\:hidden > div.flex.items-center.justify-between.w-full > div.flex.items-center.gap-2 {
+      gap: 0.5rem; /* 8px (gap-2) */
+      /* Empujar levemente hacia el borde derecho (sin pegarlo demasiado) */
+      margin-right: calc(env(safe-area-inset-right, 0px) - 1rem);
     }
 
     /* Logo: alineado al extremo izquierdo (mobile) */
     header > .lg\:hidden > div.flex.items-center.justify-between.w-full > a[href="/"] {
       position: absolute;
       top: 50%;
-      left: 0;
+      /* Compensa el padding horizontal del header (px-layout) para pegarlo al borde */
+      left: calc(env(safe-area-inset-left, 0px) - var(--spacing-layout, 1.5rem));
       transform: translateY(-50%);
       display: block;
     }
 
     header > .lg\:hidden > div.flex.items-center.justify-between.w-full > a[href="/"] img {
-      height: 2.125rem; /* 34px */
+      height: 1.875rem; /* 30px */
       width: auto;
-      max-width: 11.5rem; /* evita solaparse con íconos */
+      max-width: calc(100vw - 11rem); /* evita solaparse con íconos */
       object-fit: contain;
+    }
+
+    /* Extra-compacto para pantallas muy chicas */
+    @media (max-width: 360px) {
+      header > .lg\:hidden > div.flex.items-center.justify-between.w-full [data-slot="button"] {
+        height: 2.25rem !important; /* 36px */
+        min-height: 2.25rem !important;
+        width: 2.25rem !important;
+        min-width: 2.25rem !important;
+      }
+
+      header > .lg\:hidden > div.flex.items-center.justify-between.w-full > a[href="/"] img {
+        height: 1.875rem; /* 30px */
+        max-width: calc(100vw - 10rem);
+      }
     }
 
     /* Menú mobile (Sheet portaled): aplicamos al menú (ul.divide-y) sin :has */
