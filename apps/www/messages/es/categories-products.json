@@ -1,6 +1,10 @@
 {
   "catalog": {
     "title": "Catálogo de productos",
+    "breadcrumbs": {
+      "home": "Inicio",
+      "catalog": "Catálogo"
+    },
     "empty": {
       "title": "No hay productos",
       "description": "No hemos encontrado productos que coincidan con tus criterios de búsqueda."
@@ -45,9 +49,22 @@
     "mobileButton": "Filtros",
     "mobileTitle": "Filtrar productos",
     "mobileDescription": "Aplica filtros para ajustar tu búsqueda",
+    "contextBar": {
+      "showFilters": "Mostrar filtros",
+      "hideFilters": "Ocultar filtros",
+      "activeTypes": "Filtros activos: {types}",
+      "noActiveTypes": "Sin filtros activos",
+      "breadcrumbs": {
+        "search": "Búsqueda"
+      },
+      "resultsFor": "Resultados para “{query}”"
+    },
     "form": {
       "nameLabel": "Nombre",
       "namePlaceholder": "Ramo de ...",
+      "priceLabel": "Precio",
+      "priceMinLabel": "Mínimo",
+      "priceMaxLabel": "Máximo",
       "orderByLabel": "Ordenar por",
       "orderByPlaceholder": "Selecciona un orden",
       "orderByOptions": {

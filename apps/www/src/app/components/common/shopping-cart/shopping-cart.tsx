@@ -65,7 +65,7 @@ export const ShoppingCart = ({ cart }: Props) => {
           <ShoppingBagIcon className='h-5 w-5 text-primary' />
           <span className='sr-only'>{t('ariaLabel')}</span>
           {totalProducts > 0 && (
-            <span className='bg-accent absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full text-xs text-amber-400'>
+            <span className='absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] leading-none text-primary-foreground ring-2 ring-background'>
               {totalProducts}
             </span>
           )}

@@ -8,9 +8,9 @@ export function Logo() {
         <Image
           src="/assets/img/logo3.png"
           alt="Logo Flores Imprenta"
-          width={180}
-          height={120}
-          className="object-contain dark:invert lg:scale-[1.08] mt-10 md:mt-0"
+          width={720}
+          height={440}
+          className="h-60 w-auto object-contain dark:invert md:h-36 lg:h-44 xl:h-48 2xl:h-52"
           priority
         />
       </Link>

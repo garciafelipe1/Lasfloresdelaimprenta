@@ -67,13 +67,15 @@ export function Filters() {
   ] as Array<[string, string]>;
 
   const {
-    filters: { name, order, category, size, color },
+    filters: { name, order, category, size, color, min_price, max_price },
     isPending,
     cleanFilters,
     setCategory,
     setName,
     setOrder,
     setColor,
+    setMinPrice,
+    setMaxPrice,
   } = useFilterParams();
 
   const form = useForm<FiltersFormSchema>({
@@ -84,6 +86,8 @@ export function Filters() {
       category,
       size,
       color,
+      min_price,
+      max_price,
     },
   });
 
@@ -161,6 +165,8 @@ export function Filters() {
     setCategory(data.category!);
     setName(data.name!);
     setOrder(data.order!);
+    setMinPrice(data.min_price ?? '');
+    setMaxPrice(data.max_price ?? '');
     // Solo aplicar color si la categoría es "Rosas"
     if (data.category === 'Rosas' && data.color) {
       setColor(data.color);
@@ -191,7 +197,7 @@ export function Filters() {
             <p className='text-lg font-semibold'>{t('header')}</p>
             <Button
               variant='link'
-              className='p-0 text-gray-600 hover:text-gray-900'
+              className='p-0 text-black hover:text-black/80 dark:text-white dark:hover:text-white/80'
               onClick={handleClearFilters}
             >
               {t('clearFiltersButton')}
@@ -203,6 +209,56 @@ export function Filters() {
               onSubmit={form.handleSubmit(handleSubmit)}
               className='mb-4 flex flex-col gap-4'
             >
+              <Accordion
+                type='multiple'
+                className='w-full border-b'
+                defaultValue={['price']}
+              >
+                <AccordionItem value='price'>
+                  <AccordionTrigger className='py-4 text-base font-medium'>
+                    {t('form.priceLabel')}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className='grid grid-cols-2 gap-3'>
+                      <FormField
+                        name='min_price'
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t('form.priceMinLabel')}</FormLabel>
+                            <Input
+                              type='number'
+                              inputMode='numeric'
+                              min={0}
+                              placeholder='0'
+                              {...field}
+                              value={field.value || ''}
+                            />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name='max_price'
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t('form.priceMaxLabel')}</FormLabel>
+                            <Input
+                              type='number'
+                              inputMode='numeric'
+                              min={0}
+                              placeholder='0'
+                              {...field}
+                              value={field.value || ''}
+                            />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
               <FormField
                 name='name'
                 control={form.control}
@@ -241,7 +297,6 @@ export function Filters() {
                             key={option.value}
                             value={option.value}
                           >
-                            {/* @ts-expect-error - dynamic translation key */}
                             {t(`form.orderByOptions.${option.value}`)}
                           </SelectItem>
                         ))}

@@ -26,7 +26,9 @@ const intlMiddleware = createIntlMiddleware(routing)
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
-  process.env.NEXT_PUBLIC_BACKEND_URL
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://localhost:9000'
 
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || 'ar'
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
@@ -43,7 +45,8 @@ async function getRegionMap(cacheId: string) {
   const { regionMap, regionMapUpdated } = regionMapCache
 
   if (!BACKEND_URL) {
-    console.error("[Middleware] Missing MEDUSA_BACKEND_URL")
+    // Evitar overlay/ruido: el middleware corre en edge y esto se spamea.
+    console.warn("[Middleware] Missing BACKEND_URL; skipping regions fetch")
     // Retornar mapa vacío si no hay backend configurado
     return regionMap
   }
@@ -63,7 +66,7 @@ async function getRegionMap(cacheId: string) {
       clearTimeout(timeoutId)
 
       if (!response.ok) {
-        console.error(`[Middleware] Error fetching regions: ${response.status} ${response.statusText}`)
+        console.warn(`[Middleware] Error fetching regions: ${response.status} ${response.statusText}`)
         return regionMap
       }
 
@@ -83,7 +86,7 @@ async function getRegionMap(cacheId: string) {
     } catch (error) {
       // Ignorar errores de abort (timeout) y otros errores de red
       if (error instanceof Error && error.name !== 'AbortError') {
-        console.error("[Middleware] Error fetching regions:", error.message)
+        console.warn("[Middleware] Error fetching regions:", error.message)
       }
       // Retornar el mapa existente si hay error, para no bloquear la aplicación
       return regionMap

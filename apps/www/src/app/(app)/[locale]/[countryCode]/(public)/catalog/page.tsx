@@ -7,9 +7,7 @@ import { searchParamsCache } from '@/lib/search-params-cache';
 import { SearchParams } from 'nuqs/server';
 import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
-import { Filters } from './_components/filters/filters';
-import { MobileFilters } from './_components/filters/mobile-filters';
-import { GridLayout } from './_components/grid-layout';
+import { CatalogWithContext } from './_components/catalog-with-context';
 import { ProductsSkeleton } from './_components/products/product-skeleton';
 import { ProductsList } from './_components/products/products-list';
 
@@ -28,17 +26,14 @@ export default async function CatalogPage({ searchParams }: Props) {
         variant='page'
         className='gap-12 py-12'
       >
-        <SectionHeader>
+        <SectionHeader className='sr-only'>
           <SectionTitle>{t('title')}</SectionTitle>
         </SectionHeader>
-        <GridLayout
-          desktopFilter={<Filters />}
-          mobileFilter={<MobileFilters />}
-        >
+        <CatalogWithContext>
           <Suspense fallback={<ProductsSkeleton />}>
             <ProductsList filters={filters} />
           </Suspense>
-        </GridLayout>
+        </CatalogWithContext>
       </Section>
     </div>
   );

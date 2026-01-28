@@ -9,6 +9,7 @@ import landing from './messages/en/landing.json';
 import membership from './messages/en/membership.json';
 import navbar from './messages/en/navbar.json';
 import services from './messages/en/services.json';
+import productTranslations from './messages/products/products-en.json';
 
 export type Messages = typeof landing &
   typeof auth &
@@ -16,8 +17,10 @@ export type Messages = typeof landing &
   typeof membership &
   typeof dashboard &
   typeof navbar &
-  typeof cart &
-  typeof categoriesproducts;
+  typeof cart & {
+    'categories-products': typeof categoriesproducts;
+    products: typeof productTranslations;
+  };
 
 declare module 'next-intl' {
   interface AppConfig {

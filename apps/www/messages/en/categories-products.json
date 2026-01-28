@@ -1,6 +1,10 @@
 {
   "catalog": {
     "title": "Product Catalog",
+    "breadcrumbs": {
+      "home": "Home",
+      "catalog": "Catalog"
+    },
     "empty": {
       "title": "No products found",
       "description": "We couldn't find any products matching your search criteria."
@@ -45,9 +49,22 @@
     "mobileButton": "Filters",
     "mobileTitle": "Filter products",
     "mobileDescription": "Apply filters to adjust your search",
+    "contextBar": {
+      "showFilters": "Show filters",
+      "hideFilters": "Hide filters",
+      "activeTypes": "Active filters: {types}",
+      "noActiveTypes": "No active filters",
+      "breadcrumbs": {
+        "search": "Search"
+      },
+      "resultsFor": "Results for “{query}”"
+    },
     "form": {
       "nameLabel": "Name",
       "namePlaceholder": "Bouquet of ...",
+      "priceLabel": "Price",
+      "priceMinLabel": "Min",
+      "priceMaxLabel": "Max",
       "orderByLabel": "Order by",
       "orderByPlaceholder": "Select an order",
       "orderByOptions": {

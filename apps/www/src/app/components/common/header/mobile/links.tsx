@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ModeToggle } from '../../../ui/mode-toggle';
 import { getNavLinks } from '../constants/links';
 import { LocaleToggle } from '../nav-links/locale-toggle';
 
@@ -45,6 +46,12 @@ export function Links({ onClose }: Props) {
 
   return (
     <div className='flex flex-col'>
+      <div className='border-b'>
+        <div className='px-4 py-3 flex items-center justify-end gap-2'>
+          <LocaleToggle />
+          <ModeToggle />
+        </div>
+      </div>
       <ul className='flex flex-col divide-y'>
         {links.map((link) => {
         const normalizedHref = normalizeHref(link.href);
@@ -126,11 +133,6 @@ export function Links({ onClose }: Props) {
         );
       })}
       </ul>
-      <div className='border-t pt-4 mt-4'>
-        <div className='px-4'>
-          <LocaleToggle />
-        </div>
-      </div>
     </div>
   );
 }

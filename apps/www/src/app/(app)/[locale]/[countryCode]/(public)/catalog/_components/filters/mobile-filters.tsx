@@ -1,25 +1,28 @@
 'use client';
 
-import { Button } from '@/app/components/ui/button';
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/app/components/ui/sheet';
 import { useTranslations } from 'next-intl';
 import { Filters } from './filters';
 
-export function MobileFilters() {
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function MobileFilters({ open, onOpenChange }: Props) {
   const t = useTranslations('categories-products.filters');
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button>{t('mobileButton')}</Button>
-      </SheetTrigger>
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <SheetContent className='flex flex-col space-y-4'>
         <SheetHeader className='sr-only'>
           <SheetTitle>{t('mobileTitle')}</SheetTitle>

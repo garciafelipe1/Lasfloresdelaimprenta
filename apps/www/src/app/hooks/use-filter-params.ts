@@ -33,6 +33,14 @@ export function useFilterParams() {
         defaultValue: '',
         parse: (value) => value || '',
       },
+      min_price: {
+        defaultValue: '',
+        parse: (value) => value || '',
+      },
+      max_price: {
+        defaultValue: '',
+        parse: (value) => value || '',
+      },
     },
     {
       history: 'push',
@@ -63,6 +71,12 @@ export function useFilterParams() {
   const setColor = (newColor: string) => {
     setParams({ color: newColor === undefined ? null : newColor, page: '1' });
   };
+  const setMinPrice = (minPrice: string) => {
+    setParams({ min_price: minPrice === undefined ? null : minPrice, page: '1' });
+  };
+  const setMaxPrice = (maxPrice: string) => {
+    setParams({ max_price: maxPrice === undefined ? null : maxPrice, page: '1' });
+  };
   const cleanFilters = () => {
     setParams(null);
   };
@@ -76,5 +90,7 @@ export function useFilterParams() {
     setName,
     setOrder,
     setColor,
+    setMinPrice,
+    setMaxPrice,
   };
 }

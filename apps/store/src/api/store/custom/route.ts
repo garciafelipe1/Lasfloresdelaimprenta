@@ -109,7 +109,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     params.order === "price_asc" ||
     params.order === "price_desc" ||
     !!params.category ||
-    !!params.color;
+    !!params.color ||
+    params.min_price !== undefined ||
+    params.max_price !== undefined;
 
   const { data, metadata } = await query.graph({
     entity: "product",
@@ -167,6 +169,20 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     result = result.filter((p) => {
       const productColor = p.metadata?.color;
       return productColor === params.color;
+    });
+  }
+
+  // Filter by price range (based on lowest variant price)
+  if (params.min_price !== undefined || params.max_price !== undefined) {
+    result = result.filter((p) => {
+      const price = getLowestARSPrice(p as ProductCustom);
+      if (params.min_price !== undefined && price < params.min_price) {
+        return false;
+      }
+      if (params.max_price !== undefined && price > params.max_price) {
+        return false;
+      }
+      return true;
     });
   }
 

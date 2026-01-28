@@ -34,11 +34,12 @@ type GetAllResponse = {
 const PRODUCTS_PER_PAGE = 12;
 
 export const productService: ProductService = {
-  async getAll({ page = 1, name, category, order, color }) {
+  async getAll({ page = 1, name, category, order, color, min_price, max_price }) {
     const region = await getRegion('ar');
 
     if (!region) {
-      console.error('MISSING REGION');
+      // Evitar overlay "Error: [Server]" cuando Medusa/DB está caído
+      console.warn('[productService.getAll] MISSING REGION (backend down or regions fetch failed)');
 
       return {
         products: [] as ProductDTO[],
@@ -65,12 +66,22 @@ export const productService: ProductService = {
       color,
     };
 
+    const minPriceOptions = min_price && {
+      min_price,
+    };
+
+    const maxPriceOptions = max_price && {
+      max_price,
+    };
+
     const queryParams = {
       page,
       ...orderOptions,
       ...categoryOption,
       ...qOptions,
       ...colorOptions,
+      ...minPriceOptions,
+      ...maxPriceOptions,
       region_id: region.id,
       currency_code: region.currency_code,
     };

@@ -36,8 +36,8 @@ export function MobileMenu() {
         className='flex flex-col space-y-4'
       >
         <SheetHeader>
-          <SheetTitle className='flex items-center gap-2'>
-            <MobileThemedLogo />
+          <SheetTitle className='flex items-center justify-center'>
+            <MobileThemedLogo className='h-14' />
           </SheetTitle>
           <SheetDescription className='m-0'></SheetDescription>
         </SheetHeader>

@@ -10,6 +10,8 @@ export const filtersParams = {
   page: parseAsInteger.withDefault(1),
   category: parseAsString.withDefault(''),
   color: parseAsString.withDefault(''),
+  min_price: parseAsString.withDefault(''),
+  max_price: parseAsString.withDefault(''),
 };
 
 export const searchParamsCache = createSearchParamsCache(filtersParams);

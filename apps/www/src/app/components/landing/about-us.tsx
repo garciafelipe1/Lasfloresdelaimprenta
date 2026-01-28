@@ -8,7 +8,7 @@ export function AboutUs() {
   const t = useTranslations();
 
   return (
-    <section className='px-3 sm:px-4 py-6 sm:py-12 lg:py-20'>
+    <section className='about-us-section px-3 sm:px-4 py-6 sm:py-12 lg:py-20'>
       <div className='max-w-desktop mx-auto'>
         <div className='relative aspect-[4/3] sm:aspect-[16/9] overflow-hidden rounded-lg sm:rounded-xl md:aspect-[2/1]'>
           <Image

@@ -27,12 +27,20 @@ export const getRegion = async (countryCode: string) => {
 
     return region;
   } catch (e: unknown) {
-    console.error({ e });
+    // Evitar "Error: [Server] {}" en overlay (Next muestra console.error en RSC)
+    const message = e instanceof Error ? e.message : String(e);
+    console.warn('[getRegion] Failed to fetch regions:', message);
     return null;
   }
 };
 
 export const listRegions = async () => {
-  const { regions } = await medusa.store.region.list();
-  return regions;
+  try {
+    const { regions } = await medusa.store.region.list();
+    return regions;
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.warn('[listRegions] fetch failed:', message);
+    return null;
+  }
 };
