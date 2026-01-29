@@ -9,6 +9,7 @@
   "footer": {
     "total": "TOTAL",
     "finishPurchase": "Finalizar Compra",
-    "continueShopping": "Seguir comprando"
+    "continueShopping": "Seguir comprando",
+    "currencyNote": "Los precios en USD son estimados. El cobro final se realiza en ARS según el tipo de cambio de Mercado Pago / tu banco."
   }
 }

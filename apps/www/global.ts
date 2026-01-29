@@ -3,6 +3,7 @@ import { routing } from '@/i18n/routing';
 // Messages
 import auth from './messages/en/auth.json';
 import cart from './messages/en/cart.json';
+import checkout from './messages/en/checkout.json';
 import categoriesproducts from './messages/en/categories-products.json';
 import dashboard from './messages/en/dashboard.json';
 import landing from './messages/en/landing.json';
@@ -17,7 +18,8 @@ export type Messages = typeof landing &
   typeof membership &
   typeof dashboard &
   typeof navbar &
-  typeof cart & {
+  typeof cart &
+  typeof checkout & {
     'categories-products': typeof categoriesproducts;
     products: typeof productTranslations;
   };

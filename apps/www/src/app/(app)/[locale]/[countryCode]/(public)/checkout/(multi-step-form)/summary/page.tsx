@@ -6,11 +6,13 @@ import {
   CardTitle,
 } from '@/app/components/ui/card';
 import { cartService } from '@/services/cart.service';
+import { getTranslations } from 'next-intl/server';
 import { EditCard } from '../_components/edit-card';
 import { CompleteOrderForm } from './_components/complete-order-form';
 import { SummaryInfo } from './_components/summary-info';
 
 export default async function CheckoutAddressStepPage() {
+  const t = await getTranslations('checkout');
   const cart = await cartService.getCart();
 
   return (
@@ -20,9 +22,9 @@ export default async function CheckoutAddressStepPage() {
       <EditCard stepSlug='payment' />
       <Card>
         <CardHeader>
-          <CardTitle>Resumen</CardTitle>
+          <CardTitle>{t('summary.pageTitle')}</CardTitle>
           <CardDescription>
-            Ya casi terminamos! revisá que todo este en órden!
+            {t('summary.pageDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-col gap-8'>

@@ -6,10 +6,12 @@ import {
 } from '@/app/components/ui/card';
 import { cartService } from '@/services/cart.service';
 import { paymentService } from '@/services/payment.service';
+import { getTranslations } from 'next-intl/server';
 import { EditCard } from '../_components/edit-card';
 import { PaymentForms } from './_components/payment-forms';
 
 export default async function CheckoutPaymentStepPage() {
+  const t = await getTranslations('checkout');
   const cart = await cartService.getCart();
   const paymentMethods = await paymentService.listAvailablePaymentProviders({
     cart: cart!,
@@ -21,7 +23,7 @@ export default async function CheckoutPaymentStepPage() {
       <EditCard stepSlug='shipping' />
       <Card>
         <CardHeader>
-          <CardTitle>Opciones de pago</CardTitle>
+          <CardTitle>{t('payment.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <PaymentForms
@@ -31,7 +33,7 @@ export default async function CheckoutPaymentStepPage() {
         </CardContent>
       </Card>
       <Card className='px-4'>
-        <p className='m-0'>Resumen</p>
+        <p className='m-0'>{t('steps.summary')}</p>
       </Card>
     </>
   );

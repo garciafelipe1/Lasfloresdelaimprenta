@@ -4,7 +4,6 @@ import { cookies } from '@/lib/data/cookies';
 import { getRegion } from '@/lib/data/regions';
 import { medusa } from '@/lib/medusa-client';
 import { StoreShippingOptionListResponse } from '@medusajs/types';
-import { getCurrencyFromLocale } from '@/lib/currency';
 
 export const cartService = {
   async getCart(cartId?: string) {
@@ -44,8 +43,8 @@ export const cartService = {
       throw new Error(`Region not found for country code: ${countryCode}`);
     }
 
-    // Obtener moneda esperada según el locale
-    const expectedCurrency = getCurrencyFromLocale(locale || 'es');
+    // Mercado Pago AR cobra en ARS → mantener moneda real del carrito en la moneda de la región (ARS).
+    const chargeCurrency = (region.currency_code || 'ars').toLowerCase();
 
     let cart = await this.getCart();
 
@@ -86,7 +85,7 @@ export const cartService = {
     if (!cart) {
       const cartResp = await medusa.store.cart.create({
         region_id: region.id,
-        currency_code: expectedCurrency, // ✅ Crear carrito con moneda según locale
+        currency_code: chargeCurrency, // ✅ Moneda real de cobro (ARS)
       });
 
       cart = cartResp.cart;
@@ -101,6 +100,25 @@ export const cartService = {
       await medusa.store.cart.update(cart.id, { region_id: region.id });
       // const cartCacheTag = await getCacheTag('carts');
       // revalidateTag(cartCacheTag);
+    }
+
+    // Si el carrito quedó con moneda distinta a la región (ej: USD por cambios previos), intentamos normalizarlo a ARS.
+    if (cart && cart.currency_code && cart.currency_code.toLowerCase() !== chargeCurrency) {
+      try {
+        const updated = await medusa.store.cart.update(cart.id, {
+          currency_code: chargeCurrency,
+        });
+        cart = updated.cart;
+      } catch {
+        // Si Medusa no permite cambiar currency_code, recrear carrito para evitar checkout inconsistente.
+        await cookies.removeCartId();
+        const cartResp = await medusa.store.cart.create({
+          region_id: region.id,
+          currency_code: chargeCurrency,
+        });
+        cart = cartResp.cart;
+        await cookies.setCartId(cart.id);
+      }
     }
 
     return cart;

@@ -4,21 +4,25 @@ import { removeFromCartAction } from '@/app/actions/cart/remove-from-cart.action
 import { upateItemQuantityAction } from '@/app/actions/cart/update-item-quantity.action';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
+import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { StoreCart } from '@medusajs/types';
 import { Trash } from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAction } from 'next-safe-action/hooks';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { formatARS } from 'utils';
 
 interface Props {
   items: StoreCart['items'];
 }
 
 export function CheckoutProductsTable({ items }: Props) {
+  const locale = useLocale();
+  const t = useTranslations('checkout');
   const removeItem = useAction(removeFromCartAction, {
     onError() {
-      toast.error('Hubo un error al eliminar el producto');
+      toast.error(t('cart.table.toasts.removeError'));
     },
     onSuccess() {
       console.log('PRODUCTO ELIMINADO');
@@ -27,7 +31,7 @@ export function CheckoutProductsTable({ items }: Props) {
 
   const updateQuantity = useAction(upateItemQuantityAction, {
     onError() {
-      toast.error('Hubo un error al actualizar la cantidad de items');
+      toast.error(t('cart.table.toasts.quantityError'));
     },
     onSuccess() {
       console.log('PRODUCTO ACTUALIZADO');
@@ -59,12 +63,12 @@ export function CheckoutProductsTable({ items }: Props) {
   return (
     <Card className='h-fit flex-1 overflow-auto p-4'>
       <div className='grid grid-cols-[min(100%,120px)_1fr_min(100%,120px)_min(100%,120px)_min(100%,150px)_min-content] items-center gap-4 py-2 text-sm text-gray-500'>
-        <span className='text-primary'>Producto</span>
+        <span className='text-primary'>{t('cart.table.product')}</span>
         <span></span> {/* For product details */}
-        <div className='text-primary ml-18 text-left'>Precio</div>
-        <div className='text-primary text-center'>Cantidad</div>
+        <div className='text-primary ml-18 text-left'>{t('cart.table.price')}</div>
+        <div className='text-primary text-center'>{t('cart.table.quantity')}</div>
         <div className='text-primary mr-16 text-right'>
-          Total
+          {t('cart.table.total')}
         </div> <span></span> {/* For remove icon */}
       </div>
       {items?.map((item) => (
@@ -90,7 +94,7 @@ export function CheckoutProductsTable({ items }: Props) {
           </div>
 
           <div className='text-primary text-right text-sm'>
-            {formatARS(item.unit_price)}
+            {formatMoneyByLocale(item.unit_price, locale)}
           </div>
 
           <div className='flex items-center justify-center space-x-2'>
@@ -109,18 +113,19 @@ export function CheckoutProductsTable({ items }: Props) {
               size='sm'
               onClick={() => handleIncreaseItemQuantity(item.id)}
             >
+              +
             </Button>
           </div>
 
           <div className='flex items-center justify-end'>
             <div className='mr-2 text-right text-sm font-semibold'>
-              {formatARS(item.unit_price * item.quantity)}
+              {formatMoneyByLocale(item.unit_price * item.quantity, locale)}
             </div>
             <Button
               onClick={() => removeItem.execute({ variantId: item.id! })}
               variant='outline'
               size='icon'
-              aria-label={`Remove ${item.title}`}
+              aria-label={t('cart.table.removeAria', { title: item.title })}
             >
               <Trash />
             </Button>

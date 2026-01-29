@@ -1,42 +1,42 @@
 export const steps = [
   {
     id: 1,
-    href: '/checkout/address',
-    label: 'Dirección',
+    href: '../address',
+    labelKey: 'steps.address',
   },
   {
     id: 2,
-    href: '/checkout/shipping',
-    label: 'Envío',
+    href: '../shipping',
+    labelKey: 'steps.shipping',
   },
   {
     id: 3,
-    href: '/checkout/payment',
-    label: 'Pago',
+    href: '../payment',
+    labelKey: 'steps.payment',
   },
   {
     id: 4,
-    href: '/checkout/summary',
-    label: 'Resumen',
+    href: '../summary',
+    labelKey: 'steps.summary',
   },
 ];
 
 export const STEPS = {
   address: {
-    href: '/checkout/address',
-    label: 'Dirección',
+    href: '../address',
+    labelKey: 'steps.address',
   },
   shipping: {
-    href: '/checkout/shipping',
-    label: 'Envío',
+    href: '../shipping',
+    labelKey: 'steps.shipping',
   },
   payment: {
-    href: '/checkout/payment',
-    label: 'Pago',
+    href: '../payment',
+    labelKey: 'steps.payment',
   },
   summary: {
-    href: '/checkout/summary',
-    label: 'Resumen',
+    href: '../summary',
+    labelKey: 'steps.summary',
   },
 };
 

@@ -1,0 +1,191 @@
+{
+  "checkout": {
+    "layout": {
+      "title": "Checkout",
+      "subtitle": "Completá tu información de envío para que tu pedido llegue sin problemas.",
+      "asideTitle": "En tu carrito"
+    },
+    "steps": {
+      "address": "Dirección",
+      "shipping": "Envío",
+      "payment": "Pago",
+      "summary": "Resumen"
+    },
+    "common": {
+      "edit": "Editar",
+      "continue": "Continuar"
+    },
+    "amounts": {
+      "subtotal": "Subtotal",
+      "shipping": "Envío",
+      "total": "Total",
+      "toBeCalculated": "A calcular"
+    },
+    "cart": {
+      "pageTitle": "Carrito de compras",
+      "pageSubtitle": "Revisá los productos que elegiste antes de finalizar tu compra.",
+      "summaryTitle": "Resumen del pedido",
+      "proceed": "Ir al checkout",
+      "table": {
+        "product": "Producto",
+        "price": "Precio",
+        "quantity": "Cantidad",
+        "total": "Total",
+        "removeAria": "Eliminar {title}",
+        "toasts": {
+          "removeError": "Hubo un error al eliminar el producto",
+          "quantityError": "Hubo un error al actualizar la cantidad"
+        }
+      },
+      "empty": {
+        "title": "Tu carrito está vacío",
+        "subtitle": "Parece que aún no agregaste productos. ¡Explorá nuestro catálogo!",
+        "cta": "Ver productos"
+      }
+    },
+    "address": {
+      "title": "Dirección de envío",
+      "toasts": {
+        "error": "Error al establecer la dirección",
+        "success": "Dirección guardada"
+      },
+      "fields": {
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "province": "Provincia",
+        "city": "Ciudad",
+        "postalCode": "Código Postal",
+        "address": "Dirección",
+        "phoneNumber": "Número de celular",
+        "email": "Correo electrónico"
+      },
+      "placeholders": {
+        "firstName": "Juan",
+        "lastName": "Pérez",
+        "province": "Seleccioná una provincia",
+        "city": "Bahía Blanca",
+        "postalCode": "1613",
+        "address": "Av. Libertador 123",
+        "phoneNumber": "11 2323 2323",
+        "email": "micorreo@gmail.com"
+      },
+      "descriptions": {
+        "firstName": "Tu primer nombre",
+        "lastName": "Tu apellido",
+        "province": "Provincias de Argentina",
+        "city": "Tu ciudad",
+        "postalCode": "Tu código postal",
+        "address": "Tu dirección",
+        "phoneNumber": "Tu número de celular para contactarte",
+        "email": "Te vamos a notificar a través de este medio"
+      },
+      "errors": {
+        "firstNameRequired": "Por favor, ingresá tu nombre.",
+        "firstNameTooLong": "El nombre no puede tener más de 50 caracteres.",
+        "lastNameRequired": "Por favor, ingresá tu apellido.",
+        "lastNameTooLong": "El apellido no puede tener más de 50 caracteres.",
+        "addressRequired": "La dirección es obligatoria.",
+        "postalCodeRequired": "El código postal es obligatorio.",
+        "cityRequired": "La ciudad es obligatoria.",
+        "provinceInvalid": "Seleccioná una provincia válida.",
+        "phoneRequired": "El número de teléfono es obligatorio.",
+        "emailInvalid": "El email no es válido."
+      }
+    },
+    "shipping": {
+      "title": "Opciones de envío",
+      "methodLabel": "Método de envío",
+      "description": "Seleccioná el método de envío que mejor te convenga",
+      "bahiaInside": "Dentro de Bahía Blanca",
+      "bahiaCityLabel": "Ciudad de Bahía Blanca",
+      "bahiaCityPlaceholder": "Seleccioná una de las ciudades",
+      "bahiaCityDescription": "Los envíos dentro de Bahía suelen ser más rápidos",
+      "continue": "Continuar",
+      "toasts": {
+        "error": "Error al guardar el método de envío. Intentá nuevamente.",
+        "success": "Método de envío guardado correctamente"
+      },
+      "errors": {
+        "bahiaCityRequired": "La ciudad de Bahía Blanca es obligatoria."
+      }
+    },
+    "payment": {
+      "title": "Opciones de pago",
+      "methodLabel": "Método de pago",
+      "methodError": "Seleccioná un método de pago",
+      "description": "Seleccioná el método de pago que mejor te convenga",
+      "buttonMp": "Pagar con Mercado Pago",
+      "buttonContinue": "Continuar",
+      "errors": {
+        "emailRequired": "Es necesario completar el email antes de continuar con Mercado Pago. Volvé al paso de dirección y completá tus datos."
+      },
+      "toasts": {
+        "initError": "Hubo un error al iniciar el pago",
+        "providerSuccess": "Proveedor de pago seleccionado correctamente",
+        "mpPreferenceError": "Hubo un error al crear la preferencia de pago",
+        "processError": "Hubo un error al procesar el pago. Intentá nuevamente."
+      }
+    },
+    "summary": {
+      "pageTitle": "Resumen",
+      "pageDescription": "¡Ya casi terminamos! Revisá que todo esté en orden.",
+      "shippingTitle": "Envío",
+      "productsTitle": "Productos en tu pedido",
+      "unitPrice": "Precio unitario",
+      "units": "Unidades",
+      "subtotal": "Subtotal",
+      "shippingMethodTitle": "Envío",
+      "method": "Método",
+      "amount": "Monto",
+      "contactTitle": "Contacto",
+      "email": "Email",
+      "phone": "Celular",
+      "orderSummaryTitle": "Resumen del pedido",
+      "placeOrder": "Realizar pedido",
+      "mp": {
+        "missingData": "Faltan datos de envío o facturación para completar el pedido.",
+        "missingSession": "No se encontró la sesión de pago de Mercado Pago.",
+        "missingCard": "Faltan los datos de la tarjeta. Volvé al paso de pago, completá el formulario y hacé clic en \"Continuar\".",
+        "successToast": "Pedido realizado correctamente",
+        "processError": "No pudimos procesar el pago. Intentá nuevamente en unos minutos.",
+        "sessionExpired": "La sesión de pago expiró. Por favor, volvé a seleccionar el método de pago.",
+        "invalidProvider": "Error en la configuración del método de pago. Por favor, intentá con otro método.",
+        "updateSessionFailed": "No se pudieron guardar los datos de la tarjeta. Por favor, intentá nuevamente."
+      }
+    },
+    "status": {
+      "success": {
+        "title": "¡Pago Exitoso!",
+        "subtitle": "Tu pago ha sido procesado correctamente",
+        "transactionId": "ID de transacción",
+        "finalLine1": "Tu orden está siendo procesada y recibirás un correo electrónico con todos los detalles",
+        "finalLine2": "Si tenés alguna pregunta, no dudes en contactarnos",
+        "shippingDefault": "Tu pedido está siendo procesado. Recibirás un correo con los detalles de tu pedido cuando esté listo.",
+        "shippingPickup": "Tu pedido ya puede ser retirado en el local. Recibirás un correo con los detalles.",
+        "shippingDelivery": "Tu pedido está siendo enviado. Recibirás un correo con los detalles cuando esté en camino.",
+        "paymentPending": "Tu pago está siendo procesado. Te notificaremos cuando esté confirmado."
+      },
+      "failure": {
+        "title": "Pago rechazado",
+        "subtitle": "No se pudo procesar tu pago. Por favor, intentá nuevamente.",
+        "paymentId": "ID de pago: {id}",
+        "back": "Volver al checkout"
+      },
+      "pending": {
+        "title": "Pago pendiente",
+        "subtitle": "Tu pago está siendo procesado. Te notificaremos cuando se complete.",
+        "paymentId": "ID de pago: {id}",
+        "emailNote": "Te enviaremos un correo cuando el pago sea confirmado."
+      }
+    },
+    "message": {
+      "dialogTitle": "¿Querés agregar un mensaje a tu ramo?",
+      "dialogDescription": "Escribí un mensaje especial que acompañe tus flores. Lo imprimiremos en una tarjeta y lo incluiremos con tu pedido.",
+      "addOptional": "Agregar mensaje (Opcional)",
+      "edit": "editar",
+      "inputPlaceholder": "Para alguien muy especial...",
+      "inputDescription": "Escribí un mensaje para la tarjeta",
+      "button": "Continuar"
+    }
+  }
+}

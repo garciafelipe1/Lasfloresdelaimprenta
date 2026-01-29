@@ -6,6 +6,7 @@ import { mercadoPagoClient } from '@/lib/mp-client';
 import { Preference } from 'mercadopago';
 import { z } from 'zod';
 import envs from '@/config/envs';
+import { getLocale } from 'next-intl/server';
 
 /**
  * Crea una preferencia de pago en MercadoPago y retorna la URL de pago
@@ -490,7 +491,7 @@ export const createMercadoPagoPreference = cartActionClient
       const countryCodeFromCart = cartData.region?.countries?.[0]?.iso_2 || 
                                   cart.region?.countries?.[0]?.iso_2 || 
                                   'ar';
-      const locale = 'es'; // Por ahora siempre 'es' para Argentina
+      const locale = await getLocale();
       const countryCode = countryCodeFromCart;
 
       console.log('[MP] Configuración de URLs:', {

@@ -9,6 +9,7 @@
   "footer": {
     "total": "TOTAL",
     "finishPurchase": "Complete Purchase",
-    "continueShopping": "Continue Shopping"
+    "continueShopping": "Continue Shopping",
+    "currencyNote": "Prices shown in USD are an estimate. Final charge will be processed in ARS by Mercado Pago / your bank exchange rate."
   }
 }

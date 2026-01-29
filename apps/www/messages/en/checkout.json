@@ -1,0 +1,191 @@
+{
+  "checkout": {
+    "layout": {
+      "title": "Checkout",
+      "subtitle": "Complete your shipping information so your order arrives without issues.",
+      "asideTitle": "In your cart"
+    },
+    "steps": {
+      "address": "Address",
+      "shipping": "Shipping",
+      "payment": "Payment",
+      "summary": "Summary"
+    },
+    "common": {
+      "edit": "Edit",
+      "continue": "Continue"
+    },
+    "amounts": {
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "total": "Total",
+      "toBeCalculated": "To be calculated"
+    },
+    "cart": {
+      "pageTitle": "Shopping cart",
+      "pageSubtitle": "Review the products you selected before completing your purchase.",
+      "summaryTitle": "Order summary",
+      "proceed": "Proceed to checkout",
+      "table": {
+        "product": "Product",
+        "price": "Price",
+        "quantity": "Quantity",
+        "total": "Total",
+        "removeAria": "Remove {title}",
+        "toasts": {
+          "removeError": "There was an error removing the product",
+          "quantityError": "There was an error updating the quantity"
+        }
+      },
+      "empty": {
+        "title": "Your cart is empty",
+        "subtitle": "Looks like you haven't added any products yet. Explore our catalog!",
+        "cta": "View products"
+      }
+    },
+    "address": {
+      "title": "Shipping address",
+      "toasts": {
+        "error": "There was an error saving the address",
+        "success": "Address saved"
+      },
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "province": "Province",
+        "city": "City",
+        "postalCode": "Postal code",
+        "address": "Address",
+        "phoneNumber": "Phone number",
+        "email": "Email"
+      },
+      "placeholders": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "province": "Select a province",
+        "city": "Bahía Blanca",
+        "postalCode": "1613",
+        "address": "Av. Libertador 123",
+        "phoneNumber": "11 2323 2323",
+        "email": "myemail@gmail.com"
+      },
+      "descriptions": {
+        "firstName": "Your first name",
+        "lastName": "Your last name",
+        "province": "Provinces of Argentina",
+        "city": "Your city",
+        "postalCode": "Your postal code",
+        "address": "Your address",
+        "phoneNumber": "Your phone number so we can contact you",
+        "email": "We'll send updates to this email"
+      },
+      "errors": {
+        "firstNameRequired": "Please enter your first name.",
+        "firstNameTooLong": "First name cannot be longer than 50 characters.",
+        "lastNameRequired": "Please enter your last name.",
+        "lastNameTooLong": "Last name cannot be longer than 50 characters.",
+        "addressRequired": "Address is required.",
+        "postalCodeRequired": "Postal code is required.",
+        "cityRequired": "City is required.",
+        "provinceInvalid": "Select a valid province.",
+        "phoneRequired": "Phone number is required.",
+        "emailInvalid": "Email is invalid."
+      }
+    },
+    "shipping": {
+      "title": "Shipping options",
+      "methodLabel": "Shipping method",
+      "description": "Select the shipping method that suits you best",
+      "bahiaInside": "Within Bahía Blanca",
+      "bahiaCityLabel": "Bahía Blanca city",
+      "bahiaCityPlaceholder": "Select a city",
+      "bahiaCityDescription": "Local deliveries within Bahía are usually faster",
+      "continue": "Continue",
+      "toasts": {
+        "error": "Failed to submit the form. Please try again.",
+        "success": "Shipping method set correctly"
+      },
+      "errors": {
+        "bahiaCityRequired": "Bahía Blanca city is required."
+      }
+    },
+    "payment": {
+      "title": "Payment options",
+      "methodLabel": "Payment method",
+      "methodError": "Select a payment method",
+      "description": "Choose the payment method that suits you best",
+      "buttonMp": "Pay with Mercado Pago",
+      "buttonContinue": "Continue",
+      "errors": {
+        "emailRequired": "Please enter your email before continuing with Mercado Pago. Go back to the address step and complete your details."
+      },
+      "toasts": {
+        "initError": "There was an error starting the payment",
+        "providerSuccess": "Payment provider selected successfully",
+        "mpPreferenceError": "There was an error creating the payment preference",
+        "processError": "There was an error processing the payment. Please try again."
+      }
+    },
+    "summary": {
+      "pageTitle": "Summary",
+      "pageDescription": "Almost done! Please review everything.",
+      "shippingTitle": "Shipping",
+      "productsTitle": "Products in your order",
+      "unitPrice": "Unit price",
+      "units": "Units",
+      "subtotal": "Subtotal",
+      "shippingMethodTitle": "Shipping method",
+      "method": "Method",
+      "amount": "Amount",
+      "contactTitle": "Contact",
+      "email": "Email",
+      "phone": "Phone",
+      "orderSummaryTitle": "Order summary",
+      "placeOrder": "Place order",
+      "mp": {
+        "missingData": "Missing shipping or billing info to complete the order.",
+        "missingSession": "Mercado Pago payment session was not found.",
+        "missingCard": "Missing card details. Go back to the payment step, complete the form and click \"Continue\".",
+        "successToast": "Order placed successfully.",
+        "processError": "We couldn't process the payment. Please try again in a few minutes.",
+        "sessionExpired": "The payment session expired. Please select the payment method again.",
+        "invalidProvider": "There is an issue with the payment method configuration. Please try another method.",
+        "updateSessionFailed": "We couldn't save the card details. Please try again."
+      }
+    },
+    "status": {
+      "success": {
+        "title": "Payment successful!",
+        "subtitle": "Your payment has been processed successfully",
+        "transactionId": "Transaction ID",
+        "finalLine1": "Your order is being processed and you'll receive an email with all the details",
+        "finalLine2": "If you have any questions, feel free to contact us",
+        "shippingDefault": "Your order is being processed. You'll receive an email with the details when it's ready.",
+        "shippingPickup": "Your order is ready for pickup. You'll receive an email with the details.",
+        "shippingDelivery": "Your order is on its way. You'll receive an email with the details when it's in transit.",
+        "paymentPending": "Your payment is being processed. We'll notify you when it’s confirmed."
+      },
+      "failure": {
+        "title": "Payment declined",
+        "subtitle": "We couldn't process your payment. Please try again.",
+        "paymentId": "Payment ID: {id}",
+        "back": "Back to checkout"
+      },
+      "pending": {
+        "title": "Payment pending",
+        "subtitle": "Your payment is being processed. We'll notify you when it's completed.",
+        "paymentId": "Payment ID: {id}",
+        "emailNote": "We'll send you an email when the payment is confirmed."
+      }
+    },
+    "message": {
+      "dialogTitle": "Would you like to add a message to your bouquet?",
+      "dialogDescription": "Write a special note to go with your flowers. We'll print it on a card and include it with your order.",
+      "addOptional": "Add message (optional)",
+      "edit": "edit",
+      "inputPlaceholder": "For someone very special...",
+      "inputDescription": "Write a message for the card",
+      "button": "Continue"
+    }
+  }
+}

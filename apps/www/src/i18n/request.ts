@@ -24,6 +24,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ...(await import(`../../messages/${locale}/dashboard.json`)),
       ...(await import(`../../messages/${locale}/navbar.json`)),
       ...(await import(`../../messages/${locale}/cart.json`)),
+      ...(await import(`../../messages/${locale}/checkout.json`)),
       'categories-products': categoriesProducts.default || categoriesProducts,
       'products': productTranslations.default || productTranslations,
     },

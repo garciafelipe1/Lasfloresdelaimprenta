@@ -1,19 +1,23 @@
+'use client';
+
 import { removeFromCartAction } from '@/app/actions/cart/remove-from-cart.action';
 import { Button } from '@/components/ui/button';
+import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { cn } from '@/lib/utils';
 import { StoreCartLineItem } from '@medusajs/types';
 import { Trash } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { useAction } from 'next-safe-action/hooks';
 import Image from 'next/image';
 import { ComponentProps, PropsWithChildren } from 'react';
 import { toast } from 'sonner';
-import { formatARS } from 'utils';
 
 interface Props {
   item: StoreCartLineItem;
 }
 
 export function ShoppingCartItem({ item }: Props) {
+  const locale = useLocale();
   const imageUrl = item.product?.thumbnail ?? '';
   const removeItem = useAction(removeFromCartAction, {
     onError() {
@@ -35,7 +39,7 @@ export function ShoppingCartItem({ item }: Props) {
       <div className='flex-1'>
         <h6 className='m-0 text-primary'>{item.title}</h6>
         <p className='mt-0 text-sm text-primary'>
-          {formatARS(item.unit_price)}
+          {formatMoneyByLocale(item.unit_price, locale)}
         </p>
       </div>
 
@@ -94,10 +98,11 @@ interface ItemBodyProps extends PropsWithChildren {
 }
 
 export function ItemBody({ title, price, children }: ItemBodyProps) {
+  const locale = useLocale();
   return (
     <div className='flex-1'>
       <h6 className='m-0'>{title}</h6>
-      <p className='m-0 text-sm text-gray-500'>{formatARS(price)}</p>
+      <p className='m-0 text-sm text-gray-500'>{formatMoneyByLocale(price, locale)}</p>
       {children}
     </div>
   );

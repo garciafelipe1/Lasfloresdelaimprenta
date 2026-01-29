@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { updateItemMessageSchema } from '@/lib/zod/update-item-message-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { useAction } from 'next-safe-action/hooks';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -29,6 +30,7 @@ const formSchema = updateItemMessageSchema.pick({
 type FormSchema = z.infer<typeof formSchema>;
 
 export function MessageForm({ message, itemId, quantity, onClose }: Props) {
+  const t = useTranslations('checkout');
   const { execute, isPending } = useAction(upateItemMessageAction, {
     onSuccess() {
       onClose();
@@ -63,13 +65,13 @@ export function MessageForm({ message, itemId, quantity, onClose }: Props) {
             <FormItem>
               <FormControl>
                 <Input
-                  placeholder='Para alguien muy especial...'
+                  placeholder={t('message.inputPlaceholder')}
                   type='text'
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Escribí un mensaje para la tarjeta
+                {t('message.inputDescription')}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -79,7 +81,7 @@ export function MessageForm({ message, itemId, quantity, onClose }: Props) {
           isLoading={isPending}
           disabled={isPending}
         >
-          Continuar
+          {t('message.button')}
         </FormButton>
       </form>
     </Form>

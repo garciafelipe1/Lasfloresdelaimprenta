@@ -24,30 +24,35 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { BAHIA_BLANCA_SHIPPING_CODES } from '@server/constants';
 import { useAction } from 'next-safe-action/hooks';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useLocalStorage } from 'usehooks-ts';
-import { formatARS } from 'utils';
 import * as z from 'zod';
 import { steps } from '../../constants';
 
-const formSchema = z
-  .object({
-    shippingMethod: z.string(),
-    bahiaBlancaCity: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    // Verifica que si se selecciona el método de envío 'bahia-blanca', la ciudad de Bahía Blanca sea obligatoria
-    if (data.shippingMethod === 'bahia-blanca' && !data.bahiaBlancaCity) {
-      ctx.addIssue({
-        path: ['bahiaBlancaCity'],
-        code: z.ZodIssueCode.custom,
-        message: 'La ciudad de Bahía Blanca es obligatoria.',
-      });
-    }
-  });
+type TFn = (key: string) => string;
 
-type FormSchema = z.infer<typeof formSchema>;
+const createFormSchema = (t: TFn) =>
+  z
+    .object({
+      shippingMethod: z.string(),
+      bahiaBlancaCity: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      // Verifica que si se selecciona el método de envío 'bahia-blanca', la ciudad de Bahía Blanca sea obligatoria
+      if (data.shippingMethod === 'bahia-blanca' && !data.bahiaBlancaCity) {
+        ctx.addIssue({
+          path: ['bahiaBlancaCity'],
+          code: z.ZodIssueCode.custom,
+          message: t('shipping.errors.bahiaCityRequired'),
+        });
+      }
+    });
+
+type FormSchema = z.infer<ReturnType<typeof createFormSchema>>;
 
 interface Props {
   shippingMethodsAvailables: GetShippingOptions;
@@ -56,6 +61,8 @@ interface Props {
 export function ShippingForm({
   shippingMethodsAvailables: { pricesMap, shippingOptions },
 }: Props) {
+  const t = useTranslations('checkout');
+  const locale = useLocale();
   const router = useRouter();
   const [shippingLocalStorage, setShippingLocalStorage] =
     useLocalStorage<FormSchema>('floreria-shipping-step', {
@@ -63,6 +70,7 @@ export function ShippingForm({
       bahiaBlancaCity: '',
     });
 
+  const formSchema = createFormSchema(t);
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: shippingLocalStorage,
@@ -70,14 +78,14 @@ export function ShippingForm({
 
   const { execute, isPending } = useAction(setShippingMethodAction, {
     onError() {
-      toast.error('Failed to submit the form. Please try again.');
+      toast.error(t('shipping.toasts.error'));
     },
     onSuccess() {
       setShippingLocalStorage({
         shippingMethod: form.watch('shippingMethod'),
         bahiaBlancaCity: form.watch('bahiaBlancaCity'),
       });
-      toast.success('Shipping method set correctly');
+      toast.success(t('shipping.toasts.success'));
       router.push(steps[2].href);
     },
   });
@@ -111,7 +119,7 @@ export function ShippingForm({
           name='shippingMethod'
           render={({ field }) => (
             <FormItem className='space-y-3'>
-              <FormLabel>Método de envío</FormLabel>
+              <FormLabel>{t('shipping.methodLabel')}</FormLabel>
               <FormControl>
                 <RadioGroup
                   value={field.value}
@@ -131,7 +139,7 @@ export function ShippingForm({
                           <p>{option.name}</p>
                         </div>
                         {Boolean(pricesMap[option.id]) && (
-                          <p>{formatARS(pricesMap[option.id])}</p>
+                          <p>{formatMoneyByLocale(pricesMap[option.id], locale)}</p>
                         )}
                       </FormLabel>
                     </FormItem>
@@ -142,14 +150,14 @@ export function ShippingForm({
                         <FormControl>
                           <RadioGroupItem value='bahia-blanca' />
                         </FormControl>
-                        <p>Dentro de Bahia Blanca</p>
+                        <p>{t('shipping.bahiaInside')}</p>
                       </div>
                     </FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
               <FormDescription>
-                Selecciona el método de envío que mejor te convenga
+                {t('shipping.description')}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -161,14 +169,14 @@ export function ShippingForm({
             name='bahiaBlancaCity'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ciudad de Bahía Blanca</FormLabel>
+              <FormLabel>{t('shipping.bahiaCityLabel')}</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl className='w-full'>
                     <SelectTrigger>
-                      <SelectValue placeholder='Selecciona una de las ciudades' />
+                    <SelectValue placeholder={t('shipping.bahiaCityPlaceholder')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -179,14 +187,14 @@ export function ShippingForm({
                       >
                         {city.name} |
                         <span className='opacity-50'>
-                          {formatARS(pricesMap[city.id])}
+                          {formatMoneyByLocale(pricesMap[city.id], locale)}
                         </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Los envíos dentro de Bahía suelen ser más rapidos
+                {t('shipping.bahiaCityDescription')}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -199,7 +207,7 @@ export function ShippingForm({
           disabled={isPending || !Boolean(form.watch('shippingMethod'))}
           type='submit'
         >
-          Continuar
+          {t('shipping.continue')}
         </FormButton>
       </form>
     </Form>

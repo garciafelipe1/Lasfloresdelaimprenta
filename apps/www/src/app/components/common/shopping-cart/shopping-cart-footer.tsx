@@ -12,7 +12,8 @@ interface Props {
 
 export function ShoppingCartFooter({ totalPrice }: Props) {
   const locale = useLocale();
-  const t = useTranslations('cart.footer');
+  const t = useTranslations('footer');
+  const isEnglish = locale === 'en';
 
   return (
     <div className='sticky bottom-0 flex w-full flex-col gap-4 border-t p-8'>
@@ -22,6 +23,11 @@ export function ShoppingCartFooter({ totalPrice }: Props) {
           {formatMoneyByLocale(totalPrice, locale)}
         </div>
       </header>
+      {isEnglish ? (
+        <p className='px-4 text-xs text-muted-foreground leading-snug'>
+          {t('currencyNote')}
+        </p>
+      ) : null}
       <Link href={`/${locale}/ar/checkout/cart`}>
         <Button
           variant='outline'

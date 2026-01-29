@@ -15,6 +15,7 @@ import {
 } from '@/app/components/ui/dialog';
 import { canHaveMessage } from '@/lib/canHaveMessage';
 import { StoreCartLineItem } from '@medusajs/types';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { MessageForm } from './message-form';
 
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export function CheckoutCartItems({ items }: Props) {
+  const t = useTranslations('checkout');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StoreCartLineItem | null>(
     null,
@@ -57,7 +59,7 @@ export function CheckoutCartItems({ items }: Props) {
                         setDialogOpen(true);
                       }}
                     >
-                      editar
+                      {t('message.edit')}
                     </button>
                   </div>
                 ) : (
@@ -69,7 +71,7 @@ export function CheckoutCartItems({ items }: Props) {
                       setDialogOpen(true);
                     }}
                   >
-                    Agregar mensaje (Opcional)
+                    {t('message.addOptional')}
                   </Button>
                 ))}
             </ItemBody>
@@ -82,10 +84,9 @@ export function CheckoutCartItems({ items }: Props) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>¿Querés agregar un mensaje a tu ramo?</DialogTitle>
+            <DialogTitle>{t('message.dialogTitle')}</DialogTitle>
             <DialogDescription className='m-0'>
-              Escribí un mensaje especial que acompañe tus flores. Lo
-              imprimiremos en una tarjeta y lo incluiremos con tu pedido. 🌸
+              {t('message.dialogDescription')}
             </DialogDescription>
           </DialogHeader>
           <MessageForm

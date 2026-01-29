@@ -2,6 +2,7 @@ import { Button } from '@/app/components/ui/button';
 import { isManual, isMercadopago } from '../../payment/constants';
 // import { useAction } from 'next-safe-action/hooks';
 import { StoreCart } from '@medusajs/types';
+import { getTranslations } from 'next-intl/server';
 import { ManualPaymentButton } from './manual-payment-button';
 import { MercadopagoPaymentButton } from './mercado-pago-button';
 
@@ -9,7 +10,8 @@ interface Props {
   cart: StoreCart;
 }
 
-export function CompleteOrderForm({ cart }: Props) {
+export async function CompleteOrderForm({ cart }: Props) {
+  const t = await getTranslations('checkout');
   const paymentSession = cart.payment_collection?.payment_sessions?.[0];
   const notReady =
     !cart ||
@@ -36,6 +38,6 @@ export function CompleteOrderForm({ cart }: Props) {
     case isManual(paymentSession?.provider_id):
       return <ManualPaymentButton notReady={notReady} />;
     default:
-      return <Button disabled>Select a payment method</Button>;
+      return <Button disabled>{t('payment.methodError')}</Button>;
   }
 }

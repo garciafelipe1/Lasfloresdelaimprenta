@@ -1,3 +1,5 @@
+import { getTranslations } from 'next-intl/server';
+
 interface Props {
   params: Promise<{
     locale: string;
@@ -18,6 +20,8 @@ interface Props {
 export default async function CheckoutFailurePage(props: Props) {
   const params = await props.params;
   const searchParams = await props.searchParams;
+  const t = await getTranslations('checkout');
+  const basePath = `/${params.locale}/${params.countryCode}`;
 
   console.log('[CheckoutFailure] Parámetros recibidos:', searchParams);
 
@@ -39,22 +43,18 @@ export default async function CheckoutFailurePage(props: Props) {
           <line x1='6' y1='6' x2='18' y2='18' />
         </svg>
       </div>
-      <h4 className='mt-4 text-xl font-semibold text-red-500'>
-        Pago rechazado
-      </h4>
-      <p className='mt-2'>
-        No se pudo procesar tu pago. Por favor, intentá nuevamente.
-      </p>
+      <h4 className='mt-4 text-xl font-semibold text-red-500'>{t('status.failure.title')}</h4>
+      <p className='mt-2'>{t('status.failure.subtitle')}</p>
       {searchParams.payment_id && (
         <p className='mt-1 text-sm opacity-75'>
-          ID de pago: {searchParams.payment_id}
+          {t('status.failure.paymentId', { id: searchParams.payment_id })}
         </p>
       )}
       <a
-        href='/checkout/cart'
+        href={`${basePath}/checkout/cart`}
         className='mt-4 rounded-md bg-primary px-4 py-2 text-primary-foreground'
       >
-        Volver al checkout
+        {t('status.failure.back')}
       </a>
     </div>
   );

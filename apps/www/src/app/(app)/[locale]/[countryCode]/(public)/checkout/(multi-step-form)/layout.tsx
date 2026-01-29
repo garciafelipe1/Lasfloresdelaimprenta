@@ -7,9 +7,11 @@ import {
 import { MercadoPagoProvider } from '@/app/context/mercadopago-provider';
 import { PaymentFormProvider } from '@/app/context/payment-form-provider';
 import { PropsWithChildren } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { CheckoutCartAside } from './_components/checkout-cart-aside';
 
-export default function Layout({ children }: PropsWithChildren) {
+export default async function Layout({ children }: PropsWithChildren) {
+  const t = await getTranslations('checkout');
   const mercadoPagoKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
 
   return (
@@ -19,10 +21,9 @@ export default function Layout({ children }: PropsWithChildren) {
         size='desktop'
       >
         <SectionHeader>
-          <SectionTitle>Checkout</SectionTitle>
+          <SectionTitle>{t('layout.title')}</SectionTitle>
           <SectionSubtitle>
-            Completá tu información de envío para que tu pedido llegue sin
-            problemas.
+            {t('layout.subtitle')}
           </SectionSubtitle>
         </SectionHeader>
         <div className='flex flex-col-reverse gap-8 lg:flex-row [&>:first-child]:flex-1'>

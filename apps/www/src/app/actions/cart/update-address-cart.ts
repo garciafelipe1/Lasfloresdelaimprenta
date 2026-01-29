@@ -3,11 +3,11 @@
 import medusaError from '@/app/helpers/medusa-error';
 import { medusa } from '@/lib/medusa-client';
 import { cartActionClient } from '@/lib/next-safe-action/cart-action-client';
-import { checkoutAddressSchema } from '@/lib/zod/checkout-address-schema';
+import { checkoutAddressSchemaBase } from '@/lib/zod/checkout-address-schema';
 import { revalidateTag } from 'next/cache';
 
 export const updateAddressCartAction = cartActionClient
-  .schema(checkoutAddressSchema)
+  .schema(checkoutAddressSchemaBase)
   .action(
     async ({
       parsedInput: {

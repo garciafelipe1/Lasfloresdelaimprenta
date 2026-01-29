@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { cookies } from '@/lib/data/cookies';
 import { medusa } from '@/lib/medusa-client';
 import { BAHIA_BLANCA_SHIPPING_CODES } from '@server/constants';
+import { getTranslations } from 'next-intl/server';
 
 interface Props {
   params: Promise<{
@@ -24,12 +25,13 @@ export default async function CheckoutSuccessPage(props: Props) {
   const params = await props.params;
   const searchParams = await props.searchParams;
   const { external_reference, collection_status, payment_id, status } = searchParams;
+  const t = await getTranslations('checkout');
 
   console.log('[CheckoutSuccess] ========== PÁGINA DE ÉXITO ==========');
   console.log('[CheckoutSuccess] Parámetros recibidos:', JSON.stringify(searchParams, null, 2));
 
   // Mensaje de envío por defecto
-  let shippingMessage = 'Tu pedido está siendo procesado. Recibirás un correo con los detalles de tu pedido cuando esté listo.';
+  let shippingMessage = t('status.success.shippingDefault');
 
   // Si tenemos un external_reference (cart_id) y el pago fue aprobado, intentar completar el carrito
   // CRÍTICO: Primero debemos autorizar la sesión de pago antes de intentar completar el carrito
@@ -166,9 +168,9 @@ export default async function CheckoutSuccessPage(props: Props) {
         const shippingTypeCode = (shippingMethod as any)?.shipping_option?.type?.code;
 
         if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.retiroLocal) {
-          shippingMessage = 'Tu pedido ya puede ser retirado en el local. Recibirás un correo con los detalles.';
+          shippingMessage = t('status.success.shippingPickup');
         } else if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.bahiaBlanca) {
-          shippingMessage = 'Tu pedido está siendo enviado. Recibirás un correo con los detalles cuando esté en camino.';
+          shippingMessage = t('status.success.shippingDelivery');
         }
       }
     } catch (error) {
@@ -179,7 +181,7 @@ export default async function CheckoutSuccessPage(props: Props) {
 
   // Si hay un payment_id pero el status no es approved, mostrar mensaje de pago pendiente
   if (payment_id && (collection_status !== 'approved' || status !== 'approved')) {
-    shippingMessage = 'Tu pago está siendo procesado. Te notificaremos cuando esté confirmado.';
+    shippingMessage = t('status.success.paymentPending');
   }
 
   return (
@@ -216,12 +218,12 @@ export default async function CheckoutSuccessPage(props: Props) {
 
           {/* Título principal */}
           <h1 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-green-700 dark:from-green-400 dark:to-green-500 bg-clip-text text-transparent mb-4'>
-            ¡Pago Exitoso!
+            {t('status.success.title')}
           </h1>
 
           {/* Subtítulo */}
           <p className='text-xl md:text-2xl text-foreground/80 mb-2 font-medium'>
-            Tu pago ha sido procesado correctamente
+            {t('status.success.subtitle')}
           </p>
 
           {/* Mensaje adicional */}
@@ -234,7 +236,7 @@ export default async function CheckoutSuccessPage(props: Props) {
           {/* Detalles del pago */}
           {payment_id && (
             <div className='mt-6 p-4 bg-muted/50 rounded-lg border border-border'>
-              <p className='text-sm text-muted-foreground mb-1'>ID de transacción</p>
+              <p className='text-sm text-muted-foreground mb-1'>{t('status.success.transactionId')}</p>
               <p className='text-base font-mono font-semibold text-foreground'>
                 {payment_id}
               </p>
@@ -253,10 +255,10 @@ export default async function CheckoutSuccessPage(props: Props) {
           {/* Mensaje final */}
           <div className='space-y-2'>
             <p className='text-sm md:text-base text-muted-foreground'>
-              Tu orden está siendo procesada y recibirás un correo electrónico con todos los detalles
+              {t('status.success.finalLine1')}
             </p>
             <p className='text-sm text-muted-foreground'>
-              Si tenés alguna pregunta, no dudes en contactarnos
+              {t('status.success.finalLine2')}
             </p>
           </div>
         </div>

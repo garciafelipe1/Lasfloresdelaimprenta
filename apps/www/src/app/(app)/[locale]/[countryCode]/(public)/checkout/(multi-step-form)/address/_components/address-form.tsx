@@ -22,11 +22,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import {
-  checkoutAddressSchema,
+  createCheckoutAddressSchema,
   CheckoutAddressSchema,
 } from '@/lib/zod/checkout-address-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAction } from 'next-safe-action/hooks';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { steps } from '../../constants';
 
 export function AddressForm() {
+  const t = useTranslations('checkout');
   const router = useRouter();
   const [addressLocalStorage, setAddressLocalStorage] =
     useLocalStorage<CheckoutAddressSchema>('floreria-address-step', {
@@ -49,16 +51,16 @@ export function AddressForm() {
 
   const { execute, isExecuting } = useAction(updateAddressCartAction, {
     onError() {
-      toast.error('Error al establecer la direccion');
+      toast.error(t('address.toasts.error'));
     },
     onSuccess() {
-      toast.success('Dirección guardada');
+      toast.success(t('address.toasts.success'));
       router.push(steps[1].href);
     },
   });
 
   const form = useForm<CheckoutAddressSchema>({
-    resolver: zodResolver(checkoutAddressSchema),
+    resolver: zodResolver(createCheckoutAddressSchema(t)),
     defaultValues: addressLocalStorage,
   });
 
@@ -80,15 +82,15 @@ export function AddressForm() {
               name='firstName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nombre</FormLabel>
+                  <FormLabel>{t('address.fields.firstName')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder='Juan'
+                      placeholder={t('address.placeholders.firstName')}
                       type=''
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>Tu primer nombre</FormDescription>
+                  <FormDescription>{t('address.descriptions.firstName')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -101,15 +103,15 @@ export function AddressForm() {
               name='lastName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Apellido</FormLabel>
+                  <FormLabel>{t('address.fields.lastName')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder='Perez'
+                      placeholder={t('address.placeholders.lastName')}
                       type=''
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>Tu apellido</FormDescription>
+                  <FormDescription>{t('address.descriptions.lastName')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -123,14 +125,14 @@ export function AddressForm() {
             name='province'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Provincia</FormLabel>
+                <FormLabel>{t('address.fields.province')}</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Selecciona una provincia' />
+                      <SelectValue placeholder={t('address.placeholders.province')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -144,7 +146,7 @@ export function AddressForm() {
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>Provincias de Argentina</FormDescription>
+                <FormDescription>{t('address.descriptions.province')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -154,14 +156,14 @@ export function AddressForm() {
             name='city'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ciudad</FormLabel>
+                <FormLabel>{t('address.fields.city')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder='Bahía Blanca'
+                    placeholder={t('address.placeholders.city')}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Tu ciudad</FormDescription>
+                <FormDescription>{t('address.descriptions.city')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -171,14 +173,14 @@ export function AddressForm() {
             name='postalCode'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Código Postal</FormLabel>
+                <FormLabel>{t('address.fields.postalCode')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder='1613'
+                    placeholder={t('address.placeholders.postalCode')}
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Tu código postal</FormDescription>
+                <FormDescription>{t('address.descriptions.postalCode')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -190,14 +192,14 @@ export function AddressForm() {
           name='address'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Dirección</FormLabel>
+              <FormLabel>{t('address.fields.address')}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder='Av. Libertador 123'
+                  placeholder={t('address.placeholders.address')}
                   {...field}
                 />
               </FormControl>
-              <FormDescription>Tu dirección</FormDescription>
+              <FormDescription>{t('address.descriptions.address')}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -208,16 +210,16 @@ export function AddressForm() {
           name='phoneNumber'
           render={({ field }) => (
             <FormItem className='flex flex-col items-start'>
-              <FormLabel>Número de celular</FormLabel>
+              <FormLabel>{t('address.fields.phoneNumber')}</FormLabel>
               <FormControl className='w-full'>
                 <PhoneInput
-                  placeholder='11 2323 2323'
+                  placeholder={t('address.placeholders.phoneNumber')}
                   {...field}
                   defaultCountry='AR'
                 />
               </FormControl>
               <FormDescription>
-                Tu número de celular para contactarte
+                {t('address.descriptions.phoneNumber')}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -229,15 +231,15 @@ export function AddressForm() {
           name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Correo electrónico</FormLabel>
+              <FormLabel>{t('address.fields.email')}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder='micorreo@gmail.com'
+                  placeholder={t('address.placeholders.email')}
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Te estaremos notificando a traves de este medio
+                {t('address.descriptions.email')}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -250,7 +252,7 @@ export function AddressForm() {
           size='lg'
           type='submit'
         >
-          Continuar
+          {t('common.continue')}
         </FormButton>
       </form>
     </Form>

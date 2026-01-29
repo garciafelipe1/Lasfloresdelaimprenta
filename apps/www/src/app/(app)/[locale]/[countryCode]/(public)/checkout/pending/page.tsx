@@ -1,3 +1,5 @@
+import { getTranslations } from 'next-intl/server';
+
 interface Props {
   params: Promise<{
     locale: string;
@@ -18,6 +20,8 @@ interface Props {
 export default async function CheckoutPendingPage(props: Props) {
   const params = await props.params;
   const searchParams = await props.searchParams;
+  const t = await getTranslations('checkout');
+  const basePath = `/${params.locale}/${params.countryCode}`;
 
   console.log('[CheckoutPending] Parámetros recibidos:', searchParams);
 
@@ -40,19 +44,25 @@ export default async function CheckoutPendingPage(props: Props) {
         </svg>
       </div>
       <h4 className='mt-4 text-xl font-semibold text-yellow-500'>
-        Pago pendiente
+        {t('status.pending.title')}
       </h4>
       <p className='mt-2'>
-        Tu pago está siendo procesado. Te notificaremos cuando se complete.
+        {t('status.pending.subtitle')}
       </p>
       {searchParams.payment_id && (
         <p className='mt-1 text-sm opacity-75'>
-          ID de pago: {searchParams.payment_id}
+          {t('status.pending.paymentId', { id: searchParams.payment_id })}
         </p>
       )}
       <p className='mt-4 text-sm'>
-        Te enviaremos un correo cuando el pago sea confirmado.
+        {t('status.pending.emailNote')}
       </p>
+      <a
+        href={`${basePath}/checkout/cart`}
+        className='mt-4 rounded-md bg-primary px-4 py-2 text-primary-foreground'
+      >
+        {t('status.failure.back')}
+      </a>
     </div>
   );
 }

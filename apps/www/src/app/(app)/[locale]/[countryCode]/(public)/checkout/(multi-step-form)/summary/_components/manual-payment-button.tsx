@@ -3,6 +3,7 @@
 import { placeOrderAction } from '@/app/actions/checkout/place-order.action';
 import { FormButton } from '@/app/components/ui/form-button';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ErrorMessage } from '../../_components/error-message';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function ManualPaymentButton({ notReady }: Props) {
+  const t = useTranslations('checkout');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -37,7 +39,7 @@ export function ManualPaymentButton({ notReady }: Props) {
         size='lg'
         data-testid='submit-order-button'
       >
-        Realizar pedido
+        {t('summary.placeOrder')}
       </FormButton>
       <ErrorMessage
         error={errorMessage}

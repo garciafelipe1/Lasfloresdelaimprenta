@@ -19,6 +19,7 @@ import {
   StorePaymentProvider,
   StorePaymentSession,
 } from '@medusajs/types';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAction } from 'next-safe-action/hooks';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -33,13 +34,19 @@ interface Props {
   availablePaymentMethods: StorePaymentProvider[];
 }
 
-const formSchema = z.object({
-  paymentMethod: z.string({ message: 'Seleccioná un método de pago' }),
-});
+type TFn = (key: any) => string;
 
-type FormSchema = z.infer<typeof formSchema>;
+const createFormSchema = (t: TFn) =>
+  z.object({
+    paymentMethod: z.string({ message: t('payment.methodError') }),
+  });
+
+type FormSchema = z.infer<ReturnType<typeof createFormSchema>>;
 
 export function PaymentForms({ cart, availablePaymentMethods }: Props) {
+  const locale = useLocale();
+  const tFooter = useTranslations('footer');
+  const t = useTranslations('checkout');
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession: StorePaymentSession) =>
       paymentSession.status === 'pending',
@@ -47,6 +54,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const formSchema = createFormSchema(t);
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,6 +64,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
 
   const selectedPaymentMethod = form.watch('paymentMethod') || '';
   const isMp = isMercadopago(selectedPaymentMethod);
+  const showCurrencyNote = locale === 'en' && isMp;
 
   const router = useRouter();
 
@@ -63,10 +72,10 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     initiatePaymentSessionAction,
     {
       onError() {
-        toast.error('Hubo un error al iniciar el pago');
+        toast.error(t('payment.toasts.initError'));
       },
       onSuccess() {
-        toast.success('Proveedor de pago seleccionado correctamente');
+        toast.success(t('payment.toasts.providerSuccess'));
       },
     },
   );
@@ -79,7 +88,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         console.error('[PaymentForms] Error completo:', JSON.stringify(error, null, 2));
         
         // Intentar extraer el mensaje de error real
-        let errorMessage = 'Hubo un error al crear la preferencia de pago';
+        let errorMessage = t('payment.toasts.mpPreferenceError');
         
         if (error?.error?.serverError) {
           errorMessage = error.error.serverError;
@@ -121,7 +130,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
       if (isMp) {
         // Validar que el email esté presente antes de intentar crear la preferencia
         if (!cart.email) {
-          const errorMsg = 'Es necesario completar el email antes de continuar con el pago. Por favor, volvé al paso de dirección y completá tus datos.';
+          const errorMsg = t('payment.errors.emailRequired');
           console.error('[PaymentForms] ERROR: El carrito no tiene email');
           form.setError('paymentMethod', {
             message: errorMsg,
@@ -171,7 +180,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             mpError?.serverError || 
             mpError?.error?.serverError || 
             mpError?.message || 
-            'Hubo un error al crear la preferencia de pago';
+            t('payment.toasts.mpPreferenceError');
           
           throw new Error(errorMessage);
         }
@@ -203,8 +212,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         response: error?.response,
       });
 
-      const message =
-        error?.message || 'Hubo un error al procesar el pago. Intentá nuevamente.';
+      const message = error?.message || t('payment.toasts.processError');
 
       console.error('[PaymentForms] Mostrando error al usuario:', message);
 
@@ -230,7 +238,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
           name='paymentMethod'
           render={({ field }) => (
             <FormItem className='space-y-3'>
-              <FormLabel>Método de pago</FormLabel>
+              <FormLabel>{t('payment.methodLabel')}</FormLabel>
               <FormControl>
                 <RadioGroup
                   value={selectedPaymentMethod}
@@ -256,7 +264,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
                 </RadioGroup>
               </FormControl>
               <FormDescription>
-                Seleccioná el método de pago que mejor te convenga
+                {t('payment.description')}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -267,8 +275,13 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
           isLoading={isLoading || isExecuting || isExecutingMP}
           disabled={isLoading || isExecuting || isExecutingMP}
         >
-          {isMp ? 'Pagar con Mercado Pago' : 'Continuar'}
+          {isMp ? t('payment.buttonMp') : t('payment.buttonContinue')}
         </FormButton>
+        {showCurrencyNote ? (
+          <p className='text-xs text-muted-foreground leading-snug'>
+            {tFooter('currencyNote')}
+          </p>
+        ) : null}
       </form>
     </Form>
   );

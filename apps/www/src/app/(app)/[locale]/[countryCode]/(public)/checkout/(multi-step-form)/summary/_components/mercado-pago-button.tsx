@@ -5,6 +5,7 @@ import { placeOrderAction } from '@/app/actions/checkout/place-order.action';
 import { FormButton } from '@/app/components/ui/form-button';
 import { useMercadopagoFormData } from '@/app/context/payment-form-provider';
 import { StoreCart, StorePaymentSession } from '@medusajs/types';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -20,6 +21,11 @@ export function MercadopagoPaymentButton({
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const locale = useLocale();
+  const tFooter = useTranslations('footer');
+  const t = useTranslations('checkout');
+  const showCurrencyNote = locale === 'en';
+
   const { formData } = useMercadopagoFormData();
   const router = useRouter();
 
@@ -32,26 +38,24 @@ export function MercadopagoPaymentButton({
   const handlePayment = async () => {
     // 1) Validaciones previas
     if (notReady) {
-      const msg =
-        'Faltan datos de envío o facturación para completar el pedido.';
+      const msg = t('summary.mp.missingData');
       setErrorMessage(msg);
       toast.error(msg);
       return;
     }
 
     if (!session) {
-      const msg = 'No se encontró la sesión de pago de Mercado Pago.';
+      const msg = t('summary.mp.missingSession');
       setErrorMessage(msg);
       toast.error(msg);
       return;
     }
 
     if (!formData?.formData) {
-      const msg =
-        'Faltan los datos de la tarjeta. Volvé al paso de pago, completá el formulario y hacé clic en "Continuar".';
+      const msg = t('summary.mp.missingCard');
       setErrorMessage(msg);
       toast.error(msg);
-      router.push('/checkout/payment', { scroll: false });
+      router.push(`/${locale}/ar/checkout/payment`, { scroll: false });
       return;
     }
 
@@ -79,7 +83,7 @@ export function MercadopagoPaymentButton({
       // usando el payment provider de MercadoPago con los datos almacenados
       await placeOrderAction();
 
-      toast.success('Pedido realizado correctamente ✅');
+      toast.success(t('summary.mp.successToast'));
       router.refresh();
     } catch (err: any) {
       console.error('Error al procesar el pago', {
@@ -88,20 +92,16 @@ export function MercadopagoPaymentButton({
       });
 
       // Mensajes de error más específicos
-      let errorMessage =
-        'No pudimos procesar el pago. Intentá nuevamente en unos minutos.';
+      let errorMessage = t('summary.mp.processError');
 
       if (err?.message) {
         errorMessage = err.message;
       } else if (err?.code === 'PAYMENT_SESSION_NOT_FOUND') {
-        errorMessage =
-          'La sesión de pago expiró. Por favor, volvé a seleccionar el método de pago.';
+        errorMessage = t('summary.mp.sessionExpired');
       } else if (err?.code === 'INVALID_PAYMENT_PROVIDER') {
-        errorMessage =
-          'Error en la configuración del método de pago. Por favor, intentá con otro método.';
+        errorMessage = t('summary.mp.invalidProvider');
       } else if (err?.code === 'UPDATE_SESSION_FAILED') {
-        errorMessage =
-          'No se pudieron guardar los datos de la tarjeta. Por favor, intentá nuevamente.';
+        errorMessage = t('summary.mp.updateSessionFailed');
       }
 
       setErrorMessage(errorMessage);
@@ -118,8 +118,13 @@ export function MercadopagoPaymentButton({
         disabled={notReady || submitting}
         onClick={handlePayment}
       >
-        Realizar pedido
+        {t('summary.placeOrder')}
       </FormButton>
+      {showCurrencyNote ? (
+        <p className='mt-2 text-xs text-muted-foreground leading-snug'>
+          {tFooter('currencyNote')}
+        </p>
+      ) : null}
       <ErrorMessage error={errorMessage} />
     </>
   );
