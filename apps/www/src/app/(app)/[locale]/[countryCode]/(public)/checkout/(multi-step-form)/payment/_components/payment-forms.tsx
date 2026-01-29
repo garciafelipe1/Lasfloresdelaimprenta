@@ -21,7 +21,7 @@ import {
 } from '@medusajs/types';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAction } from 'next-safe-action/hooks';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -45,6 +45,8 @@ type FormSchema = z.infer<ReturnType<typeof createFormSchema>>;
 
 export function PaymentForms({ cart, availablePaymentMethods }: Props) {
   const locale = useLocale();
+  const params = useParams<{ countryCode: string }>();
+  const countryCode = params.countryCode;
   const tFooter = useTranslations('footer');
   const t = useTranslations('checkout');
   const activeSession = cart.payment_collection?.payment_sessions?.find(
@@ -198,7 +200,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
 
       // Si todo salió bien, pasamos al siguiente paso del checkout
       console.log('[PaymentForms] Pago procesado exitosamente, redirigiendo al siguiente paso');
-      router.push(steps[3].href, { scroll: false });
+      router.push(`/${locale}/${countryCode}/checkout/${steps[3].href}`, { scroll: false });
     } catch (error: any) {
       console.error('[PaymentForms] ERROR al procesar el pago');
       console.error('[PaymentForms] Tipo de error:', error?.constructor?.name);

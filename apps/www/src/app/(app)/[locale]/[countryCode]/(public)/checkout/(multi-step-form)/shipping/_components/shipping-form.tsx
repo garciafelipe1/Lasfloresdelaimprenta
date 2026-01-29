@@ -23,7 +23,7 @@ import { GetShippingOptions } from '@/services/cart.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BAHIA_BLANCA_SHIPPING_CODES } from '@server/constants';
 import { useAction } from 'next-safe-action/hooks';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
@@ -63,6 +63,8 @@ export function ShippingForm({
 }: Props) {
   const t = useTranslations('checkout');
   const locale = useLocale();
+  const params = useParams<{ countryCode: string }>();
+  const countryCode = params.countryCode;
   const router = useRouter();
   const [shippingLocalStorage, setShippingLocalStorage] =
     useLocalStorage<FormSchema>('floreria-shipping-step', {
@@ -86,7 +88,7 @@ export function ShippingForm({
         bahiaBlancaCity: form.watch('bahiaBlancaCity'),
       });
       toast.success(t('shipping.toasts.success'));
-      router.push(steps[2].href);
+      router.push(`/${locale}/${countryCode}/checkout/${steps[2].href}`);
     },
   });
 

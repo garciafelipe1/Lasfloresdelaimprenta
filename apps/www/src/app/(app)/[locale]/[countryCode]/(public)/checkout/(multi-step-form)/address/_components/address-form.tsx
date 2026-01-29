@@ -28,7 +28,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAction } from 'next-safe-action/hooks';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useLocalStorage } from 'usehooks-ts';
@@ -37,6 +37,9 @@ import { steps } from '../../constants';
 export function AddressForm() {
   const t = useTranslations('checkout');
   const router = useRouter();
+  const params = useParams<{ locale: string; countryCode: string }>();
+  const locale = params.locale;
+  const countryCode = params.countryCode;
   const [addressLocalStorage, setAddressLocalStorage] =
     useLocalStorage<CheckoutAddressSchema>('floreria-address-step', {
       address: '',
@@ -55,7 +58,7 @@ export function AddressForm() {
     },
     onSuccess() {
       toast.success(t('address.toasts.success'));
-      router.push(steps[1].href);
+      router.push(`/${locale}/${countryCode}/checkout/${steps[1].href}`);
     },
   });
 
