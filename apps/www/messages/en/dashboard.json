@@ -17,6 +17,47 @@
     },
     "membershipFeaturesTitle": "Features:",
     "manageMembershipButton": "Manage Membership",
+    "orders": {
+      "sectionTitle": "My orders",
+      "viewAll": "View all",
+      "viewDetails": "View details",
+      "pageTitle": "My orders",
+      "pageSubtitle": "Review your past purchases and their details.",
+      "backToDashboard": "Back to dashboard",
+      "backToList": "Back to orders",
+      "detailsTitle": "Order #{id}",
+      "itemsTitle": "Items",
+      "itemQty": "Quantity: {qty}",
+      "orderLabel": "Order #{id}",
+      "total": "{count, plural, =0 {0 orders} one {# order} other {# orders}}",
+      "empty": {
+        "title": "You don't have any orders yet.",
+        "cta": "Go to catalog"
+      },
+      "amounts": {
+        "subtotal": "Subtotal",
+        "shipping": "Shipping",
+        "total": "Total"
+      },
+      "status": {
+        "payment": {
+          "paid": "Paid",
+          "pending": "Pending",
+          "authorized": "Authorized",
+          "refunded": "Refunded",
+          "canceled": "Canceled",
+          "unknown": "Payment: {status}"
+        },
+        "fulfillment": {
+          "not_fulfilled": "Preparing",
+          "fulfilled": "Prepared",
+          "shipped": "Shipped",
+          "delivered": "Delivered",
+          "canceled": "Canceled",
+          "unknown": "Shipping: {status}"
+        }
+      }
+    },
     "quickLinks": {
       "myProfile": "My Profile",
       "support": "Support",

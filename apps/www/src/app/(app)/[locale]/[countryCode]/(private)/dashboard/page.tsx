@@ -2,6 +2,9 @@ import Link from 'next/link';
 import NewsSection from '@/app/components/NewSection';
 import { getTranslations } from 'next-intl/server';
 import { userService } from '@/services/user.service';
+import { orderService } from '@/services/order.service';
+import { getLocale } from 'next-intl/server';
+import { formatMoneyByLocale } from '@/lib/money-formatter';
 
 // Mapeo de IDs del backend a IDs del frontend
 const membershipIdMap: Record<string, string> = {
@@ -12,9 +15,15 @@ const membershipIdMap: Record<string, string> = {
 
 export default async function DashboardPage() {
   const t = await getTranslations();
+  const locale = await getLocale();
   
   // Obtener la suscripción del usuario desde el backend
   const subscription = await userService.getSubscriptionInfo();
+
+  // Últimos pedidos del usuario (para preview en dashboard)
+  const ordersRes = await orderService.listMyOrders({ limit: 3, offset: 0 }).catch(() => null);
+  const latestOrders = ordersRes?.orders ?? [];
+  const totalOrders = ordersRes?.count ?? latestOrders.length;
   
   // Mapear el ID de la membresía del backend al formato del frontend
   const userMembership = subscription?.membership?.id 
@@ -240,6 +249,72 @@ export default async function DashboardPage() {
             {t('DashboardPage.membershipSectionTitle')}
           </h2>
           {renderMembershipInfo()}
+        </section>
+
+        {/* Mis pedidos (preview) */}
+        <section className='bg-secondary col-span-1 rounded-xl p-6 shadow-md'>
+          <div className='mb-4 flex items-center justify-between'>
+            <h2 className='text-primary text-2xl font-bold'>
+              {t('DashboardPage.orders.sectionTitle')}
+            </h2>
+            <Link
+              href='/dashboard/orders'
+              className='text-sm font-semibold text-primary underline underline-offset-4 hover:opacity-80'
+            >
+              {t('DashboardPage.orders.viewAll')}
+            </Link>
+          </div>
+
+          {latestOrders.length === 0 ? (
+            <div className='text-primary/80'>
+              <p className='mb-4'>{t('DashboardPage.orders.empty.title')}</p>
+              <Link
+                href='/catalog'
+                className='bg-primary text-secondary hover:bg-primary/80 inline-flex rounded-lg px-4 py-2 font-semibold transition-colors'
+              >
+                {t('DashboardPage.orders.empty.cta')}
+              </Link>
+            </div>
+          ) : (
+            <div className='space-y-3'>
+              <p className='text-sm text-primary/80'>
+                {t('DashboardPage.orders.total', { count: totalOrders })}
+              </p>
+              <ul className='space-y-2'>
+                {latestOrders.map((o: any) => (
+                  <li key={o.id} className='rounded-lg border border-border bg-background/40 p-3'>
+                    <div className='flex items-start justify-between gap-3'>
+                      <div className='min-w-0'>
+                        <p className='text-primary font-semibold truncate'>
+                          {t('DashboardPage.orders.orderLabel', { id: o.display_id ?? o.id })}
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
+                          {o.created_at
+                            ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(
+                                new Date(o.created_at),
+                              )
+                            : ''}
+                        </p>
+                      </div>
+                      <div className='text-right'>
+                        <p className='text-primary font-semibold'>
+                          {typeof o.total === 'number'
+                            ? formatMoneyByLocale(o.total, locale)
+                            : ''}
+                        </p>
+                        <Link
+                          href={`/dashboard/orders/${o.id}`}
+                          className='text-xs font-semibold text-primary underline underline-offset-4 hover:opacity-80'
+                        >
+                          {t('DashboardPage.orders.viewDetails')}
+                        </Link>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
 
         <NewsSection />

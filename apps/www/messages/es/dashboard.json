@@ -18,6 +18,47 @@
     },
     "membershipFeaturesTitle": "Características:",
     "manageMembershipButton": "Administrar Membresía",
+    "orders": {
+      "sectionTitle": "Mis pedidos",
+      "viewAll": "Ver todos",
+      "viewDetails": "Ver detalles",
+      "pageTitle": "Mis pedidos",
+      "pageSubtitle": "Consultá el detalle de tus compras anteriores.",
+      "backToDashboard": "Volver al dashboard",
+      "backToList": "Volver a pedidos",
+      "detailsTitle": "Pedido #{id}",
+      "itemsTitle": "Productos",
+      "itemQty": "Cantidad: {qty}",
+      "orderLabel": "Pedido #{id}",
+      "total": "{count, plural, =0 {0 pedidos} one {# pedido} other {# pedidos}}",
+      "empty": {
+        "title": "Todavía no tenés pedidos.",
+        "cta": "Ir al catálogo"
+      },
+      "amounts": {
+        "subtotal": "Subtotal",
+        "shipping": "Envío",
+        "total": "Total"
+      },
+      "status": {
+        "payment": {
+          "paid": "Pagado",
+          "pending": "Pendiente",
+          "authorized": "Autorizado",
+          "refunded": "Reembolsado",
+          "canceled": "Cancelado",
+          "unknown": "Pago: {status}"
+        },
+        "fulfillment": {
+          "not_fulfilled": "En preparación",
+          "fulfilled": "Preparado",
+          "shipped": "Enviado",
+          "delivered": "Entregado",
+          "canceled": "Cancelado",
+          "unknown": "Envío: {status}"
+        }
+      }
+    },
     "quickLinks": {
       "myProfile": "Mi Perfil",
       "support": "Soporte",
