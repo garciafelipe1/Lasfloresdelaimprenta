@@ -114,6 +114,14 @@
     font-weight: normal;
   }
 
+  /* Tablet/iPad (>=1024 y <1280): achicar logo DESKTOP sin tocar desktop grande */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    header .site-logo-desktop {
+      height: 12.5rem !important; /* ~104px */
+      width: auto !important;
+    }
+  }
+
   /* Ajustes de ergonomía SOLO en mobile (estilo “Nike”) */
   @media (max-width: 1023px) {
     /* Barra mobile: más aire vertical y altura consistente */
