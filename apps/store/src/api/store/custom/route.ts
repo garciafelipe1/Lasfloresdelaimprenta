@@ -96,6 +96,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const cacheService = req.scope.resolve(Modules.CACHE);
 
   const params = req.validatedQuery as GetStoreCustomSchemaType;
+  const disableCustomCache =
+    process.env.NODE_ENV === "development" ||
+    String(process.env.DISABLE_CUSTOM_CACHE ?? "false").toLowerCase() === "true";
 
   const filterByTitle = params.q && {
     title: {
@@ -133,10 +136,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     pagination: requiresManualHandling
       ? undefined
       : {
-          take: DEFAULT_LIMIT,
-          skip: ((params.page ?? 1) - 1) * DEFAULT_LIMIT,
-          order: orderByDate,
-        },
+        take: DEFAULT_LIMIT,
+        skip: ((params.page ?? 1) - 1) * DEFAULT_LIMIT,
+        order: orderByDate,
+      },
     context: {
       variants: {
         calculated_price: QueryContext({
@@ -152,13 +155,13 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   // Filter by category name with aliases support
   if (params.category) {
     // Obtener categoría (puede ser string o array)
-    const categoryName = Array.isArray(params.category) 
-      ? params.category[0] 
+    const categoryName = Array.isArray(params.category)
+      ? params.category[0]
       : params.category;
-    
+
     // Expandir categoría con aliases (ej: "Bodas" → ["Bodas", "Follaje"])
     const expandedCategories = getExpandedCategories(categoryName);
-    
+
     result = result.filter((p) =>
       p.categories?.some((c) => expandedCategories.includes(c?.name!))
     );
@@ -224,9 +227,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const output = { result: finalResult, metadata: metadata ?? manualMetadata };
 
   // Cache the response using a stable key based on query parameters
-  const CACHE_KEY = `medusa:products:custom:${stableStringify(params)}`;
-  logger.info(`Caching custom products with key: ${CACHE_KEY}`);
-  cacheService.set(CACHE_KEY, { output }, 300);
+  if (!disableCustomCache) {
+    const CACHE_KEY = `medusa:products:custom:${stableStringify(params)}`;
+    logger.info(`Caching custom products with key: ${CACHE_KEY}`);
+    cacheService.set(CACHE_KEY, { output }, 300);
+  }
 
   res.json(output);
 };

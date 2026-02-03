@@ -14,7 +14,7 @@ export function ExamplesSkeleton() {
           <SectionTitle className=''>
             Ejemplos de nuestra temporada
           </SectionTitle>
-          <SectionSubtitle>
+          <SectionSubtitle className='text-black dark:text-white'>
             Explora nuestra colección de arreglos de peonía de temporada,
             perfectos para cualquier occasión.
           </SectionSubtitle>

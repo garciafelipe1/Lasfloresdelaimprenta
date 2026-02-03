@@ -17,7 +17,7 @@ export function Hero() {
   const i18n = useTranslations();
 
   return (
-    <div className='bg-secondary relative grid border-b'>
+    <div className='bg-secondary dark:bg-black relative grid border-b'>
       <Carousel
         opts={{
           loop: true,
@@ -46,7 +46,7 @@ export function Hero() {
               data-odd={0 % 2 === 0 ? '' : null}
               className='max-w-desktop absolute inset-0 z-20 mx-auto flex w-full items-end p-6 data-odd:justify-end'
             >
-              <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs'>
+              <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs dark:bg-black dark:border-white/10'>
                 {/* Bordes decorativos florales dentro del card */}
                 <div className='absolute -left-34 top-3 hidden h-full w-full md:block'>
                   <Image
@@ -101,7 +101,7 @@ export function Hero() {
               data-odd={1 % 2 === 0 ? '' : null}
               className='max-w-desktop absolute inset-0 z-20 mx-auto flex w-full items-end p-6 data-odd:justify-end'
             >
-              <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs'>
+              <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs dark:bg-black dark:border-white/10'>
                 {/* Bordes decorativos florales dentro del card */}
                 <div className='absolute -left-35 top-3 hidden h-full w-full md:block'>
                   <Image

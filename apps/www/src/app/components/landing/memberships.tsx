@@ -101,7 +101,10 @@ export async function Memberships() {
           <h2 className='text-4xl text-primary font-cinzel'>
             {t('landing.memberships.title')}
           </h2>
-          <p className='text-primary'> {t('landing.memberships.description')}</p>
+          <p className='text-black dark:text-white'>
+            {' '}
+            {t('landing.memberships.description')}
+          </p>
         </div>
         <div className='mx-auto mt-6 grid max-w-sm gap-6 *:text-center md:mt-16 @min-4xl:max-w-full @min-4xl:grid-cols-3'>
           {tiers.map((tier) => (

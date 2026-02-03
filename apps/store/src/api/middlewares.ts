@@ -161,6 +161,16 @@ export default defineMiddlewares({
             queryParams
           )}`;
 
+          const disableCustomCache =
+            process.env.NODE_ENV === "development" ||
+            String(process.env.DISABLE_CUSTOM_CACHE ?? "false").toLowerCase() ===
+            "true";
+
+          if (disableCustomCache) {
+            logger.info("Custom cache deshabilitado (dev/DISABLE_CUSTOM_CACHE).");
+            return next();
+          }
+
           logger.info(`Caching custom products with key: ${CACHE_KEY}`);
 
           // ℹ️ First, we check if the data is cached

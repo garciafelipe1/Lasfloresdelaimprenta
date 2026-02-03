@@ -19,7 +19,7 @@ export async function Examples() {
           <SectionTitle className='justify-center text-center text-4xl font-cinzel'>
             {i18n('landing.examples.title')}
           </SectionTitle>
-          <SectionSubtitle className='text-center'>
+          <SectionSubtitle className='text-center text-black dark:text-white'>
             {i18n('landing.examples.description')}
           </SectionSubtitle>
         </SectionHeader>

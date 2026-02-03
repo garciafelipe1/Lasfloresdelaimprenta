@@ -1,6 +1,7 @@
 'use client';
 
 import { useIsMobile } from '@/app/hooks/use-mobile';
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { CatalogContextHeader } from './catalog-context-header';
 import { Filters } from './filters/filters';
@@ -49,6 +50,19 @@ export function CatalogWithContext({ children }: Props) {
       >
         {children}
       </GridLayout>
+
+      <div className='relative overflow-hidden rounded-xl '>
+        <div className='relative w-full h-[clamp(120px,22vw,240px)]'>
+          <Image
+            src='/assets/img/bannerdelasflores.jpeg'
+            alt='Banner del catálogo'
+            fill
+            priority
+            className='object-contain sm:object-cover object-center'
+            sizes='(max-width: 640px) 100vw, (max-width: 1280px) 100vw, 1280px'
+          />
+        </div>
+      </div>
     </div>
   );
 }

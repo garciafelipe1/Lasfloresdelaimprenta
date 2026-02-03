@@ -26,6 +26,10 @@ export async function SeedProducts(
 ) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
+  // Handle/SKU deben ser URL-safe (sin apóstrofes, tildes, etc.)
+  const toHandle = (value: string) =>
+    slugify(value, { lower: true, trim: true, strict: true });
+
   // Evitar duplicados: si el producto ya existe por handle, se salta.
   const { data: existingProducts } = await query.graph({
     entity: "product",
@@ -70,13 +74,13 @@ export async function SeedProducts(
   };
 
   const shouldCreate = (title: string) =>
-    !existingHandles.has(slugify(title, { lower: true, trim: true }));
+    !existingHandles.has(toHandle(title));
 
   const buildBasicSeedProduct = (item: any) => ({
     title: item.title,
     description: item.description,
     category_ids: [categories.find((c) => c.name === item.category)!.id],
-    handle: slugify(item.title, { lower: true, trim: true }),
+    handle: toHandle(item.title),
     status: ProductStatus.PUBLISHED,
     shipping_profile_id: shippingProfile,
     thumbnail: item.images?.[0] ?? null,
@@ -94,74 +98,74 @@ export async function SeedProducts(
   ]
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
-    ...buildBasicSeedProduct(i),
-    options: [{ title: "Tamaño", values: SIZES }],
-    variants: SIZES.map((size) => ({
-      title: `${i.title} / ${size}`,
-      sku: uniqueSku(`${slugify(i.title, { lower: true, trim: true })}-${size}`),
-      options: { Tamaño: size },
-      prices: [
-        {
-          amount: i.price.ars.base + SIZES.indexOf(size) * i.price.ars.aument,
-          currency_code: "ars",
-        },
-        {
-          amount: i.price.usd.base + SIZES.indexOf(size) * i.price.usd.aument,
-          currency_code: "usd",
-        },
-      ],
-    })),
-  }));
+      ...buildBasicSeedProduct(i),
+      options: [{ title: "Tamaño", values: SIZES }],
+      variants: SIZES.map((size) => ({
+        title: `${i.title} / ${size}`,
+        sku: uniqueSku(`${toHandle(i.title)}-${size}`),
+        options: { Tamaño: size },
+        prices: [
+          {
+            amount: i.price.ars.base + SIZES.indexOf(size) * i.price.ars.aument,
+            currency_code: "ars",
+          },
+          {
+            amount: i.price.usd.base + SIZES.indexOf(size) * i.price.usd.aument,
+            currency_code: "usd",
+          },
+        ],
+      })),
+    }));
 
   const rosasSeed = rosas
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
-    ...buildBasicSeedProduct(i),
-    options: [{ title: "Cantidad", values: ROSAS_QUANTITY }],
-    variants: ROSAS_QUANTITY.map((cantidad) => ({
-      title: `${i.title} / ${cantidad}`,
-      sku: uniqueSku(
-        `${slugify(i.title, { lower: true, trim: true })}-${cantidad}`
-      ),
-      options: { Cantidad: cantidad },
-      prices: [
-        {
-          amount: i.price.ars.base * parseInt(cantidad),
-          currency_code: "ars",
-        },
-        {
-          amount: i.price.usd.base * parseInt(cantidad),
-          currency_code: "usd",
-        },
-      ],
-    })),
-  }));
+      ...buildBasicSeedProduct(i),
+      options: [{ title: "Cantidad", values: ROSAS_QUANTITY }],
+      variants: ROSAS_QUANTITY.map((cantidad) => ({
+        title: `${i.title} / ${cantidad}`,
+        sku: uniqueSku(
+          `${toHandle(i.title)}-${cantidad}`
+        ),
+        options: { Cantidad: cantidad },
+        prices: [
+          {
+            amount: i.price.ars.base * parseInt(cantidad),
+            currency_code: "ars",
+          },
+          {
+            amount: i.price.usd.base * parseInt(cantidad),
+            currency_code: "usd",
+          },
+        ],
+      })),
+    }));
 
   const complementosSeed = complementos
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
-    ...buildBasicSeedProduct(i),
-    options: [{ title: i.variant.name, values: i.variant.options }],
-    variants: i.variant.options.map((option) => ({
-      title: `${i.title} / ${option}`,
-      sku: uniqueSku(`${slugify(i.title, { lower: true, trim: true })}-${option}`),
-      options: { [i.variant.name]: option },
-      prices: [
-        {
-          amount:
-            i.price.ars.base +
-            i.variant.options.indexOf(option) * i.price.ars.aument,
-          currency_code: "ars",
-        },
-        {
-          amount:
-            i.price.usd.base +
-            i.variant.options.indexOf(option) * i.price.ars.aument,
-          currency_code: "usd",
-        },
-      ],
-    })),
-  }));
+      ...buildBasicSeedProduct(i),
+      options: [{ title: i.variant.name, values: i.variant.options }],
+      variants: i.variant.options.map((option) => ({
+        title: `${i.title} / ${option}`,
+        sku: uniqueSku(`${toHandle(i.title)}-${option}`),
+        options: { [i.variant.name]: option },
+        prices: [
+          {
+            amount:
+              i.price.ars.base +
+              i.variant.options.indexOf(option) * i.price.ars.aument,
+            currency_code: "ars",
+          },
+          {
+            amount:
+              i.price.usd.base +
+              i.variant.options.indexOf(option) * i.price.ars.aument,
+            currency_code: "usd",
+          },
+        ],
+      })),
+    }));
 
   const exclusivos: CreateProductWorkflowInputDTO[] = ramosExclusivos
     .filter((i) => shouldCreate(i.title))
