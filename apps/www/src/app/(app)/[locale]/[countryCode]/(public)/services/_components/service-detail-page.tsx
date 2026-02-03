@@ -5,7 +5,7 @@ import { ArrowRight, Check, Sparkles, Heart, Award, Phone, Mail } from 'lucide-r
 import Image from 'next/image';
 import Link from 'next/link';
 import { WhatsAppIcon } from '@/app/components/icons/whatsapp-icon';
-import { getWhatsAppUrl } from '@/lib/whatsapp';
+import { getCheerfulServiceWhatsAppText, getWhatsAppUrl } from '@/lib/whatsapp';
 
 interface ServiceDetailPageProps {
   slug: string;
@@ -150,10 +150,10 @@ export default function ServiceDetailPage({
 
       {/* Gallery Section */}
       <section id='galeria' className='py-16 bg-secondary/30'>
-          <div className='max-w-desktop mx-auto px-layout'>
-            <h2 className='text-3xl font-bold text-center mb-12 text-primary'>
-              {translations.ourWork}
-            </h2>
+        <div className='max-w-desktop mx-auto px-layout'>
+          <h2 className='text-3xl font-bold text-center mb-12 text-primary'>
+            {translations.ourWork}
+          </h2>
           {galleryImages.length > 0 ? (
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 grid-flow-dense auto-rows-[160px] sm:auto-rows-[180px] lg:auto-rows-[200px]'>
               {galleryImages.map((src, index) => (
@@ -161,11 +161,10 @@ export default function ServiceDetailPage({
                 // (más alto, estilo portrait)
                 <div
                   key={`${src}-${index}`}
-                  className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-all duration-300 hover:shadow-md ${
-                    slug === 'bodas' && src.includes('/assets/img/services/bodas/bodas-7.')
+                  className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-all duration-300 hover:shadow-md ${slug === 'bodas' && src.includes('/assets/img/services/bodas/bodas-7.')
                       ? 'row-span-1 sm:row-span-1 lg:row-span-3'
                       : getGalleryTileClass(index)
-                  }`}
+                    }`}
                 >
                   <Image
                     src={src}
@@ -224,7 +223,7 @@ export default function ServiceDetailPage({
             >
               <Link
                 href={getWhatsAppUrl({
-                  text: `Hola! Quiero solicitar presupuesto para: ${title}.`,
+                  text: getCheerfulServiceWhatsAppText(title),
                 })}
                 target='_blank'
                 rel='noopener noreferrer'

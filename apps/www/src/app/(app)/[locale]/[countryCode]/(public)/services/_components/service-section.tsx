@@ -5,7 +5,7 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { WhatsAppIcon } from '@/app/components/icons/whatsapp-icon';
-import { getWhatsAppUrl } from '@/lib/whatsapp';
+import { getCheerfulServiceWhatsAppText, getWhatsAppUrl } from '@/lib/whatsapp';
 
 interface Props {
   title: string;
@@ -118,7 +118,7 @@ export default function ServiceSection({
                 >
                   <Link
                     href={getWhatsAppUrl({
-                      text: `Hola! Quiero solicitar presupuesto para: ${title}.`,
+                      text: getCheerfulServiceWhatsAppText(title),
                     })}
                     target='_blank'
                     rel='noopener noreferrer'

@@ -52,7 +52,7 @@ export function CatalogContextHeader({ filtersOpen, onToggleFilters }: Props) {
       <p className='text-sm text-muted-foreground'>
         {breadcrumbs.join(' / ')}
       </p>
-      <p className='text-2xl font-semibold leading-tight'>{title}</p>
+      <p className='text-2xl font-semibold leading-tight text-primary'>{title}</p>
 
       <div className='flex items-center gap-3'>
         <Button
