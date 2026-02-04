@@ -32,12 +32,13 @@ export function Gallery({ images }: Props) {
     {
       question: t('sizeGuide'),
       answer: (
-        <div className='relative mt-2 flex aspect-video justify-center'>
+        <div className='relative mt-2 w-full overflow-hidden rounded-lg bg-black/5 h-[clamp(220px,55vw,420px)]'>
           <Image
-            className='h-full w-full object-cover'
-            src='https://cdn.shopify.com/s/files/1/0584/4693/8291/files/Horizontal_size_guide_TEST_2_1.jpg?v=1633450865'
+            className='h-full w-full object-contain'
+            src='/assets/img/Talles.jpg'
             alt={t('sizeGuideAlt')}
             fill
+            sizes='(max-width: 768px) 100vw, 700px'
           />
         </div>
       ),
@@ -105,9 +106,8 @@ export function Gallery({ images }: Props) {
             {Array.from({ length: images.length }).map((_, index) => (
               <button
                 key={index}
-                className={`border-primary mb-1 h-3 w-3 rounded-full border-1 ${
-                  activeSection === index ? 'bg-primary' : 'bg-transparent'
-                }`}
+                className={`border-primary mb-1 h-3 w-3 rounded-full border-1 ${activeSection === index ? 'bg-primary' : 'bg-transparent'
+                  }`}
                 onClick={() => scrollToSection(index)}
               ></button>
             ))}

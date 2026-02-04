@@ -43,11 +43,11 @@ export async function Memberships() {
       {/* Imagen decorativa izquierda - 3 imágenes completas para línea completa */}
       <div className='absolute left-0 top-1/2 -translate-y-1/2 w-32 md:w-48 hidden md:flex flex-col pointer-events-none h-full'>
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='/assets/img/membresiassinfondo.png'
           alt=''
           width={100}
           height={800}
-          className='w-full h-auto object-contain opacity-60'
+          className='w-full h-auto object-contain opacity-60 dark:hidden'
           aria-hidden='true'
         />
         <Image
@@ -55,7 +55,31 @@ export async function Memberships() {
           alt=''
           width={100}
           height={800}
-          className='w-full h-auto object-contain opacity-60'
+          className='hidden w-full h-auto object-contain opacity-60 dark:block'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/membresiassinfondo.png'
+          alt=''
+          width={100}
+          height={800}
+          className='w-full h-auto object-contain opacity-60 dark:hidden'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={100}
+          height={800}
+          className='hidden w-full h-auto object-contain opacity-60 dark:block'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/membresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='w-full h-auto object-contain opacity-60 dark:hidden'
           aria-hidden='true'
         />
         <Image
@@ -63,7 +87,7 @@ export async function Memberships() {
           alt=''
           width={200}
           height={800}
-          className='w-full h-auto object-contain opacity-60'
+          className='hidden w-full h-auto object-contain opacity-60 dark:block'
           aria-hidden='true'
         />
       </div>
@@ -71,11 +95,11 @@ export async function Memberships() {
       {/* Imagen decorativa derecha - 3 imágenes completas para línea completa */}
       <div className='absolute right-0 top-1/2 -translate-y-1/2  w-32 md:w-48 hidden md:flex flex-col pointer-events-none h-full'>
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='/assets/img/membresiassinfondo.png'
           alt=''
           width={200}
           height={800}
-          className='w-full h-auto object-contain opacity-60 scale-x-[-1]'
+          className='w-full h-auto object-contain opacity-60 scale-x-[-1] dark:hidden'
           aria-hidden='true'
         />
         <Image
@@ -83,7 +107,15 @@ export async function Memberships() {
           alt=''
           width={200}
           height={800}
-          className='w-full h-auto object-contain opacity-60 scale-x-[-1]'
+          className='hidden w-full h-auto object-contain opacity-60 scale-x-[-1] dark:block'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/membresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='w-full h-auto object-contain opacity-60 scale-x-[-1] dark:hidden'
           aria-hidden='true'
         />
         <Image
@@ -91,7 +123,23 @@ export async function Memberships() {
           alt=''
           width={200}
           height={800}
-          className='w-full h-auto object-contain opacity-60 scale-x-[-1]'
+          className='hidden w-full h-auto object-contain opacity-60 scale-x-[-1] dark:block'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/membresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='w-full h-auto object-contain opacity-60 scale-x-[-1] dark:hidden'
+          aria-hidden='true'
+        />
+        <Image
+          src='/assets/img/floresmembresiassinfondo.png'
+          alt=''
+          width={200}
+          height={800}
+          className='hidden w-full h-auto object-contain opacity-60 scale-x-[-1] dark:block'
           aria-hidden='true'
         />
       </div>

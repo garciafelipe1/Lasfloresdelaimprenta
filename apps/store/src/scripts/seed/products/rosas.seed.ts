@@ -1,35 +1,13 @@
 import { CATEGORIES } from "@/shared/constants";
 
 export const rosas = [
+  
   {
-    title: "Rosas Naranjas",
+    title: "Pure Essence",
     description:
-      "<p>Vibrantes <em>rosas naranjas</em> que transmiten entusiasmo y energía. Ideales para celebrar logros, expresar gratitud o simplemente alegrar el día de alguien especial. Su color cálido y alegre las hace únicas.</p>",
+      "<p>El blanco absoluto representa la verdad, la pureza, el respeto profundo y la lealtad eterna. Es el color de la perfección y la paz mental.</p><p>Minimalismo monumental. Un bloque sólido de rosas blancas importadas donde la ausencia de color lo es todo. Sin distracciones visuales, solo la forma perfecta dela naturaleza. Es una pieza de diseño atemporal, elegida por quienes valoran la sofisticación, la transparencia y los vínculos honestos.</p>",
     images: [
-      "/assets/img/productos/rosas/rosa-naranja-2.png",
-      "/assets/img/productos/rosas/rosa-naranja-3.png",
-    ],
-    category: CATEGORIES["rosas"],
-    metadata: {
-      color: "Naranja",
-    },
-    price: {
-      ars: {
-        base: 1500,
-        aument: 1500,
-      },
-      usd: {
-        base: 5,
-        aument: 5,
-      },
-    },
-  },
-  {
-    title: "Rosas Blancas",
-    description:
-      "<p>Elegantes <em>rosas blancas</em> que simbolizan pureza, inocencia y nuevos comienzos. Perfectas para bodas, bautismos y ocasiones especiales. Su belleza atemporal las convierte en un clásico eterno.</p>",
-    images: [
-      "/assets/img/productos/rosas/rosa-blanca-1.png",
+      "/assets/img/productos/rosas/blanco.jpeg",
     ],
     category: CATEGORIES["rosas"],
     metadata: {
@@ -47,12 +25,12 @@ export const rosas = [
     },
   },
   {
-    title: "Rosas Rosas",
+    title: "Blush Femn",
     description:
-      "<p>Delicadas <em>rosas rosas</em> que expresan ternura, gratitud y admiración. Su tono suave y romántico las hace ideales para expresar cariño, agradecimiento o simplemente hacer sonreír a alguien especial.</p>",
+      "<p>El rosa pálido (Blush) es el color de la admiración sincera, la suavidad y la gratitud. Comunica ternura, femineidad y un cariño libre de dobles intenciones.</p>",
     images: [
-      "/assets/img/productos/rosas/rosa-rosa-1.png",
-      "/assets/img/productos/rosas/rosa-rosa-2.png",
+      "/assets/img/productos/rosas/rosasblancas.jpeg",
+      
     ],
     category: CATEGORIES["rosas"],
     metadata: {
@@ -70,11 +48,11 @@ export const rosas = [
     },
   },
   {
-    title: "Rosas Amarillas",
+    title: "Golden Era",
     description:
-      "<p>Radiantes <em>rosas amarillas</em> que transmiten alegría, amistad y felicidad. Perfectas para celebrar logros, expresar gratitud o simplemente alegrar el día de alguien especial. Su color brillante y energético las hace únicas.</p>",
+      "<p>El amarillo es el color del sol, la inteligencia y el éxito. En el lenguaje floral, <em>golden era</em> representa la alegría absoluta, la amistad incondicional y la celebración de nuevos comienzos.</p>",
     images: [
-      "/assets/img/productos/rosas/rosa-amarilla-1.png",
+      "/assets/img/productos/rosas/rosaamarilla.jpeg",
     ],
     category: CATEGORIES["rosas"],
     metadata: {
@@ -93,13 +71,16 @@ export const rosas = [
   },
   // Mantener productos existentes para compatibilidad
   {
-    title: "Rosas Nacionales",
+    title: "Living Desire",
     description:
-      "<p>Cultivadas con dedicación en suelo argentino, nuestras rosas nacionales ofrecen belleza natural a un excelente precio. Colores vibrantes y frescura garantizada. Una opción clásica que nunca falla.</p>",
+      "<p>El coral y el salmón son la fusión de la energía del naranja con la pasión del rojo. Simbolizan el deseo, el entusiasmo y la fascinación por el otro..</p>",
     images: [
-      "https://pub-9eabcb4d57274edea31fd1667fff4c88.r2.dev/la-floreria-de-la-imprenta/rosa-nacional.jpg",
+      "/assets/img/productos/rosas/coral.jpeg",
     ],
     category: CATEGORIES["rosas"],
+    metadata: {
+      color: "Coral",
+    },
     price: {
       ars: {
         base: 1000,
@@ -112,13 +93,62 @@ export const rosas = [
     },
   },
   {
-    title: "Rosas Premium",
+    title: "Mystic Transition",
     description:
-      "<p>Rosas importadas de tallo largo y botones grandes. Su color intenso y su duración superior las convierten en la opción ideal para quienes buscan <em>impactar con elegancia</em>. Perfectas para aniversarios, propuestas o momentos especiales.</p>",
+      "<p>La mezcla de colores en un mismo pétalo representa la transición, la sorpresa y lo exótico. El amarillo que se vuelve rojo habla de una amistad que se convierte en amor, o de una alegría que se vuelve pasión.</p>",
     images: [
-      "https://pub-9eabcb4d57274edea31fd1667fff4c88.r2.dev/la-floreria-de-la-imprenta/rosa.jpg",
-      "https://pub-9eabcb4d57274edea31fd1667fff4c88.r2.dev/la-floreria-de-la-imprenta/rosa-2.jpg",
+      "/assets/img/productos/rosas/floresamarillass.jpeg",
+      
     ],
+    metadata: {
+      color: "Amarillo",
+    },
+    category: CATEGORIES["rosas"],
+    price: {
+      ars: {
+        base: 1500,
+        aument: 1500,
+      },
+      usd: {
+        base: 5,
+        aument: 5,
+      },
+    },
+  },
+  {
+    title: "Rouge L'Amour",
+    description:
+      "<p>El rojo oscuro o carmín es el símbolo universal del amor romántico, el deseo profundo y la valentía. Es el color de la sangre y el corazón.</p>",
+    images: [
+      "/assets/img/productos/rosas/rosaroja.jpeg",
+      
+    ],
+    metadata: {
+      color: "Rojo",
+    },
+    category: CATEGORIES["rosas"],
+    price: {
+      ars: {
+        base: 1500,
+        aument: 1500,
+      },
+      usd: {
+        base: 5,
+        aument: 5,
+      },
+    },
+  },
+  {
+    title: "Architecture of Love",
+    description:
+      "<p>La Estructura circular representa la eternidad (el círculo no tiene principio ni fin) y la contención. Habla de un amor cuidado y protegido.</p>",
+    images: [
+      "/assets/img/productos/rosas/rosa.jpeg",
+      
+    ],
+    metadata: {
+      color: "Rosado",
+    },
     category: CATEGORIES["rosas"],
     price: {
       ars: {
