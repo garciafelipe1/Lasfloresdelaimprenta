@@ -78,10 +78,14 @@ export default async function fixSalesChannelStockLocation({ container }: ExecAr
     stockLocation = result[0];
   }
 
-  logger.info("[fix-stock] Vinculando Sales Channel a Stock Location...", {
-    sales_channel_id: defaultSalesChannel.id,
-    stock_location_id: stockLocation.id,
-  });
+  logger.info(
+    `[fix-stock] Vinculando Sales Channel a Stock Location... ${JSON.stringify(
+      {
+        sales_channel_id: defaultSalesChannel.id,
+        stock_location_id: stockLocation.id,
+      },
+    )}`,
+  );
 
   await linkSalesChannelsToStockLocationWorkflow(container).run({
     input: {

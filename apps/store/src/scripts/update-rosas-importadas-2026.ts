@@ -126,7 +126,7 @@ export default async function updateRosasImportadas2026({ container }: ExecArgs)
     });
 
     if (existing?.[0]?.id) {
-      await productModuleService.deleteProducts(existing[0].id);
+      await productModuleService.deleteProducts([existing[0].id]);
       logger.info(`🗑️  Borrado: ${item.title} (${handle})`);
     }
 

@@ -72,10 +72,14 @@ export default async function fixAllSalesChannelsStockLocation({ container }: Ex
     throw new Error("[fix-stock-all] No se encontró ningún sales channel.");
   }
 
-  logger.info("[fix-stock-all] Vinculando channels al stock location...", {
-    stock_location_id: stockLocation.id,
-    sales_channels: salesChannels.map((sc: any) => sc.id),
-  });
+  logger.info(
+    `[fix-stock-all] Vinculando channels al stock location... ${JSON.stringify(
+      {
+        stock_location_id: stockLocation.id,
+        sales_channels: salesChannels.map((sc: any) => sc.id),
+      },
+    )}`,
+  );
 
   await linkSalesChannelsToStockLocationWorkflow(container).run({
     input: {

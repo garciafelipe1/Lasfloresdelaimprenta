@@ -35,7 +35,7 @@ export default async function seedRosaAmarilla({ container }: ExecArgs) {
     fields: ["id", "name"],
   });
 
-  let categories = existingCategories || [];
+  let categories = (existingCategories || []) as any[];
   const rosasCategory = categories.find((c: any) => c.name === CATEGORIES.rosas);
 
   if (!rosasCategory) {
@@ -51,7 +51,7 @@ export default async function seedRosaAmarilla({ container }: ExecArgs) {
           ],
         },
       });
-    categories = [...categories, ...categoryResult];
+    categories = [...categories, ...(categoryResult as any[])];
     logger.info(`✅ Category "${CATEGORIES.rosas}" created.`);
   }
 

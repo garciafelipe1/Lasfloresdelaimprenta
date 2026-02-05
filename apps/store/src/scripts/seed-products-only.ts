@@ -27,12 +27,12 @@ export default async function seedProductsOnly({ container }: ExecArgs) {
     fields: ["id", "name"],
   });
 
-  const categories = existingCategories || [];
+  const categories = (existingCategories || []) as any[];
   const wanted = new Set(Object.values(CATEGORIES));
   const existing = new Set(categories.map((c: any) => c.name));
   const missing = [...wanted].filter((name) => !existing.has(name));
 
-  let finalCategories = categories;
+  let finalCategories: any[] = categories;
   if (missing.length) {
     const { result: created } = await createProductCategoriesWorkflow(
       container
@@ -44,7 +44,7 @@ export default async function seedProductsOnly({ container }: ExecArgs) {
         })),
       },
     });
-    finalCategories = [...categories, ...created];
+    finalCategories = [...categories, ...(created as any[])];
   }
 
   // Shipping profile existente (requerido)
@@ -70,7 +70,7 @@ export default async function seedProductsOnly({ container }: ExecArgs) {
 
   await SeedProducts(
     container,
-    finalCategories,
+    finalCategories as any,
     shippingProfile.id,
     defaultSalesChannel[0].id
   );

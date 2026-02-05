@@ -86,7 +86,7 @@ export default async function deleteRosasLegacyList({ container }: ExecArgs) {
   }
 
   for (const p of candidates) {
-    await productModuleService.deleteProducts(p.id);
+    await productModuleService.deleteProducts([p.id]);
     logger.info(`✅ Borrado: ${p.title} (${p.handle})`);
   }
 }

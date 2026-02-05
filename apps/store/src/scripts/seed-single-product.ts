@@ -21,9 +21,9 @@ export default async function seedSingleProduct({ container }: ExecArgs) {
   });
 
   // Verificar si la categoría "San Valentín" existe, si no, crearla
-  let categories = existingCategories || [];
+  let categories = (existingCategories || []) as any[];
   const sanValentinCategory = categories.find((c: any) => c.name === CATEGORIES.sanValentin);
-  
+
   if (!sanValentinCategory) {
     logger.info(`Category "${CATEGORIES.sanValentin}" not found. Creating it...`);
     const { result: categoryResult } = await createProductCategoriesWorkflow(container).run({
@@ -36,7 +36,7 @@ export default async function seedSingleProduct({ container }: ExecArgs) {
         ],
       },
     });
-    categories = [...categories, ...categoryResult];
+    categories = [...categories, ...(categoryResult as any[])];
     logger.info(`✅ Category "${CATEGORIES.sanValentin}" created.`);
   }
 

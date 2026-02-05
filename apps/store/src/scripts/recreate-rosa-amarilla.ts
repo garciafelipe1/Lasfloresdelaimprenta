@@ -14,7 +14,7 @@ export default async function recreateRosaAmarilla({ container }: ExecArgs) {
   logger.info("Searching for 'Rosas Amarillas' product...");
 
   const handle = slugify("Rosas Amarillas", { lower: true, trim: true });
-  
+
   const { data: products } = await query.graph({
     entity: "product",
     fields: ["id", "handle"],
@@ -27,7 +27,7 @@ export default async function recreateRosaAmarilla({ container }: ExecArgs) {
 
   if (products && products.length > 0) {
     logger.info(`Deleting existing product: ${products[0].id}`);
-    await productModuleService.deleteProducts(products[0].id);
+    await productModuleService.deleteProducts([products[0].id]);
     logger.info("✅ Product deleted");
   }
 

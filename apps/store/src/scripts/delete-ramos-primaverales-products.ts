@@ -45,7 +45,7 @@ export default async function deleteRamosPrimaveralesProducts({ container }: Exe
   }
 
   for (const p of candidates) {
-    await productModuleService.deleteProducts(p.id);
+    await productModuleService.deleteProducts([p.id]);
     logger.info(`✅ Borrado: ${p.title} (${p.handle})`);
   }
 }

@@ -99,7 +99,7 @@ export default async function updateSanValentinPrices({ container }: ExecArgs) {
     });
 
     if (existing?.[0]?.id) {
-      await productModuleService.deleteProducts(existing[0].id);
+      await productModuleService.deleteProducts([existing[0].id]);
       logger.info(`🗑️  Borrado: ${item.title} (${handle})`);
     }
 

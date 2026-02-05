@@ -10,7 +10,7 @@ export default async function verifyRosaAmarilla({ container }: ExecArgs) {
   logger.info("Searching for 'Rosas Amarillas' product...");
 
   const handle = slugify("Rosas Amarillas", { lower: true, trim: true });
-  
+
   const { data: products } = await query.graph({
     entity: "product",
     fields: ["id", "handle", "title"],
@@ -58,12 +58,12 @@ export default async function verifyRosaAmarilla({ container }: ExecArgs) {
           $ilike: "rosas-amarillas%",
         },
       },
-    });
+    } as any);
 
     if (inv?.length) {
       logger.warn(
         `Found ${inv.length} inventory_item(s) with sku prefix 'rosas-amarillas': ` +
-          inv.map((i: any) => i.sku).join(", ")
+        inv.map((i: any) => i.sku).join(", ")
       );
     } else {
       logger.info("No inventory items found with that sku prefix.");
@@ -95,22 +95,22 @@ export default async function verifyRosaAmarilla({ container }: ExecArgs) {
 
   if (!hasImage) {
     logger.info("Image not found. Attempting to add it...");
-    
+
     const currentImages = (fullProduct.images || []).map((img: any) => ({ url: img.url }));
     const newImages = [...currentImages, { url: imageUrl }];
-    
+
     try {
       await productModuleService.updateProducts(product.id, {
         images: newImages,
       });
-      
+
       logger.info("✅ Image added successfully!");
-      
+
       // Verificar nuevamente
       const updatedProduct = await productModuleService.retrieveProduct(product.id, {
         relations: ["images"],
       });
-      
+
       logger.info("=== UPDATED PRODUCT IMAGES ===");
       if (updatedProduct.images && updatedProduct.images.length > 0) {
         updatedProduct.images.forEach((img: any, index: number) => {
