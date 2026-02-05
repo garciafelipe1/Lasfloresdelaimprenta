@@ -12,19 +12,20 @@ function getCurrencyFromLocale(locale: string): string {
 // Función inline para redirección de categorías (Edge Runtime compatible)
 function getCategoryRedirect(pathname: string, searchParams: URLSearchParams): string | null {
   const category = searchParams.get('category');
-  
+
   if (category === 'Follaje' || category === 'Bodas') {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('category', 'San Valentín');
     return `${pathname}?${newSearchParams.toString()}`;
   }
-  
+
   return null;
 }
 
 const intlMiddleware = createIntlMiddleware(routing)
 
 const BACKEND_URL =
+  process.env.MEDUSA_BACKEND_URL ||
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -102,16 +103,16 @@ async function getCountryCode(
 ) {
   const vercelCountry = request.headers.get("x-vercel-ip-country")?.toLowerCase()
   const segments = request.nextUrl.pathname.split('/').filter(Boolean)
-  
+
   // Si el regionMap está vacío (backend no disponible), usar DEFAULT_REGION
   if (!regionMap || regionMap.size === 0) {
     return DEFAULT_REGION
   }
-  
+
   // El countryCode está en el segundo segmento: /[locale]/[countryCode]/...
   // Los locales válidos son 'es' y 'en', así que si el segundo segmento existe y no es un locale, es el countryCode
-  const urlCountry = segments.length >= 2 && !routing.locales.includes(segments[1] as any) 
-    ? segments[1]?.toLowerCase() 
+  const urlCountry = segments.length >= 2 && !routing.locales.includes(segments[1] as any)
+    ? segments[1]?.toLowerCase()
     : segments.find(seg => regionMap.has(seg.toLowerCase()))?.toLowerCase()
 
   if (urlCountry && regionMap.has(urlCountry)) return urlCountry
@@ -146,11 +147,11 @@ export async function middleware(request: NextRequest) {
   const countryCode = await getCountryCode(request, regionMap)
 
   const segments = pathname.split('/').filter(Boolean)
-  
+
   // Detectar locale y countryCode de la URL
   // La estructura esperada es: /[locale]/[countryCode]/...
-  const urlLocale = segments[0] && routing.locales.includes(segments[0] as any) 
-    ? segments[0] 
+  const urlLocale = segments[0] && routing.locales.includes(segments[0] as any)
+    ? segments[0]
     : null
   // Verificar si el segundo segmento es un countryCode válido
   // Si el regionMap está vacío, aceptar cualquier valor como válido para evitar bloqueos
@@ -161,39 +162,39 @@ export async function middleware(request: NextRequest) {
   // Si falta locale o countryCode, redirigir a la ruta correcta
   if (!urlLocale || !urlCountry || urlCountry !== countryCode) {
     const locale = urlLocale || 'es'
-    
+
     // Si tiene locale pero no countryCode, insertar el countryCode
     if (urlLocale && !urlCountry) {
       // Caso: /en -> /en/ar
       // Caso: /en/catalog -> /en/ar/catalog
-      const restOfPath = segments.length > 1 
-        ? '/' + segments.slice(1).join('/') 
+      const restOfPath = segments.length > 1
+        ? '/' + segments.slice(1).join('/')
         : ''
       const newPath = `/${locale}/${countryCode}${restOfPath}`
-      
+
       return NextResponse.redirect(
         `${request.nextUrl.origin}${newPath}${request.nextUrl.search}`,
         307,
       )
     }
-    
+
     // Si no tiene locale, redirigir a /es/[countryCode]
     if (!urlLocale) {
       const newPath = `/${locale}/${countryCode}${pathname === '/' ? '' : pathname}`
-      
+
       return NextResponse.redirect(
         `${request.nextUrl.origin}${newPath}${request.nextUrl.search}`,
         307,
       )
     }
-    
+
     // Si tiene locale y countryCode pero es diferente, redirigir al correcto
     if (urlLocale && urlCountry && urlCountry !== countryCode) {
-      const restOfPath = segments.length > 2 
-        ? '/' + segments.slice(2).join('/') 
+      const restOfPath = segments.length > 2
+        ? '/' + segments.slice(2).join('/')
         : ''
       const newPath = `/${locale}/${countryCode}${restOfPath}`
-      
+
       return NextResponse.redirect(
         `${request.nextUrl.origin}${newPath}${request.nextUrl.search}`,
         307,

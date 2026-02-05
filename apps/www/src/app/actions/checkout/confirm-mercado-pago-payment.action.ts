@@ -2,8 +2,14 @@
 
 import { IPaymentFormData } from '@mercadopago/sdk-react/esm/bricks/payment/type';
 
-const MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
-const MEDUSA_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
+const MEDUSA_BACKEND_URL =
+  process.env.MEDUSA_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  '';
+
+const MEDUSA_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 
 interface ConfirmPaymentResponse {
   success: boolean;
@@ -20,6 +26,18 @@ export const confirmMercadopagoPayment = async (
   paymentSessionId: string,
   paymentData: IPaymentFormData['formData'],
 ): Promise<ConfirmPaymentResponse> => {
+  if (!MEDUSA_BACKEND_URL) {
+    throw new Error(
+      'Falta configurar MEDUSA_BACKEND_URL / NEXT_PUBLIC_MEDUSA_BACKEND_URL (el frontend no puede comunicarse con Medusa).',
+    );
+  }
+
+  if (!MEDUSA_PUBLISHABLE_KEY) {
+    throw new Error(
+      'Falta configurar NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY (publishable key) para autorizar pagos.',
+    );
+  }
+
   if (!paymentSessionId) {
     throw new Error('Payment session ID is required');
   }
@@ -81,7 +99,7 @@ export const confirmMercadopagoPayment = async (
 
     throw new Error(
       error.message ||
-        'No se pudo conectar con el servidor. Por favor, intentá nuevamente.'
+      'No se pudo conectar con el servidor. Por favor, intentá nuevamente.'
     );
   }
 };

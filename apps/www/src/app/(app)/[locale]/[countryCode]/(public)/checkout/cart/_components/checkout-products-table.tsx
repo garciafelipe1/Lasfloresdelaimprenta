@@ -72,65 +72,80 @@ export function CheckoutProductsTable({ items }: Props) {
         </div> <span></span> {/* For remove icon */}
       </div>
       {items?.map((item) => (
-        <div
-          key={item.id}
-          className='grid grid-cols-[min(100%,120px)_1fr_min(100%,120px)_min(100%,120px)_min(100%,150px)_min-content] items-center gap-4 border-t py-4 text-center'
-        >
-          {item.thumbnail && (
-            <div className='relative h-20 w-20 overflow-hidden rounded-md'>
-              <Image
-                src={item.thumbnail}
-                objectFit='cover'
-                alt={item.title}
-                fill
-              />
+        (() => {
+          const productTitle =
+            ((item as any).product?.title as string | undefined) ||
+            ((item as any).variant?.product?.title as string | undefined);
+          const displayTitle = productTitle || item.title;
+          const variantTitle = item.title && item.title !== displayTitle ? item.title : null;
+
+          return (
+            <div
+              key={item.id}
+              className='grid grid-cols-[min(100%,120px)_1fr_min(100%,120px)_min(100%,120px)_min(100%,150px)_min-content] items-center gap-4 border-t py-4 text-center'
+            >
+              {item.thumbnail && (
+                <div className='relative h-20 w-20 overflow-hidden rounded-md'>
+                  <Image
+                    src={item.thumbnail}
+                    objectFit='cover'
+                    alt={displayTitle}
+                    fill
+                  />
+                </div>
+              )}
+
+              <div>
+                <h3 className='text-primary mb-8 text-sm font-semibold'>
+                  {displayTitle}
+                </h3>
+                {variantTitle ? (
+                  <p className='-mt-6 text-xs text-muted-foreground text-left'>
+                    Variante: {variantTitle}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className='text-primary text-right text-sm'>
+                {formatMoneyByLocale(item.unit_price, locale)}
+              </div>
+
+              <div className='flex items-center justify-center space-x-2'>
+                <Button
+                  disabled={updateQuantity.isExecuting || item.quantity === 1}
+                  className='bg-secondary text-primary hover:bg-primary/40'
+                  size='sm'
+                  onClick={() => handleDecreaseItemQuantity(item.id)}
+                >
+                  -
+                </Button>
+                <span className='text-primary text-sm'>{item.quantity}</span>
+                <Button
+                  disabled={updateQuantity.isExecuting}
+                  className='bg-secondary text-primary hover:bg-primary/40'
+                  size='sm'
+                  onClick={() => handleIncreaseItemQuantity(item.id)}
+                >
+                  +
+                </Button>
+              </div>
+
+              <div className='flex items-center justify-end'>
+                <div className='mr-2 text-right text-sm font-semibold'>
+                  {formatMoneyByLocale(item.unit_price * item.quantity, locale)}
+                </div>
+                <Button
+                  onClick={() => removeItem.execute({ variantId: item.id! })}
+                  variant='outline'
+                  size='icon'
+                  aria-label={t('cart.table.removeAria', { title: displayTitle })}
+                >
+                  <Trash />
+                </Button>
+              </div>
             </div>
-          )}
-
-          <div>
-            <h3 className='text-primary mb-8 text-sm font-semibold'>
-              {item.title}
-            </h3>
-          </div>
-
-          <div className='text-primary text-right text-sm'>
-            {formatMoneyByLocale(item.unit_price, locale)}
-          </div>
-
-          <div className='flex items-center justify-center space-x-2'>
-            <Button
-              disabled={updateQuantity.isExecuting || item.quantity === 1}
-              className='bg-secondary text-primary hover:bg-primary/40'
-              size='sm'
-              onClick={() => handleDecreaseItemQuantity(item.id)}
-            >
-              -
-            </Button>
-            <span className='text-primary text-sm'>{item.quantity}</span>
-            <Button
-              disabled={updateQuantity.isExecuting}
-              className='bg-secondary text-primary hover:bg-primary/40'
-              size='sm'
-              onClick={() => handleIncreaseItemQuantity(item.id)}
-            >
-              +
-            </Button>
-          </div>
-
-          <div className='flex items-center justify-end'>
-            <div className='mr-2 text-right text-sm font-semibold'>
-              {formatMoneyByLocale(item.unit_price * item.quantity, locale)}
-            </div>
-            <Button
-              onClick={() => removeItem.execute({ variantId: item.id! })}
-              variant='outline'
-              size='icon'
-              aria-label={t('cart.table.removeAria', { title: item.title })}
-            >
-              <Trash />
-            </Button>
-          </div>
-        </div>
+          );
+        })()
       ))}
     </Card>
   );

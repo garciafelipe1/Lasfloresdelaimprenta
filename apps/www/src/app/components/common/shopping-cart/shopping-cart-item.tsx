@@ -18,6 +18,11 @@ interface Props {
 
 export function ShoppingCartItem({ item }: Props) {
   const locale = useLocale();
+  const productTitle =
+    ((item as any).product?.title as string | undefined) ||
+    ((item as any).variant?.product?.title as string | undefined);
+  const displayTitle = productTitle || item.title;
+  const variantTitle = item.title && item.title !== displayTitle ? item.title : null;
   const imageUrl = item.product?.thumbnail ?? '';
   const removeItem = useAction(removeFromCartAction, {
     onError() {
@@ -31,13 +36,18 @@ export function ShoppingCartItem({ item }: Props) {
   return (
     <div className='flex items-center space-x-4 rounded-md border p-4'>
       <ItemImage
-        alt={item.title}
+        alt={displayTitle}
         src={imageUrl}
         quantity={item.quantity}
       />
 
       <div className='flex-1'>
-        <h6 className='m-0 text-primary'>{item.title}</h6>
+        <h6 className='m-0 text-primary'>{displayTitle}</h6>
+        {variantTitle ? (
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Variante: {variantTitle}
+          </p>
+        ) : null}
         <p className='mt-0 text-sm text-primary'>
           {formatMoneyByLocale(item.unit_price, locale)}
         </p>
@@ -48,7 +58,7 @@ export function ShoppingCartItem({ item }: Props) {
         className='hover:bg-destructive/20'
         variant='outline'
         size='icon'
-        aria-label={`Remove ${item.title}`}
+        aria-label={`Remove ${displayTitle}`}
       >
         <Trash className='text-primary' />
       </Button>

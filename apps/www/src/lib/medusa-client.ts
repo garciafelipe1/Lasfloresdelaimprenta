@@ -1,6 +1,8 @@
 import Medusa from "@medusajs/js-sdk";
 
 const MEDUSA_BACKEND_URL =
+  // Preferir server env (prod) si existe; en cliente será undefined y seguirá a los NEXT_PUBLIC_*
+  process.env.MEDUSA_BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
