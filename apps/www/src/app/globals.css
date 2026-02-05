@@ -149,6 +149,12 @@
     font-weight: 700;
   }
 
+  /* Cinzel regular para textos largos (usa la Google Font variable --font-cinzel) */
+  .font-cinzel-regular {
+    font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif !important;
+    font-weight: 400;
+  }
+
   /* Cinzel Bold local (Cinzel-Bold.ttf) */
   .font-cinzel-local {
     font-family: 'CinzelBoldLocal', Georgia, 'Times New Roman', serif !important;

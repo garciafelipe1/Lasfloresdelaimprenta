@@ -11,19 +11,29 @@ loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
 const redisModules: InputConfigModules = [];
 
-if (process.env.NODE_ENV === "production") {
+const redisUrl = (process.env.REDIS_URL || "").trim();
+const shouldUseRedis = process.env.NODE_ENV === "production" && redisUrl.length > 0;
+
+if (process.env.NODE_ENV === "production" && !shouldUseRedis) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[medusa-config] NODE_ENV=production pero falta REDIS_URL. Se usará in-memory (no recomendado para producción)."
+  );
+}
+
+if (shouldUseRedis) {
   redisModules.push(
     {
       resolve: "@medusajs/medusa/cache-redis",
-      options: { redisUrl: process.env.REDIS_URL },
+      options: { redisUrl },
     },
     {
       resolve: "@medusajs/medusa/event-bus-redis",
-      options: { redisUrl: process.env.REDIS_URL },
+      options: { redisUrl },
     },
     {
       resolve: "@medusajs/medusa/workflow-engine-redis",
-      options: { redis: { url: process.env.REDIS_URL } },
+      options: { redis: { url: redisUrl } },
     }
   );
 }
@@ -43,7 +53,7 @@ module.exports = defineConfig({
 
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    redisUrl: process.env.NODE_ENV === "production" ? process.env.REDIS_URL : "",
+    redisUrl: shouldUseRedis ? redisUrl : "",
     http: {
       storeCors: process.env.STORE_CORS || "",
       adminCors: process.env.ADMIN_CORS || "",

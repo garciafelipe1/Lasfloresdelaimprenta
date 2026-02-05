@@ -23,6 +23,7 @@
     "dev": "medusa develop",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "seed:products": "medusa exec ./src/scripts/seed-products-only.ts",
+    "print:publishable-keys": "medusa exec ./src/scripts/print-publishable-keys.ts",
     "seed:rosa-amarilla": "medusa exec ./src/scripts/seed-rosa-amarilla.ts",
     "delete:rosas-rojas": "medusa exec ./src/scripts/delete-rosas-rojas.ts",
     "delete:san-valentin": "medusa exec ./src/scripts/delete-san-valentin.ts",

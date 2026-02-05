@@ -1,11 +1,11 @@
 {
   "landing": {
     "hero": {
-      "title": "Collection of exclusive designs",
+      "title": "Bouquets Spring Collection",
       "button": "Click here to view them"
     },
     "heros": {
-      "title": "Seasonal collection",
+      "title": "Valentine's Day Collection",
       "button": "Click here to view them"
     },
     "examples": {
@@ -14,7 +14,11 @@
     },
     "about-us": {
       "title": "Who are we?",
-      "description": "Click here and discover",
+      "description": "High-end floral artistry, with an impeccable experience.",
+      "lead": "I'm Débora, and I believe in the power of details.",
+      "p1": "Here, we transform the everyday into the extraordinary through high-end floral artistry. My mission is to give you an experience of absolute elegance, where simplicity and exclusivity meet in every bouquet. I want every interaction with our brand to feel unforgettable—designed for those who, like you, value sophistication without complications.",
+      "p2": "But we don’t stop there. My dream is to position Las Flores de la Imprenta as the ultimate reference for floral luxury in Argentina. We’re redefining the rules by blending traditional craft with technological innovation.",
+      "p3": "We want to be close to you on every channel, building a vibrant community and an experience that doesn’t just meet expectations—it anticipates your desires and surpasses what you thought was possible from a flower shop.",
       "button": "About us"
     },
     "memberships": {

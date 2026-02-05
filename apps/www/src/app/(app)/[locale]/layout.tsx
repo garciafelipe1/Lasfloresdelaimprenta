@@ -25,7 +25,8 @@ const geistMono = Geist_Mono({
 const cinzel = Cinzel({
   variable: '--font-cinzel',
   subsets: ['latin'],
-  weight: ['700'], // Bold
+  // Usamos 400 para cuerpos largos y 700 para títulos.
+  weight: ['400', '700'],
 });
 
 export const metadata: Metadata = {

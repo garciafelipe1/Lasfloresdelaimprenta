@@ -1,11 +1,11 @@
 {
   "landing": {
     "hero": {
-      "title": "Coleccion de diseños exclusivos",
+      "title": "Colección Bouquets Spring",
       "button": "Cliquea aqui para verlos"
     },
     "heros": {
-      "title": "Coleccion de temporada",
+      "title": "Colección San Valentín",
       "button": "Cliquea aqui para verlos"
     },
     "examples": {
@@ -14,7 +14,11 @@
     },
     "about-us": {
       "title": "¿Quiénes somos?",
-      "description": "Haz clic aquí y descúbrelo",
+      "description": "Alta gama floral, con una experiencia impecable.",
+      "lead": "Soy Débora, y creo en el poder de los detalles.",
+      "p1": "Aquí nos dedicamos a transformar lo cotidiano en extraordinario mediante el arte floral de alta gama. Mi misión es brindarte una experiencia de elegancia absoluta, donde la simplicidad y la exclusividad se encuentren en cada ramo. Busco que cada interacción con nuestra marca sea un momento inolvidable, diseñado para quienes, como vos, valoran la sofisticación sin complicaciones.",
+      "p2": "Pero no nos detenemos ahí. Mi sueño es posicionar a Las Flores de la Imprenta como el referente máximo del lujo floral en Argentina. Estamos redefiniendo las reglas del juego al fusionar el arte tradicional con la innovación tecnológica.",
+      "p3": "Queremos estar cerca tuyo en cada canal, creando una comunidad vibrante y una experiencia que no solo cumpla, sino que se anticipe a tus deseos y supere todo lo que imaginabas posible en una florería.",
       "button": "Sobre nosotros"
     },
     "memberships": {

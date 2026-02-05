@@ -1,6 +1,5 @@
 'use client';
 
-import { Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -10,28 +9,42 @@ export function AboutUs() {
   return (
     <section className='about-us-section px-3 sm:px-4 py-6 sm:py-12 lg:py-20'>
       <div className='max-w-desktop mx-auto'>
-        <div className='relative aspect-[4/3] sm:aspect-[16/9] overflow-hidden rounded-lg sm:rounded-xl md:aspect-[2/1]'>
-          <Image
-            src='/assets/img/aboutus.webp'
-            alt='Flores'
-            fill
-            priority
-            className='object-cover will-change-transform'
-            quality={85}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-          />
-          {/* Overlay con gradiente para mejor legibilidad en móvil */}
-          <div className='absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30 sm:bg-transparent' />
-          
-          {/* Overlay centrado */}
-          <div className='absolute inset-0 flex items-center justify-center p-3 sm:p-4 md:p-6'>
-            <div className='relative w-full max-w-[95%] sm:max-w-lg py-2 sm:py-4'>
+        <div className='relative overflow-hidden rounded-lg sm:rounded-xl'>
+          {/* Mobile: imagen arriba (en flujo normal) */}
+          <div className='relative h-[240px] sm:hidden'>
+            <Image
+              src='/assets/img/aboutus.webp'
+              alt='Flores'
+              fill
+              priority
+              className='object-cover will-change-transform'
+              quality={85}
+              sizes='100vw'
+            />
+            <div className='absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30' />
+          </div>
+
+          {/* Desktop/Tablet: imagen de fondo (absoluta) */}
+          <div className='absolute inset-0 hidden sm:block'>
+            <Image
+              src='/assets/img/aboutus.webp'
+              alt='Flores'
+              fill
+              priority
+              className='object-cover will-change-transform'
+              quality={85}
+              sizes='(max-width: 1024px) 90vw, 1200px'
+            />
+            <div className='absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30' />
+          </div>
+
+          {/* Contenido (en desktop YA NO es absolute, así no se corta) */}
+          <div className='relative p-3 sm:flex sm:items-center sm:justify-center sm:p-8 lg:p-10'>
+            <div className='w-full sm:max-w-2xl'>
               {/* Card principal */}
-              <div className='relative rounded-lg sm:rounded-xl bg-white/95 sm:bg-white backdrop-blur-sm px-5 sm:px-8 md:px-12 pb-5 sm:pb-6 md:pb-8 pt-5 sm:pt-6 md:pt-8 shadow-2xl overflow-visible'>
-                {/* Contenido del card */}
+              <div className='relative rounded-lg sm:rounded-xl bg-white/95 sm:bg-white backdrop-blur-sm px-5 sm:px-8 md:px-12 pb-5 sm:pb-6 md:pb-8 pt-5 sm:pt-6 md:pt-8 shadow-2xl'>
                 <div className='relative z-10'>
                   <h3 className='text-center text-lg sm:text-2xl md:text-3xl font-bold text-primary mb-3 sm:mb-4 uppercase tracking-wide leading-tight font-cinzel'>
-                    {/* Imagen de texto arriba del card */}
                     <div className='mb-2 sm:mb-3 flex justify-center'>
                       <Image
                         src='/assets/img/texto-parrafo-about-us.png'
@@ -44,6 +57,31 @@ export function AboutUs() {
                     </div>
                     <span className='block mt-1 sm:mt-2'>{t('landing.about-us.title')}</span>
                   </h3>
+
+                  <div className='mx-auto mt-3 sm:mt-4 max-w-prose text-center'>
+                    <p className='font-cinzel-regular text-sm sm:text-base md:text-lg leading-relaxed text-foreground/90'>
+                      <span className='font-cinzel block text-[0.95em] sm:text-[1em] tracking-wide text-foreground'>
+                        {t('landing.about-us.lead')}
+                      </span>
+                    </p>
+
+                    <div className='mt-3 sm:mt-4 space-y-3 sm:space-y-4'>
+                      <p className='font-cinzel-regular text-xs sm:text-sm md:text-base leading-relaxed text-foreground/85'>
+                        {t('landing.about-us.p1')}
+                      </p>
+                      <p className='font-cinzel-regular text-xs sm:text-sm md:text-base leading-relaxed text-foreground/85'>
+                        {t('landing.about-us.p2')}
+                      </p>
+                      <p className='font-cinzel-regular text-xs sm:text-sm md:text-base leading-relaxed text-foreground/85'>
+                        {t('landing.about-us.p3')}
+                      </p>
+                    </div>
+
+                    <p className='mt-4 sm:mt-5 font-cinzel-regular text-[11px] sm:text-xs tracking-wide text-foreground/70'>
+                      {t('landing.about-us.description')}
+                    </p>
+                  </div>
+
                   <div className='flex justify-center mt-4 sm:mt-5 md:mt-6'>
                     <a
                       href='#'
