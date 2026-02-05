@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 export function Hero() {
   const i18n = useTranslations();
+  const HOME_IMG_V = '20260205';
 
   return (
     <div className='bg-secondary dark:bg-black relative grid border-b'>
@@ -34,7 +35,7 @@ export function Hero() {
             className='relative h-[75dvh] min-h-[500px] w-full'
           >
             <Image
-              src='/assets/img/home1.jpg'
+              src={`/assets/img/home1.jpg?v=${HOME_IMG_V}`}
               alt={i18n('landing.hero.title')}
               className='h-full w-full object-cover object-top'
               fill
@@ -89,7 +90,7 @@ export function Hero() {
             className='relative h-[75dvh] min-h-[500px] w-full'
           >
             <Image
-              src='/assets/img/home2.jpg'
+              src={`/assets/img/home2.jpg?v=${HOME_IMG_V}`}
               alt={i18n('landing.heros.title')}
               className='h-full w-full object-cover object-top'
               fill
@@ -146,7 +147,7 @@ export function Hero() {
             className='relative h-[75dvh] min-h-[500px] w-full'
           >
             <Image
-              src='/assets/img/prueba.jpg'
+              src={`/assets/img/home3.jpg?v=${HOME_IMG_V}`}
               alt={i18n('landing.hero.title')}
               className='h-full w-full object-cover object-top'
               fill

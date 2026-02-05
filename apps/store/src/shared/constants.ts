@@ -3,7 +3,7 @@ export const CATEGORIES = {
   rosas: "Rosas",
   box: "Box",
   sanValentin: "San Valentín", // ✅ Nueva categoría principal (reemplaza "Bodas")
-  funebre: "Funebre",
+  complementosSanValentin: "Complementos de San Valentín",
   complementos: "Complementos",
   diseniosExclusivos: "Diseños exclusivos",
 } as const;

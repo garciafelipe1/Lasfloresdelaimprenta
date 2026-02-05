@@ -30,6 +30,8 @@ import { formatARS } from 'utils';
 import { membershipColors } from '../../constants';
 import { MembershipForm } from '../../membership-form';
 
+const ELITE_PORTFOLIO_V = '20260205';
+
 // Portfolio de imágenes por membresía
 // Portfolio de ejemplo (velas) - reemplazable cuando haya fotos definitivas
 const candleGallery: string[] = [
@@ -60,12 +62,16 @@ const premiumGallery: string[] = [
 ];
 
 const eliteGallery: string[] = [
-  '/assets/img/memberships/elite/elite-1.png',
-  '/assets/img/memberships/elite/elite-2.png',
-  '/assets/img/memberships/elite/elite-3.png',
-  '/assets/img/memberships/elite/elite-4.png',
-  '/assets/img/memberships/elite/elite-5.png',
-  '/assets/img/memberships/elite/elite-6.png',
+  `/assets/img/memberships/elite/portfolio/elite-01.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-02.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-03.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-04.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-05.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-06.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-07.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-08.jpg?v=${ELITE_PORTFOLIO_V}`,
+  `/assets/img/memberships/elite/portfolio/elite-09.jpg?v=${ELITE_PORTFOLIO_V}`,
+
 ];
 
 // Carrusel (3 fotos)
@@ -86,12 +92,7 @@ const membershipCarousel: Record<MembershipId, string[]> = {
     '/assets/img/memberships/premium/premium-7.png',
   ],
   elite: [
-    '/assets/img/memberships/elite/elite-1.png',
-    '/assets/img/memberships/elite/elite-2.png',
-    '/assets/img/memberships/elite/elite-3.png',
-    '/assets/img/memberships/elite/elite-4.png',
-    '/assets/img/memberships/elite/elite-5.png',
-    '/assets/img/memberships/elite/elite-6.png',
+    ...eliteGallery,
   ],
 };
 

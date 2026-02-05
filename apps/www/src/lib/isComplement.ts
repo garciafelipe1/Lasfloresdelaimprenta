@@ -3,6 +3,10 @@ import { CATEGORIES } from '@server/constants';
 
 export function isComplement(categories: StoreProduct['categories']) {
   return (
-    categories?.some((c) => c.name === CATEGORIES['complementos']) ?? false
+    categories?.some(
+      (c) =>
+        c.name === CATEGORIES['complementos'] ||
+        c.name === CATEGORIES['complementosSanValentin'],
+    ) ?? false
   );
 }

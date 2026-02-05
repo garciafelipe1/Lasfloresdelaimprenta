@@ -11,9 +11,9 @@ import slugify from "slugify";
 import { ROSAS_QUANTITY, SIZES } from "@/shared/constants";
 import { box } from "./seed/products/box.seed";
 import { complementos } from "./seed/products/complementos.seed";
+import { complementosSanValentin } from "./seed/products/complementos-san-valentin.seed";
 import { ramosExclusivos } from "./seed/products/exclusivos.seed";
 import { follaje } from "./seed/products/follaje.seed";
-import { funebre } from "./seed/products/funebre.seed";
 import { ramosPrimaverales } from "./seed/products/ramos-primaverales.seed";
 import { rosas } from "./seed/products/rosas.seed";
 import { sanValentin } from "./seed/products/san-valentin.seed";
@@ -93,7 +93,6 @@ export async function SeedProducts(
     ...ramosPrimaverales,
     ...box,
     ...follaje,
-    ...funebre,
     ...sanValentin,
   ]
     .filter((i) => shouldCreate(i.title))
@@ -120,25 +119,41 @@ export async function SeedProducts(
   const rosasSeed = rosas
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
-      ...buildBasicSeedProduct(i),
-      options: [{ title: "Cantidad", values: ROSAS_QUANTITY }],
-      variants: ROSAS_QUANTITY.map((cantidad) => ({
-        title: `${i.title} / ${cantidad}`,
-        sku: uniqueSku(
-          `${toHandle(i.title)}-${cantidad}`
-        ),
-        options: { Cantidad: cantidad },
-        prices: [
-          {
-            amount: i.price.ars.base * parseInt(cantidad),
-            currency_code: "ars",
-          },
-          {
-            amount: i.price.usd.base * parseInt(cantidad),
-            currency_code: "usd",
-          },
-        ],
-      })),
+      ...(i as any).pricing_mode === "fixed"
+        ? {
+          ...buildBasicSeedProduct(i),
+          options: [{ title: "Presentación", values: ["Default"] }],
+          variants: [
+            {
+              title: "Default",
+              sku: uniqueSku(`${toHandle(i.title)}-default`),
+              options: { Presentación: "Default" },
+              prices: [
+                { amount: i.price.ars.base, currency_code: "ars" },
+                { amount: i.price.usd.base, currency_code: "usd" },
+              ],
+            },
+          ],
+        }
+        : {
+          ...buildBasicSeedProduct(i),
+          options: [{ title: "Cantidad", values: ROSAS_QUANTITY }],
+          variants: ROSAS_QUANTITY.map((cantidad) => ({
+            title: `${i.title} / ${cantidad}`,
+            sku: uniqueSku(`${toHandle(i.title)}-${cantidad}`),
+            options: { Cantidad: cantidad },
+            prices: [
+              {
+                amount: i.price.ars.base * parseInt(cantidad),
+                currency_code: "ars",
+              },
+              {
+                amount: i.price.usd.base * parseInt(cantidad),
+                currency_code: "usd",
+              },
+            ],
+          })),
+        },
     }));
 
   const complementosSeed = complementos
@@ -167,6 +182,25 @@ export async function SeedProducts(
       })),
     }));
 
+  const complementosSanValentinSeed: CreateProductWorkflowInputDTO[] =
+    complementosSanValentin
+      .filter((i) => shouldCreate(i.title))
+      .map((i) => ({
+        ...buildBasicSeedProduct(i),
+        options: [{ title: "Presentación", values: ["Default"] }],
+        variants: [
+          {
+            title: "Default",
+            sku: uniqueSku(`${toHandle(i.title)}-default`),
+            options: { Presentación: "Default" },
+            prices: [
+              { amount: i.price.ars.base, currency_code: "ars" },
+              { amount: i.price.usd.base, currency_code: "usd" },
+            ],
+          },
+        ],
+      }));
+
   const exclusivos: CreateProductWorkflowInputDTO[] = ramosExclusivos
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
@@ -184,6 +218,7 @@ export async function SeedProducts(
     ...products1,
     ...rosasSeed,
     ...complementosSeed,
+    ...complementosSanValentinSeed,
     ...exclusivos,
   ];
 

@@ -48,12 +48,12 @@ export function Filters() {
 
   const CATEGORY_KEYS_ORDER = [
     'sanValentin',
+    'complementosSanValentin',
     'rosas',
     'box',
     'diseniosExclusivos',
     'ramosPrimaverales',
     'complementos',
-    'funebre',
   ] as const;
 
   const orderedCategories = [
@@ -414,8 +414,7 @@ export function Filters() {
                                   <Label
                                     data-selected={selected ? '' : null}
                                     title={color.label}
-                                    className={`h-8 w-8 cursor-pointer rounded-full transition hover:opacity-50 data-selected:bg-red-200 data-selected:ring-2 data-selected:ring-gray-700 data-selected:ring-offset-2 ${
-                                      color.border ? 'border' : ''
+                                    className={`h-8 w-8 cursor-pointer rounded-full transition hover:opacity-50 data-selected:bg-red-200 data-selected:ring-2 data-selected:ring-gray-700 data-selected:ring-offset-2 ${color.border ? 'border' : ''
                                     }`}
                                     style={{ backgroundColor: color.hex }}
                                   >

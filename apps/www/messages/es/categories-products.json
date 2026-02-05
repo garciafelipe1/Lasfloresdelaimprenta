@@ -81,14 +81,14 @@
     "categoriesAccordion": {
       "trigger": "Categorías",
       "options": {
-        "ramosPrimaverales": "Ramos primaverales",
-        "rosas": "Rosas",
+        "ramosPrimaverales": "Bouquets Spring",
+        "rosas": "Rosas importadas",
         "box": "Box",
         "sanValentin": "San Valentín",
+        "complementosSanValentin": "Complementos de San Valentín",
         "bodas": "San Valentín",
         "follaje": "San Valentín",
         "florero": "Florero",
-        "funebre": "Funebre",
         "fragancias": "Fragancias",
         "velas": "Velas",
         "complementos": "Complementos",

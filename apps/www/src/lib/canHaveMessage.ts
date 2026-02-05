@@ -7,8 +7,7 @@ export function canHaveMessage(categories: StoreProduct['categories']) {
       (c) =>
         c.name === CATEGORIES['ramosPrimaverales'] ||
         c.name === CATEGORIES['box'] ||
-        c.name === CATEGORIES['rosas'] ||
-        c.name === CATEGORIES['funebre'],
+        c.name === CATEGORIES['rosas'],
     ) ?? false
   );
 }
