@@ -46,7 +46,7 @@ export function InteractiveSection({ product }: Props) {
   const [options, setOptions] = useState<Record<string, string | undefined>>(
     {},
   );
-  const [preparado, setPreparado] = useState<'Papel' | 'Arpillera' | undefined>();
+  const [preparado, setPreparado] = useState<string | undefined>();
   const [indicaciones, setIndicaciones] = useState<string>('');
   const [agregarDedicatoria, setAgregarDedicatoria] = useState<boolean>(false);
   const [dedicatoria, setDedicatoria] = useState<string>('');
@@ -321,22 +321,39 @@ export function InteractiveSection({ product }: Props) {
           <div className='flex flex-col gap-y-3'>
             <Badge>{t('customization.preparadoLabel')}</Badge>
             <div className='flex flex-wrap gap-2 *:flex-1'>
-              <Button
-                type='button'
-                variant={preparado === 'Papel' ? 'default' : 'outline'}
-                onClick={() => setPreparado('Papel')}
-                aria-pressed={preparado === 'Papel'}
-              >
-                {t('customization.preparadoOptions.papel')}
-              </Button>
-              <Button
-                type='button'
-                variant={preparado === 'Arpillera' ? 'default' : 'outline'}
-                onClick={() => setPreparado('Arpillera')}
-                aria-pressed={preparado === 'Arpillera'}
-              >
-                {t('customization.preparadoOptions.arpillera')}
-              </Button>
+              {(() => {
+                const names = (product.categories ?? []).map((c) => c.name);
+                const isBoxCategory = names.includes(CATEGORIES['box']);
+                const valuePrimary = isBoxCategory ? 'Con envoltorio' : 'Papel';
+                const valueSecondary = isBoxCategory ? 'Sin envoltorio' : 'Arpillera';
+                const labelPrimary = isBoxCategory
+                  ? 'Con envoltorio'
+                  : t('customization.preparadoOptions.papel');
+                const labelSecondary = isBoxCategory
+                  ? 'Sin envoltorio'
+                  : t('customization.preparadoOptions.arpillera');
+
+                return (
+                  <>
+                    <Button
+                      type='button'
+                      variant={preparado === valuePrimary ? 'default' : 'outline'}
+                      onClick={() => setPreparado(valuePrimary)}
+                      aria-pressed={preparado === valuePrimary}
+                    >
+                      {labelPrimary}
+                    </Button>
+                    <Button
+                      type='button'
+                      variant={preparado === valueSecondary ? 'default' : 'outline'}
+                      onClick={() => setPreparado(valueSecondary)}
+                      aria-pressed={preparado === valueSecondary}
+                    >
+                      {labelSecondary}
+                    </Button>
+                  </>
+                );
+              })()}
             </div>
           </div>
 

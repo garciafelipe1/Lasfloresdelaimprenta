@@ -31,6 +31,7 @@
     "debug:variants": "medusa exec ./src/scripts/debug-product-variants.ts",
     "delete:ramo-test-1": "medusa exec ./src/scripts/delete-ramo-test-1.ts",
     "delete:box-rosas-estacion": "medusa exec ./src/scripts/delete-box-de-rosas-y-flores-de-estacion.ts",
+    "delete:box-edicion-silvestre": "medusa exec ./src/scripts/delete-box-edicion-silvestre.ts",
     "print:publishable-keys": "medusa exec ./src/scripts/print-publishable-keys.ts",
     "seed:rosa-amarilla": "medusa exec ./src/scripts/seed-rosa-amarilla.ts",
     "delete:rosas-rojas": "medusa exec ./src/scripts/delete-rosas-rojas.ts",

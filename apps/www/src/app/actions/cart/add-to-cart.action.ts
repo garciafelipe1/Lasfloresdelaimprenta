@@ -10,7 +10,7 @@ const addToCartSchema = z.object({
   variantId: z.string(),
   metadata: z
     .object({
-      preparado: z.enum(['Papel', 'Arpillera']).optional(),
+      preparado: z.string().max(50).optional(),
       indicaciones: z.string().max(400).optional(),
       dedicatoria: z.string().max(200).optional(),
     })

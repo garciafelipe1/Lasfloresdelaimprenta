@@ -77,7 +77,12 @@ export function CheckoutProductsTable({ items }: Props) {
             ((item as any).product?.title as string | undefined) ||
             ((item as any).variant?.product?.title as string | undefined);
           const displayTitle = productTitle || item.title;
-          const variantTitle = item.title && item.title !== displayTitle ? item.title : null;
+          const rawVariantTitle =
+            item.title && item.title !== displayTitle ? item.title : null;
+          const variantTitle =
+            rawVariantTitle && rawVariantTitle.trim().toLowerCase() === 'default'
+              ? null
+              : rawVariantTitle;
           const meta = (item as any).metadata as
             | { preparado?: string; indicaciones?: string; dedicatoria?: string }
             | undefined;
