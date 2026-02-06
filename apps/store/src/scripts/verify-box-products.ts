@@ -15,6 +15,8 @@ export default async function verifyBoxProducts({ container }: ExecArgs) {
       "title",
       "handle",
       "status",
+      "thumbnail",
+      "images.url",
       "categories.name",
       "options.title",
       "options.values.value",
@@ -33,6 +35,9 @@ export default async function verifyBoxProducts({ container }: ExecArgs) {
 
   for (const p of matches as any[]) {
     logger.info(`- ${p.title} [${p.handle}] status=${p.status}`);
+    logger.info(`  thumbnail: ${p.thumbnail ?? "(vacío)"}`);
+    const img0 = (p.images || [])?.[0]?.url;
+    logger.info(`  image[0]: ${img0 ?? "(sin imágenes)"}`);
     const optionTitles = (p.options || []).map((o: any) => o?.title).filter(Boolean);
     logger.info(`  options: ${optionTitles.join(", ") || "(sin opciones)"}`);
 
