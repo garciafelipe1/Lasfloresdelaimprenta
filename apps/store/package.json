@@ -28,6 +28,7 @@
     "inventory:orphans:report": "medusa exec ./src/scripts/inventory-orphans-report.ts",
     "inventory:orphans:delete": "medusa exec ./src/scripts/inventory-orphans-delete.ts",
     "debug:variants": "medusa exec ./src/scripts/debug-product-variants.ts",
+    "seed:ramo-1-peso": "medusa exec ./src/scripts/seed-ramo-1-peso.ts",
     "print:publishable-keys": "medusa exec ./src/scripts/print-publishable-keys.ts",
     "seed:rosa-amarilla": "medusa exec ./src/scripts/seed-rosa-amarilla.ts",
     "delete:rosas-rojas": "medusa exec ./src/scripts/delete-rosas-rojas.ts",
