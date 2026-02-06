@@ -20,14 +20,13 @@ export default async function DashboardLayout({
   // Next 15: params async
   const { locale, countryCode } = await params;
 
-  // 👇 chequeamos si hay usuario REAL en el backend
-  // authService.getUser() ahora tiene retry automático para manejar casos donde
-  // la cookie acaba de establecerse después de un redirect
-  const user = await authService.getUser().catch(() => null);
+  // 👇 chequeamos si hay usuario REAL en el backend (con reintentos tras OAuth)
+  const { user, clearedInvalidToken } = await authService.getUserResult().catch(() => ({ user: null, clearedInvalidToken: false }));
 
-  // 👇 si NO hay usuario (sin cookie o token inválido) → al login
+  // 👇 si NO hay usuario → al login (con mensaje si se limpió token inválido)
   if (!user) {
-    redirect(`/${locale}/${countryCode}/login`);
+    const search = clearedInvalidToken ? '?error=session_invalid' : '';
+    redirect(`/${locale}/${countryCode}/login${search}`);
   }
 
   // 👇 si hay usuario, recién ahí mostramos el dashboard

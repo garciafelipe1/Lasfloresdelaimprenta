@@ -37,7 +37,7 @@ export default function LoginPreview() {
 
     if (error) {
       let errorText = ''
-      
+
       switch (error) {
         case 'redirect_uri_mismatch':
           errorText = 'Error de configuración: La URI de redirección no está registrada en Google Cloud Console. Por favor, contacta al administrador o verifica la configuración de Google OAuth.'
@@ -53,6 +53,9 @@ export default function LoginPreview() {
           break
         case 'site_url_not_configured':
           errorText = 'Error de configuración: La URL del sitio no está configurada correctamente.'
+          break
+        case 'session_invalid':
+          errorText = 'No se pudo completar el inicio de sesión con Google. Por favor, intentá de nuevo.'
           break
         default:
           errorText = message || 'Ocurrió un error durante la autenticación. Por favor, intenta nuevamente.'
@@ -90,7 +93,7 @@ export default function LoginPreview() {
               <p className="text-sm text-red-800">{errorMessage}</p>
             </div>
           )}
-          
+
           <div className="grid gap-4">
             <button
               onClick={handleGoogleLogin}
