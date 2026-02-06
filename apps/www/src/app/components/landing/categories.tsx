@@ -63,6 +63,7 @@ const categories = [
     key: 'sanValentin',
     href: '/catalog?category=San+Valentín',
     imageUrl: '/assets/img/productos/san-valentin/pasionsinfiltro.jpeg',
+    
   },
   {
     key: 'ramosPrimaverales',
@@ -72,12 +73,12 @@ const categories = [
   {
     key: 'box',
     href: '/catalog?category=Box',
-    imageUrl: '/assets/img/boxprimaveral.webp',
+    imageUrl: '/assets/img/productos/box/pinkysh.jpeg',
   },
   {
     key: 'rosas',
     href: '/catalog?category=Rosas',
-    imageUrl: '/assets/img/rosascategoria.jpg',
+    imageUrl: '/assets/img/productos/rosas/blanco.jpeg',
   },
 ];
 

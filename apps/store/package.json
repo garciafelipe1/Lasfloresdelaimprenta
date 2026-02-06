@@ -46,6 +46,7 @@
     "verify:box": "medusa exec ./src/scripts/verify-box-products.ts",
     "update:box:images": "medusa exec ./src/scripts/update-box-images.ts",
     "update:box:sales-channel": "medusa exec ./src/scripts/update-box-sales-channel.ts",
+    "cleanup:box:no-price": "medusa exec ./src/scripts/cleanup-box-no-price.ts",
     "verify:ramos-primaverales": "medusa exec ./src/scripts/verify-ramos-primaverales-products.ts",
     "verify:catalog-variations": "medusa exec ./src/scripts/verify-catalog-variations.ts",
     "debug:pure-essence": "medusa exec ./src/scripts/debug-pure-essence.ts",

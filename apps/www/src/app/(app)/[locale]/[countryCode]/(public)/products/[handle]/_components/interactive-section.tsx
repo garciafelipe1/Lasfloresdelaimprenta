@@ -4,13 +4,16 @@ import { addToCartAction } from '@/app/actions/cart/add-to-cart.action';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
 import { Checkbox } from '@/app/components/ui/checkbox';
+import { WhatsAppIcon } from '@/app/components/icons/whatsapp-icon';
 import { useCartQueryParam } from '@/app/hooks/use-cart-query-param';
 import { sortProductOptionValues } from '@/lib/sort-options-values';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 import { StoreProduct, StoreProductVariant } from '@medusajs/types';
 import { CATEGORIES } from '@server/constants';
 import { isEqual } from 'lodash';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useAction } from 'next-safe-action/hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -95,6 +98,19 @@ export function InteractiveSection({ product }: Props) {
       names.includes(CATEGORIES['box']) ||
       names.includes(CATEGORIES['diseniosExclusivos'])
     );
+  }, [product.categories]);
+
+  // Botón de WhatsApp (compra alternativa) solo para categorías específicas
+  const shouldShowWhatsAppPurchase = useMemo(() => {
+    const names = (product.categories ?? []).map((c) => c.name);
+    if (!names.length) return false;
+
+    // Mostrar en TODO el catálogo, excepto complementos
+    const isExcluded =
+      names.includes(CATEGORIES['complementos']) ||
+      names.includes(CATEGORIES['complementosSanValentin']);
+
+    return !isExcluded;
   }, [product.categories]);
 
   const isPreparadoMissing = shouldShowCustomization && !preparado;
@@ -196,6 +212,41 @@ export function InteractiveSection({ product }: Props) {
     });
   };
 
+  const whatsAppHref = useMemo(() => {
+    if (!shouldShowWhatsAppPurchase) return '';
+
+    const base = 'Hola, quiero reservar este producto del catálogo.';
+
+    const optionText = (() => {
+      // Preferir la variante elegida (si existe)
+      if (selectedVariant?.title && product.variants && product.variants.length > 1) {
+        // Usualmente: "Producto / Opción"
+        const parts = selectedVariant.title.split(' / ');
+        const suffix = parts.length > 1 ? parts.slice(1).join(' / ').trim() : '';
+        if (suffix) return suffix;
+      }
+
+      // Si hay selección de opciones, tomar la primera que tenga valor
+      for (const opt of product.options ?? []) {
+        const v = options[opt.id];
+        if (typeof v === 'string' && v.trim().length) {
+          return `${opt.title}: ${v.trim()}`;
+        }
+      }
+
+      return '';
+    })();
+
+    const lines = [
+      base,
+      '',
+      product.title ? `Producto: ${product.title}` : '',
+      optionText ? `Opción: ${optionText}` : '',
+    ].filter(Boolean);
+
+    return getWhatsAppUrl({ text: lines.join('\n') });
+  }, [options, product.options, product.title, product.variants, selectedVariant?.title, shouldShowWhatsAppPurchase]);
+
   return (
     <div className='flex flex-col gap-4'>
       <p className='text-xl'>
@@ -206,21 +257,63 @@ export function InteractiveSection({ product }: Props) {
           )
           : formatMoneyByLocale(lowestPrice, locale)}
       </p>
+      {/* Opciones (tallas/cantidad) + WhatsApp al lado */}
       {!isExclusive ? (
-        <ul className='flex flex-col gap-2'>
-          {product.options?.map((option) => (
-            <ProductOptions
-              isRose={
-                option.title === 'Cantidad' &&
-                product.categories?.some((d) => d.name === CATEGORIES['rosas'])
-              }
-              updateOption={setOptionValue}
-              current={options[option.id]}
-              option={option}
-              key={option.id}
-            />
-          ))}
-        </ul>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4'>
+          <ul className='flex flex-col gap-2 flex-1'>
+            {product.options?.map((option) => (
+              <ProductOptions
+                isRose={
+                  option.title === 'Cantidad' &&
+                  product.categories?.some((d) => d.name === CATEGORIES['rosas'])
+                }
+                updateOption={setOptionValue}
+                current={options[option.id]}
+                option={option}
+                key={option.id}
+              />
+            ))}
+          </ul>
+
+          {shouldShowWhatsAppPurchase && whatsAppHref ? (
+            <div className='sm:w-[260px]'>
+              <Button
+                asChild
+                size='lg'
+                className='w-full rounded-full shadow-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white border border-transparent gap-2'
+              >
+                <Link
+                  href={whatsAppHref}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  aria-label={`Reservar ${product.title} por WhatsApp`}
+                >
+                  <WhatsAppIcon className='h-5 w-5' />
+                  <span>Reservar por WhatsApp</span>
+                </Link>
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      ) : shouldShowWhatsAppPurchase && whatsAppHref ? (
+        // Si es exclusivo y no hay selector de opciones, igual mostrar WhatsApp en la sección de compra
+        <div>
+          <Button
+            asChild
+            size='lg'
+            className='w-full rounded-full shadow-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white border border-transparent gap-2'
+          >
+            <Link
+              href={whatsAppHref}
+              target='_blank'
+              rel='noopener noreferrer'
+              aria-label={`Reservar ${product.title} por WhatsApp`}
+            >
+              <WhatsAppIcon className='h-5 w-5' />
+              <span>Reservar por WhatsApp</span>
+            </Link>
+          </Button>
+        </div>
       ) : null}
 
       {shouldShowCustomization ? (
