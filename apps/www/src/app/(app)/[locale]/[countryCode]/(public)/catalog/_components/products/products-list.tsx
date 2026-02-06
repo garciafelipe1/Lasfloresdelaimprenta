@@ -20,7 +20,10 @@ export async function ProductsList({ filters }: Props) {
   }
 
   return (
-    <section className='flex flex-col gap-4'>
+    <section
+      id='catalog-products'
+      className='flex flex-col gap-4 scroll-mt-24'
+    >
       <MotionList className='grid grid-cols-[repeat(auto-fill,minmax(min(100%,140px),1fr))] gap-4 md:grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))]'>
         {data.products.map((product) => (
           <MotionItem key={product.id}>

@@ -56,6 +56,7 @@
         "city": "City",
         "postalCode": "Postal code",
         "address": "Address",
+        "deliveryDetails": "Additional address details (optional)",
         "phoneNumber": "Phone number",
         "email": "Email"
       },
@@ -66,6 +67,7 @@
         "city": "Bahía Blanca",
         "postalCode": "1613",
         "address": "Av. Libertador 123",
+        "deliveryDetails": "E.g. apartment, floor, doorbell, references, schedule, gate…",
         "phoneNumber": "11 2323 2323",
         "email": "myemail@gmail.com"
       },
@@ -76,6 +78,7 @@
         "city": "Your city",
         "postalCode": "Your postal code",
         "address": "Your address",
+        "deliveryDetails": "Add extra info for the delivery team if needed.",
         "phoneNumber": "Your phone number so we can contact you",
         "email": "We'll send updates to this email"
       },
@@ -85,6 +88,7 @@
         "lastNameRequired": "Please enter your last name.",
         "lastNameTooLong": "Last name cannot be longer than 50 characters.",
         "addressRequired": "Address is required.",
+        "deliveryDetailsTooLong": "Additional details cannot be longer than 400 characters.",
         "postalCodeRequired": "Postal code is required.",
         "cityRequired": "City is required.",
         "provinceInvalid": "Select a valid province.",
@@ -96,6 +100,10 @@
       "title": "Shipping options",
       "methodLabel": "Shipping method",
       "description": "Select the shipping method that suits you best",
+      "shippingToConfirm": {
+        "priceLabel": "To be confirmed",
+        "message": "Shipping will be quoted via WhatsApp after you finish your purchase."
+      },
       "bahiaInside": "Within Bahía Blanca",
       "bahiaCityLabel": "Bahía Blanca city",
       "bahiaCityPlaceholder": "Select a city",
@@ -106,7 +114,8 @@
         "success": "Shipping method set correctly"
       },
       "errors": {
-        "bahiaCityRequired": "Bahía Blanca city is required."
+        "bahiaCityRequired": "Bahía Blanca city is required.",
+        "shippingToConfirmAcceptRequired": "You must accept the shipping cost confirmation to continue."
       }
     },
     "payment": {

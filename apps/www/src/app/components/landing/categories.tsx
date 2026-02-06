@@ -57,17 +57,17 @@ const CategoryCard = ({ title, imageUrl }: BannerProps) => (
 
 const categories = [
   // Orden desktop (2 columnas): fila 1 (izq/der), fila 2 (izq/der)
-  // San Valentín | Rosas
-  // Box          | Ramos primaverales
+  // San Valentín Ramos | Bouquet Spring
+  // Box               | Rosas importadas
   {
     key: 'sanValentin',
     href: '/catalog?category=San+Valentín',
-    imageUrl: '/assets/img/follaje.jpg',
+    imageUrl: '/assets/img/productos/san-valentin/pasionsinfiltro.jpeg',
   },
   {
-    key: 'rosas',
-    href: '/catalog?category=Rosas',
-    imageUrl: '/assets/img/rosascategoria.jpg',
+    key: 'ramosPrimaverales',
+    href: '/catalog?category=Ramos+primaverales',
+    imageUrl: '/assets/img/flor-4.jpg',
   },
   {
     key: 'box',
@@ -75,9 +75,9 @@ const categories = [
     imageUrl: '/assets/img/boxprimaveral.webp',
   },
   {
-    key: 'ramosPrimaverales',
-    href: '/catalog?category=Ramos+primaverales',
-    imageUrl: '/assets/img/flor-4.jpg',
+    key: 'rosas',
+    href: '/catalog?category=Rosas',
+    imageUrl: '/assets/img/rosascategoria.jpg',
   },
 ];
 

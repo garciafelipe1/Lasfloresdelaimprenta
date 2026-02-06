@@ -96,7 +96,7 @@ export default function LoginPreview() {
               onClick={handleGoogleLogin}
               className="flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-white hover:bg-neutral-800 transition"
             >
-              <Image src="/google.svg" alt="Google" width={20} height={20} className="mr-2" />
+              <Image src="/assets/img/google.svg" alt="Google" width={20} height={20} className="mr-2" />
               Iniciar sesión con Google
             </button>
           </div>

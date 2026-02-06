@@ -27,6 +27,7 @@ export const sortOptions = [
 export const BAHIA_BLANCA_SHIPPING_CODES = {
   bahiaBlanca: "bahia-blanca",
   retiroLocal: "retiro-local",
+  envioAConfirmar: "envio-a-confirmar",
 };
 
 export const sortOptionValues = sortOptions.map(

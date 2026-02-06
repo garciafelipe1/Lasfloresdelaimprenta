@@ -43,7 +43,20 @@ interface ColorOption extends FilterOption {
   border?: boolean;
 }
 
-export function Filters() {
+function scrollToCatalogResults() {
+  // Scroll suave al listado de productos (sin depender de refs)
+  // Nota: en mobile también ayuda a “llevar” al usuario al contenido.
+  setTimeout(() => {
+    const el = document.getElementById('catalog-products');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 0);
+}
+
+interface Props {
+  onAutoAppliedCategory?: () => void;
+}
+
+export function Filters({ onAutoAppliedCategory }: Props) {
   const t = useTranslations('categories-products.filters');
 
   const CATEGORY_KEYS_ORDER = [
@@ -74,6 +87,7 @@ export function Filters() {
     setName,
     setOrder,
     setColor,
+    setSize,
     setMinPrice,
     setMaxPrice,
   } = useFilterParams();
@@ -162,9 +176,10 @@ export function Filters() {
   const colors = category === 'Rosas' ? rosaColors : allColors;
 
   const handleSubmit = (data: FiltersFormSchema) => {
-    setCategory(data.category!);
+    setCategory(data.category);
     setName(data.name!);
     setOrder(data.order!);
+    setSize(data.size);
     setMinPrice(data.min_price ?? '');
     setMaxPrice(data.max_price ?? '');
     // Solo aplicar color si la categoría es "Rosas"
@@ -173,6 +188,13 @@ export function Filters() {
     } else {
       setColor('');
     }
+  };
+
+  const handleCategorySelect = (nextCategory?: string) => {
+    // Aplicar categoría inmediatamente (sin “Aplicar filtro”)
+    setCategory(nextCategory);
+    scrollToCatalogResults();
+    onAutoAppliedCategory?.();
   };
 
   const handleClearFilters = () => {
@@ -209,6 +231,47 @@ export function Filters() {
               onSubmit={form.handleSubmit(handleSubmit)}
               className='mb-4 flex flex-col gap-4'
             >
+              {/* Categorías: siempre visibles y arriba */}
+              <section className='flex flex-col gap-3'>
+                <p className='text-base font-medium'>
+                  {t('categoriesAccordion.trigger')}
+                </p>
+                <ul>
+                  {orderedCategories.map(([key, categoryName]) => (
+                    <FormField
+                      key={categoryName}
+                      control={form.control}
+                      name='category'
+                      render={({ field }) => (
+                        <FormItem
+                          key={categoryName}
+                          className='flex flex-row items-center gap-2'
+                        >
+                          <FormLabel
+                            className='data-[active=true]:bg-secondary hover:bg-muted w-full rounded-md p-2 text-sm font-normal capitalize'
+                            data-active={field.value === categoryName}
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value === categoryName}
+                                onCheckedChange={(checked) => {
+                                  const next = checked ? categoryName : undefined;
+                                  field.onChange(next);
+                                  handleCategorySelect(next);
+                                }}
+                              />
+                            </FormControl>
+                            {/* @ts-expect-error - dynamic translation key */}
+                            {t(`categoriesAccordion.options.${key}`)}
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </ul>
+              </section>
+
+              {/* Filtros (mantener lógica existente) */}
               <Accordion
                 type='multiple'
                 className='w-full border-b'
@@ -306,96 +369,13 @@ export function Filters() {
                 )}
               />
 
-              <Accordion
-                type='multiple'
-                className='w-full border-b'
-                defaultValue={['categories']}
-              >
-                <AccordionItem value='categories'>
-                  <AccordionTrigger className='py-4 text-base font-medium'>
-                    {t('categoriesAccordion.trigger')}
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <ul>
-                      {orderedCategories.map(([key, category]) => (
-                        <FormField
-                          key={category}
-                          control={form.control}
-                          name='category'
-                          render={({ field }) => (
-                            <FormItem
-                              key={category}
-                              className='flex flex-row items-center gap-2'
-                            >
-                              <FormLabel
-                                className='data-[active=true]:bg-secondary hover:bg-muted w-full rounded-md p-2 text-sm font-normal capitalize'
-                                data-active={field.value === category}
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value === category}
-                                    onCheckedChange={(checked) => {
-                                      field.onChange(
-                                        checked ? category : undefined,
-                                      );
-                                    }}
-                                  />
-                                </FormControl>
-                                {/* @ts-expect-error - dynamic translation key */}
-                                {t(`categoriesAccordion.options.${key}`)}
-                              </FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-                {form.watch('category')?.length ? (
-                  <AccordionItem value='sizes'>
-                    <AccordionTrigger className='py-4 text-base font-medium'>
-                      {t('dynamicFilters.sizeLabel')}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ul>
-                        {standardSizes.map((size) => (
-                          <FormField
-                            key={size.value}
-                            control={form.control}
-                            name='size'
-                            render={({ field }) => (
-                              <FormItem
-                                key={size.value}
-                                className='flex flex-row items-center gap-2'
-                              >
-                                <FormLabel
-                                  className='data-[active=true]:bg-secondary hover:bg-muted w-full rounded-md p-2 text-sm font-normal capitalize'
-                                  data-active={
-                                    field.value === size.value ? '' : null
-                                  }
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value === size.value}
-                                      onCheckedChange={(checked) => {
-                                        field.onChange(
-                                          checked ? size.value : undefined,
-                                        );
-                                      }}
-                                    />
-                                  </FormControl>
-                                  {size.label}
-                                </FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                ) : null}
-                {/* Mostrar filtro de colores solo para categoría "Rosas" */}
-                {form.watch('category') === 'Rosas' ? (
+              {/* Mostrar filtro de colores solo para categoría "Rosas" */}
+              {form.watch('category') === 'Rosas' ? (
+                <Accordion
+                  type='multiple'
+                  className='w-full border-b'
+                  defaultValue={['colors']}
+                >
                   <AccordionItem value='colors'>
                     <AccordionTrigger className='py-4 text-base font-medium'>
                       {t('colorsAccordion.trigger')}
@@ -415,7 +395,7 @@ export function Filters() {
                                     data-selected={selected ? '' : null}
                                     title={color.label}
                                     className={`h-8 w-8 cursor-pointer rounded-full transition hover:opacity-50 data-selected:bg-red-200 data-selected:ring-2 data-selected:ring-gray-700 data-selected:ring-offset-2 ${color.border ? 'border' : ''
-                                    }`}
+                                      }`}
                                     style={{ backgroundColor: color.hex }}
                                   >
                                     <FormControl>
@@ -438,8 +418,62 @@ export function Filters() {
                       </div>
                     </AccordionContent>
                   </AccordionItem>
-                ) : null}
-              </Accordion>
+                </Accordion>
+              ) : null}
+
+              {/* Filtro de tamaño (al final) */}
+              {form.watch('category')?.length ? (
+                <Accordion
+                  type='multiple'
+                  className='w-full border-b'
+                  defaultValue={['sizes']}
+                >
+                  <AccordionItem value='sizes'>
+                    <AccordionTrigger className='py-4 text-base font-medium'>
+                      {t('dynamicFilters.sizeLabel')}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <ul>
+                        {standardSizes.map((sizeOption) => (
+                          <FormField
+                            key={sizeOption.value}
+                            control={form.control}
+                            name='size'
+                            render={({ field }) => (
+                              <FormItem
+                                key={sizeOption.value}
+                                className='flex flex-row items-center gap-2'
+                              >
+                                <FormLabel
+                                  className='data-[active=true]:bg-secondary hover:bg-muted w-full rounded-md p-2 text-sm font-normal capitalize'
+                                  data-active={
+                                    field.value === sizeOption.value
+                                      ? ''
+                                      : null
+                                  }
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value === sizeOption.value}
+                                      onCheckedChange={(checked) => {
+                                        field.onChange(
+                                          checked ? sizeOption.value : undefined,
+                                        );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  {sizeOption.label}
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              ) : null}
+
               <FormButton
                 isLoading={isPending}
                 disabled={isPending}

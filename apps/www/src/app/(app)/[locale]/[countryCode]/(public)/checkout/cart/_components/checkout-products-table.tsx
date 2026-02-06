@@ -78,6 +78,9 @@ export function CheckoutProductsTable({ items }: Props) {
             ((item as any).variant?.product?.title as string | undefined);
           const displayTitle = productTitle || item.title;
           const variantTitle = item.title && item.title !== displayTitle ? item.title : null;
+          const meta = (item as any).metadata as
+            | { preparado?: string; indicaciones?: string; dedicatoria?: string }
+            | undefined;
 
           return (
             <div
@@ -102,6 +105,21 @@ export function CheckoutProductsTable({ items }: Props) {
                 {variantTitle ? (
                   <p className='-mt-6 text-xs text-muted-foreground text-left'>
                     Variante: {variantTitle}
+                  </p>
+                ) : null}
+                {meta?.preparado ? (
+                  <p className='mt-1 text-xs text-muted-foreground text-left'>
+                    Preparado: {meta.preparado}
+                  </p>
+                ) : null}
+                {meta?.dedicatoria ? (
+                  <p className='mt-1 text-xs text-muted-foreground text-left'>
+                    Dedicatoria: {meta.dedicatoria}
+                  </p>
+                ) : null}
+                {meta?.indicaciones ? (
+                  <p className='mt-1 text-xs text-muted-foreground text-left'>
+                    Indicaciones: {meta.indicaciones}
                   </p>
                 ) : null}
               </div>

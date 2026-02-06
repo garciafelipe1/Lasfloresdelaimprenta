@@ -18,6 +18,12 @@ export async function CheckoutCartAside() {
     redirect(`/${locale}/ar/catalog`);
   }
 
+  const isShippingToConfirm = (() => {
+    const meta = cart.metadata as unknown;
+    if (!meta || typeof meta !== 'object') return false;
+    return Boolean((meta as Record<string, unknown>).shipping_to_confirm);
+  })();
+
   return (
     <section className='relative rounded-xl'>
       <div className='sticky top-[calc(3rem+64px)] flex flex-col gap-4'>
@@ -28,6 +34,9 @@ export async function CheckoutCartAside() {
           itemsTotal={cart.item_subtotal}
           shippingTotal={cart.shipping_total}
           total={cart.total}
+          shippingDisplay={
+            isShippingToConfirm ? t('shipping.shippingToConfirm.priceLabel') : undefined
+          }
         />
         <CheckoutCartItems items={items} />
       </div>

@@ -14,10 +14,23 @@
     "addToCart": "ADD TO CART",
     "addToCartError": "There was an error adding the product to the cart",
     "selectVariant": "Please select a product variant.",
+    "selectPreparado": "Please select the preparation type (Paper or Burlap).",
     "installments": "Up to 12 interest-free installments at selected banks",
     "recommended": "Recommended Products",
     "consult": "Consult",
     "from": "From",
+    "customization": {
+      "preparadoLabel": "Preparation",
+      "preparadoOptions": {
+        "papel": "Paper",
+        "arpillera": "Burlap"
+      },
+      "indicacionesLabel": "Instructions (optional)",
+      "indicacionesPlaceholder": "E.g. style, details, preferences…",
+      "addDedicatoria": "Add dedication",
+      "dedicatoriaLabel": "Dedication",
+      "dedicatoriaPlaceholder": "Write your dedication…"
+    },
     "gallery": {
       "deliveryInfo": "Delivery Information",
       "sizeGuide": "Size Guide",

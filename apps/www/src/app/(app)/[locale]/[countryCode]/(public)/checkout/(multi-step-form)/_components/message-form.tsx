@@ -40,7 +40,8 @@ export function MessageForm({ message, itemId, quantity, onClose }: Props) {
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      message,
+      // Mantener el input controlado desde el primer render
+      message: message ?? '',
     },
   });
 
@@ -68,6 +69,7 @@ export function MessageForm({ message, itemId, quantity, onClose }: Props) {
                   placeholder={t('message.inputPlaceholder')}
                   type='text'
                   {...field}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormDescription>

@@ -7,6 +7,7 @@ export const checkoutAddressSchemaBase = z.object({
   firstName: z.string().min(1).max(50),
   lastName: z.string().min(1).max(50),
   address: z.string().min(1),
+  deliveryDetails: z.string().max(400).optional(),
   postalCode: z.string().min(1),
   city: z.string().min(1),
   province: z.enum(PROVINCIAS_ARGENTINA),
@@ -29,6 +30,11 @@ export function createCheckoutAddressSchema(t: TFn) {
     address: z
       .string({ message: t('address.errors.addressRequired') })
       .min(1, { message: t('address.errors.addressRequired') }),
+    deliveryDetails: z
+      .string()
+      .max(400, { message: t('address.errors.deliveryDetailsTooLong') })
+      .optional()
+      .or(z.literal('')),
     postalCode: z
       .string({ message: t('address.errors.postalCodeRequired') })
       .min(1, { message: t('address.errors.postalCodeRequired') }),

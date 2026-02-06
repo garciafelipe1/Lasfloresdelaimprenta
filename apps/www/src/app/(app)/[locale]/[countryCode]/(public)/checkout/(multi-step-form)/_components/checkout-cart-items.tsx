@@ -48,10 +48,10 @@ export function CheckoutCartItems({ items }: Props) {
               title={item.title}
             >
               {canHaveMessage(item.product?.categories) &&
-                (item.metadata!.message ? (
+                (item.metadata?.message ? (
                   <div className='flex items-center justify-between gap-2'>
                     <p className='text-sm italic opacity-55'>
-                      &quot;{item.metadata!.message as string}&quot;
+                      &quot;{String(item.metadata.message)}&quot;
                     </p>
                     <button
                       onClick={() => {
@@ -90,7 +90,11 @@ export function CheckoutCartItems({ items }: Props) {
             </DialogDescription>
           </DialogHeader>
           <MessageForm
-            message={selectedItem?.metadata!.message as string}
+            message={
+              typeof selectedItem?.metadata?.message === 'string'
+                ? selectedItem.metadata.message
+                : ''
+            }
             itemId={selectedItem?.id ?? ''}
             quantity={selectedItem?.quantity ?? 1}
             onClose={() => setDialogOpen(false)}

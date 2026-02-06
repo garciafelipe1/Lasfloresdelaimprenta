@@ -6,9 +6,15 @@ interface Props {
   itemsTotal: number;
   shippingTotal: number;
   total: number;
+  shippingDisplay?: string;
 }
 
-export async function CartAmounts({ itemsTotal, shippingTotal, total }: Props) {
+export async function CartAmounts({
+  itemsTotal,
+  shippingTotal,
+  total,
+  shippingDisplay,
+}: Props) {
   const locale = await getLocale();
   const tFooter = await getTranslations('footer');
   const tCheckout = await getTranslations('checkout');
@@ -21,7 +27,9 @@ export async function CartAmounts({ itemsTotal, shippingTotal, total }: Props) {
       </div>
       <div className='flex items-center justify-between font-light'>
         <p className='m-0'>{tCheckout('amounts.shipping')}</p>
-        <p className='m-0'>{formatMoneyByLocale(shippingTotal, locale)}</p>
+        <p className='m-0'>
+          {shippingDisplay ?? formatMoneyByLocale(shippingTotal, locale)}
+        </p>
       </div>
       <div className='flex items-center justify-between font-semibold'>
         <p className='m-0'>{tCheckout('amounts.total')}</p>

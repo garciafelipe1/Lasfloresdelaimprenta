@@ -49,9 +49,9 @@ export function useFilterParams() {
     },
   );
 
-  const setCategory = (newCategory: string) => {
+  const setCategory = (newCategory?: string) => {
     setParams({
-      category: newCategory === undefined ? null : newCategory,
+      category: newCategory ? newCategory : null,
       page: '1',
     });
   };
@@ -70,6 +70,9 @@ export function useFilterParams() {
   };
   const setColor = (newColor: string) => {
     setParams({ color: newColor === undefined ? null : newColor, page: '1' });
+  };
+  const setSize = (newSize?: string) => {
+    setParams({ size: newSize ? newSize : null, page: '1' });
   };
   const setMinPrice = (minPrice: string) => {
     setParams({ min_price: minPrice === undefined ? null : minPrice, page: '1' });
@@ -90,6 +93,7 @@ export function useFilterParams() {
     setName,
     setOrder,
     setColor,
+    setSize,
     setMinPrice,
     setMaxPrice,
   };

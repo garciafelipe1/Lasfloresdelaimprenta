@@ -273,6 +273,45 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: [
       ...cities,
       {
+        name: "Envío a confirmar",
+        price_type: "flat",
+        provider_id: "manual_manual",
+        service_zone_id: fulfillmentSet.service_zones[0].id,
+        shipping_profile_id: shippingProfile.id,
+        type: {
+          label: "A confirmar",
+          description:
+            "Durante fechas pico, el costo final del envío se confirma por WhatsApp antes del despacho.",
+          code: BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar,
+        },
+        prices: [
+          {
+            currency_code: "usd",
+            amount: 0,
+          },
+          {
+            currency_code: "ars",
+            amount: 0,
+          },
+          {
+            region_id: region.id,
+            amount: 0,
+          },
+        ],
+        rules: [
+          {
+            attribute: "enabled_in_store",
+            value: "true",
+            operator: "eq",
+          },
+          {
+            attribute: "is_return",
+            value: "false",
+            operator: "eq",
+          },
+        ],
+      },
+      {
         name: "Retiro en el local",
         price_type: "flat",
         provider_id: "manual_manual",

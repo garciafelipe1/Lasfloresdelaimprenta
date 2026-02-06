@@ -90,7 +90,7 @@ export function Hero() {
             className='relative h-[75dvh] min-h-[500px] w-full'
           >
             <Image
-              src={`/assets/img/home2.jpg?v=${HOME_IMG_V}`}
+              src={`/assets/img/home4.jpg?v=${HOME_IMG_V}`}
               alt={i18n('landing.heros.title')}
               className='h-full w-full object-cover object-top'
               fill

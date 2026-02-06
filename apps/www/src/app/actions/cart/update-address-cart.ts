@@ -19,6 +19,7 @@ export const updateAddressCartAction = cartActionClient
         address,
         city,
         email,
+        deliveryDetails,
       },
       ctx: { cart },
     }) => {
@@ -34,9 +35,17 @@ export const updateAddressCartAction = cartActionClient
       };
 
       try {
+        const details =
+          typeof deliveryDetails === 'string' && deliveryDetails.trim().length
+            ? deliveryDetails.trim()
+            : undefined;
+
         await medusa.store.cart.update(cart.id, {
           billing_address: aux,
-          shipping_address: aux,
+          shipping_address: {
+            ...aux,
+            metadata: details ? { delivery_details: details } : undefined,
+          },
           email,
           metadata: {
             locale: 'es',

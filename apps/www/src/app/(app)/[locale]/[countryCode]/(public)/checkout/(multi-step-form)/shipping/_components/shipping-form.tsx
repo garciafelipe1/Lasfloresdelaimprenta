@@ -27,11 +27,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
+import { isPeakShippingActive } from '@/lib/peak-shipping';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useLocalStorage } from 'usehooks-ts';
 import * as z from 'zod';
 import { steps } from '../../constants';
+import { useEffect } from 'react';
 
 type TFn = (key: string) => string;
 
@@ -93,14 +95,51 @@ export function ShippingForm({
   });
 
   const isBahiaBlancaSelected = form.watch('shippingMethod') === 'bahia-blanca';
+  const isPeak = isPeakShippingActive();
+
+  const confirmOption = shippingOptions.find(
+    (s) => s.type?.code === BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar,
+  );
+
+  const isConfirmSelected =
+    Boolean(confirmOption?.id) &&
+    form.watch('shippingMethod') === BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar;
 
   function onSubmit(values: FormSchema) {
+    if (
+      values.shippingMethod === BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar &&
+      !confirmOption?.id
+    ) {
+      toast.error(t('shipping.toasts.error'));
+      return;
+    }
+
     execute({
       optionId: isBahiaBlancaSelected
         ? values.bahiaBlancaCity!
-        : values.shippingMethod,
+        : values.shippingMethod === BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar
+          ? confirmOption!.id
+          : values.shippingMethod,
     });
   }
+
+  // Si salimos de fecha pico, evitar que quede seleccionado un método no visible
+  useEffect(() => {
+    const current = form.getValues('shippingMethod');
+    if (!isPeak && current === BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar) {
+      form.setValue('shippingMethod', '');
+    }
+  }, [isPeak, form]);
+
+  // Fechas pico: autoseleccionar "Envío a confirmar" (sin fricción)
+  useEffect(() => {
+    if (!isPeak) return;
+    if (!confirmOption?.id) return;
+    const current = form.getValues('shippingMethod');
+    if (!current) {
+      form.setValue('shippingMethod', BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar);
+    }
+  }, [isPeak, confirmOption?.id, form]);
   const [bahiaBlancaCities, otherShippingMethods] = [
     shippingOptions.filter(
       (s) => s.type.code === BAHIA_BLANCA_SHIPPING_CODES.bahiaBlanca,
@@ -110,12 +149,25 @@ export function ShippingForm({
     ),
   ];
 
+  // Fuera de fechas pico NO mostrar "Envío a confirmar" y no mezclarlo con otros métodos
+  const visibleOtherShippingMethods = otherShippingMethods.filter(
+    (s) => s.type?.code !== BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar,
+  );
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className='space-y-8 py-10'
       >
+        {isPeak ? (
+          <section className='rounded-xl border border-border bg-secondary p-4'>
+            <p className='text-sm font-semibold'>
+              {t('shipping.shippingToConfirm.message')}
+            </p>
+          </section>
+        ) : null}
+
         <FormField
           control={form.control}
           name='shippingMethod'
@@ -128,7 +180,7 @@ export function ShippingForm({
                   onValueChange={field.onChange}
                   className='flex flex-col gap-2'
                 >
-                  {otherShippingMethods?.map((option, index) => (
+                  {visibleOtherShippingMethods?.map((option, index) => (
                     <FormItem
                       className='flex items-center space-y-0 space-x-3'
                       key={index}
@@ -140,12 +192,30 @@ export function ShippingForm({
                           </FormControl>
                           <p>{option.name}</p>
                         </div>
-                        {Boolean(pricesMap[option.id]) && (
+                        {!isPeak && Boolean(pricesMap[option.id]) ? (
                           <p>{formatMoneyByLocale(pricesMap[option.id], locale)}</p>
-                        )}
+                        ) : null}
                       </FormLabel>
                     </FormItem>
                   ))}
+
+                  {/* Envío a confirmar (solo fechas pico) */}
+                  {isPeak && confirmOption?.id ? (
+                    <FormItem className='flex items-center space-y-0 space-x-3'>
+                      <FormLabel className='hover:bg-secondary w-full justify-between rounded-xl border p-2 py-4 font-normal transition'>
+                        <div className='flex gap-2'>
+                          <FormControl>
+                            <RadioGroupItem
+                              value={BAHIA_BLANCA_SHIPPING_CODES.envioAConfirmar}
+                            />
+                          </FormControl>
+                          <p>{confirmOption.name}</p>
+                        </div>
+                        {/* En fechas pico no mostramos precios */}
+                      </FormLabel>
+                    </FormItem>
+                  ) : null}
+
                   <FormItem className='flex items-center space-y-0 space-x-3'>
                     <FormLabel className='hover:bg-secondary w-full justify-between rounded-xl border p-2 py-4 font-normal transition'>
                       <div className='flex gap-2'>
@@ -165,20 +235,21 @@ export function ShippingForm({
             </FormItem>
           )}
         />
+
         {isBahiaBlancaSelected && (
           <FormField
             control={form.control}
             name='bahiaBlancaCity'
             render={({ field }) => (
               <FormItem>
-              <FormLabel>{t('shipping.bahiaCityLabel')}</FormLabel>
+                <FormLabel>{t('shipping.bahiaCityLabel')}</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl className='w-full'>
                     <SelectTrigger>
-                    <SelectValue placeholder={t('shipping.bahiaCityPlaceholder')} />
+                      <SelectValue placeholder={t('shipping.bahiaCityPlaceholder')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -196,7 +267,7 @@ export function ShippingForm({
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                {t('shipping.bahiaCityDescription')}
+                  {t('shipping.bahiaCityDescription')}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -206,7 +277,10 @@ export function ShippingForm({
 
         <FormButton
           isLoading={isPending}
-          disabled={isPending || !Boolean(form.watch('shippingMethod'))}
+          disabled={
+            isPending ||
+            !Boolean(form.watch('shippingMethod'))
+          }
           type='submit'
         >
           {t('shipping.continue')}

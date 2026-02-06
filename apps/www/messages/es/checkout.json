@@ -56,6 +56,7 @@
         "city": "Ciudad",
         "postalCode": "Código Postal",
         "address": "Dirección",
+        "deliveryDetails": "Detalles adicionales del domicilio (opcional)",
         "phoneNumber": "Número de celular",
         "email": "Correo electrónico"
       },
@@ -66,6 +67,7 @@
         "city": "Bahía Blanca",
         "postalCode": "1613",
         "address": "Av. Libertador 123",
+        "deliveryDetails": "Ej: piso, departamento, timbre, referencias, horario, portón…",
         "phoneNumber": "11 2323 2323",
         "email": "micorreo@gmail.com"
       },
@@ -76,6 +78,7 @@
         "city": "Tu ciudad",
         "postalCode": "Tu código postal",
         "address": "Tu dirección",
+        "deliveryDetails": "Si querés, agregá datos extra para el equipo de envíos.",
         "phoneNumber": "Tu número de celular para contactarte",
         "email": "Te vamos a notificar a través de este medio"
       },
@@ -85,6 +88,7 @@
         "lastNameRequired": "Por favor, ingresá tu apellido.",
         "lastNameTooLong": "El apellido no puede tener más de 50 caracteres.",
         "addressRequired": "La dirección es obligatoria.",
+        "deliveryDetailsTooLong": "Los detalles adicionales no pueden tener más de 400 caracteres.",
         "postalCodeRequired": "El código postal es obligatorio.",
         "cityRequired": "La ciudad es obligatoria.",
         "provinceInvalid": "Seleccioná una provincia válida.",
@@ -96,6 +100,10 @@
       "title": "Opciones de envío",
       "methodLabel": "Método de envío",
       "description": "Seleccioná el método de envío que mejor te convenga",
+      "shippingToConfirm": {
+        "priceLabel": "A confirmar",
+        "message": "La tasación del envío se realizará al finalizar la compra por WhatsApp."
+      },
       "bahiaInside": "Dentro de Bahía Blanca",
       "bahiaCityLabel": "Ciudad de Bahía Blanca",
       "bahiaCityPlaceholder": "Seleccioná una de las ciudades",
@@ -106,7 +114,8 @@
         "success": "Método de envío guardado correctamente"
       },
       "errors": {
-        "bahiaCityRequired": "La ciudad de Bahía Blanca es obligatoria."
+        "bahiaCityRequired": "La ciudad de Bahía Blanca es obligatoria.",
+        "shippingToConfirmAcceptRequired": "Debés aceptar la confirmación del costo de envío para continuar."
       }
     },
     "payment": {

@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { PhoneInput } from '@/components/ui/phone-input';
 import {
   createCheckoutAddressSchema,
@@ -44,6 +45,7 @@ export function AddressForm() {
     useLocalStorage<CheckoutAddressSchema>('floreria-address-step', {
       address: '',
       city: '',
+      deliveryDetails: '',
       firstName: '',
       lastName: '',
       phoneNumber: '',
@@ -203,6 +205,27 @@ export function AddressForm() {
                 />
               </FormControl>
               <FormDescription>{t('address.descriptions.address')}</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='deliveryDetails'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('address.fields.deliveryDetails')}</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={t('address.placeholders.deliveryDetails')}
+                  {...field}
+                  value={field.value || ''}
+                />
+              </FormControl>
+              <FormDescription>
+                {t('address.descriptions.deliveryDetails')}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

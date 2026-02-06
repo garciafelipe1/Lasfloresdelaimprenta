@@ -3,7 +3,31 @@ import { StoreProductOption } from '@medusajs/types';
 export function sortProductOptionValues(option: StoreProductOption) {
   const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-  return option.values?.slice().sort((a, b) => {
+  const values = option.values?.slice() ?? [];
+
+  // Caso especial: variaciones tipo "X3", "X6 + 1 Lilium", etc.
+  // Orden: numérico por X{n} y, para el mismo n, primero el simple y luego "+ 1 Lilium".
+  const looksLikeXQuantity = values.length
+    ? values.every((v) => /^X\d+/i.test(v.value))
+    : false;
+
+  if (looksLikeXQuantity) {
+    return values.sort((a, b) => {
+      const aMatch = a.value.match(/^X(\d+)/i);
+      const bMatch = b.value.match(/^X(\d+)/i);
+      const aNum = aMatch ? Number(aMatch[1]) : Number.POSITIVE_INFINITY;
+      const bNum = bMatch ? Number(bMatch[1]) : Number.POSITIVE_INFINITY;
+      if (aNum !== bNum) return aNum - bNum;
+
+      const aHasLilium = /lilium/i.test(a.value);
+      const bHasLilium = /lilium/i.test(b.value);
+      if (aHasLilium !== bHasLilium) return aHasLilium ? 1 : -1;
+
+      return a.value.localeCompare(b.value);
+    });
+  }
+
+  return values.sort((a, b) => {
     const aValue = a.value;
     const bValue = b.value;
 

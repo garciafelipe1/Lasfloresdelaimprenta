@@ -31,7 +31,7 @@ export function MobileFilters({ open, onOpenChange }: Props) {
           </SheetDescription>
         </SheetHeader>
         <div className='pt-20'>
-          <Filters />
+          <Filters onAutoAppliedCategory={() => onOpenChange(false)} />
         </div>
       </SheetContent>
     </Sheet>

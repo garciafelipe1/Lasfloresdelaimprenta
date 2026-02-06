@@ -5,7 +5,7 @@ import { ExamplesSkeleton } from '@/app/components/landing/examples.skeleton';
 import { Hero } from '@/app/components/landing/hero';
 import { Memberships } from '@/app/components/landing/memberships';
 import { Questions } from '@/app/components/landing/questions';
-import { Testimonials } from '@/app/components/landing/testimonials';
+// import { Testimonials } from '@/app/components/landing/testimonials';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -52,7 +52,7 @@ export default async function Home() {
       <AboutUs />
       <Memberships />
       
-      <Testimonials />
+      {/* <Testimonials /> */}
       <Questions />
     </div>
   );

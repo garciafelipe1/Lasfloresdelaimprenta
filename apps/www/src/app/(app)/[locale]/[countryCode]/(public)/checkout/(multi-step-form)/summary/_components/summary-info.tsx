@@ -14,6 +14,17 @@ export async function SummaryInfo({ cart }: Props) {
   const t = await getTranslations('checkout');
   const { last_name, first_name, city, province, phone, address_1 } =
     cart.shipping_address!;
+  const deliveryDetails = (() => {
+    const meta = cart.shipping_address?.metadata as unknown;
+    if (!meta || typeof meta !== 'object') return '';
+    return String((meta as Record<string, unknown>).delivery_details ?? '');
+  })();
+
+  const isShippingToConfirm = (() => {
+    const meta = cart.metadata as unknown;
+    if (!meta || typeof meta !== 'object') return false;
+    return Boolean((meta as Record<string, unknown>).shipping_to_confirm);
+  })();
 
   const { amount, name } = cart.shipping_methods![0]!;
 
@@ -27,6 +38,11 @@ export async function SummaryInfo({ cart }: Props) {
         <p className='opacity-50'>
           {province} - {city} - {address_1}
         </p>
+        {deliveryDetails ? (
+          <p className='opacity-50'>
+            {t('address.fields.deliveryDetails')}: {deliveryDetails}
+          </p>
+        ) : null}
       </div>
       <div className='flex flex-col gap-2'>
         <h4>{t('summary.productsTitle')}</h4>
@@ -69,7 +85,10 @@ export async function SummaryInfo({ cart }: Props) {
           <span className='opacity-50'>{t('summary.method')}:</span> {name}
         </div>
         <div>
-          <span className='opacity-50'>{t('summary.amount')}:</span> {formatMoneyByLocale(amount, locale)}
+          <span className='opacity-50'>{t('summary.amount')}:</span>{' '}
+          {isShippingToConfirm
+            ? t('shipping.shippingToConfirm.priceLabel')
+            : formatMoneyByLocale(amount, locale)}
         </div>
       </div>
       <div className='flex flex-col gap-2'>
@@ -87,6 +106,9 @@ export async function SummaryInfo({ cart }: Props) {
           itemsTotal={cart.item_subtotal}
           shippingTotal={cart.shipping_total}
           total={cart.total}
+          shippingDisplay={
+            isShippingToConfirm ? t('shipping.shippingToConfirm.priceLabel') : undefined
+          }
         />
       </div>
     </div>

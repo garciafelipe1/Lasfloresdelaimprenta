@@ -24,6 +24,9 @@ export function ShoppingCartItem({ item }: Props) {
   const displayTitle = productTitle || item.title;
   const variantTitle = item.title && item.title !== displayTitle ? item.title : null;
   const imageUrl = item.product?.thumbnail ?? '';
+  const meta = (item as any).metadata as
+    | { preparado?: string; indicaciones?: string; dedicatoria?: string }
+    | undefined;
   const removeItem = useAction(removeFromCartAction, {
     onError() {
       toast.error('Hubo un error al eliminar el producto');
@@ -46,6 +49,21 @@ export function ShoppingCartItem({ item }: Props) {
         {variantTitle ? (
           <p className='mt-1 text-xs text-muted-foreground'>
             Variante: {variantTitle}
+          </p>
+        ) : null}
+        {meta?.preparado ? (
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Preparado: {meta.preparado}
+          </p>
+        ) : null}
+        {meta?.dedicatoria ? (
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Dedicatoria: {meta.dedicatoria}
+          </p>
+        ) : null}
+        {meta?.indicaciones ? (
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Indicaciones: {meta.indicaciones}
           </p>
         ) : null}
         <p className='mt-0 text-sm text-primary'>
