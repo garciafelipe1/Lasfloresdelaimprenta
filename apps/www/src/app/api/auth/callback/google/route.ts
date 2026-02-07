@@ -89,11 +89,11 @@ export async function GET(req: NextRequest) {
     const isProduction = process.env.NODE_ENV === "production";
     res.cookies.set("_medusa_jwt", token, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "lax" : "strict", // "lax" permite cookies en redirects cross-site
-      maxAge: 60 * 60 * 24 * 7, // 7 días
+      secure: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
       path: "/",
-      // No establecer domain explícitamente para que funcione en todos los subdominios
+      domain: ".lasfloresdelaimprenta.com",
     });
 
     console.log("[AUTH GOOGLE CALLBACK] Cookie establecida:", {
