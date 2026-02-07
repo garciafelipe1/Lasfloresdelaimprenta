@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     // 1) Reenviamos el callback a Medusa para que valide el código de Google
     const callbackUrl = `${normalizedBackend}/auth/customer/google/callback${search}`;
     console.log("[AUTH GOOGLE CALLBACK] Llamando a:", callbackUrl);
-    
+
     const resp = await fetch(callbackUrl, {
       method: "POST",
       headers: {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
         resp.status,
         text
       );
-      
+
       // Verificar si el error es relacionado con redirect_uri_mismatch
       const errorText = text.toLowerCase();
       if (errorText.includes("redirect_uri_mismatch") || errorText.includes("redirect_uri")) {
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
           `${normalizedSiteUrl}/login?error=redirect_uri_mismatch&message=La URI de redirección no está registrada en Google Cloud Console`
         );
       }
-      
+
       return NextResponse.redirect(
         `${normalizedSiteUrl}/login?error=google_callback_failed`
       );
@@ -87,13 +87,22 @@ export async function GET(req: NextRequest) {
     // 4) Y ACÁ seteamos la cookie directo sobre la respuesta
     // En producción, sameSite debe ser "lax" para que funcione con redirects desde Google
     const isProduction = process.env.NODE_ENV === "production";
+
+    // Validar que el token sea válido antes de establecerlo
+    if (!token || typeof token !== 'string' || token.length < 10) {
+      console.error("[AUTH GOOGLE CALLBACK] Token inválido recibido:", token);
+      return NextResponse.redirect(
+        `${normalizedSiteUrl}/login?error=google_invalid_token`
+      );
+    }
+
     res.cookies.set("_medusa_jwt", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
+      secure: isProduction, // Solo secure en producción
+      sameSite: isProduction ? "lax" : "strict", // "lax" permite cookies en redirects cross-site
+      maxAge: 60 * 60 * 24 * 7, // 7 días
       path: "/",
-      domain: ".lasfloresdelaimprenta.com",
+      // No establecer domain explícitamente para que funcione en todos los entornos
     });
 
     console.log("[AUTH GOOGLE CALLBACK] Cookie establecida:", {

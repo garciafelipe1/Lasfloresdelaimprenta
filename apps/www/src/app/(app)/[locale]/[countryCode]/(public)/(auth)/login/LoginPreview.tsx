@@ -14,21 +14,8 @@ export default function LoginPreview() {
   const searchParams = useSearchParams()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  // 🚀 Si ya hay cookie _medusa_jwt, lo sacamos del login al dashboard
-  useEffect(() => {
-    if (typeof document === 'undefined') return
-
-    const hasToken = document.cookie
-      .split('; ')
-      .some((c) => c.startsWith('_medusa_jwt='))
-
-    if (hasToken) {
-      const locale = params.locale ?? 'es'
-      const countryCode = params.countryCode ?? 'ar'
-
-      router.replace(`/${locale}/${countryCode}/dashboard`)
-    }
-  }, [router, params])
+  // Nota: No podemos verificar cookies httpOnly del lado del cliente
+  // La verificación de autenticación se hace en el servidor (page.tsx)
 
   // Verificar errores en la URL
   useEffect(() => {
@@ -56,6 +43,12 @@ export default function LoginPreview() {
           break
         case 'session_invalid':
           errorText = 'No se pudo completar el inicio de sesión con Google. Por favor, intentá de nuevo.'
+          break
+        case 'google_invalid_token':
+          errorText = 'El token de autenticación recibido no es válido. Por favor, intenta nuevamente.'
+          break
+        case 'callback_failed':
+          errorText = 'Error al completar la autenticación. Por favor, intenta nuevamente.'
           break
         default:
           errorText = message || 'Ocurrió un error durante la autenticación. Por favor, intenta nuevamente.'

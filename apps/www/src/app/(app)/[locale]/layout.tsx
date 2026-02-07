@@ -29,7 +29,10 @@ const cinzel = Cinzel({
   weight: ['400', '700'],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: 'Las Flores de la Imprenta',
   description: 'Las Flores de la Imprenta',
 };

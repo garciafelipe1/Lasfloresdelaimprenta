@@ -5,7 +5,6 @@ import { medusa } from '@/lib/medusa-client';
 import { actionClient } from '@/lib/safe-action';
 import { loginSchema } from '@/lib/zod/login-schema';
 import { FetchError } from '@medusajs/js-sdk';
-import { redirect } from 'next/navigation';
 
 export const loginAction = actionClient
   .schema(loginSchema)
@@ -16,18 +15,24 @@ export const loginAction = actionClient
         password,
       });
 
-      await cookies.setAuthToken(loginToken as string);
+      // Validar que el token sea válido antes de guardarlo
+      if (!loginToken || typeof loginToken !== 'string') {
+        throw new Error('No se recibió un token válido del servidor');
+      }
+
+      await cookies.setAuthToken(loginToken);
+      
+      return { success: true };
     } catch (error) {
       const fetchError = error as FetchError;
-
-      if (
-        fetchError.statusText !== 'Unauthorized' ||
-        fetchError.message !== 'Identity with email already exists'
-      ) {
-        throw new Error(
-          `An error occured while creating account: ${fetchError}`,
-        );
+      
+      // Manejar errores de autenticación (credenciales incorrectas)
+      if (fetchError?.status === 401 || fetchError?.statusText === 'Unauthorized') {
+        throw new Error('Email o contraseña incorrectos. Por favor, verifica tus credenciales.');
       }
+      
+      // Manejar otros errores
+      const errorMessage = fetchError?.message || 'Ocurrió un error al intentar iniciar sesión. Por favor, intenta nuevamente.';
+      throw new Error(errorMessage);
     }
-    redirect('/dashboard');
   });

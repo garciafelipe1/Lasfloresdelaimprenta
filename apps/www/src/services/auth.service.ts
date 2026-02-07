@@ -48,8 +48,17 @@ class AuthService {
 
       if (error?.status === 401 && retries === 0) {
         console.log('[authService.getUser] Token inválido (401 tras reintentos). Limpiando cookie para evitar bucle.');
-        await cookies.removeAuthToken();
+        try {
+          await cookies.removeAuthToken();
+        } catch (cookieError) {
+          console.error('[authService.getUser] Error al limpiar cookie:', cookieError);
+        }
         return { user: null, clearedInvalidToken: true };
+      }
+      
+      // Si es otro tipo de error (no 401), no limpiamos la cookie porque podría ser un problema temporal
+      if (error?.status !== 401) {
+        console.error('[authService.getUser] Error obteniendo usuario (no es 401):', error?.status, error?.message);
       }
 
       console.error('[authService.getUser] Error obteniendo usuario:', error);
