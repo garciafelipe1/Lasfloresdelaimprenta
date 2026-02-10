@@ -87,25 +87,22 @@ export function Footer() {
             </svg>
           </Link>
           <Link
-            href='#'
-            target='_blank'
-            rel='noopener noreferrer'
-            aria-label='TikTok'
-            className='text-muted-foreground hover:text-primary block'
-          >
-            <svg
-              className='size-6 text-primary'
-              xmlns='http://www.w3.org/2000/svg'
-              width='1em'
-              height='1em'
-              viewBox='0 0 24 24'
+              href='https://wa.me/542915321683'
+              target='_blank'
+              rel='noopener noreferrer'
+              aria-label='WhatsApp'
+              className='text-muted-foreground hover:text-primary block'
             >
-              <path
+              <svg
+                className='size-6 text-primary'
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 24 24'
                 fill='currentColor'
-                d='M16.6 5.82s.51.5 0 0A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6c0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64c0 3.33 2.76 5.7 5.69 5.7c3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48'
-              ></path>
-            </svg>
-          </Link>
+              >
+                <path d="M12 2a10 10 0 0 0-8.94 14.47L2 22l5.7-1.5A10 10 0 1 0 12 2Zm5.17 14.24c-.22.62-1.3 1.17-1.8 1.24c-.46.07-1.05.1-1.7-.1c-.4-.12-.9-.3-1.55-.58c-2.72-1.18-4.5-4.05-4.63-4.23c-.13-.18-1.1-1.46-1.1-2.78c0-1.32.7-1.97.95-2.24c.25-.27.55-.34.73-.34c.18 0 .37 0 .53.01c.17.01.4-.06.62.48c.22.54.74 1.86.8 2c.07.13.11.3.02.49c-.09.18-.13.3-.26.46c-.13.15-.27.34-.38.45c-.13.13-.27.27-.12.53c.15.27.66 1.08 1.42 1.75c.98.88 1.8 1.15 2.07 1.28c.27.13.42.11.58-.07c.15-.18.65-.76.82-1.02c.17-.27.35-.22.58-.13c.24.09 1.5.71 1.76.84c.26.13.44.2.5.31c.07.11.07.64-.15 1.26Z"/>
+              </svg>
+            </Link>
+
         </div>
         <span className='text-muted-foreground block text-center text-sm text-primary'>
           © {new Date().getFullYear()} {t('copyright')}

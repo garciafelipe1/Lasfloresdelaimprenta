@@ -1,5 +1,5 @@
 // Formato wa.me: sin "+" y solo dígitos (código de país + número).
-export const DEFAULT_WHATSAPP_PHONE = '5492914724362';
+export const DEFAULT_WHATSAPP_PHONE = '542915321683';
 
 /**
  * Genera URL de WhatsApp (wa.me) con mensaje opcional.

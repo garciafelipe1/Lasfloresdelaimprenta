@@ -73,7 +73,7 @@ const categories = [
   {
     key: 'box',
     href: '/catalog?category=Box',
-    imageUrl: '/assets/img/productos/box/pinkysh.jpeg',
+    imageUrl: '/assets/img/productos/box/fresh.jpeg',
   },
   {
     key: 'rosas',

@@ -113,22 +113,27 @@ export function Filters({ onAutoAppliedCategory }: Props) {
 
   // Colores para rosas (solo estos cuando la categoría es "Rosas")
   const rosaColors: ColorOption[] = [
-    { label: t('colorsAccordion.options.red'), value: 'Rojo', hex: '#EF4444' },
+    { label: t('colorsAccordion.options.red'), value: 'Rojo', hex: '#FF2C2C' },
     {
       label: t('colorsAccordion.options.orange'),
       value: 'Naranja',
-      hex: '#F97316',
+      hex: '#FF7A00',
     },
     {
       label: t('colorsAccordion.options.yellow'),
       value: 'Amarillo',
-      hex: '#FACC15',
+      hex: '#FFE05A',
     },
     {
       label: t('colorsAccordion.options.white'),
       value: 'Blanco',
-      hex: '#FFFFFF',
+      hex: '#F1F1F1',
       border: true,
+    },
+    {
+      label: t('colorsAccordion.options.purple'),
+      value: 'Morado',
+      hex: '#C795FF',
     },
     { label: t('colorsAccordion.options.pink'), value: 'Rosa', hex: '#EC4899' },
   ];
@@ -161,14 +166,14 @@ export function Filters({ onAutoAppliedCategory }: Props) {
     {
       label: t('colorsAccordion.options.orange'),
       value: 'Naranja',
-      hex: '#F97316',
+      hex: '#FF7A00',
     },
     {
       label: t('colorsAccordion.options.purple'),
       value: 'Morado',
-      hex: '#A855F7',
+      hex: '#C795FF',
     },
-    { label: t('colorsAccordion.options.pink'), value: 'Rosa', hex: '#EC4899' },
+    { label: t('colorsAccordion.options.pink'), value: 'Rosa', hex: '#FD9BFF' },
     { label: t('colorsAccordion.options.gray'), value: 'Gris', hex: '#6B7280' },
   ];
 

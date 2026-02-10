@@ -36,7 +36,6 @@ export const metadata: Metadata = {
   title: 'Las Flores de la Imprenta',
   description: 'Las Flores de la Imprenta',
 };
-
 export async function generateStaticParams() {
   const countries = ['ar', 'us'];
 

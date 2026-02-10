@@ -10,7 +10,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
-  title: 'La Florería de la Imprenta - Flores y Arreglos Florales ',
+  title: 'La Florería de la Imprenta ',
   description:
     'Descubre arreglos florales frescos, ramos personalizados y flores para cada ocasión en La Florería de la Imprenta. Envío a domicilio en Bahía Blanca.', // Descripción que aparece bajo el título en los resultados de búsqueda
   keywords: [
@@ -26,11 +26,11 @@ export const metadata: Metadata = {
     title: 'La Florería de la Imprenta',
     description:
       'Flores frescas y arreglos florales únicos para todas tus ocasiones especiales. Envío a domicilio en Bahía Blanca.',
-    url: 'https://la-floreria-de-la-imprenta.vercel.app/',
+    url: 'https://www.lasfloresdelaimprenta.com/es/ar',
     siteName: 'La Florería de la Imprenta',
     images: [
       {
-        url: 'https://www.tu-dominio-aqui.com/images/og-image.jpg',
+        url: '',
         width: 1200,
         height: 630,
         alt: 'La Florería de la Imprenta - Flores frescas',
