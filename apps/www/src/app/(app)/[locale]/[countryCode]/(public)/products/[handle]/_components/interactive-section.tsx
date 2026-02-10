@@ -23,6 +23,7 @@ import { QuantitySelector } from './QuantitySelector';
 import { ProductOptions } from './product/product-options';
 import { Textarea } from '@/app/components/ui/textarea';
 import { Input } from '@/app/components/ui/input';
+import { useRef } from 'react';
 
 interface Props {
   product: StoreProduct;
@@ -50,6 +51,7 @@ export function InteractiveSection({ product }: Props) {
   const [indicaciones, setIndicaciones] = useState<string>('');
   const [agregarDedicatoria, setAgregarDedicatoria] = useState<boolean>(false);
   const [dedicatoria, setDedicatoria] = useState<string>('');
+  const viewTracked = useRef(false);
   const { setOpenCart } = useCartQueryParam();
   const { execute, isExecuting } = useAction(addToCartAction, {
     onError() {
@@ -57,6 +59,17 @@ export function InteractiveSection({ product }: Props) {
     },
     onSuccess() {
       setOpenCart(true);
+    
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'AddToCart', {
+          content_name: product.title,
+          content_ids: [product.id],
+          content_type: 'product',
+          value:
+            selectedVariant?.calculated_price?.calculated_amount ?? 0,
+          currency: 'ARS',
+        });
+      }
     },
   });
 
@@ -169,6 +182,29 @@ export function InteractiveSection({ product }: Props) {
       return Math.min(min, amount);
     }, Number.POSITIVE_INFINITY);
   }, [product.variants]);
+
+  useEffect(() => {
+    if (
+      !viewTracked.current &&
+      typeof window !== 'undefined' &&
+      (window as any).fbq &&
+      product?.id
+    ) {
+      (window as any).fbq('track', 'ViewContent', {
+        content_name: product.title,
+        content_ids: [product.id],
+        content_type: 'product',
+        value:
+          selectedVariant?.calculated_price?.calculated_amount ??
+          lowestPrice ??
+          0,
+        currency: 'ARS',
+      });
+  
+      viewTracked.current = true;
+    }
+  }, [selectedVariant, lowestPrice, product.id, product.title]);
+  
 
   const handleIncrement = () => {
     setQuantity((prevQuantity) => prevQuantity + 1);
@@ -284,11 +320,20 @@ export function InteractiveSection({ product }: Props) {
               >
                 <Link
                   href={whatsAppHref}
-                  target='_blank'
-                  rel='noopener noreferrer'
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={`Reservar ${product.title} por WhatsApp`}
+                  onClick={() => {
+                    if (typeof window !== "undefined" && (window as any).fbq) {
+                      (window as any).fbq("track", "Contact", {
+                        content_name: product.title,
+                        content_ids: [product.id],
+                        content_type: "product",
+                      });
+                    }
+                  }}
                 >
-                  <WhatsAppIcon className='h-5 w-5' />
+                  <WhatsAppIcon className="h-5 w-5" />
                   <span>Reservar por WhatsApp</span>
                 </Link>
               </Button>
