@@ -6,9 +6,73 @@ function normalizeUrl(url: string): string {
   return url.replace(/\/$/, "");
 }
 
+/** Decodifica el payload del JWT sin verificar (solo para logging). Compatible Node y Edge. */
+function decodeJwtPayload(token: string): { actor_id?: string; actor_type?: string } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json =
+      typeof Buffer !== "undefined"
+        ? Buffer.from(b64, "base64").toString("utf8")
+        : atob(b64);
+    return JSON.parse(json) as { actor_id?: string; actor_type?: string };
+  } catch {
+    return null;
+  }
+}
+
+/** Valida el token con Medusa (customers/me). Reintenta con delay por si actor_id se vincula después. */
+async function validateToken(
+  backendUrl: string,
+  token: string,
+  publishableKey: string,
+  retries = 3,
+  delaysMs = [500, 1000, 1500]
+): Promise<boolean> {
+  const url = `${backendUrl}/store/customers/me`;
+  const hasPk = !!publishableKey?.trim();
+  console.log("[AUTH GOOGLE CALLBACK] validateToken: URL=", url, "| publishableKey presente:", hasPk, "| longitud PK:", publishableKey?.length ?? 0);
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+    ...(publishableKey ? { "x-publishable-api-key": publishableKey } : {}),
+  };
+
+  for (let i = 0; i < retries; i++) {
+    console.log(`[AUTH GOOGLE CALLBACK] validateToken intento ${i + 1}/${retries} → GET ${url}`);
+    const res = await fetch(url, { method: "GET", headers });
+    const status = res.status;
+    console.log(`[AUTH GOOGLE CALLBACK] validateToken intento ${i + 1} respuesta: status=${status} ok=${res.ok}`);
+
+    if (res.ok) {
+      console.log("[AUTH GOOGLE CALLBACK] validateToken ✅ token válido (200)");
+      return true;
+    }
+    if (status !== 401) {
+      const body = await res.text();
+      console.warn("[AUTH GOOGLE CALLBACK] customers/me no 401:", status, "body:", body?.slice(0, 200));
+      return false;
+    }
+    if (i < retries - 1) {
+      const delay = delaysMs[i] ?? 1000;
+      console.log(`[AUTH GOOGLE CALLBACK] Token 401, reintento en ${delay}ms (${i + 1}/${retries})`);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  console.log("[AUTH GOOGLE CALLBACK] validateToken ❌ 401 en todos los intentos");
+  return false;
+}
+
 export async function GET(req: NextRequest) {
   const backend = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? "";
+
+  console.log("[AUTH GOOGLE CALLBACK] ENV: backend presente:", !!backend, "| siteUrl presente:", !!siteUrl, "| publishableKey presente:", !!pk?.trim(), "| PK length:", pk?.length ?? 0);
+  if (backend) console.log("[AUTH GOOGLE CALLBACK] backend host:", new URL(backend).host);
+  if (siteUrl) console.log("[AUTH GOOGLE CALLBACK] siteUrl host:", new URL(siteUrl).host);
 
   if (!backend) {
     console.error("[AUTH GOOGLE CALLBACK] NEXT_PUBLIC_MEDUSA_BACKEND_URL no está configurada");
@@ -30,6 +94,7 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const search = url.search; // ?code=...&state=...
+  console.log("[AUTH GOOGLE CALLBACK] request url (path+search):", url.pathname + url.search);
 
   try {
     // 1) Reenviamos el callback a Medusa para que valide el código de Google
@@ -66,12 +131,10 @@ export async function GET(req: NextRequest) {
 
     // 2) Medusa debería devolver un token (jwt)
     const data = await resp.json();
-    console.log("[AUTH GOOGLE CALLBACK] Google callback data desde Medusa:", data);
+    const tokenFromData = typeof data === "string" ? data : (data as any)?.token ?? (data as any)?.jwt;
+    console.log("[AUTH GOOGLE CALLBACK] Google callback data desde Medusa (tiene token):", !!tokenFromData);
 
-    const token =
-      typeof data === "string"
-        ? data
-        : (data as any).token ?? (data as any).jwt;
+    const token = tokenFromData;
 
     if (!token) {
       console.error("[AUTH GOOGLE CALLBACK] Callback de Google sin token:", data);
@@ -79,6 +142,9 @@ export async function GET(req: NextRequest) {
         `${normalizedSiteUrl}/login?error=google_no_token_from_callback`
       );
     }
+
+    const payload = decodeJwtPayload(token);
+    console.log("[AUTH GOOGLE CALLBACK] JWT payload (para diagnóstico): actor_id=", payload?.actor_id ?? "n/a", "| actor_type=", payload?.actor_type ?? "n/a");
 
     // 3) Creamos la respuesta de redirección a una página intermedia
     // Esto asegura que la cookie esté disponible antes de renderizar el dashboard
@@ -96,6 +162,18 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Validar con /store/customers/me (reintentos por si Medusa devuelve token con actor_id vacío)
+    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? "";
+    console.log("[AUTH GOOGLE CALLBACK] Validando token con Medusa (store/customers/me)...");
+    const tokenValid = await validateToken(normalizedBackend, token, publishableKey);
+    if (!tokenValid) {
+      console.warn("[AUTH GOOGLE CALLBACK] Decisión: NO guardar cookie. Redirigiendo a login?error=session_invalid (token 401 en todos los reintentos)");
+      return NextResponse.redirect(
+        `${normalizedSiteUrl}/login?error=session_invalid`
+      );
+    }
+
+    console.log("[AUTH GOOGLE CALLBACK] Decisión: guardar cookie y redirigir a /es/ar/callback");
     res.cookies.set("_medusa_jwt", token, {
       httpOnly: true,
       secure: isProduction, // Solo secure en producción
@@ -115,6 +193,7 @@ export async function GET(req: NextRequest) {
     return res;
   } catch (err) {
     console.error("[AUTH GOOGLE CALLBACK] Excepción en callback de Google:", err);
+    console.error("[AUTH GOOGLE CALLBACK] Exception message:", err instanceof Error ? err.message : String(err));
     return NextResponse.redirect(
       `${normalizedSiteUrl || "http://localhost:3000"}/login?error=google_callback_exception`
     );

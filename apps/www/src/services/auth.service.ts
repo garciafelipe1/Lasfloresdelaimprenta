@@ -14,6 +14,25 @@ class AuthService {
    * se borra la cookie (clearedInvalidToken) para evitar bucle login → Google → 401 → login.
    */
   async getUserResult(retries = DEFAULT_RETRIES): Promise<GetUserResult> {
+    const backendUrl =
+      process.env.MEDUSA_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      '';
+    const publishableKey =
+      process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? '';
+    const hasPk = !!publishableKey?.trim();
+
+    console.log('[authService.getUser] ENV: backend presente:', !!backendUrl, '| publishableKey presente:', hasPk, '| PK length:', publishableKey?.length ?? 0);
+    if (backendUrl) {
+      try {
+        console.log('[authService.getUser] backend host:', new URL(backendUrl).host);
+      } catch {
+        console.log('[authService.getUser] backend (raw):', backendUrl?.slice(0, 60));
+      }
+    }
+
     const authHeaders = (await cookies.getAuthHeaders()) as {
       authorization?: string;
     };
@@ -24,10 +43,9 @@ class AuthService {
     }
 
     const tokenPreview = authHeaders.authorization.substring(0, 20) + '...';
-    console.log(`[authService.getUser] Intentando obtener usuario con token: ${tokenPreview} (intentos restantes: ${retries})`);
+    const tokenLen = authHeaders.authorization?.replace(/^Bearer\s+/i, '').length ?? 0;
+    console.log('[authService.getUser] Intentando obtener usuario con token:', tokenPreview, 'longitud:', tokenLen, '| intentos restantes:', retries, '| headers incluyen x-publishable-api-key:', hasPk);
 
-    const publishableKey =
-      process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? '';
     const headers: Record<string, string> = {
       ...(authHeaders as Record<string, string>),
       ...(publishableKey ? { 'x-publishable-api-key': publishableKey } : {}),
@@ -45,22 +63,23 @@ class AuthService {
       console.log('[authService.getUser] ✅ Usuario obtenido exitosamente');
       return { user: response.customer ?? null };
     } catch (error: any) {
-      if (error?.status === 401 && retries > 0) {
+      const status = error?.status ?? error?.statusCode;
+      if (status === 401 && retries > 0) {
         const delayIndex = DEFAULT_RETRIES - retries;
         const waitTime = RETRY_DELAYS_MS[delayIndex] ?? 600;
-        console.log(`[authService.getUser] Error 401, reintentando en ${waitTime}ms... (${retries} intentos restantes)`);
+        console.log('[authService.getUser] Respuesta Medusa: 401 Unauthorized. Reintentando en', waitTime, 'ms (intentos restantes:', retries - 1, ')');
         await new Promise(resolve => setTimeout(resolve, waitTime));
         return this.getUserResult(retries - 1);
       }
 
-      if (error?.status === 401 && retries === 0) {
-        console.log('[authService.getUser] Token inválido (401 tras reintentos). No se puede borrar la cookie aquí (solo en Route Handler o Server Action).');
+      if (status === 401 && retries === 0) {
+        console.log('[authService.getUser] Token inválido (401 tras reintentos). Devolviendo clearedInvalidToken: true');
         return { user: null, clearedInvalidToken: true };
       }
 
       // Si es otro tipo de error (no 401), no limpiamos la cookie porque podría ser un problema temporal
-      if (error?.status !== 401) {
-        console.error('[authService.getUser] Error obteniendo usuario (no es 401):', error?.status, error?.message);
+      if (status !== 401) {
+        console.error('[authService.getUser] Error obteniendo usuario (no es 401): status=', status, 'message=', error?.message);
       }
 
       console.error('[authService.getUser] Error obteniendo usuario:', error);

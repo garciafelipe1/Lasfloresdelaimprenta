@@ -23,10 +23,13 @@ export default async function DashboardLayout({
   // 👇 chequeamos si hay usuario REAL en el backend (con reintentos tras OAuth)
   const { user, clearedInvalidToken } = await authService.getUserResult().catch(() => ({ user: null, clearedInvalidToken: false }));
 
-  // 👇 si NO hay usuario → al login (con mensaje si se limpió token inválido)
+  // 👇 si NO hay usuario → al login (si token inválido, pasar por clear-session para borrar cookie)
   if (!user) {
-    const search = clearedInvalidToken ? '?error=session_invalid' : '';
-    redirect(`/${locale}/${countryCode}/login${search}`);
+    if (clearedInvalidToken) {
+      const loginPath = `/${locale}/${countryCode}/login?error=session_invalid`;
+      redirect(`/api/auth/clear-session?redirect=${encodeURIComponent(loginPath)}`);
+    }
+    redirect(`/${locale}/${countryCode}/login`);
   }
 
   // 👇 si hay usuario, recién ahí mostramos el dashboard

@@ -55,13 +55,12 @@ export const cookies = {
 
     if (!token) {
       console.log('[cookies.getAuthHeaders] No se encontró token _medusa_jwt en las cookies del servidor');
-      // Listar todas las cookies disponibles para debugging
       const allCookies = cookieStore.getAll();
-      console.log('[cookies.getAuthHeaders] Cookies disponibles:', allCookies.map(c => c.name));
+      console.log('[cookies.getAuthHeaders] Cookies disponibles (nombres):', allCookies.map(c => c.name).join(', ') || 'ninguna');
       return {};
     }
 
-    console.log(`[cookies.getAuthHeaders] Token encontrado: ${token.substring(0, 20)}... (longitud: ${token.length})`);
+    console.log('[cookies.getAuthHeaders] Token encontrado: preview=', token.substring(0, 25) + '...', '| longitud:', token.length);
     return { authorization: `Bearer ${token}` };
   },
 };
