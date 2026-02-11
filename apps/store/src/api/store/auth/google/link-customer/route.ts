@@ -92,7 +92,7 @@ export const POST = async (
     (i) => i.auth_identity_id === payload.auth_identity_id
   );
   if (!identity) {
-    logger.warn("[link-customer] Identity no encontrada:", payload.auth_identity_id);
+    logger.warn(`[link-customer] Identity no encontrada: ${payload.auth_identity_id}`);
     res.status(404).json({
       message: "Auth identity not found",
     });
@@ -103,24 +103,25 @@ export const POST = async (
   try {
     const { result } = await createCustomerAccountWorkflow(req.scope).run({
       input: {
-        auth_identity_id: payload.auth_identity_id,
+        authIdentityId: payload.auth_identity_id,
       },
     });
     const raw = result as { id?: string; customer?: { id: string } } | { id: string }[] | undefined;
     const customer = Array.isArray(raw)
       ? raw[0]
       : raw?.customer ?? raw;
-    customerId = customer?.id;
-    if (!customerId) {
-      logger.warn("[link-customer] Workflow no devolvió customer id. result:", JSON.stringify(result)?.slice(0, 200));
+    const id = customer?.id;
+    if (!id) {
+      logger.warn(`[link-customer] Workflow no devolvió customer id. result: ${JSON.stringify(result)?.slice(0, 200)}`);
       res.status(500).json({
         message: "Workflow did not return customer",
       });
       return;
     }
-    logger.info("[link-customer] createCustomerAccountWorkflow OK, customer_id:", customerId);
+    customerId = id;
+    logger.info(`[link-customer] createCustomerAccountWorkflow OK, customer_id: ${customerId}`);
   } catch (err: any) {
-    logger.error("[link-customer] Error en createCustomerAccountWorkflow:", err?.message);
+    logger.error(`[link-customer] Error en createCustomerAccountWorkflow: ${err?.message ?? String(err)}`);
     res.status(500).json({
       message: "Failed to create customer account",
     });
