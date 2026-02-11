@@ -46,9 +46,9 @@ export default async function Home() {
     <div className='landing overflow-x-hidden'>
       <Hero />
       <Categories />
-      <Suspense fallback={<ExamplesSkeleton />}>
+      {/* <Suspense fallback={<ExamplesSkeleton />}>
         <Examples />
-      </Suspense>
+      </Suspense> */}
       <AboutUs />
       <Memberships />
 

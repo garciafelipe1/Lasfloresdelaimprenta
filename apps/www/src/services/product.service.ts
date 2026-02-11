@@ -94,18 +94,24 @@ export const productService: ProductService = {
       },
     });
 
-    let totalItems = data.metadata.count;
+    const seen = new Set<string>();
+    const uniqueProducts = (data.result ?? []).filter((p) => {
+      const key = p.handle ?? p.id;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
-    if ('total' in data.metadata) {
-      totalItems = data.metadata.total as number;
+    let totalItems = data.metadata?.count ?? uniqueProducts.length;
+    if (data.metadata && 'total' in data.metadata) {
+      totalItems = (data.metadata.total as number) ?? totalItems;
     }
 
     const totalPages = Math.ceil(totalItems / PRODUCTS_PER_PAGE);
 
-    // Aplicar traducciones según el locale
     try {
       const locale = (await getLocale()) as 'es' | 'en';
-      const translatedProducts = await translateProducts(data.result, locale);
+      const translatedProducts = await translateProducts(uniqueProducts, locale);
       return {
         products: translatedProducts,
         info: {
@@ -114,9 +120,8 @@ export const productService: ProductService = {
         },
       };
     } catch {
-      // Si no se puede obtener el locale, devolver sin traducir
       return {
-        products: data.result,
+        products: uniqueProducts,
         info: {
           totalItems,
           totalPages,
@@ -300,7 +305,7 @@ export const productService: ProductService = {
     const region = await getRegion('ar');
 
     if (!region) {
-      throw new Error('No region found');
+      return [];
     }
 
     const categories = await this.getCategories();
@@ -331,35 +336,31 @@ export const productService: ProductService = {
   },
 
   async getBoxPreview() {
-    const region = await getRegion('ar');
-    if (!region) {
-      throw new Error('No region found');
-    }
-    const categories = await this.getCategories();
-    const boxCategoryId = categories.find(
-      (c) => c.name === CATEGORIES['box'],
-    )?.id;
-    if (!boxCategoryId) {
-      return [];
-    }
-    const { products } = await medusa.store.product.list({
-      region_id: region.id,
-      fields: 'categories.*',
-      limit: 6,
-      category_id: boxCategoryId,
-    });
-    const seen = new Set<string>();
-    const unique = products.filter((p) => {
-      if (seen.has(p.id)) return false;
-      seen.add(p.id);
-      return true;
-    });
-    const mapped = unique.slice(0, 3).map((p) => mapProductDTO(p));
     try {
+      const region = await getRegion('ar');
+      if (!region) return [];
+      const categories = await this.getCategories();
+      const boxCategoryId = categories.find(
+        (c) => c.name === CATEGORIES['box'],
+      )?.id;
+      if (!boxCategoryId) return [];
+      const { products } = await medusa.store.product.list({
+        region_id: region.id,
+        fields: 'categories.*',
+        limit: 6,
+        category_id: boxCategoryId,
+      });
+      const seen = new Set<string>();
+      const unique = products.filter((p) => {
+        if (seen.has(p.id)) return false;
+        seen.add(p.id);
+        return true;
+      });
+      const mapped = unique.slice(0, 3).map((p) => mapProductDTO(p));
       const locale = (await getLocale()) as 'es' | 'en';
       return await translateProducts(mapped, locale);
     } catch {
-      return mapped;
+      return [];
     }
   },
 };

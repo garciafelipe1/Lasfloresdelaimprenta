@@ -12,12 +12,16 @@ interface Props {
   product: ProductDTO;
 }
 
+const SCHEMA_BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL || 'https://api.nomeimporta.xyz';
+
 export const ProductCard = ({ product }: Props) => {
   const locale = useLocale();
   const t = useTranslations('categories-products.products');
-  const imageUrl = getSafeImageUrl(
-    product.images?.[0]?.url ?? product.thumbnail ?? '',
-  );
+  const rawImage =
+    product.images?.[0]?.url ?? product.thumbnail ?? '';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? '';
+  const imageUrl = getSafeImageUrl(rawImage, baseUrl || undefined);
 
   const productUrl = `/${locale}/ar/products/${product.handle}`;
 
@@ -28,7 +32,6 @@ export const ProductCard = ({ product }: Props) => {
   );
 
   const currency = locale === 'en' ? 'USD' : 'ARS';
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://api.nomeimporta.xyz';
 
   const productSchema = {
     '@context': 'https://schema.org',
@@ -36,7 +39,7 @@ export const ProductCard = ({ product }: Props) => {
     name: product.title,
     description: product.description,
     image: imageUrl || undefined,
-    url: `${baseUrl}${productUrl}`,
+    url: `${SCHEMA_BASE_URL}${productUrl}`,
     brand: {
       '@type': 'Brand',
       name: 'Collection',
@@ -47,7 +50,7 @@ export const ProductCard = ({ product }: Props) => {
       price: lowestPrice,
       itemCondition: 'https://schema.org/NewCondition',
       availability: 'https://schema.org/InStock',
-      url: `${baseUrl}${productUrl}`,
+      url: `${SCHEMA_BASE_URL}${productUrl}`,
     },
   };
 
@@ -66,7 +69,7 @@ export const ProductCard = ({ product }: Props) => {
           <Image
             draggable={false}
             className='absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]'
-            alt={product.title}
+            alt=""
             src={imageUrl}
             fill
             sizes='(max-width: 768px) 50vw, 300px'

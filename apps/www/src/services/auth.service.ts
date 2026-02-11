@@ -26,12 +26,19 @@ class AuthService {
     const tokenPreview = authHeaders.authorization.substring(0, 20) + '...';
     console.log(`[authService.getUser] Intentando obtener usuario con token: ${tokenPreview} (intentos restantes: ${retries})`);
 
+    const publishableKey =
+      process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? '';
+    const headers: Record<string, string> = {
+      ...(authHeaders as Record<string, string>),
+      ...(publishableKey ? { 'x-publishable-api-key': publishableKey } : {}),
+    };
+
     try {
       const response = await medusa.client.fetch<{ customer: StoreCustomer }>(
         '/store/customers/me',
         {
           method: 'GET',
-          headers: authHeaders,
+          headers,
         },
       );
 
@@ -47,15 +54,10 @@ class AuthService {
       }
 
       if (error?.status === 401 && retries === 0) {
-        console.log('[authService.getUser] Token inválido (401 tras reintentos). Limpiando cookie para evitar bucle.');
-        try {
-          await cookies.removeAuthToken();
-        } catch (cookieError) {
-          console.error('[authService.getUser] Error al limpiar cookie:', cookieError);
-        }
+        console.log('[authService.getUser] Token inválido (401 tras reintentos). No se puede borrar la cookie aquí (solo en Route Handler o Server Action).');
         return { user: null, clearedInvalidToken: true };
       }
-      
+
       // Si es otro tipo de error (no 401), no limpiamos la cookie porque podría ser un problema temporal
       if (error?.status !== 401) {
         console.error('[authService.getUser] Error obteniendo usuario (no es 401):', error?.status, error?.message);

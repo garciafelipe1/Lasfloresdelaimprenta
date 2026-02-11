@@ -55,35 +55,34 @@ const CategoryCard = ({ title, imageUrl }: BannerProps) => (
   </div>
 );
 
-const categories = [
-  // Orden desktop (2 columnas): fila 1 (izq/der), fila 2 (izq/der)
-  // San Valentín Ramos | Bouquet Spring
-  // Box               | Rosas importadas
+const CATEGORY_IMAGES = [
   {
     key: 'sanValentin',
     href: '/catalog?category=San+Valentín',
-    imageUrl: '/assets/img/productos/san-valentin/pasionsinfiltro.jpeg',
-    
+    imagePath: '/assets/img/productos/san-valentin/pasionsinfiltro.jpeg',
   },
   {
     key: 'ramosPrimaverales',
     href: '/catalog?category=Ramos+primaverales',
-    imageUrl: '/assets/img/flor-4.jpg',
+    imagePath: '/assets/img/flor-4.jpg',
   },
   {
     key: 'box',
     href: '/catalog?category=Box',
-    imageUrl: '/assets/img/productos/box/fresh.jpeg',
+    imagePath: 'public/assets/img/productos/box/fresh.jpeg',
   },
   {
     key: 'rosas',
     href: '/catalog?category=Rosas',
-    imageUrl: '/assets/img/productos/rosas/blanco.jpeg',
+    imagePath: '/assets/img/productos/rosas/blanco.jpeg',
   },
-];
+] as const;
 
 export function Categories() {
   const t = useTranslations();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? '';
+  const getImageUrl = (path: string) =>
+    baseUrl ? `${baseUrl.replace(/\/$/, '')}${path}` : path;
 
   return (
     <div className='px-6 categories-section'>
@@ -100,16 +99,15 @@ export function Categories() {
           </SectionSubtitle>
         </SectionHeader>
         <div className='grid grid-cols-1 gap-4 py-14 md:grid-cols-2'>
-          {categories.map((c) => (
+          {CATEGORY_IMAGES.map((c) => (
             <Link
               key={c.href}
               href={c.href}
               className='block h-full'
             >
               <CategoryCard
-                // @ts-expect-error - dynamic translation key
                 title={t(`landing.categories.items.${c.key}`)}
-                imageUrl={c.imageUrl}
+                imageUrl={getImageUrl(c.imagePath)}
               />
             </Link>
           ))}
