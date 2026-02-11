@@ -78,6 +78,12 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
       },
       onSuccess() {
         toast.success(t('payment.toasts.providerSuccess'));
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+          (window as any).fbq('track', 'AddPaymentInfo', {
+            value: cart.total ? Number(cart.total) / 100 : 0,
+            currency: 'ARS',
+          });
+        }
       },
     },
   );
@@ -88,10 +94,10 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
       onError(error: any) {
         console.error('[PaymentForms] Error en useAction de MercadoPago:', error);
         console.error('[PaymentForms] Error completo:', JSON.stringify(error, null, 2));
-        
+
         // Intentar extraer el mensaje de error real
         let errorMessage = t('payment.toasts.mpPreferenceError');
-        
+
         if (error?.error?.serverError) {
           errorMessage = error.error.serverError;
         } else if (error?.serverError) {
@@ -101,7 +107,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
         } else if (error?.message) {
           errorMessage = error.message;
         }
-        
+
         console.error('[PaymentForms] Mensaje de error extraído:', errorMessage);
         toast.error(errorMessage);
       },
@@ -124,7 +130,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
     console.log('[PaymentForms] Cart email:', cart.email);
     console.log('[PaymentForms] Cart tiene shipping_address:', !!cart.shipping_address);
     console.log('[PaymentForms] Cart tiene billing_address:', !!cart.billing_address);
-    
+
     setIsLoading(true);
 
     try {
@@ -144,13 +150,13 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
 
         console.log('[PaymentForms] Creando preferencia de MercadoPago usando useAction...');
         console.log('[PaymentForms] Llamando executeMercadoPago sin argumentos (schema es z.void())...');
-        
+
         try {
           // Llamar sin argumentos porque el schema es z.void()
           const result = await executeMercadoPago(undefined);
           console.log('[PaymentForms] Resultado de executeMercadoPago:', result);
           console.log('[PaymentForms] Result completo:', JSON.stringify(result, null, 2));
-          
+
           // El redirect se maneja en onSuccess del useAction
           // Pero por si acaso, también lo hacemos aquí
           if (result?.data) {
@@ -165,7 +171,7 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             console.error('[PaymentForms] Error del servidor en result:', result.serverError);
             throw new Error(result.serverError);
           }
-          
+
           console.warn('[PaymentForms] No se recibió URL de pago ni error. Result:', result);
         } catch (mpError: any) {
           console.error('[PaymentForms] Error específico de MercadoPago:', {
@@ -176,14 +182,14 @@ export function PaymentForms({ cart, availablePaymentMethods }: Props) {
             validationErrors: mpError?.validationErrors,
             errorType: mpError?.constructor?.name,
           });
-          
+
           // Extraer el mensaje de error real
-          const errorMessage = 
-            mpError?.serverError || 
-            mpError?.error?.serverError || 
-            mpError?.message || 
+          const errorMessage =
+            mpError?.serverError ||
+            mpError?.error?.serverError ||
+            mpError?.message ||
             t('payment.toasts.mpPreferenceError');
-          
+
           throw new Error(errorMessage);
         }
       }

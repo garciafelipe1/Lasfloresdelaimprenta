@@ -3,6 +3,7 @@ import { cookies } from '@/lib/data/cookies';
 import { medusa } from '@/lib/medusa-client';
 import { BAHIA_BLANCA_SHIPPING_CODES } from '@server/constants';
 import { getTranslations } from 'next-intl/server';
+import { PurchaseTracking } from '@/app/components/analytics/purchase-tracking';
 
 interface Props {
   params: Promise<{
@@ -176,16 +177,19 @@ export default async function CheckoutSuccessPage(props: Props) {
     }
   }
 
-  // Intentar obtener información del carrito para el mensaje de envío personalizado
+  // Valor para tracking de Purchase (Meta + Google Ads) y mensaje de envío
+  let purchaseValue = 0;
   if (external_reference) {
     try {
       const cartResponse = await medusa.store.cart.retrieve(external_reference, {
-        fields: 'shipping_methods.*',
+        fields: 'total,shipping_methods.*',
       });
+      const cart = cartResponse.cart as any;
+      if (cart?.total != null) purchaseValue = Number(cart.total) / 100;
 
-      if (cartResponse.cart?.shipping_methods?.[0]) {
-        const shippingMethod = cartResponse.cart.shipping_methods[0];
-        const shippingTypeCode = (shippingMethod as any)?.shipping_option?.type?.code;
+      if (cart?.shipping_methods?.[0]) {
+        const shippingMethod = cart.shipping_methods[0];
+        const shippingTypeCode = shippingMethod?.shipping_option?.type?.code;
 
         if (shippingTypeCode === BAHIA_BLANCA_SHIPPING_CODES.retiroLocal) {
           shippingMessage = t('status.success.shippingPickup');
@@ -195,7 +199,6 @@ export default async function CheckoutSuccessPage(props: Props) {
       }
     } catch (error) {
       console.error('[CheckoutSuccess] Error al obtener información del carrito:', error);
-      // Continuar con el mensaje por defecto
     }
   }
 
@@ -204,85 +207,92 @@ export default async function CheckoutSuccessPage(props: Props) {
     shippingMessage = t('status.success.paymentPending');
   }
 
+  const isApproved = collection_status === 'approved' && status === 'approved';
+
   return (
-    <div className='min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-green-50 dark:from-green-950/20 dark:via-background dark:to-green-950/20 px-4 py-20'>
-      <div className='w-full max-w-2xl relative'>
-        {/* Decoración de fondo */}
-        <div className='absolute inset-0 -z-10 overflow-hidden rounded-2xl'>
-          <div className='absolute -top-24 -right-24 w-96 h-96 bg-green-400/10 rounded-full blur-3xl' />
-          <div className='absolute -bottom-24 -left-24 w-96 h-96 bg-green-500/10 rounded-full blur-3xl' />
-        </div>
+    <>
+      {isApproved && purchaseValue > 0 && (
+        <PurchaseTracking value={purchaseValue} currency="ARS" orderId={payment_id ?? undefined} approved />
+      )}
+      <div className='min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-green-50 dark:from-green-950/20 dark:via-background dark:to-green-950/20 px-4 py-20'>
+        <div className='w-full max-w-2xl relative'>
+          {/* Decoración de fondo */}
+          <div className='absolute inset-0 -z-10 overflow-hidden rounded-2xl'>
+            <div className='absolute -top-24 -right-24 w-96 h-96 bg-green-400/10 rounded-full blur-3xl' />
+            <div className='absolute -bottom-24 -left-24 w-96 h-96 bg-green-500/10 rounded-full blur-3xl' />
+          </div>
 
-        {/* Card principal con animación */}
-        <div className='relative bg-background border-2 border-green-200 dark:border-green-800 rounded-2xl shadow-2xl p-8 md:p-12 text-center animate-in fade-in-0 zoom-in-95 duration-500'>
-          {/* Icono de éxito con animación */}
-          <div className='relative inline-flex items-center justify-center mb-6'>
-            <div className='absolute inset-0 rounded-full bg-green-500/20 animate-ping' />
-            <div className='relative rounded-full bg-gradient-to-br from-green-500 to-green-600 p-6 shadow-lg transform transition-transform hover:scale-110'>
-              <svg
-                className='w-12 h-12 text-white'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={3}
-                  d='M5 13l4 4L19 7'
-                />
-              </svg>
+          {/* Card principal con animación */}
+          <div className='relative bg-background border-2 border-green-200 dark:border-green-800 rounded-2xl shadow-2xl p-8 md:p-12 text-center animate-in fade-in-0 zoom-in-95 duration-500'>
+            {/* Icono de éxito con animación */}
+            <div className='relative inline-flex items-center justify-center mb-6'>
+              <div className='absolute inset-0 rounded-full bg-green-500/20 animate-ping' />
+              <div className='relative rounded-full bg-gradient-to-br from-green-500 to-green-600 p-6 shadow-lg transform transition-transform hover:scale-110'>
+                <svg
+                  className='w-12 h-12 text-white'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={3}
+                    d='M5 13l4 4L19 7'
+                  />
+                </svg>
+              </div>
             </div>
-          </div>
 
-          {/* Título principal */}
-          <h1 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-green-700 dark:from-green-400 dark:to-green-500 bg-clip-text text-transparent mb-4'>
-            {t('status.success.title')}
-          </h1>
+            {/* Título principal */}
+            <h1 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-green-700 dark:from-green-400 dark:to-green-500 bg-clip-text text-transparent mb-4'>
+              {t('status.success.title')}
+            </h1>
 
-          {/* Subtítulo */}
-          <p className='text-xl md:text-2xl text-foreground/80 mb-2 font-medium'>
-            {t('status.success.subtitle')}
-          </p>
-
-          {/* Mensaje adicional */}
-          <div className='my-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800'>
-            <p className='text-base md:text-lg text-foreground/90 font-medium'>
-              {shippingMessage}
+            {/* Subtítulo */}
+            <p className='text-xl md:text-2xl text-foreground/80 mb-2 font-medium'>
+              {t('status.success.subtitle')}
             </p>
-          </div>
 
-          {/* Detalles del pago */}
-          {payment_id && (
-            <div className='mt-6 p-4 bg-muted/50 rounded-lg border border-border'>
-              <p className='text-sm text-muted-foreground mb-1'>{t('status.success.transactionId')}</p>
-              <p className='text-base font-mono font-semibold text-foreground'>
-                {payment_id}
+            {/* Mensaje adicional */}
+            <div className='my-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800'>
+              <p className='text-base md:text-lg text-foreground/90 font-medium'>
+                {shippingMessage}
               </p>
             </div>
-          )}
 
-          {/* Separador decorativo */}
-          <div className='flex items-center justify-center my-8'>
-            <div className='flex-1 border-t border-border' />
-            <div className='px-4'>
-              <div className='w-2 h-2 rounded-full bg-green-500' />
+            {/* Detalles del pago */}
+            {payment_id && (
+              <div className='mt-6 p-4 bg-muted/50 rounded-lg border border-border'>
+                <p className='text-sm text-muted-foreground mb-1'>{t('status.success.transactionId')}</p>
+                <p className='text-base font-mono font-semibold text-foreground'>
+                  {payment_id}
+                </p>
+              </div>
+            )}
+
+            {/* Separador decorativo */}
+            <div className='flex items-center justify-center my-8'>
+              <div className='flex-1 border-t border-border' />
+              <div className='px-4'>
+                <div className='w-2 h-2 rounded-full bg-green-500' />
+              </div>
+              <div className='flex-1 border-t border-border' />
             </div>
-            <div className='flex-1 border-t border-border' />
-          </div>
 
-          {/* Mensaje final */}
-          <div className='space-y-2'>
-            <p className='text-sm md:text-base text-muted-foreground'>
-              {t('status.success.finalLine1')}
-            </p>
-            <p className='text-sm text-muted-foreground'>
-              {t('status.success.finalLine2')}
-            </p>
+            {/* Mensaje final */}
+            <div className='space-y-2'>
+              <p className='text-sm md:text-base text-muted-foreground'>
+                {t('status.success.finalLine1')}
+              </p>
+              <p className='text-sm text-muted-foreground'>
+                {t('status.success.finalLine2')}
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

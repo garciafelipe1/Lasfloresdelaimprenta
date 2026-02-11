@@ -38,7 +38,7 @@ export function MembershipForm({ membership }: Props) {
         message: error?.serverError || error?.validationErrors || error,
         type: typeof error,
       });
-      
+
       // Mostrar el mensaje de error específico si está disponible
       const errorMessage = error?.serverError || error?.message || 'Hubo un error al procesar la suscripción';
       toast.error(errorMessage, {
@@ -47,6 +47,9 @@ export function MembershipForm({ membership }: Props) {
     },
     onSuccess() {
       console.log('[MembershipForm] Suscripción iniciada correctamente');
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Lead', { content_name: membership });
+      }
       toast.success('Suscripción iniciada correctamente. Redirigiendo a Mercado Pago...', {
         duration: 3000,
       });

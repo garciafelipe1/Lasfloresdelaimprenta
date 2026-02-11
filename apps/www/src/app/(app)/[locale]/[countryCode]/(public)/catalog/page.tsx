@@ -3,6 +3,7 @@ import {
   SectionHeader,
   SectionTitle,
 } from '@/app/components/common/section/section';
+import { SearchTracking } from '@/app/components/analytics/search-tracking';
 import { searchParamsCache } from '@/lib/search-params-cache';
 import { SearchParams } from 'nuqs/server';
 import { getTranslations } from 'next-intl/server';
@@ -18,9 +19,11 @@ interface Props {
 export default async function CatalogPage({ searchParams }: Props) {
   const filters = searchParamsCache.parse(await searchParams);
   const t = await getTranslations('categories-products.catalog');
+  const searchQuery = filters?.name ?? undefined;
 
   return (
     <div className='px-layout'>
+      <SearchTracking searchQuery={searchQuery} />
       <Section
         size='desktop'
         variant='page'

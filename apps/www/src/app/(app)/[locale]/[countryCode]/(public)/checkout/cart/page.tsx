@@ -4,6 +4,7 @@ import {
   SectionSubtitle,
   SectionTitle,
 } from '@/app/components/common/section/section';
+import { InitiateCheckoutTracking } from '@/app/components/analytics/initiate-checkout-tracking';
 import { cartService } from '@/services/cart.service';
 import { getTranslations } from 'next-intl/server';
 import { CheckoutCart } from './_components/checkout-cart';
@@ -17,6 +18,7 @@ export default async function CheckoutCartPage() {
 
   return (
     <div className='px-layout py-vertical'>
+      <InitiateCheckoutTracking />
       <Section
         variant='page'
         size='desktop'
