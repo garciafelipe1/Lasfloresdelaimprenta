@@ -22,13 +22,14 @@ function decodeJwtPayload(token: string): { actor_id?: string; actor_type?: stri
   }
 }
 
-/** Valida el token con Medusa (customers/me). Reintenta con delay por si actor_id se vincula después. */
+/** Valida el token con Medusa (customers/me). Reintenta con delay por si Medusa vincula customer de forma asíncrona. */
 async function validateToken(
   backendUrl: string,
   token: string,
   publishableKey: string,
-  retries = 3,
-  delaysMs = [500, 1000, 1500]
+  retries = 5,
+  initialDelayMs = 2000,
+  delaysMs = [2000, 3000, 4000, 5000]
 ): Promise<boolean> {
   const url = `${backendUrl}/store/customers/me`;
   const hasPk = !!publishableKey?.trim();
@@ -39,6 +40,11 @@ async function validateToken(
     "Content-Type": "application/json",
     ...(publishableKey ? { "x-publishable-api-key": publishableKey } : {}),
   };
+
+  if (initialDelayMs > 0) {
+    console.log("[AUTH GOOGLE CALLBACK] Esperando", initialDelayMs, "ms antes del primer intento (por si Medusa vincula customer de forma asíncrona)");
+    await new Promise((r) => setTimeout(r, initialDelayMs));
+  }
 
   for (let i = 0; i < retries; i++) {
     console.log(`[AUTH GOOGLE CALLBACK] validateToken intento ${i + 1}/${retries} → GET ${url}`);
@@ -146,6 +152,38 @@ export async function GET(req: NextRequest) {
     const payload = decodeJwtPayload(token);
     console.log("[AUTH GOOGLE CALLBACK] JWT payload (para diagnóstico): actor_id=", payload?.actor_id ?? "n/a", "| actor_type=", payload?.actor_type ?? "n/a");
 
+    let tokenToUse = token;
+    if (!payload?.actor_id || String(payload.actor_id).trim() === "") {
+      console.log("[AUTH GOOGLE CALLBACK] actor_id vacío → llamando a /store/auth/google/link-customer para crear y vincular customer");
+      try {
+        const linkRes = await fetch(`${normalizedBackend}/store/auth/google/link-customer`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...(process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+              ? { "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }
+              : {}),
+          },
+        });
+        if (linkRes.ok) {
+          const linkData = await linkRes.json();
+          const newToken = linkData?.token;
+          if (newToken) {
+            tokenToUse = newToken;
+            console.log("[AUTH GOOGLE CALLBACK] link-customer OK, usando nuevo token con actor_id");
+          } else {
+            console.warn("[AUTH GOOGLE CALLBACK] link-customer no devolvió token");
+          }
+        } else {
+          const errText = await linkRes.text();
+          console.warn("[AUTH GOOGLE CALLBACK] link-customer falló:", linkRes.status, errText?.slice(0, 200));
+        }
+      } catch (linkErr: any) {
+        console.warn("[AUTH GOOGLE CALLBACK] Error llamando a link-customer:", linkErr?.message);
+      }
+    }
+
     // 3) Creamos la respuesta de redirección a una página intermedia
     // Esto asegura que la cookie esté disponible antes de renderizar el dashboard
     const res = NextResponse.redirect(`${normalizedSiteUrl}/es/ar/callback`);
@@ -162,10 +200,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Validar con /store/customers/me (reintentos por si Medusa devuelve token con actor_id vacío)
+    // Validar con /store/customers/me (reintentos por si Medusa vincula customer después)
     const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? "";
     console.log("[AUTH GOOGLE CALLBACK] Validando token con Medusa (store/customers/me)...");
-    const tokenValid = await validateToken(normalizedBackend, token, publishableKey);
+    const tokenValid = await validateToken(normalizedBackend, tokenToUse, publishableKey);
     if (!tokenValid) {
       console.warn("[AUTH GOOGLE CALLBACK] Decisión: NO guardar cookie. Redirigiendo a login?error=session_invalid (token 401 en todos los reintentos)");
       return NextResponse.redirect(
@@ -174,7 +212,7 @@ export async function GET(req: NextRequest) {
     }
 
     console.log("[AUTH GOOGLE CALLBACK] Decisión: guardar cookie y redirigir a /es/ar/callback");
-    res.cookies.set("_medusa_jwt", token, {
+    res.cookies.set("_medusa_jwt", tokenToUse, {
       httpOnly: true,
       secure: isProduction, // Solo secure en producción
       sameSite: isProduction ? "lax" : "strict", // "lax" permite cookies en redirects cross-site
@@ -184,7 +222,7 @@ export async function GET(req: NextRequest) {
     });
 
     console.log("[AUTH GOOGLE CALLBACK] Cookie establecida:", {
-      tokenLength: token.length,
+      tokenLength: tokenToUse.length,
       secure: isProduction,
       sameSite: isProduction ? "lax" : "strict",
       path: "/",
