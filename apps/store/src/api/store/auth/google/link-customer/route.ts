@@ -99,11 +99,28 @@ export const POST = async (
     return;
   }
 
+  const userMeta = (identity.user_metadata ?? {}) as Record<string, string>;
+  const email = userMeta.email ?? userMeta.emails?.[0] ?? "";
+  if (!email) {
+    logger.warn("[link-customer] Identity sin email en user_metadata");
+    res.status(400).json({
+      message: "Auth identity has no email in user_metadata",
+    });
+    return;
+  }
+
+  const customerData = {
+    email,
+    first_name: userMeta.first_name ?? userMeta.given_name ?? "",
+    last_name: userMeta.last_name ?? userMeta.family_name ?? "",
+  };
+
   let customerId: string;
   try {
     const { result } = await createCustomerAccountWorkflow(req.scope).run({
       input: {
         authIdentityId: payload.auth_identity_id,
+        customerData,
       },
     });
     const raw = result as { id?: string; customer?: { id: string } } | { id: string }[] | undefined;
