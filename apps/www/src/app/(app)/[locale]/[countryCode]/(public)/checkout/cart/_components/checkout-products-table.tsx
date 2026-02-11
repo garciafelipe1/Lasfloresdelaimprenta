@@ -4,6 +4,7 @@ import { removeFromCartAction } from '@/app/actions/cart/remove-from-cart.action
 import { upateItemQuantityAction } from '@/app/actions/cart/update-item-quantity.action';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { StoreCart } from '@medusajs/types';
 import { Trash } from 'lucide-react';
@@ -95,7 +96,7 @@ export function CheckoutProductsTable({ items }: Props) {
               {item.thumbnail && (
                 <div className='relative h-20 w-20 overflow-hidden rounded-md'>
                   <Image
-                    src={item.thumbnail}
+                    src={getSafeImageUrl(item.thumbnail)}
                     objectFit='cover'
                     alt={displayTitle}
                     fill

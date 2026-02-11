@@ -2,6 +2,7 @@
 
 import { removeFromCartAction } from '@/app/actions/cart/remove-from-cart.action';
 import { Button } from '@/components/ui/button';
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { cn } from '@/lib/utils';
 import { StoreCartLineItem } from '@medusajs/types';
@@ -28,7 +29,7 @@ export function ShoppingCartItem({ item }: Props) {
     rawVariantTitle && rawVariantTitle.trim().toLowerCase() === 'default'
       ? null
       : rawVariantTitle;
-  const imageUrl = item.product?.thumbnail ?? '';
+  const imageUrl = getSafeImageUrl(item.product?.thumbnail ?? '');
   const meta = (item as any).metadata as
     | { preparado?: string; indicaciones?: string; dedicatoria?: string }
     | undefined;
@@ -118,7 +119,7 @@ export function ItemImage(props: ItemImageProps) {
       <Image
         alt={props.alt ?? 'Shopping item image'}
         className='h-full w-full rounded-md object-cover'
-        src={props.src}
+        src={getSafeImageUrl(props.src)}
         fill
       />
     </div>

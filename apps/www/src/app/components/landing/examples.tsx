@@ -9,7 +9,7 @@ import {
 } from '../common/section/section';
 
 export async function Examples() {
-  const products = await productService.getExclusives();
+  const products = await productService.getBoxPreview();
   const i18n = await getTranslations();
 
   return (

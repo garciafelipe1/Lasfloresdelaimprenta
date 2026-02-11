@@ -12,23 +12,25 @@ export const QuantitySelector = ({
   quantity,
 }: Props) => {
   return (
-    <div className='bg-primary/5 inline-flex items-center rounded-md'>
+    <div className='inline-flex items-center overflow-hidden rounded-lg border border-input bg-muted/50'>
       <button
-        className='text-primary hover:bg-primary/30 rounded-l-md px-3 py-2 text-sm font-semibold focus:ring-1 focus:outline-none'
+        type='button'
+        className='text-foreground hover:bg-muted flex h-10 w-10 items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
         onClick={onDecrease}
-        style={{ borderRight: '1px  ' }}
+        aria-label='Disminuir cantidad'
       >
-        <Minus />
+        <Minus className='size-4' />
       </button>
-      <div className='text-primary flex-grow px-4 py-2 text-center'>
+      <div className='text-foreground flex min-w-[2.5rem] justify-center px-2 text-sm font-medium tabular-nums'>
         {quantity}
-      </div>{' '}
+      </div>
       <button
-        className='text-primary hover:bg-primary/30 rounded-r-md px-3 py-2 text-sm font-semibold focus:ring-1 focus:outline-none'
+        type='button'
+        className='text-foreground hover:bg-muted flex h-10 w-10 items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
         onClick={onIncrease}
-        style={{ borderLeft: '1px ' }}
+        aria-label='Aumentar cantidad'
       >
-        <Plus />
+        <Plus className='size-4' />
       </button>
     </div>
   );

@@ -1,5 +1,6 @@
 import { StoreCart } from '@medusajs/types';
 import Image from 'next/image';
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { getLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
@@ -55,7 +56,7 @@ export async function SummaryInfo({ cart }: Props) {
               <div className='relative aspect-square h-20 w-20 flex-shrink-0'>
                 <Image
                   alt=''
-                  src={item.thumbnail ?? ''}
+                  src={getSafeImageUrl(item.thumbnail ?? '')}
                   className='h-full w-full rounded-md object-cover'
                   fill
                 />

@@ -1,3 +1,4 @@
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { listRegions } from '@/lib/data/regions';
 import { medusa } from '@/lib/medusa-client';
 import { getLocale } from 'next-intl/server';
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `[generateMetadata] Error al buscar producto para handle ${handle}:`,
       error,
     );
-    const notFoundTitle = locale === 'en' 
+    const notFoundTitle = locale === 'en'
       ? 'Product not found - La Florería de la Imprenta'
       : 'Producto no encontrado - La Florería de la Imprenta';
     const notFoundDesc = locale === 'en'
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     console.log(
       `[generateMetadata] Producto no encontrado para handle: ${handle}`,
     );
-    const notFoundTitle = locale === 'en' 
+    const notFoundTitle = locale === 'en'
       ? 'Product not found - La Florería de la Imprenta'
       : 'Producto no encontrado - La Florería de la Imprenta';
     const notFoundDesc = locale === 'en'
@@ -62,7 +63,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const productUrl = `${BASE_URL}/${locale}/ar/products/${product.handle}`;
-  const initialImage = product.images?.[0]?.url;
+  const rawImage = product.images?.[0]?.url ?? product.thumbnail;
+  const initialImage = rawImage
+    ? (rawImage.startsWith('http') ? rawImage : `${BASE_URL}${getSafeImageUrl(rawImage)}`)
+    : undefined;
 
   const siteName = 'La Florería de la Imprenta';
   const title = `${product.title} - ${siteName}`;
@@ -134,8 +138,7 @@ export async function generateStaticParams() {
       .filter((param) => param.handle);
   } catch (error) {
     console.error(
-      `Failed to generate static paths for product pages: ${
-        error instanceof Error ? error.message : 'Unknown error'
+      `Failed to generate static paths for product pages: ${error instanceof Error ? error.message : 'Unknown error'
       }.`,
     );
     return [];

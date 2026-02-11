@@ -1,3 +1,4 @@
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { isComplement } from '@/lib/isComplement';
 import { isExclusive } from '@/lib/isExclusive';
 import { productService } from '@/services/product.service';
@@ -20,7 +21,10 @@ export async function ProductInfo({ handle }: Props) {
     notFound();
   }
 
-  const images = product.images?.map((image) => image.url) ?? [];
+  const rawUrls =
+    (product.images?.length ? product.images.map((i) => i.url) : null) ??
+    (product.thumbnail ? [product.thumbnail] : []);
+  const images = rawUrls.map((url) => getSafeImageUrl(url)).filter(Boolean);
 
   return (
     <div className='max-w-desktop mx-auto flex w-full flex-col gap-4'>

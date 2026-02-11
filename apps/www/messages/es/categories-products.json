@@ -19,6 +19,11 @@
     "recommended": "Productos recomendados",
     "consult": "Consultar",
     "from": "Desde",
+    "viewProduct": "Ver producto",
+    "priceLabel": "Precio",
+    "quantityUnits": "Unidades",
+    "reserveWhatsApp": "Reservar por WhatsApp",
+    "chooseOption": "Elegí tu opción",
     "customization": {
       "preparadoLabel": "Preparado",
       "preparadoOptions": {

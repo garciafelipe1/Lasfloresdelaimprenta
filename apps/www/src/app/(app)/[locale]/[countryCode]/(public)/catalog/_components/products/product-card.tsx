@@ -1,5 +1,6 @@
 'use client';
 
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { isExclusive } from '@/lib/isExclusive';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { ProductDTO } from '@server/types';
@@ -14,14 +15,9 @@ interface Props {
 export const ProductCard = ({ product }: Props) => {
   const locale = useLocale();
   const t = useTranslations('categories-products.products');
-  let initialImage;
-  let hoverImage;
-
-  if (product.images?.length) {
-    initialImage = product.images[0].url;
-    hoverImage =
-      product.images.length > 1 ? product.images[1].url : initialImage;
-  }
+  const imageUrl = getSafeImageUrl(
+    product.images?.[0]?.url ?? product.thumbnail ?? '',
+  );
 
   const productUrl = `/${locale}/ar/products/${product.handle}`;
 
@@ -39,7 +35,7 @@ export const ProductCard = ({ product }: Props) => {
     '@type': 'Product',
     name: product.title,
     description: product.description,
-    image: initialImage,
+    image: imageUrl || undefined,
     url: `${baseUrl}${productUrl}`,
     brand: {
       '@type': 'Brand',
@@ -58,36 +54,28 @@ export const ProductCard = ({ product }: Props) => {
   return (
     <Link
       href={productUrl}
-      className='group flex w-full cursor-pointer flex-col items-center justify-center gap-4'
+      className='group flex w-full cursor-pointer flex-col gap-3'
     >
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
 
-      <div className='relative aspect-[4/5] w-full overflow-hidden rounded-md'>
-        {initialImage && (
+      <div className='relative aspect-[4/5] w-full overflow-hidden rounded-md bg-neutral-100'>
+        {imageUrl ? (
           <Image
             draggable={false}
-            className='absolute inset-0 h-full w-full object-cover opacity-100 transition-opacity duration-300 hover:opacity-0'
-            alt={product.title + ' initial'}
-            src={initialImage}
+            className='absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]'
+            alt={product.title}
+            src={imageUrl}
             fill
+            sizes='(max-width: 768px) 50vw, 300px'
           />
-        )}
-        {hoverImage && (
-          <Image
-            draggable={false}
-            className='absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 hover:opacity-100'
-            alt={product.title + ' hover'}
-            src={hoverImage}
-            fill
-          />
-        )}
+        ) : null}
       </div>
-      <div className='flex flex-col items-center justify-center *:text-center **:m-0'>
-        <p className='text-sm font-semibold'>{product.title}</p>
-        <p className='text-primary/50 text-sm font-semibold'>
+      <div className='flex flex-col items-center justify-center gap-0.5 *:text-center **:m-0'>
+        <p className='text-sm font-semibold text-foreground'>{product.title}</p>
+        <p className='text-sm text-neutral-500'>
           {isExclusive(product.categories ?? [])
             ? t('consult')
             : `${t('from')} ${formatMoneyByLocale(lowestPrice, locale)}`}

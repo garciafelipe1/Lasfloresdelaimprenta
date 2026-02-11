@@ -1,7 +1,6 @@
 'use client';
 
 import { addToCartAction } from '@/app/actions/cart/add-to-cart.action';
-import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { WhatsAppIcon } from '@/app/components/icons/whatsapp-icon';
@@ -59,7 +58,7 @@ export function InteractiveSection({ product }: Props) {
     },
     onSuccess() {
       setOpenCart(true);
-    
+
       if (typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'AddToCart', {
           content_name: product.title,
@@ -200,11 +199,11 @@ export function InteractiveSection({ product }: Props) {
           0,
         currency: 'ARS',
       });
-  
+
       viewTracked.current = true;
     }
   }, [selectedVariant, lowestPrice, product.id, product.title]);
-  
+
 
   const handleIncrement = () => {
     setQuantity((prevQuantity) => prevQuantity + 1);
@@ -283,89 +282,70 @@ export function InteractiveSection({ product }: Props) {
     return getWhatsAppUrl({ text: lines.join('\n') });
   }, [options, product.options, product.title, product.variants, selectedVariant?.title, shouldShowWhatsAppPurchase]);
 
-  return (
-    <div className='flex flex-col gap-4'>
-      <p className='text-xl'>
-        {selectedVariant?.calculated_price?.calculated_amount != null
-          ? formatMoneyByLocale(
-            selectedVariant.calculated_price.calculated_amount,
-            locale,
-          )
-          : formatMoneyByLocale(lowestPrice, locale)}
-      </p>
-      {/* Opciones (tallas/cantidad) + WhatsApp al lado */}
-      {!isExclusive ? (
-        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4'>
-          <ul className='flex flex-col gap-2 flex-1'>
-            {product.options?.map((option) => (
-              <ProductOptions
-                isRose={
-                  option.title === 'Cantidad' &&
-                  product.categories?.some((d) => d.name === CATEGORIES['rosas'])
-                }
-                updateOption={setOptionValue}
-                current={options[option.id]}
-                option={option}
-                key={option.id}
-              />
-            ))}
-          </ul>
+  const displayPrice =
+    selectedVariant?.calculated_price?.calculated_amount != null
+      ? formatMoneyByLocale(
+        selectedVariant.calculated_price.calculated_amount,
+        locale,
+      )
+      : formatMoneyByLocale(lowestPrice, locale);
 
-          {shouldShowWhatsAppPurchase && whatsAppHref ? (
-            <div className='sm:w-[260px]'>
-              <Button
-                asChild
-                size='lg'
-                className='w-full rounded-full shadow-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white border border-transparent gap-2'
-              >
-                <Link
-                  href={whatsAppHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Reservar ${product.title} por WhatsApp`}
-                  onClick={() => {
-                    if (typeof window !== "undefined" && (window as any).fbq) {
-                      (window as any).fbq("track", "Contact", {
-                        content_name: product.title,
-                        content_ids: [product.id],
-                        content_type: "product",
-                      });
-                    }
-                  }}
-                >
-                  <WhatsAppIcon className="h-5 w-5" />
-                  <span>Reservar por WhatsApp</span>
-                </Link>
-              </Button>
-            </div>
-          ) : null}
-        </div>
-      ) : shouldShowWhatsAppPurchase && whatsAppHref ? (
-        // Si es exclusivo y no hay selector de opciones, igual mostrar WhatsApp en la sección de compra
-        <div>
-          <Button
-            asChild
-            size='lg'
-            className='w-full rounded-full shadow-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white border border-transparent gap-2'
+  return (
+    <div className='flex flex-col gap-6'>
+      {/* Bloque precio: jerarquía clara */}
+      <div className='flex flex-col gap-1'>
+        <span className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+          {t('priceLabel')}
+        </span>
+        <p className='text-2xl font-semibold tracking-tight sm:text-3xl'>
+          {displayPrice}
+        </p>
+      </div>
+
+      {/* Opciones (cantidad / talla): grid ordenado */}
+      {!isExclusive ? (
+        <ul className='flex flex-col gap-5'>
+          {product.options?.map((option) => (
+            <ProductOptions
+              isRose={
+                option.title === 'Cantidad' &&
+                product.categories?.some((d) => d.name === CATEGORIES['rosas'])
+              }
+              updateOption={setOptionValue}
+              current={options[option.id]}
+              option={option}
+              key={option.id}
+            />
+          ))}
+        </ul>
+      ) : null}
+
+      {/* WhatsApp solo para exclusivos (sin selector de variante) */}
+      {isExclusive && shouldShowWhatsAppPurchase && whatsAppHref ? (
+        <Button
+          asChild
+          size='lg'
+          className='w-full rounded-full bg-[#25D366] hover:bg-[#1ebe5d] text-white border-0 shadow-md gap-2'
+        >
+          <Link
+            href={whatsAppHref}
+            target='_blank'
+            rel='noopener noreferrer'
+            aria-label={`Reservar ${product.title} por WhatsApp`}
           >
-            <Link
-              href={whatsAppHref}
-              target='_blank'
-              rel='noopener noreferrer'
-              aria-label={`Reservar ${product.title} por WhatsApp`}
-            >
-              <WhatsAppIcon className='h-5 w-5' />
-              <span>Reservar por WhatsApp</span>
-            </Link>
-          </Button>
-        </div>
+            <WhatsAppIcon className='h-5 w-5 shrink-0' />
+            <span>{t('reserveWhatsApp')}</span>
+          </Link>
+        </Button>
       ) : null}
 
       {shouldShowCustomization ? (
-        <div className='flex flex-col gap-3'>
-          <div className='flex flex-col gap-y-3'>
-            <Badge>{t('customization.preparadoLabel')}</Badge>
-            <div className='flex flex-wrap gap-2 *:flex-1'>
+        <div className='flex flex-col gap-4 rounded-lg border border-border/60 bg-muted/30 p-4'>
+          <div className='flex flex-col gap-3'>
+            <p className='text-sm font-medium text-muted-foreground'>
+              {t('customization.preparadoLabel')}
+            </p>
+            <div className='grid grid-cols-2 gap-2'>
               {(() => {
                 const names = (product.categories ?? []).map((c) => c.name);
                 const isBoxCategory = names.includes(CATEGORIES['box']);
@@ -402,8 +382,10 @@ export function InteractiveSection({ product }: Props) {
             </div>
           </div>
 
-          <div className='flex flex-col gap-y-2'>
-            <Badge>{t('customization.indicacionesLabel')}</Badge>
+          <div className='flex flex-col gap-2'>
+            <p className='text-sm font-medium text-muted-foreground'>
+              {t('customization.indicacionesLabel')}
+            </p>
             <Textarea
               value={indicaciones}
               onChange={(e) => setIndicaciones(e.target.value)}
@@ -421,8 +403,10 @@ export function InteractiveSection({ product }: Props) {
           </label>
 
           {agregarDedicatoria ? (
-            <div className='flex flex-col gap-y-2'>
-              <Badge>{t('customization.dedicatoriaLabel')}</Badge>
+            <div className='flex flex-col gap-2'>
+              <p className='text-sm font-medium text-muted-foreground'>
+                {t('customization.dedicatoriaLabel')}
+              </p>
               <Input
                 value={dedicatoria}
                 onChange={(e) => setDedicatoria(e.target.value)}
@@ -434,21 +418,58 @@ export function InteractiveSection({ product }: Props) {
         </div>
       ) : null}
 
-      <QuantitySelector
-        onDecrease={handleDecrement}
-        onIncrease={handleIncrement}
-        quantity={quantity}
-      />
-      <footer className='flex flex-col gap-2'>
-        <Button
-          onClick={handleAddToCart}
-          disabled={isExecuting || !selectedVariant?.id || isPreparadoMissing}
-          className='group'
-        >
-          {t('addToCart')}
-          <ArrowRight className='transition group-hover:translate-x-1' />
-        </Button>
-      </footer>
+      {/* Acciones: unidades + agregar al carrito + WhatsApp */}
+      <div className='flex flex-col gap-4 border-t border-border/60 pt-6'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4'>
+          <div className='flex items-center gap-3'>
+            <span className='text-sm font-medium text-muted-foreground whitespace-nowrap'>
+              {t('quantityUnits')}
+            </span>
+            <QuantitySelector
+              onDecrease={handleDecrement}
+              onIncrease={handleIncrement}
+              quantity={quantity}
+            />
+          </div>
+          <Button
+            onClick={handleAddToCart}
+            disabled={isExecuting || !selectedVariant?.id || isPreparadoMissing}
+            className='group min-h-11 flex-1 sm:flex-initial sm:min-w-[200px]'
+            size='lg'
+          >
+            {t('addToCart')}
+            <ArrowRight className='ml-1 size-4 transition group-hover:translate-x-0.5' />
+          </Button>
+        </div>
+
+        {!isExclusive && shouldShowWhatsAppPurchase && whatsAppHref ? (
+          <Button
+            asChild
+            variant='outline'
+            size='lg'
+            className='w-full rounded-full border-[#25D366] bg-[#25D366]/5 text-[#128C7E] hover:bg-[#25D366]/15 hover:text-[#0a5c52] gap-2'
+          >
+            <Link
+              href={whatsAppHref}
+              target='_blank'
+              rel='noopener noreferrer'
+              aria-label={`Reservar ${product.title} por WhatsApp`}
+              onClick={() => {
+                if (typeof window !== 'undefined' && (window as any).fbq) {
+                  (window as any).fbq('track', 'Contact', {
+                    content_name: product.title,
+                    content_ids: [product.id],
+                    content_type: 'product',
+                  });
+                }
+              }}
+            >
+              <WhatsAppIcon className='h-5 w-5 shrink-0' />
+              <span>{t('reserveWhatsApp')}</span>
+            </Link>
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ interface ProductService {
   getComplements: (productId: string) => Promise<StoreProduct[]>;
   getLatests: () => Promise<StoreProduct[]>;
   getExclusives: () => Promise<ProductDTO[]>;
+  getBoxPreview: () => Promise<ProductDTO[]>;
 }
 
 type GetAllOpts = FilterParams & {
@@ -157,7 +158,7 @@ export const productService: ProductService = {
 
     // Usar aliases de categorías para incluir productos relacionados
     const categories = await this.getCategories();
-    
+
     // Importar función de mapeo (dinámico para evitar problemas de importación)
     // Usar try-catch para manejar errores de importación
     let expandedCategories = [categoryName];
@@ -168,7 +169,7 @@ export const productService: ProductService = {
       // Si falla el import, usar solo la categoría original
       console.warn('[ProductService] No se pudo importar category-mapping, usando categoría original:', error);
     }
-    
+
     // Obtener IDs de todas las categorías expandidas
     const categoryIds = expandedCategories
       .map(catName => categories.find(c => c.name === catName)?.id)
@@ -206,7 +207,7 @@ export const productService: ProductService = {
     }
 
     const mappedProducts = recommended.map((storeProduct) => mapProductDTO(storeProduct));
-    
+
     // Aplicar traducciones
     try {
       const locale = (await getLocale()) as 'es' | 'en';
@@ -313,14 +314,52 @@ export const productService: ProductService = {
       )?.id,
     });
 
-    const mappedProducts = products.map((p) => mapProductDTO(p));
-    
-    // Aplicar traducciones
+    const seen = new Set<string>();
+    const unique = products.filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    });
+    const mappedProducts = unique.map((p) => mapProductDTO(p));
+
     try {
       const locale = (await getLocale()) as 'es' | 'en';
       return await translateProducts(mappedProducts, locale);
     } catch {
       return mappedProducts;
+    }
+  },
+
+  async getBoxPreview() {
+    const region = await getRegion('ar');
+    if (!region) {
+      throw new Error('No region found');
+    }
+    const categories = await this.getCategories();
+    const boxCategoryId = categories.find(
+      (c) => c.name === CATEGORIES['box'],
+    )?.id;
+    if (!boxCategoryId) {
+      return [];
+    }
+    const { products } = await medusa.store.product.list({
+      region_id: region.id,
+      fields: 'categories.*',
+      limit: 6,
+      category_id: boxCategoryId,
+    });
+    const seen = new Set<string>();
+    const unique = products.filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    });
+    const mapped = unique.slice(0, 3).map((p) => mapProductDTO(p));
+    try {
+      const locale = (await getLocale()) as 'es' | 'en';
+      return await translateProducts(mapped, locale);
+    } catch {
+      return mapped;
     }
   },
 };
