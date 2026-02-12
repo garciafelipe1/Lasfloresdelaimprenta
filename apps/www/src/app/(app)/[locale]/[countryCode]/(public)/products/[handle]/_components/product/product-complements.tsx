@@ -26,7 +26,7 @@ export async function ProductComplements({ productId }: Props) {
             <div className='relative aspect-square w-full'>
               <Image
                 className='h-full w-full rounded-md object-cover'
-                src={getSafeImageUrl(c.thumbnail ?? '', undefined, process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '')}
+                src={getSafeImageUrl(c.thumbnail ?? '')}
                 alt={c.title}
                 fill
               />

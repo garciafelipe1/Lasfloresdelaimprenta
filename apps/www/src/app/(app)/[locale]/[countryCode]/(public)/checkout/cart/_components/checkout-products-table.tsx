@@ -96,7 +96,7 @@ export function CheckoutProductsTable({ items }: Props) {
               {item.thumbnail && (
                 <div className='relative h-20 w-20 overflow-hidden rounded-md'>
                   <Image
-                    src={getSafeImageUrl(item.thumbnail, undefined, process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '')}
+                    src={getSafeImageUrl(item.thumbnail)}
                     objectFit='cover'
                     alt={displayTitle}
                     fill

@@ -88,10 +88,9 @@ function getBaseUrl(): string {
 export function Categories() {
   const t = useTranslations();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getBaseUrl();
-  const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '';
   const getImageUrl = (path: string) => {
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    return getSafeImageUrl(normalized, baseUrl || undefined, medusaUrl);
+    return getSafeImageUrl(normalized, baseUrl || undefined);
   };
 
   return (

@@ -29,8 +29,7 @@ export function ShoppingCartItem({ item }: Props) {
     rawVariantTitle && rawVariantTitle.trim().toLowerCase() === 'default'
       ? null
       : rawVariantTitle;
-  const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '';
-  const imageUrl = getSafeImageUrl(item.product?.thumbnail ?? '', undefined, medusaUrl);
+  const imageUrl = getSafeImageUrl(item.product?.thumbnail ?? '');
   const meta = (item as any).metadata as
     | { preparado?: string; indicaciones?: string; dedicatoria?: string }
     | undefined;
@@ -120,7 +119,7 @@ export function ItemImage(props: ItemImageProps) {
       <Image
         alt={props.alt ?? 'Shopping item image'}
         className='h-full w-full rounded-md object-cover'
-        src={getSafeImageUrl(props.src, undefined, process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '')}
+        src={getSafeImageUrl(props.src)}
         fill
       />
     </div>

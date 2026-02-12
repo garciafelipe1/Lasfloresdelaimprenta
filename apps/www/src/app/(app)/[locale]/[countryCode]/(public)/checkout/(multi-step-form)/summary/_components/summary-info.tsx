@@ -56,7 +56,7 @@ export async function SummaryInfo({ cart }: Props) {
               <div className='relative aspect-square h-20 w-20 flex-shrink-0'>
                 <Image
                   alt=''
-                  src={getSafeImageUrl(item.thumbnail ?? '', undefined, process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '')}
+                  src={getSafeImageUrl(item.thumbnail ?? '')}
                   className='h-full w-full rounded-md object-cover'
                   fill
                 />
