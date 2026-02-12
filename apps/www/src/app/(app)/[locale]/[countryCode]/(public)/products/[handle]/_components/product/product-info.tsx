@@ -22,11 +22,12 @@ export async function ProductInfo({ handle }: Props) {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? '';
+  const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '';
   const rawUrls =
     (product.images?.length ? product.images.map((i) => i.url) : null) ??
     (product.thumbnail ? [product.thumbnail] : []);
   const images = rawUrls
-    .map((url) => getSafeImageUrl(url, baseUrl || undefined))
+    .map((url) => getSafeImageUrl(url, baseUrl || undefined, medusaUrl))
     .filter(Boolean);
 
   return (

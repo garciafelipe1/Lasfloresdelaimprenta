@@ -62,10 +62,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '';
   const productUrl = `${BASE_URL}/${locale}/ar/products/${product.handle}`;
   const rawImage = product.images?.[0]?.url ?? product.thumbnail;
   const initialImage = rawImage
-    ? (rawImage.startsWith('http') ? rawImage : `${BASE_URL}${getSafeImageUrl(rawImage)}`)
+    ? (rawImage.startsWith('http') ? rawImage : getSafeImageUrl(rawImage, BASE_URL, MEDUSA_URL))
     : undefined;
 
   const siteName = 'La Florería de la Imprenta';

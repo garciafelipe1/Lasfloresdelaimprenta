@@ -1,3 +1,4 @@
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -69,7 +70,7 @@ const CATEGORY_IMAGES = [
   {
     key: 'box',
     href: '/catalog?category=Box',
-    imagePath: 'public/assets/img/productos/box/fresh.jpeg',
+    imagePath: '/assets/img/productos/box/fresh.jpeg',
   },
   {
     key: 'rosas',
@@ -78,7 +79,7 @@ const CATEGORY_IMAGES = [
   },
 ] as const;
 
-/** Origen del sitio para que las imágenes carguen en producción sin depender de NEXT_PUBLIC_BASE_URL. */
+/** Origen del sitio (fallback). */
 function getBaseUrl(): string {
   if (typeof window !== 'undefined') return window.location.origin;
   return process.env.NEXT_PUBLIC_BASE_URL ?? '';
@@ -87,10 +88,10 @@ function getBaseUrl(): string {
 export function Categories() {
   const t = useTranslations();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getBaseUrl();
+  const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '';
   const getImageUrl = (path: string) => {
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    if (!baseUrl) return normalized;
-    return `${baseUrl.replace(/\/$/, '')}${normalized}`;
+    return getSafeImageUrl(normalized, baseUrl || undefined, medusaUrl);
   };
 
   return (

@@ -27,7 +27,8 @@ export const ProductCard = ({ product }: Props) => {
   const rawImage =
     product.images?.[0]?.url ?? product.thumbnail ?? '';
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getPublicOrigin();
-  const imageUrl = getSafeImageUrl(rawImage, baseUrl || undefined);
+  const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '';
+  const imageUrl = getSafeImageUrl(rawImage, baseUrl || undefined, medusaUrl);
 
   const productUrl = `/${locale}/ar/products/${product.handle}`;
 

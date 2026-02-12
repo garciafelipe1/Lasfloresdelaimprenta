@@ -1,3 +1,4 @@
+import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { productService } from '@/services/product.service';
 import { getTranslations, getLocale } from 'next-intl/server';
 import Image from 'next/image';
@@ -25,7 +26,7 @@ export async function ProductComplements({ productId }: Props) {
             <div className='relative aspect-square w-full'>
               <Image
                 className='h-full w-full rounded-md object-cover'
-                src={c.thumbnail ?? ''}
+                src={getSafeImageUrl(c.thumbnail ?? '', undefined, process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? '')}
                 alt={c.title}
                 fill
               />
