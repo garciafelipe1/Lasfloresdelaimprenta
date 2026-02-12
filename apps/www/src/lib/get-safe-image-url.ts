@@ -11,7 +11,8 @@ export function getSafeImageUrl(
 ): string {
   if (!url || typeof url !== 'string') return '';
 
-  // Reescribir URLs de la API de R2 a la URL pública para que las imágenes se vean
+  // Reescribir URLs de la API de R2 a la URL pública para que las imágenes se vean.
+  // La API S3 devuelve path tipo /bucket-name/object-key; la URL pública de R2 (r2.dev) es solo /object-key.
   if (
     (url.startsWith('http://') || url.startsWith('https://')) &&
     url.includes('r2.cloudflarestorage.com')
@@ -20,7 +21,9 @@ export function getSafeImageUrl(
     if (publicR2Base) {
       try {
         const u = new URL(url);
-        return `${publicR2Base.replace(/\/$/, '')}${u.pathname}${u.search}`;
+        // Quitar el primer segmento del path (nombre del bucket) para la URL pública r2.dev
+        const pathWithoutBucket = u.pathname.replace(/^\/[^/]+/, '') || u.pathname;
+        return `${publicR2Base.replace(/\/$/, '')}${pathWithoutBucket}${u.search}`;
       } catch {
         return url;
       }
