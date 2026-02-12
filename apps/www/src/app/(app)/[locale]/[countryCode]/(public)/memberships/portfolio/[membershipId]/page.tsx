@@ -80,7 +80,6 @@ const membershipCarousel: Record<MembershipId, string[]> = {
     '/assets/img/memberships/carousel/carousel-3.png',
     '/assets/img/memberships/velas/vela-7.png',
     '/assets/img/memberships/carousel/carousel-2.png',
-    
   ],
   premium: [
     '/assets/img/memberships/premium/premium-1.png',
@@ -243,9 +242,9 @@ export default function MembershipPortfolioPage() {
   const carouselImages = (membershipCarousel[membershipId] ?? []).filter(Boolean);
   const galleryImages = isEsencial
     ? buildEsencialGallery({
-        bouquet: esencialBouquet,
-        candles: candleGallery,
-      })
+      bouquet: esencialBouquet,
+      candles: candleGallery,
+    })
     : (membershipGallery[membershipId] ?? []).filter(Boolean);
   const membershipName = membershipNames[membershipId];
   const colors = membershipColors[membershipId];
@@ -312,9 +311,8 @@ export default function MembershipPortfolioPage() {
                     className='pl-2 md:basis-1/2 lg:basis-1/3 md:pl-4'
                   >
                     <div
-                      className={`relative overflow-hidden rounded-lg border ${
-                        isMosaic ? 'aspect-[4/5]' : 'aspect-square'
-                      }`}
+                      className={`relative overflow-hidden rounded-lg border ${isMosaic ? 'aspect-[4/5]' : 'aspect-square'
+                        }`}
                     >
                       <Image
                         src={imageUrl}
@@ -357,13 +355,12 @@ export default function MembershipPortfolioPage() {
                   key={index}
                   className={
                     isMosaic
-                      ? `group relative overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-lg ${
-                          isEsencial
-                            ? getEsencialTileClass(index)
-                            : isPremium
-                              ? getPremiumTileClass(index)
-                              : getEliteTileClass(index)
-                        }`
+                      ? `group relative overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-lg ${isEsencial
+                        ? getEsencialTileClass(index)
+                        : isPremium
+                          ? getPremiumTileClass(index)
+                          : getEliteTileClass(index)
+                      }`
                       : 'group relative aspect-square overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg'
                   }
                 >

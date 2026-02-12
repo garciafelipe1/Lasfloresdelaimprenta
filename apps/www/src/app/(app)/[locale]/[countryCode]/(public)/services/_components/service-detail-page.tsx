@@ -162,8 +162,8 @@ export default function ServiceDetailPage({
                 <div
                   key={`${src}-${index}`}
                   className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-all duration-300 hover:shadow-md ${slug === 'bodas' && src.includes('/assets/img/services/bodas/bodas-7.')
-                      ? 'row-span-1 sm:row-span-1 lg:row-span-3'
-                      : getGalleryTileClass(index)
+                    ? 'row-span-1 sm:row-span-1 lg:row-span-3'
+                    : getGalleryTileClass(index)
                     }`}
                 >
                   <Image

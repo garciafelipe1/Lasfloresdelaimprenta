@@ -15,12 +15,18 @@ interface Props {
 const SCHEMA_BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://api.nomeimporta.xyz';
 
+/** Origen público del sitio (frontend). En cliente usamos la URL actual para que /assets cargue siempre. */
+function getPublicOrigin(): string {
+  if (typeof window !== 'undefined') return window.location.origin;
+  return process.env.NEXT_PUBLIC_BASE_URL ?? '';
+}
+
 export const ProductCard = ({ product }: Props) => {
   const locale = useLocale();
   const t = useTranslations('categories-products.products');
   const rawImage =
     product.images?.[0]?.url ?? product.thumbnail ?? '';
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? '';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getPublicOrigin();
   const imageUrl = getSafeImageUrl(rawImage, baseUrl || undefined);
 
   const productUrl = `/${locale}/ar/products/${product.handle}`;

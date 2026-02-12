@@ -4,6 +4,7 @@ import {
   SectionSubtitle,
   SectionTitle,
 } from '@/app/components/common/section/section';
+import { InitiateCheckoutTracking } from '@/app/components/analytics/initiate-checkout-tracking';
 import { MercadoPagoProvider } from '@/app/context/mercadopago-provider';
 import { PaymentFormProvider } from '@/app/context/payment-form-provider';
 import { PropsWithChildren } from 'react';
@@ -16,6 +17,7 @@ export default async function Layout({ children }: PropsWithChildren) {
 
   return (
     <div className='px-layout py-vertical'>
+      <InitiateCheckoutTracking />
       <Section
         variant='page'
         size='desktop'

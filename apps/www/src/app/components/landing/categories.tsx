@@ -78,11 +78,20 @@ const CATEGORY_IMAGES = [
   },
 ] as const;
 
+/** Origen del sitio para que las imágenes carguen en producción sin depender de NEXT_PUBLIC_BASE_URL. */
+function getBaseUrl(): string {
+  if (typeof window !== 'undefined') return window.location.origin;
+  return process.env.NEXT_PUBLIC_BASE_URL ?? '';
+}
+
 export function Categories() {
   const t = useTranslations();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? '';
-  const getImageUrl = (path: string) =>
-    baseUrl ? `${baseUrl.replace(/\/$/, '')}${path}` : path;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getBaseUrl();
+  const getImageUrl = (path: string) => {
+    const normalized = path.startsWith('/') ? path : `/${path}`;
+    if (!baseUrl) return normalized;
+    return `${baseUrl.replace(/\/$/, '')}${normalized}`;
+  };
 
   return (
     <div className='px-6 categories-section'>

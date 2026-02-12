@@ -58,11 +58,11 @@ export default envsSchema.parse({
       process.env.NEXT_PUBLIC_BACKEND_URL ||
       process.env.NEXT_PUBLIC_API_URL ||
       "";
-    
+
     if (!value || value.trim() === "") {
       console.warn("[envs] ⚠️ MEDUSA_BACKEND_URL está vacío después de resolver todas las variables.");
     }
-    
+
     return value.trim();
   })(),
   DEFAULT_REGION: process.env.DEFAULT_REGION || "ar",
