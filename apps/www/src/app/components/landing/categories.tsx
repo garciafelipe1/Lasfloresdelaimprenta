@@ -60,7 +60,7 @@ const CATEGORY_IMAGES = [
   {
     key: 'sanValentin',
     href: '/catalog?category=San+Valentín',
-    imagePath: '/assets/img/productos/san-valentin/pasionsinfiltro.jpeg',
+    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG-20251019-WA0009.jpeg',
   },
   {
     key: 'ramosPrimaverales',
