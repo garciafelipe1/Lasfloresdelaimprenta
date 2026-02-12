@@ -91,6 +91,9 @@ module.exports = defineConfig({
               endpoint: process.env.S3_ENDPOINT,
               access_key_id: process.env.S3_ACCESS_KEY,
               secret_access_key: process.env.S3_SECRET_KEY,
+              // URL pública para que Medusa guarde URLs que el frontend pueda cargar (evita "undefined/KEY").
+              // En Railway: S3_PUBLIC_URL = https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev
+              url: process.env.S3_PUBLIC_URL,
             },
           },
         ],
