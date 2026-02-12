@@ -9,8 +9,8 @@ export const complementosSanValentin = [
     ],
     category: CATEGORIES["complementosSanValentin"],
     price: {
-      ars: { base: 7500, aument: 0 },
-      usd: { base: 8, aument: 0 },
+      ars: { base: 7000, aument: 0 },
+      usd: { base: 7, aument: 0 },
     },
     metadata: { brand: "Ferrero Rocher", occasion: "San Valentín", type: "complemento" },
   },
@@ -22,8 +22,8 @@ export const complementosSanValentin = [
     ],
     category: CATEGORIES["complementosSanValentin"],
     price: {
-      ars: { base: 11350, aument: 0 },
-      usd: { base: 11, aument: 0 },
+      ars: { base: 11000, aument: 0 },
+      usd: { base: 10, aument: 0 },
     },
     metadata: { brand: "Ferrero Rocher", occasion: "San Valentín", type: "complemento" },
   },
@@ -35,8 +35,8 @@ export const complementosSanValentin = [
     ],
     category: CATEGORIES["complementosSanValentin"],
     price: {
-      ars: { base: 22700, aument: 0 },
-      usd: { base: 23, aument: 0 },
+      ars: { base: 20000, aument: 0 },
+      usd: { base: 20, aument: 0 },
     },
     metadata: { brand: "Ferrero Rocher", occasion: "San Valentín", type: "complemento" },
   },
@@ -62,7 +62,7 @@ export const complementosSanValentin = [
     category: CATEGORIES["complementosSanValentin"],
     price: {
       ars: { base: 48500, aument: 0 },
-      usd: { base: 49, aument: 0 },
+      usd: { base: 48, aument: 0 },
     },
     metadata: { brand: "Ferrero Rocher", occasion: "San Valentín", type: "complemento" },
   },

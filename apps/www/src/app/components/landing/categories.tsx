@@ -60,7 +60,7 @@ const CATEGORY_IMAGES = [
   {
     key: 'sanValentin',
     href: '/catalog?category=San+Valentín',
-    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG-20251019-WA0009.jpeg',
+    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/ramo.jpeg',
   },
   {
     key: 'ramosPrimaverales',
@@ -70,7 +70,7 @@ const CATEGORY_IMAGES = [
   {
     key: 'box',
     href: '/catalog?category=Box',
-    imagePath: '/assets/img/productos/box/fresh.jpeg',
+    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG-20251019-WA0009.jpeg',
   },
   {
     key: 'rosas',
@@ -89,6 +89,10 @@ export function Categories() {
   const t = useTranslations();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getBaseUrl();
   const getImageUrl = (path: string) => {
+    // URLs absolutas (R2, etc.) se pasan tal cual
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return getSafeImageUrl(path, baseUrl || undefined);
+    }
     const normalized = path.startsWith('/') ? path : `/${path}`;
     return getSafeImageUrl(normalized, baseUrl || undefined);
   };

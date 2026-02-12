@@ -11,12 +11,18 @@ const withNextIntl = createNextIntlPlugin()
 
 export default withNextIntl(
   withPayload({
-    images: { 
+    images: {
       unoptimized: true,
       remotePatterns: [
         { protocol: 'https', hostname: '*' },
-        { protocol: 'http', hostname: '*' }
-      ]
+        { protocol: 'http', hostname: '*' },
+        // R2 público (landing categorías San Valentín y Box)
+        {
+          protocol: 'https',
+          hostname: 'pub-43da7721872a46ffac4397d05373bc0d.r2.dev',
+          pathname: '/**',
+        },
+      ],
     },
 
     eslint: { ignoreDuringBuilds: true },

@@ -21,6 +21,7 @@ const toHandle = (value: string) =>
  * - images + thumbnail
  * - description
  * - metadata (merge)
+ * - precios ARS/USD (desde complementos-san-valentin.seed)
  *
  * NO borra nada.
  */
@@ -30,10 +31,19 @@ export default async function updateComplementosSanValentinContent({
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
   const productModuleService = container.resolve(Modules.PRODUCT);
+  const pricingModuleService = container.resolve(Modules.PRICING);
 
   const { data: products } = await query.graph({
     entity: "product",
-    fields: ["id", "title", "handle", "categories.name", "metadata"],
+    fields: [
+      "id",
+      "title",
+      "handle",
+      "categories.name",
+      "metadata",
+      "variants.id",
+      "variants.price_set.id",
+    ],
   });
 
   const targetProducts = (products || []).filter((p: any) =>
@@ -79,6 +89,21 @@ export default async function updateComplementosSanValentinContent({
       thumbnail,
       metadata: nextMetadata,
     });
+
+    // Actualizar precios de la variante (complementos tienen una sola variante)
+    const variant = (found.variants || [])[0] as any;
+    const priceSetId = variant?.price_set?.id;
+    const ars = (desired as any).price?.ars?.base;
+    const usd = (desired as any).price?.usd?.base;
+    if (priceSetId != null && typeof ars === "number" && typeof usd === "number") {
+      await pricingModuleService.updatePriceSets(priceSetId, {
+        prices: [
+          { amount: ars, currency_code: "ars" },
+          { amount: usd, currency_code: "usd" },
+        ],
+      } as any);
+      logger.info(`   Precios: ARS ${ars}, USD ${usd}`);
+    }
 
     updated += 1;
     logger.info(`✅ Actualizado: ${desired.title} (${found.handle})`);
