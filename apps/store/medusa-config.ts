@@ -77,6 +77,26 @@ module.exports = defineConfig({
   modules: [
     ...redisModules,
 
+    // File: Cloudflare R2 (S3-compatible). Reemplaza el file-local por defecto.
+    {
+      resolve: "@medusajs/medusa/file",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/file-s3",
+            id: "r2",
+            options: {
+              bucket: process.env.S3_BUCKET,
+              region: process.env.S3_REGION || "auto",
+              endpoint: process.env.S3_ENDPOINT,
+              access_key_id: process.env.S3_ACCESS_KEY,
+              secret_access_key: process.env.S3_SECRET_KEY,
+            },
+          },
+        ],
+      },
+    },
+
     // ❌ NOTIFICATION REMOVIDO (NO RESEND)
     // {
     //   resolve: "@medusajs/medusa/notification",

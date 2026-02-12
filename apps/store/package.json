@@ -74,6 +74,7 @@
     "@medusajs/admin-sdk": "2.7.0",
     "@medusajs/cli": "2.7.0",
     "@medusajs/dashboard": "2.7.0",
+    "@medusajs/file-s3": "^2.13.1",
     "@medusajs/framework": "2.7.0",
     "@medusajs/icons": "2.7.0",
     "@medusajs/js-sdk": "2.7.0",
