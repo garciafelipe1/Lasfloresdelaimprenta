@@ -14,14 +14,15 @@ export default async function LoginPage({ params }: LoginPageProps) {
   // 👇 Next 15: params es una Promise
   const { locale, countryCode } = await params;
 
-  // Intentamos obtener el usuario actual; si falla, lo tratamos como no logueado
-  const user = await authService.getUser().catch(() => null);
+  const { user, clearedInvalidToken } = await authService.getUserResult().catch(() => ({ user: null, clearedInvalidToken: false }));
 
-  // Si ya está logueado, lo mandamos directo al dashboard
   if (user) {
     redirect(`/${locale}/${countryCode}/dashboard`);
   }
 
-  // Si no está logueado, mostramos el componente cliente de login
+  if (clearedInvalidToken) {
+    redirect(`/${locale}/${countryCode}/login?error=session_invalid`);
+  }
+
   return <LoginPreview />;
 }
