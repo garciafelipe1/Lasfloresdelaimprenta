@@ -1,6 +1,10 @@
+import { PhotoBanner } from '@/app/components/common/photo-banner/photo-banner';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import ServiceDetailPage from '../_components/service-detail-page';
+
+/** Foto del banner de cierre en Eventos Florales. Cambiá esta ruta para usar otra imagen. */
+const EVENTOS_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/bannerservicios.jpg';
 
 type Props = {
   params: Promise<{
@@ -61,28 +65,31 @@ export default async function EventosFloralesPage({ params }: Props) {
   ];
 
   return (
-    <ServiceDetailPage
-      slug='eventos-florales'
-      locale={locale}
-      title={t('Servicio1.title')}
-      subtitle={t('Servicio1.subtitle')}
-      description={t.raw('Servicio1.description')}
-      images={eventosGeneralesImages}
-      ctaText={t('Servicio1.cta')}
-      benefits={benefits}
-      features={features}
-      translations={{
-        whyChooseUs: t('common.whyChooseUs'),
-        ourWork: t('common.ourWork'),
-        whatIncludes: t('common.whatIncludes'),
-        readyToTransform: t('common.readyToTransform'),
-        contactToday: t('common.contactToday'),
-        callNow: t('common.callNow'),
-        sendEmail: t('common.sendEmail'),
-        requestQuote: t('common.requestQuote'),
-        viewGallery: t('common.viewGallery'),
-        premiumService: t('common.premiumService'),
-      }}
-    />
+    <>
+      <ServiceDetailPage
+        slug='eventos-florales'
+        locale={locale}
+        title={t('Servicio1.title')}
+        subtitle={t('Servicio1.subtitle')}
+        description={t.raw('Servicio1.description')}
+        images={eventosGeneralesImages}
+        ctaText={t('Servicio1.cta')}
+        benefits={benefits}
+        features={features}
+        translations={{
+          whyChooseUs: t('common.whyChooseUs'),
+          ourWork: t('common.ourWork'),
+          whatIncludes: t('common.whatIncludes'),
+          readyToTransform: t('common.readyToTransform'),
+          contactToday: t('common.contactToday'),
+          callNow: t('common.callNow'),
+          sendEmail: t('common.sendEmail'),
+          requestQuote: t('common.requestQuote'),
+          viewGallery: t('common.viewGallery'),
+          premiumService: t('common.premiumService'),
+        }}
+      />
+      <PhotoBanner src={EVENTOS_BANNER_IMAGE} wide />
+    </>
   );
 }

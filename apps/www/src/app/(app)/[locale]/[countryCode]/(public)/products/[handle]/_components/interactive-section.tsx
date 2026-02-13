@@ -107,8 +107,7 @@ export function InteractiveSection({ product }: Props) {
       names.includes(CATEGORIES['rosas']) ||
       names.includes(CATEGORIES['sanValentin']) ||
       names.includes(CATEGORIES['ramosPrimaverales']) ||
-      names.includes(CATEGORIES['box']) ||
-      names.includes(CATEGORIES['diseniosExclusivos'])
+      names.includes(CATEGORIES['box'])
     );
   }, [product.categories]);
 

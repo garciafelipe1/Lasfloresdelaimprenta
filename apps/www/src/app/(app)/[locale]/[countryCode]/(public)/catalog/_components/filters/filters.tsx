@@ -64,7 +64,6 @@ export function Filters({ onAutoAppliedCategory }: Props) {
     'complementosSanValentin',
     'rosas',
     'box',
-    'diseniosExclusivos',
     'ramosPrimaverales',
     'complementos',
   ] as const;

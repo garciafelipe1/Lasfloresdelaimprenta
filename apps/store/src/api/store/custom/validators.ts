@@ -1,12 +1,17 @@
 import { z } from "zod";
 import { CATEGORIES, sortOptionValues } from "../../../shared/constants";
 
-const categories = Object.values(CATEGORIES).map((c) => c);
+const categories = Object.values(CATEGORIES) as [string, ...string[]];
 
 export const GetStoreCustomSchema = z.object({
   q: z.string().optional(),
   order: z.enum(sortOptionValues as [string, ...string[]]).optional(),
-  category: z.enum(categories as [string, ...string[]]).optional(),
+  category: z
+    .string()
+    .optional()
+    .transform((val) =>
+      val && categories.includes(val) ? val : undefined
+    ),
   color: z.string().optional(),
   min_price: z.preprocess((val) => {
     if (val && typeof val === "string") {

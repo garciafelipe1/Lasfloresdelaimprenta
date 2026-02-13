@@ -1,3 +1,4 @@
+import { PhotoBanner } from '@/app/components/common/photo-banner/photo-banner';
 import { AboutUs } from '@/app/components/landing/about-us';
 import { Categories } from '@/app/components/landing/categories';
 import { Examples } from '@/app/components/landing/examples';
@@ -8,6 +9,9 @@ import { Questions } from '@/app/components/landing/questions';
 // import { Testimonials } from '@/app/components/landing/testimonials';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+
+/** Foto del banner de cierre en la landing. Cambiá esta ruta para usar otra imagen. */
+// const LANDING_BANNER_IMAGE = '/assets/img/bannerdelasflores.jpeg';
 
 export const metadata: Metadata = {
   title: 'La Florería de la Imprenta ',
@@ -54,6 +58,7 @@ export default async function Home() {
 
       {/* <Testimonials /> */}
       <Questions />
+      {/* <PhotoBanner src={LANDING_BANNER_IMAGE} /> */}
     </div>
   );
 }

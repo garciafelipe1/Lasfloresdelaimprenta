@@ -48,24 +48,40 @@ export function Hero() {
               className='max-w-desktop absolute inset-0 z-20 mx-auto flex w-full items-end p-6 data-odd:justify-end'
             >
               <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs dark:bg-black dark:border-white/10'>
-                {/* Bordes decorativos florales dentro del card */}
-                <div className='absolute -left-34 top-3 hidden h-full w-full md:block'>
+                {/* Bordes decorativos florales dentro del card (light: heroboton, dark: imagenhero) */}
+                <div className='absolute -left-34 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
                     height={2200}
-                    className='h-26 w-full object-contain mb-4 '
+                    className='h-26 w-full object-contain mb-4 dark:hidden'
+                    aria-hidden='true'
+                  />
+                  <Image
+                    src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/imagenhero.png'
+                    alt=''
+                    width={400}
+                    height={2200}
+                    className='h-26 w-full object-contain mb-4 hidden dark:block'
                     aria-hidden='true'
                   />
                 </div>
-                <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
+                <div className='absolute -right-35 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
                     height={400}
-                    className='h-26 w-full object-contain mb-4 scale-x-[-1]'
+                    className='h-26 w-full object-contain mb-4 scale-x-[-1] dark:hidden'
+                    aria-hidden='true'
+                  />
+                  <Image
+                    src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/imagenhero.png'
+                    alt=''
+                    width={400}
+                    height={400}
+                    className='h-26 w-full object-contain mb-4 scale-x-[-1] hidden dark:block'
                     aria-hidden='true'
                   />
                 </div>
@@ -103,24 +119,40 @@ export function Hero() {
               className='max-w-desktop absolute inset-0 z-20 mx-auto flex w-full items-end p-6 data-odd:justify-end'
             >
               <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs dark:bg-black dark:border-white/10'>
-                {/* Bordes decorativos florales dentro del card */}
-                <div className='absolute -left-35 top-3 hidden h-full w-full md:block'>
+                {/* Bordes decorativos florales dentro del card (light: heroboton, dark: imagenhero) */}
+                <div className='absolute -left-32 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
                     height={2200}
-                    className='h-26 w-full object-contain mb-4'
+                    className='h-26 w-full object-contain mb-4 dark:hidden'
+                    aria-hidden='true'
+                  />
+                  <Image
+                    src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/imagenhero.png'
+                    alt=''
+                    width={400}
+                    height={2200}
+                    className='h-26 w-full object-contain mb-4 hidden dark:block'
                     aria-hidden='true'
                   />
                 </div>
-                <div className='absolute -right-35 top-3 hidden h-full w-full md:block'>
+                <div className='absolute -right-32 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
                     width={400}
                     height={2000}
-                    className='h-26 w-full object-contain mb-4 scale-x-[-1]'
+                    className='h-26 w-full object-contain mb-4 scale-x-[-1] dark:hidden'
+                    aria-hidden='true'
+                  />
+                  <Image
+                    src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/imagenhero.png'
+                    alt=''
+                    width={400}
+                    height={2000}
+                    className='h-26 w-full object-contain mb-4 scale-x-[-1] hidden dark:block'
                     aria-hidden='true'
                   />
                 </div>
@@ -142,7 +174,7 @@ export function Hero() {
           </CarouselItem>
 
 
-          
+
         </CarouselContent>
       </Carousel>
     </div>

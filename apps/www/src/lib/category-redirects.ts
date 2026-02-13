@@ -21,12 +21,19 @@ export const CATEGORY_REDIRECTS: Record<string, string> = {
  */
 export function getCategoryRedirect(pathname: string, searchParams: URLSearchParams): string | null {
   const category = searchParams.get('category');
-  
+
   if (category === 'Follaje' || category === 'Bodas') {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('category', 'San Valentín');
     return `${pathname}?${newSearchParams.toString()}`;
   }
-  
+
+  if (category === 'Diseños exclusivos') {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('category');
+    const qs = newSearchParams.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  }
+
   return null;
 }

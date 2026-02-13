@@ -44,7 +44,7 @@ export const complementosSanValentin = [
     title: "Caja de X12 bombones Ferrero Rocher",
     description: "Caja de bombones Ferrero Rocher (x12). Ideal para sumar a tu ramo.",
     images: [
-      "/assets/img/productos/sanvalentincomplementos/Caja de X12 bombones Ferrero Rocher.png",
+      "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/bombones12.png",
     ],
     category: CATEGORIES["complementosSanValentin"],
     price: {

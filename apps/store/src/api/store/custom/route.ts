@@ -13,7 +13,7 @@
  * - Pagination with configurable page size
  * - Response caching for performance optimization
  * - Region-specific price calculations
- * - Automatic exclusion of "Diseños exclusivos" category when sorting by price
+ * - Price sorting applies to all products
  *
  * QUERY PARAMETERS:
  * - q: string - Search term for product title filtering
@@ -50,7 +50,6 @@
  */
 
 import { getLowestARSPrice } from "@/lib/get-lowest-ars-price";
-import { isExclusiveProduct } from "@/lib/is-exclusive-product";
 import { stableStringify } from "@/lib/stable-stringify";
 import { getExpandedCategories } from "@/shared/category-mapping";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
@@ -189,12 +188,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     });
   }
 
-  // Sort by price (excluding "Diseños exclusivos" category)
+  // Sort by price
   if (params.order === "price_asc" || params.order === "price_desc") {
-    // Filter out products with "Diseños exclusivos" category
-    result = result.filter((p) => !isExclusiveProduct(p as ProductCustom));
-
-    // Sort by price
     result = [...result].sort((a, b) => {
       const priceA = getLowestARSPrice(a as ProductCustom);
       const priceB = getLowestARSPrice(b as ProductCustom);

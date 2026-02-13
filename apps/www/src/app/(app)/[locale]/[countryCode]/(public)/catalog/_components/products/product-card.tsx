@@ -3,8 +3,27 @@
 import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { isExclusive } from '@/lib/isExclusive';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
+import { CATEGORIES } from '@server/constants';
 import { ProductDTO } from '@server/types';
 import { useLocale, useTranslations } from 'next-intl';
+
+const isSanValentin = (categories: ProductDTO['categories']) =>
+  (categories ?? []).some((c) => c.name === CATEGORIES.sanValentin);
+
+/** Solo para la tarjeta del catálogo en San Valentín. No cambia los precios reales del producto ni la página de detalle. */
+const SAN_VALENTIN_CATALOG_PRICE: Record<string, number> = {
+  'dulce-complicidad': 90_000,
+  'amor-en-equilibrio': 164_000,
+  'chispa-vital': 190_000,
+  'el-clasico-enamorado': 310_000,
+  'declaracion-absoluta': 230_000,
+  'pasion-sin-filtros': 190_000,
+  'ternura-infinita': 90_000,
+  'box-love-story': 170_000,
+  'romance-perfumado': 164_000,
+  'valentines-gold-edition': 154_000,
+};
+
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,19 +34,15 @@ interface Props {
 const SCHEMA_BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://api.nomeimporta.xyz';
 
-/** Origen público del sitio (frontend). En cliente usamos la URL actual para que /assets cargue siempre. */
-function getPublicOrigin(): string {
-  if (typeof window !== 'undefined') return window.location.origin;
-  return process.env.NEXT_PUBLIC_BASE_URL ?? '';
-}
+/** Base URL solo desde env para evitar hydration mismatch (server vs client con window.location.origin). */
+const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || undefined;
 
 export const ProductCard = ({ product }: Props) => {
   const locale = useLocale();
   const t = useTranslations('categories-products.products');
   const rawImage =
     product.images?.[0]?.url ?? product.thumbnail ?? '';
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getPublicOrigin();
-  const imageUrl = getSafeImageUrl(rawImage, baseUrl || undefined);
+  const imageUrl = getSafeImageUrl(rawImage, IMAGE_BASE_URL);
 
   const productUrl = `/${locale}/ar/products/${product.handle}`;
 
@@ -36,6 +51,11 @@ export const ProductCard = ({ product }: Props) => {
       Math.min(min, variant.calculated_price?.calculated_amount ?? Infinity),
     Infinity,
   );
+
+  /** En catálogo San Valentín mostramos estos precios fijos; al entrar al producto se ven los precios reales por variante. */
+  const catalogDisplayPrice = isSanValentin(product.categories)
+    ? (SAN_VALENTIN_CATALOG_PRICE[product.handle] ?? lowestPrice)
+    : lowestPrice;
 
   const currency = locale === 'en' ? 'USD' : 'ARS';
 
@@ -87,7 +107,10 @@ export const ProductCard = ({ product }: Props) => {
         <p className='text-sm text-neutral-500'>
           {isExclusive(product.categories ?? [])
             ? t('consult')
-            : `${t('from')} ${formatMoneyByLocale(lowestPrice, locale)}`}
+            : formatMoneyByLocale(
+              isSanValentin(product.categories) ? catalogDisplayPrice : lowestPrice,
+              locale,
+            )}
         </p>
       </div>
     </Link>

@@ -1,5 +1,6 @@
 'use client';
 
+import { PhotoBanner } from '@/app/components/common/photo-banner/photo-banner';
 import { EliteIcon } from '@/app/components/icons/elite-icon';
 import { EscencialIcon } from '@/app/components/icons/escencial-icon';
 import { PremiumIcon } from '@/app/components/icons/premium-icon';
@@ -31,6 +32,9 @@ import { membershipColors } from '../../constants';
 import { MembershipForm } from '../../membership-form';
 
 const ELITE_PORTFOLIO_V = '20260205';
+
+/** Foto del banner de cierre en cada portfolio (Esencial, Premium, Elite). Cambiá esta ruta para usar otra imagen. */
+const MEMBERSHIPS_PORTFOLIO_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/membresiasbanner.jpg';
 
 // Portfolio de imágenes por membresía
 // Portfolio de ejemplo (velas) - reemplazable cuando haya fotos definitivas
@@ -219,7 +223,12 @@ export default function MembershipPortfolioPage() {
   const locale = params.locale as string;
   const countryCode = params.countryCode as string;
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const t = useTranslations('membership.portfolio');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Validar que la membresía existe
   if (!membershipId || !(membershipId in membershipNames)) {
@@ -444,6 +453,9 @@ export default function MembershipPortfolioPage() {
           </Link>
         </div>
       </div>
+
+      {/* Banner solo tras montar para evitar hydration mismatch (useParams puede diferir server/client) */}
+      {mounted && <PhotoBanner src={MEMBERSHIPS_PORTFOLIO_BANNER_IMAGE} wide />}
     </div>
   );
 }

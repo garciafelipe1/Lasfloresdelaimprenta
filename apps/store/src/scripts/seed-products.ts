@@ -12,7 +12,6 @@ import { ROSAS_QUANTITY, SIZES } from "@/shared/constants";
 import { box } from "./seed/products/box.seed";
 import { complementos } from "./seed/products/complementos.seed";
 import { complementosSanValentin } from "./seed/products/complementos-san-valentin.seed";
-import { ramosExclusivos } from "./seed/products/exclusivos.seed";
 import { follaje } from "./seed/products/follaje.seed";
 import { ramosPrimaverales } from "./seed/products/ramos-primaverales.seed";
 import { rosas } from "./seed/products/rosas.seed";
@@ -282,25 +281,11 @@ export async function SeedProducts(
         ],
       }));
 
-  const exclusivos: CreateProductWorkflowInputDTO[] = ramosExclusivos
-    .filter((i) => shouldCreate(i.title))
-    .map((i) => ({
-      ...buildBasicSeedProduct(i),
-      options: [{ title: "Tamaño", values: ["Default"] }],
-      variants: [
-        {
-          title: "Default",
-          options: { Tamaño: "Default" },
-        },
-      ],
-    }));
-
   const productsToCreate = [
     ...products1,
     ...rosasSeed,
     ...complementosSeed,
     ...complementosSanValentinSeed,
-    ...exclusivos,
   ];
 
   if (!productsToCreate.length) {

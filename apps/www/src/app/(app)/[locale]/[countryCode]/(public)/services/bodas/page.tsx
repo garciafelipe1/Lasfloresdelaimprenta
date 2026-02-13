@@ -1,6 +1,10 @@
+import { PhotoBanner } from '@/app/components/common/photo-banner/photo-banner';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import ServiceDetailPage from '../_components/service-detail-page';
+
+/** Foto del banner de cierre en Bodas. Cambiá esta ruta para usar otra imagen. */
+const BODAS_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/bannerservicios.jpg';
 
 type Props = {
   params: Promise<{
@@ -21,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: t('Servicio2.title'),
       description: t('Servicio2.subtitle'),
       images: ['/assets/img/services/bodas/bodas-3.png'],
-      
+
     },
     alternates: {
       canonical: `/${locale}/ar/services/bodas`,
@@ -59,28 +63,31 @@ export default async function BodasPage({ params }: Props) {
   ];
 
   return (
-    <ServiceDetailPage
-      slug='bodas'
-      locale={locale}
-      title={t('Servicio2.title')}
-      subtitle={t('Servicio2.subtitle')}
-      description={t.raw('Servicio2.description')}
-      images={images}
-      ctaText={t('Servicio2.cta')}
-      benefits={benefits}
-      features={features}
-      translations={{
-        whyChooseUs: t('common.whyChooseUs'),
-        ourWork: t('common.ourWork'),
-        whatIncludes: t('common.whatIncludes'),
-        readyToTransform: t('common.readyToTransform'),
-        contactToday: t('common.contactToday'),
-        callNow: t('common.callNow'),
-        sendEmail: t('common.sendEmail'),
-        requestQuote: t('common.requestQuote'),
-        viewGallery: t('common.viewGallery'),
-        premiumService: t('common.premiumService'),
-      }}
-    />
+    <>
+      <ServiceDetailPage
+        slug='bodas'
+        locale={locale}
+        title={t('Servicio2.title')}
+        subtitle={t('Servicio2.subtitle')}
+        description={t.raw('Servicio2.description')}
+        images={images}
+        ctaText={t('Servicio2.cta')}
+        benefits={benefits}
+        features={features}
+        translations={{
+          whyChooseUs: t('common.whyChooseUs'),
+          ourWork: t('common.ourWork'),
+          whatIncludes: t('common.whatIncludes'),
+          readyToTransform: t('common.readyToTransform'),
+          contactToday: t('common.contactToday'),
+          callNow: t('common.callNow'),
+          sendEmail: t('common.sendEmail'),
+          requestQuote: t('common.requestQuote'),
+          viewGallery: t('common.viewGallery'),
+          premiumService: t('common.premiumService'),
+        }}
+      />
+      <PhotoBanner src={BODAS_BANNER_IMAGE} wide />
+    </>
   );
 }

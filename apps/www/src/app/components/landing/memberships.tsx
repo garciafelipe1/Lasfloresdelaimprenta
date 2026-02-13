@@ -51,7 +51,7 @@ export async function Memberships() {
           aria-hidden='true'
         />
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/blancomembresia.png'
           alt=''
           width={100}
           height={800}
@@ -67,7 +67,7 @@ export async function Memberships() {
           aria-hidden='true'
         />
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/blancomembresia.png'
           alt=''
           width={100}
           height={800}
@@ -83,7 +83,7 @@ export async function Memberships() {
           aria-hidden='true'
         />
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/blancomembresia.png'
           alt=''
           width={200}
           height={800}
@@ -103,7 +103,7 @@ export async function Memberships() {
           aria-hidden='true'
         />
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/blancomembresia.png'
           alt=''
           width={200}
           height={800}
@@ -119,7 +119,7 @@ export async function Memberships() {
           aria-hidden='true'
         />
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/blancomembresia.png'
           alt=''
           width={200}
           height={800}
@@ -135,7 +135,7 @@ export async function Memberships() {
           aria-hidden='true'
         />
         <Image
-          src='/assets/img/floresmembresiassinfondo.png'
+          src='https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/blancomembresia.png'
           alt=''
           width={200}
           height={800}

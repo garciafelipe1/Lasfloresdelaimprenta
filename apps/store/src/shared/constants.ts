@@ -5,7 +5,6 @@ export const CATEGORIES = {
   sanValentin: "San Valentín", // ✅ Nueva categoría principal (reemplaza "Bodas")
   complementosSanValentin: "Complementos de San Valentín",
   complementos: "Complementos",
-  diseniosExclusivos: "Diseños exclusivos",
 } as const;
 
 // Categorías legacy para compatibilidad durante migración

@@ -19,6 +19,14 @@ function getCategoryRedirect(pathname: string, searchParams: URLSearchParams): s
     return `${pathname}?${newSearchParams.toString()}`;
   }
 
+  // Categoría "Diseños exclusivos" eliminada: quitar el filtro y mostrar catálogo completo
+  if (category === 'Diseños exclusivos') {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('category');
+    const qs = newSearchParams.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  }
+
   return null;
 }
 

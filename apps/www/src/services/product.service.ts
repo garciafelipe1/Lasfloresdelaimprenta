@@ -301,38 +301,9 @@ export const productService: ProductService = {
     }
   },
 
+  /** Categoría "Diseños exclusivos" eliminada: siempre devuelve array vacío. */
   async getExclusives() {
-    const region = await getRegion('ar');
-
-    if (!region) {
-      return [];
-    }
-
-    const categories = await this.getCategories();
-
-    const { products } = await medusa.store.product.list({
-      region_id: region?.id,
-      fields: 'categories.*',
-      limit: 3,
-      category_id: categories.find(
-        (c) => c.name === CATEGORIES['diseniosExclusivos'],
-      )?.id,
-    });
-
-    const seen = new Set<string>();
-    const unique = products.filter((p) => {
-      if (seen.has(p.id)) return false;
-      seen.add(p.id);
-      return true;
-    });
-    const mappedProducts = unique.map((p) => mapProductDTO(p));
-
-    try {
-      const locale = (await getLocale()) as 'es' | 'en';
-      return await translateProducts(mappedProducts, locale);
-    } catch {
-      return mappedProducts;
-    }
+    return [];
   },
 
   async getBoxPreview() {
