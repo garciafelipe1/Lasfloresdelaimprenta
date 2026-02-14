@@ -47,6 +47,27 @@ class OrderService {
 
     return res.order ?? null;
   }
+
+  /**
+   * Busca un pedido del usuario actual por display_id (ej. el número en la URL /order/5/confirmed).
+   * - Si no hay sesión: devuelve { order: null, validated: false } (no se puede validar).
+   * - Si hay sesión y el pedido existe y es del usuario: { order, validated: true }.
+   * - Si hay sesión y no se encuentra: { order: null, validated: true } → mostrar "no encontrado".
+   */
+  async getMyOrderByDisplayId(displayId: string): Promise<{
+    order: StoreOrder | null;
+    validated: boolean;
+  }> {
+    const authHeaders = await cookies.getAuthHeaders();
+
+    if (!('authorization' in authHeaders)) {
+      return { order: null, validated: false };
+    }
+
+    const { orders } = await this.listMyOrders({ limit: 50 });
+    const order = orders.find((o) => String(o.display_id) === String(displayId));
+    return { order: order ?? null, validated: true };
+  }
 }
 
 export const orderService = new OrderService();

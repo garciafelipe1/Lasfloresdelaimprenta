@@ -12,7 +12,7 @@ interface ProductService {
   getAll: (opts: GetAllOpts) => Promise<GetAllResponse>;
   getOne: (id: string) => Promise<StoreProduct | null>;
   getRecommended: (id: string) => Promise<ProductDTO[]>;
-  getByHandle: (handle: string) => Promise<StoreProduct>;
+  getByHandle: (handle: string) => Promise<StoreProduct | null>;
   getCategories: () => Promise<StoreProductCategory[]>;
   getComplements: (productId: string) => Promise<StoreProduct[]>;
   getLatests: () => Promise<StoreProduct[]>;
@@ -151,12 +151,12 @@ export const productService: ProductService = {
     const region = await getRegion('ar');
 
     if (!region) {
-      throw new Error('No region found');
+      return [];
     }
 
-    console.log('Recommending products for product:', handle);
-
     const product = await this.getByHandle(handle);
+    if (!product) return [];
+
     const categoryName = product.categories?.[0]?.name;
 
     if (!categoryName) return [];
@@ -222,29 +222,33 @@ export const productService: ProductService = {
     }
   },
 
-  async getByHandle(handle: string) {
+  async getByHandle(handle: string): Promise<StoreProduct | null> {
     const region = await getRegion('ar');
 
     if (!region) {
-      throw new Error('No region found');
+      return null;
     }
-    const { products } = await medusa.store.product.list({
-      region_id: region?.id,
-      handle,
-      fields: 'categories.*',
-    });
-
-    const product = products[0];
-    if (!product) {
-      throw new Error('Product not found');
-    }
-
-    // Aplicar traducciones según el locale
     try {
-      const locale = (await getLocale()) as 'es' | 'en';
-      return await translateProduct(product, locale);
+      const { products } = await medusa.store.product.list({
+        region_id: region.id,
+        handle,
+        fields: 'categories.*',
+      });
+
+      const product = products[0];
+      if (!product) {
+        return null;
+      }
+
+      // Aplicar traducciones según el locale
+      try {
+        const locale = (await getLocale()) as 'es' | 'en';
+        return await translateProduct(product, locale);
+      } catch {
+        return product;
+      }
     } catch {
-      return product;
+      return null;
     }
   },
 

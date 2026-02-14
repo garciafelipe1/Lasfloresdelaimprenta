@@ -12,6 +12,9 @@ interface Props {
 
 export async function CompleteOrderForm({ cart }: Props) {
   const t = await getTranslations('checkout');
+  if (!cart) {
+    return null;
+  }
   const paymentSession = cart.payment_collection?.payment_sessions?.[0];
   const notReady =
     !cart ||

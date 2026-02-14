@@ -1,5 +1,6 @@
 'use server';
 
+import medusaError from '@/app/helpers/medusa-error';
 import { medusa } from '@/lib/medusa-client';
 import { cartActionClient } from '@/lib/next-safe-action/cart-action-client';
 import { revalidateTag } from 'next/cache';
@@ -59,8 +60,8 @@ export const addToCartAction = cartActionClient
         revalidateTag(`cart-${newCartResp.cart.id}`);
         console.log('[AddToCart] Producto añadido al nuevo carrito exitosamente');
       } else {
-        // Si es otro error, lanzarlo normalmente
-        throw new Error('Error al agregar al carrito');
+        // Mensaje amigable según tipo de error (stock, red, etc.)
+        medusaError(error);
       }
     }
   });

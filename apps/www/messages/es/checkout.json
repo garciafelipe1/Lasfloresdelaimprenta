@@ -35,6 +35,7 @@
     "cart": {
       "pageTitle": "Carrito de compras",
       "pageSubtitle": "Revisá los productos que elegiste antes de finalizar tu compra.",
+      "expiredMessage": "Tu sesión de carrito expiró o el carrito no está disponible. Agregá productos nuevamente para continuar.",
       "summaryTitle": "Resumen del pedido",
       "proceed": "Ir al checkout",
       "table": {
@@ -66,7 +67,8 @@
         "province": "Provincia",
         "city": "Ciudad",
         "postalCode": "Código Postal",
-        "address": "Dirección",
+        "address": "Calle y número",
+        "addressDestination": "Destino del envío (dirección completa)",
         "deliveryDetails": "Detalles adicionales del domicilio (opcional)",
         "phoneNumber": "Número de celular",
         "email": "Correo electrónico"
@@ -88,7 +90,7 @@
         "province": "Provincias de Argentina",
         "city": "Tu ciudad",
         "postalCode": "Tu código postal",
-        "address": "Tu dirección",
+        "address": "La calle y número donde debe llegar el pedido",
         "deliveryDetails": "Si querés, agregá datos extra para el equipo de envíos.",
         "phoneNumber": "Tu número de celular para contactarte",
         "email": "Te vamos a notificar a través de este medio"
@@ -150,6 +152,7 @@
       "pageTitle": "Resumen",
       "pageDescription": "¡Ya casi terminamos! Revisá que todo esté en orden.",
       "shippingTitle": "Envío",
+      "destinationLabel": "Destino del envío",
       "productsTitle": "Productos en tu pedido",
       "unitPrice": "Precio unitario",
       "units": "Unidades",

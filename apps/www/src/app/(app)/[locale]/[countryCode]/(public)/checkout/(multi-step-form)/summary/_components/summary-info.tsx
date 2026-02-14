@@ -13,8 +13,11 @@ interface Props {
 export async function SummaryInfo({ cart }: Props) {
   const locale = await getLocale();
   const t = await getTranslations('checkout');
+  if (!cart?.shipping_address) {
+    return null;
+  }
   const { last_name, first_name, city, province, phone, address_1 } =
-    cart.shipping_address!;
+    cart.shipping_address;
   const deliveryDetails = (() => {
     const meta = cart.shipping_address?.metadata as unknown;
     if (!meta || typeof meta !== 'object') return '';
@@ -36,8 +39,8 @@ export async function SummaryInfo({ cart }: Props) {
         <p>
           {first_name} {last_name}
         </p>
-        <p className='opacity-50'>
-          {province} - {city} - {address_1}
+        <p className='font-medium'>
+          {t('summary.destinationLabel')}: {address_1}, {city}, {province}
         </p>
         {deliveryDetails ? (
           <p className='opacity-50'>
@@ -70,9 +73,9 @@ export async function SummaryInfo({ cart }: Props) {
                   <p>{t('summary.units')}: {item.quantity}</p>
                   <p>{t('summary.subtotal')}: {formatMoneyByLocale(item.total, locale)}</p>
                 </div>
-                {item.metadata && item.metadata.message && (
+                {item.metadata && item.metadata.message != null && (
                   <p className='break-words text-sm italic'>
-                    &quot;{item.metadata.message as string}&quot;
+                    &quot;{String(item.metadata.message)}&quot;
                   </p>
                 )}
               </div>
@@ -113,7 +116,7 @@ export async function SummaryInfo({ cart }: Props) {
             if (typeof directDiscount === 'number' && directDiscount !== 0) {
               return directDiscount;
             }
-            
+
             // Si hay promociones pero no discount_total, calcular la diferencia
             const promotions = (cart as { promotions?: { code?: string; id?: string }[] }).promotions;
             if (promotions && promotions.length > 0) {
@@ -121,13 +124,13 @@ export async function SummaryInfo({ cart }: Props) {
               const shippingTotal = cart.shipping_total || 0;
               const total = cart.total || 0;
               const calculatedTotal = itemSubtotal + shippingTotal;
-              
+
               // Si el total calculado es mayor que el total real, hay un descuento
               if (calculatedTotal > total) {
                 return calculatedTotal - total;
               }
             }
-            
+
             return undefined;
           })()}
           shippingDisplay={

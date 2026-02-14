@@ -35,6 +35,7 @@
     "cart": {
       "pageTitle": "Shopping cart",
       "pageSubtitle": "Review the products you selected before completing your purchase.",
+      "expiredMessage": "Your cart session expired or the cart is not available. Add products again to continue.",
       "summaryTitle": "Order summary",
       "proceed": "Proceed to checkout",
       "table": {
@@ -66,7 +67,8 @@
         "province": "Province",
         "city": "City",
         "postalCode": "Postal code",
-        "address": "Address",
+        "address": "Street and number",
+        "addressDestination": "Shipping destination (full address)",
         "deliveryDetails": "Additional address details (optional)",
         "phoneNumber": "Phone number",
         "email": "Email"
@@ -88,7 +90,7 @@
         "province": "Provinces of Argentina",
         "city": "Your city",
         "postalCode": "Your postal code",
-        "address": "Your address",
+        "address": "The street and number where your order should be delivered",
         "deliveryDetails": "Add extra info for the delivery team if needed.",
         "phoneNumber": "Your phone number so we can contact you",
         "email": "We'll send updates to this email"
@@ -150,6 +152,7 @@
       "pageTitle": "Summary",
       "pageDescription": "Almost done! Please review everything.",
       "shippingTitle": "Shipping",
+      "destinationLabel": "Shipping destination",
       "productsTitle": "Products in your order",
       "unitPrice": "Unit price",
       "units": "Units",

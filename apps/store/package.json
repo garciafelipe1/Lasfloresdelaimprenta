@@ -24,6 +24,7 @@
     "seed": "medusa exec ./src/scripts/seed.ts",
     "seed:products": "medusa exec ./src/scripts/seed-products-only.ts",
     "create:shipping:envio-a-confirmar": "medusa exec ./src/scripts/create-envio-a-confirmar-shipping-option.ts",
+    "create:single-use-promo": "medusa exec ./src/scripts/create-single-use-promo.ts",
     "fix:stock": "medusa exec ./src/scripts/fix-sales-channel-stock-location.ts",
     "fix:stock:all": "medusa exec ./src/scripts/fix-all-sales-channels-stock-location.ts",
     "inventory:orphans:report": "medusa exec ./src/scripts/inventory-orphans-report.ts",

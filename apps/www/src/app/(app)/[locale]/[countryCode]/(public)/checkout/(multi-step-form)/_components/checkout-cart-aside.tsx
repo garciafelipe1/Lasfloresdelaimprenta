@@ -12,7 +12,7 @@ export async function CheckoutCartAside() {
   const items = cart?.items ?? [];
 
   if (!cart) {
-    throw new Error('Cart not found');
+    redirect(`/${locale}/ar/checkout/cart?expired=1`);
   }
 
   if (!cart.items?.length) {
@@ -26,10 +26,10 @@ export async function CheckoutCartAside() {
   })();
 
   const promotions = (cart as { promotions?: { code?: string; id?: string }[] }).promotions;
-  
+
   // Calcular descuento: intentar obtener discount_total directamente, o calcularlo desde la diferencia
   let discountTotal: number | undefined = undefined;
-  
+
   // Primero intentar obtener discount_total directamente
   const directDiscount = (cart as { discount_total?: number }).discount_total;
   if (typeof directDiscount === 'number' && directDiscount !== 0) {
@@ -41,7 +41,7 @@ export async function CheckoutCartAside() {
     const shippingTotal = cart.shipping_total || 0;
     const total = cart.total || 0;
     const calculatedTotal = itemSubtotal + shippingTotal;
-    
+
     // Si el total calculado es mayor que el total real, hay un descuento
     if (calculatedTotal > total) {
       discountTotal = calculatedTotal - total;
@@ -50,7 +50,7 @@ export async function CheckoutCartAside() {
 
   return (
     <section className='relative rounded-xl'>
-      <div className='sticky top-[calc(3rem+64px)] flex flex-col gap-4'>
+      <div className='flex flex-col gap-4 sm:sticky sm:top-[calc(3rem+64px)]'>
         <header>
           <h2>{t('layout.asideTitle')}</h2>
         </header>

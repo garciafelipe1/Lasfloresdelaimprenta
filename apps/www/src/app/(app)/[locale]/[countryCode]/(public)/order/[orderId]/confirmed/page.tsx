@@ -1,6 +1,8 @@
 import { CheckCheckIcon } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { Button } from '@/app/components/ui/button';
 import { getWhatsAppUrl } from '@/lib/whatsapp';
+import { orderService } from '@/services/order.service';
 
 interface Props {
   params: Promise<{ orderId: string }>;
@@ -11,6 +13,12 @@ export default async function ConfirmedPage(props: Props) {
   const { orderId } = await props.params;
   const searchParams = props.searchParams ? await props.searchParams : undefined;
   const shouldShowShippingToConfirm = searchParams?.shipping === 'confirm';
+
+  // Si el usuario está logueado, validar que el pedido exista y sea suyo
+  const { order, validated } = await orderService.getMyOrderByDisplayId(orderId);
+  if (validated && !order) {
+    notFound();
+  }
 
   const whatsappText = [
     'Hola, realicé una compra y necesito tasar el envío para recibir mi pedido.',
@@ -40,9 +48,11 @@ export default async function ConfirmedPage(props: Props) {
           </Button>
         </div>
       ) : null}
-      <p className='mt-1 text-sm'>
-        Te enviaremos un correo con los detalles y próximos pasos. Si tenés
-        alguna duda, no dudes en contactarnos.
+      <p className='mt-1 text-sm text-muted-foreground'>
+        Te enviaremos un correo con los detalles y próximos pasos.
+      </p>
+      <p className='mt-2 text-xs text-muted-foreground'>
+        Guardá el número de pedido <span className='font-medium text-foreground'>#{orderId}</span> para cualquier consulta. Si tenés dudas, contactanos con ese número.
       </p>
     </div>
   );

@@ -1,5 +1,6 @@
 'use server';
 
+import medusaError from '@/app/helpers/medusa-error';
 import { medusa } from '@/lib/medusa-client';
 import { cartActionClient } from '@/lib/next-safe-action/cart-action-client';
 import { revalidateTag } from 'next/cache';
@@ -17,6 +18,6 @@ export const removeFromCartAction = cartActionClient
       revalidateTag(`cart-${cart.id}`);
     } catch (error) {
       console.error({ error });
-      throw new Error('Error al agregar al carrito');
+      medusaError(error);
     }
   });

@@ -43,15 +43,15 @@ export function ShoppingCartItem({ item }: Props) {
   });
 
   return (
-    <div className='flex items-center space-x-4 rounded-md border p-4'>
+    <div className='flex items-start gap-3 rounded-md border p-3 sm:items-center sm:space-x-4 sm:p-4'>
       <ItemImage
         alt={displayTitle}
         src={imageUrl}
         quantity={item.quantity}
       />
 
-      <div className='flex-1'>
-        <h6 className='m-0 text-primary'>{displayTitle}</h6>
+      <div className='min-w-0 flex-1'>
+        <h6 className='m-0 break-words text-primary text-sm sm:text-base'>{displayTitle}</h6>
         {variantTitle ? (
           <p className='mt-1 text-xs text-muted-foreground'>
             Variante: {variantTitle}
@@ -79,12 +79,12 @@ export function ShoppingCartItem({ item }: Props) {
 
       <Button
         onClick={() => removeItem.execute({ variantId: item.id! })}
-        className='hover:bg-destructive/20'
+        className='h-9 w-9 shrink-0 hover:bg-destructive/20 sm:h-10 sm:w-10'
         variant='outline'
         size='icon'
         aria-label={`Remove ${displayTitle}`}
       >
-        <Trash className='text-primary' />
+        <Trash className='text-primary h-4 w-4' />
       </Button>
     </div>
   );
@@ -97,7 +97,7 @@ export function ItemRoot({ className, ...props }: ItemRoot) {
     <div
       {...props}
       className={cn(
-        'flex items-center space-x-4 rounded-md border p-4',
+        'flex items-start gap-3 rounded-md border p-3 sm:items-center sm:space-x-4 sm:p-4',
         className,
       )}
     />
@@ -134,8 +134,8 @@ interface ItemBodyProps extends PropsWithChildren {
 export function ItemBody({ title, price, children }: ItemBodyProps) {
   const locale = useLocale();
   return (
-    <div className='flex-1'>
-      <h6 className='m-0'>{title}</h6>
+    <div className='min-w-0 flex-1'>
+      <h6 className='m-0 break-words text-sm sm:text-base'>{title}</h6>
       <p className='m-0 text-sm text-gray-500'>{formatMoneyByLocale(price, locale)}</p>
       {children}
     </div>

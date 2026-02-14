@@ -51,6 +51,22 @@ export const placeOrderAction = cartActionClient.action(
       redirect(`/order/${cartRes?.order.display_id}/confirmed${qs}`);
     }
 
-    return cartRes.cart;
+    // Medusa devolvió type 'cart' (error: pago rechazado, stock, etc.)
+    const cartPayload = cartRes?.cart as { error?: string } | undefined;
+    const serverMessage = cartPayload?.error;
+    const isStockError =
+      serverMessage &&
+      /stock|inventory|insufficient|insuficiente|sin stock/i.test(serverMessage);
+    if (isStockError) {
+      throw new Error(
+        'Uno o más productos ya no tienen stock. Actualizá tu carrito e intentá de nuevo.'
+      );
+    }
+    if (serverMessage) {
+      throw new Error(serverMessage);
+    }
+    throw new Error(
+      'No se pudo completar el pedido. Revisá que el pago se haya acreditado o intentá de nuevo.'
+    );
   },
 );

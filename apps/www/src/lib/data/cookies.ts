@@ -9,11 +9,13 @@ export const cookies = {
 
   async setCartId(cartId: string) {
     const cookies = await nextCookies();
+    const isProduction = process.env.NODE_ENV === 'production';
     cookies.set('_medusa_cart_id', cartId, {
       maxAge: 60 * 60 * 24 * 7,
       httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax', // "lax" permite que la cookie se envíe al volver de Mercado Pago (redirect top-level)
+      secure: isProduction,
+      path: '/',
     });
   },
 
@@ -21,6 +23,7 @@ export const cookies = {
     const cookies = await nextCookies();
     cookies.set('_medusa_cart_id', '', {
       maxAge: -1,
+      path: '/',
     });
   },
 

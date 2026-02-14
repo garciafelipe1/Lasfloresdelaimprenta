@@ -7,12 +7,18 @@ import {
 import { authService } from '@/services/auth.service';
 import AccountForm from '../_components/account-form';
 import { UserInfo } from './user-info';
+import { redirect } from 'next/navigation';
 
-export default async function AccountSettingsPage() {
+type Props = {
+  params: Promise<{ locale: string; countryCode: string }>;
+};
+
+export default async function AccountSettingsPage({ params }: Props) {
+  const { locale, countryCode } = await params;
   const user = await authService.getUser();
 
   if (!user) {
-    throw new Error('User not found');
+    redirect(`/${locale}/${countryCode}/login?error=session_invalid`);
   }
 
   const { created_at, first_name, email, id } = user;

@@ -32,10 +32,10 @@ export function CheckoutCartItems({ items }: Props) {
 
   return (
     <>
-      <ul className='flex flex-col gap-2'>
+      <ul className='flex flex-col gap-2 sm:gap-2'>
         {items.map((item) => (
           <ItemRoot
-            className='border-none p-0'
+            className='border-none p-0 sm:p-0'
             key={item.id}
           >
             <ItemImage

@@ -124,7 +124,47 @@ export function AddressForm() {
           </div>
         </div>
 
+        <div className='space-y-2'>
+          <h3 className='text-sm font-medium'>
+            {t('address.fields.addressDestination')}
+          </h3>
+          <FormField
+            control={form.control}
+            name='address'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('address.fields.address')}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t('address.placeholders.address')}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>{t('address.descriptions.address')}</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+          <FormField
+            control={form.control}
+            name='city'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('address.fields.city')}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t('address.placeholders.city')}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>{t('address.descriptions.city')}</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name='province'
@@ -158,23 +198,6 @@ export function AddressForm() {
           />
           <FormField
             control={form.control}
-            name='city'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('address.fields.city')}</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder={t('address.placeholders.city')}
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>{t('address.descriptions.city')}</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name='postalCode'
             render={({ field }) => (
               <FormItem>
@@ -191,24 +214,6 @@ export function AddressForm() {
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name='address'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('address.fields.address')}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={t('address.placeholders.address')}
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>{t('address.descriptions.address')}</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}
