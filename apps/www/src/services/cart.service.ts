@@ -25,7 +25,7 @@ export const cartService = {
       id,
       {
         fields:
-          '*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.categories',
+          '*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.categories, +discount_total, +subtotal, +tax_total',
       },
       {
         next: {
@@ -61,13 +61,13 @@ export const cartService = {
         const cartCheck = await medusa.store.cart.retrieve(cart.id, {
           fields: 'id',
         });
-        
+
         // Si llegamos aquí sin error, el carrito existe y no está completado (o al menos podemos intentar usarlo)
         // Si el carrito está completado, el error se capturará cuando intentemos modificarlo
       } catch (error: any) {
         // Si el error indica que el carrito está completado o no existe, crear uno nuevo
         if (
-          error?.message?.includes('already completed') || 
+          error?.message?.includes('already completed') ||
           error?.message?.includes('completed') ||
           error?.message?.includes('not found') ||
           error?.status === 404

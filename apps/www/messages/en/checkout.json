@@ -19,7 +19,18 @@
       "subtotal": "Subtotal",
       "shipping": "Shipping",
       "total": "Total",
-      "toBeCalculated": "To be calculated"
+      "toBeCalculated": "To be calculated",
+      "discount": "Discount"
+    },
+    "promo": {
+      "label": "Promo code",
+      "placeholder": "E.g. FLOR10",
+      "apply": "Apply",
+      "remove": "Remove",
+      "success": "Code applied",
+      "errorInvalid": "Invalid or already used code",
+      "errorInactive": "The promotional code is inactive. Please contact the administrator.",
+      "errorGeneric": "Could not apply code. Please try again."
     },
     "cart": {
       "pageTitle": "Shopping cart",

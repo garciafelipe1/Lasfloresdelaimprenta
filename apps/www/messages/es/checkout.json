@@ -19,7 +19,18 @@
       "subtotal": "Subtotal",
       "shipping": "Envío",
       "total": "Total",
-      "toBeCalculated": "A calcular"
+      "toBeCalculated": "A calcular",
+      "discount": "Descuento"
+    },
+    "promo": {
+      "label": "Código promocional",
+      "placeholder": "Ej. FLOR10",
+      "apply": "Aplicar",
+      "remove": "Quitar",
+      "success": "Código aplicado",
+      "errorInvalid": "Código no válido o ya utilizado",
+      "errorInactive": "El código promocional está inactivo. Contactá al administrador.",
+      "errorGeneric": "No se pudo aplicar el código. Intentá de nuevo."
     },
     "cart": {
       "pageTitle": "Carrito de compras",
