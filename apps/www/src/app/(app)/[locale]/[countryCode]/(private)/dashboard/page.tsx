@@ -16,7 +16,7 @@ const membershipIdMap: Record<string, string> = {
 export default async function DashboardPage() {
   const t = await getTranslations();
   const locale = await getLocale();
-  
+
   // Obtener la suscripción del usuario desde el backend
   const subscription = await userService.getSubscriptionInfo();
 
@@ -24,13 +24,13 @@ export default async function DashboardPage() {
   const ordersRes = await orderService.listMyOrders({ limit: 3, offset: 0 }).catch(() => null);
   const latestOrders = ordersRes?.orders ?? [];
   const totalOrders = ordersRes?.count ?? latestOrders.length;
-  
-  // Mapear el ID de la membresía del backend al formato del frontend
-  const userMembership = subscription?.membership?.id 
-    ? membershipIdMap[subscription.membership.id] || null 
-    : null; 
 
- 
+  // Mapear el ID de la membresía del backend al formato del frontend
+  const userMembership = subscription?.membership?.id
+    ? membershipIdMap[subscription.membership.id] || null
+    : null;
+
+
   const membershipConfig: {
     [key: string]: {
       title: string;
@@ -42,10 +42,10 @@ export default async function DashboardPage() {
     };
   } = {
     basico: {
-      title: t('DashboardPage.membership.basico.title'), 
+      title: t('DashboardPage.membership.basico.title'),
       description: t('DashboardPage.membership.basico.description'),
       features: [
-        t('DashboardPage.membership.basico.features.0'), 
+        t('DashboardPage.membership.basico.features.0'),
         t('DashboardPage.membership.basico.features.1'),
         t('DashboardPage.membership.basico.features.2'),
       ],
@@ -245,9 +245,17 @@ export default async function DashboardPage() {
 
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
         <section className='bg-secondary col-span-1 rounded-xl p-6 shadow-md md:col-span-2'>
-          <h2 className='text-primary mb-6 text-2xl font-bold'>
-            {t('DashboardPage.membershipSectionTitle')}
-          </h2>
+          <div className='mb-6 flex items-center justify-between'>
+            <h2 className='text-primary text-2xl font-bold'>
+              {t('DashboardPage.membershipSectionTitle')}
+            </h2>
+            <Link
+              href='/'
+              className='text-primary hover:text-primary/80 text-sm font-semibold underline underline-offset-4 transition-colors'
+            >
+              {t('DashboardPage.homeLink' as any) || 'Inicio'}
+            </Link>
+          </div>
           {renderMembershipInfo()}
         </section>
 
@@ -291,8 +299,8 @@ export default async function DashboardPage() {
                         <p className='text-xs text-muted-foreground'>
                           {o.created_at
                             ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(
-                                new Date(o.created_at),
-                              )
+                              new Date(o.created_at),
+                            )
                             : ''}
                         </p>
                       </div>
@@ -319,7 +327,7 @@ export default async function DashboardPage() {
 
         <NewsSection />
 
-        
+
       </div>
     </section>
   );

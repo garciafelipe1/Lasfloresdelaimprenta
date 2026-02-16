@@ -12,22 +12,23 @@ export default async function updateBoxImages({ container }: ExecArgs) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
   const productModuleService = container.resolve(Modules.PRODUCT);
 
+  const R2_BASE = "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev";
   const mapping: Array<{ handle: string; imageUrl: string }> = [
     {
       handle: "lilium-and-violet",
-      imageUrl: "/assets/img/productos/box/lilim&violet.jpeg",
+      imageUrl: `${R2_BASE}/lilium.jpeg`,
     },
     {
       handle: "fresh-vibrant",
-      imageUrl: "/assets/img/productos/box/fresh.jpeg",
+      imageUrl: `${R2_BASE}/IMG-20251019-WA0009.jpeg`,
     },
     {
       handle: "edicion-silvestre",
-      imageUrl: "/assets/img/productos/box/silvestre.png",
+      imageUrl: `${R2_BASE}/silvestre.png`,
     },
     {
       handle: "pink-symphony",
-      imageUrl: "/assets/img/productos/box/pinkysh.jpeg",
+      imageUrl: `${R2_BASE}/pinky.jpeg`,
     },
   ];
 

@@ -3,6 +3,7 @@
     "welcomeTitle": "Welcome to Your Dashboard!",
     "welcomeSubtitle": "Here you can view all your account information and current membership details.",
     "membershipSectionTitle": "Your Current Membership",
+    "homeLink": "Home",
     "quickLinksSectionTitle": "Quick Actions",
     "loadingMembership": {
       "text": "Loading your membership..."

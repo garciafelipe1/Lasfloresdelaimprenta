@@ -4,6 +4,7 @@
     "welcomeTitle": "¡Bienvenido a tu Panel de Control!",
     "welcomeSubtitle": "Aquí puedes ver toda la información de tu cuenta y tu membresía actual.",
     "membershipSectionTitle": "Tu Membresía Actual",
+    "homeLink": "Inicio",
     "quickLinksSectionTitle": "Acciones Rápidas",
     "loadingMembership": {
       "text": "Cargando tu membresía..."

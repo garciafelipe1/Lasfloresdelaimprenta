@@ -5,14 +5,14 @@
  */
 
 export const CATEGORY_REDIRECTS: Record<string, string> = {
-  // Redirecciones de "Follaje" a "San Valentín"
-  '/catalog?category=Follaje': '/catalog?category=San+Valentín',
-  '/es/ar/catalog?category=Follaje': '/es/ar/catalog?category=San+Valentín',
-  '/en/ar/catalog?category=Follaje': '/en/ar/catalog?category=San+Valentín',
-  // Redirecciones de "Bodas" a "San Valentín"
-  '/catalog?category=Bodas': '/catalog?category=San+Valentín',
-  '/es/ar/catalog?category=Bodas': '/es/ar/catalog?category=San+Valentín',
-  '/en/ar/catalog?category=Bodas': '/en/ar/catalog?category=San+Valentín',
+  // Redirecciones de "Follaje" a "Día de la Madre"
+  '/catalog?category=Follaje': '/catalog?category=Día+de+la+Madre',
+  '/es/ar/catalog?category=Follaje': '/es/ar/catalog?category=Día+de+la+Madre',
+  '/en/ar/catalog?category=Follaje': '/en/ar/catalog?category=Día+de+la+Madre',
+  // Redirecciones de "Bodas" a "Día de la Madre"
+  '/catalog?category=Bodas': '/catalog?category=Día+de+la+Madre',
+  '/es/ar/catalog?category=Bodas': '/es/ar/catalog?category=Día+de+la+Madre',
+  '/en/ar/catalog?category=Bodas': '/en/ar/catalog?category=Día+de+la+Madre',
 };
 
 /**
@@ -24,7 +24,7 @@ export function getCategoryRedirect(pathname: string, searchParams: URLSearchPar
 
   if (category === 'Follaje' || category === 'Bodas') {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('category', 'San Valentín');
+    newSearchParams.set('category', 'Día de la Madre');
     return `${pathname}?${newSearchParams.toString()}`;
   }
 

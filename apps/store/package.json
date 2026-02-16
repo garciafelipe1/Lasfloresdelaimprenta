@@ -37,6 +37,7 @@
     "seed:rosa-amarilla": "medusa exec ./src/scripts/seed-rosa-amarilla.ts",
     "delete:rosas-rojas": "medusa exec ./src/scripts/delete-rosas-rojas.ts",
     "delete:san-valentin": "medusa exec ./src/scripts/delete-san-valentin.ts",
+    "move:san-valentin-to-dia-madre": "medusa exec ./src/scripts/move-san-valentin-to-dia-madre.ts",
     "delete:sv-legacy": "medusa exec ./src/scripts/delete-sv-legacy-products.ts",
     "delete:rosas-legacy": "medusa exec ./src/scripts/delete-rosas-legacy-list.ts",
     "delete:rosas-legacy-45000": "medusa exec ./src/scripts/delete-rosas-legacy-45000.ts",

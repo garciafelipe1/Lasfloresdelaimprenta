@@ -41,11 +41,11 @@ const MEMBERSHIPS_PORTFOLIO_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d0
 const candleGallery: string[] = [
   '/assets/img/memberships/velas/vela-1.png',
   // '/assets/img/memberships/velas/vela-2.png',
-  '/assets/img/memberships/velas/vela-3.png',
+  // '/assets/img/memberships/velas/vela-3.png',
   // '/assets/img/memberships/velas/vela-4.png',
-  '/assets/img/memberships/velas/vela-5.png',
-  '/assets/img/memberships/velas/vela-6.png',
-  '/assets/img/memberships/velas/vela-7.png',
+  // '/assets/img/memberships/velas/vela-5.png',
+  // '/assets/img/memberships/velas/vela-6.png',
+  // '/assets/img/memberships/velas/vela-7.png',
 ];
 
 // Ramos (3 fotos) - “héroes” para la composición premium de Esencial
@@ -82,7 +82,7 @@ const eliteGallery: string[] = [
 const membershipCarousel: Record<MembershipId, string[]> = {
   esencial: [
     '/assets/img/memberships/carousel/carousel-3.png',
-    '/assets/img/memberships/velas/vela-7.png',
+    '/assets/img/memberships/velas/vela-1.png',
     '/assets/img/memberships/carousel/carousel-2.png',
   ],
   premium: [

@@ -37,7 +37,7 @@ export function Hero() {
             <Image
               src={`/assets/img/home1.jpg?v=${HOME_IMG_V}`}
               alt={i18n('landing.hero.title')}
-              className='h-full w-full object-cover object-top'
+              className='h-full w-full object-cover object-top '
               fill
               priority
               quality={85}
@@ -49,7 +49,7 @@ export function Hero() {
             >
               <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs dark:bg-black dark:border-white/10'>
                 {/* Bordes decorativos florales dentro del card (light: heroboton, dark: imagenhero) */}
-                <div className='absolute -left-34 top-3 block h-full w-full'>
+                <div className='absolute -left-30 md:-left-34 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
@@ -63,11 +63,11 @@ export function Hero() {
                     alt=''
                     width={400}
                     height={2200}
-                    className='h-26 w-full object-contain mb-4 hidden dark:block'
+                    className='h-26 w-full  object-contain mb-4 hidden dark:block'
                     aria-hidden='true'
                   />
                 </div>
-                <div className='absolute -right-35 top-3 block h-full w-full'>
+                <div className='absolute -right-30 md:-right-34 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
@@ -86,7 +86,7 @@ export function Hero() {
                   />
                 </div>
                 <CardHeader className='relative z-10'>
-                  <CardTitle className='text-center capitalize font-cinzel'>
+                  <CardTitle className='text-center capitalize font-cinzel -mt-2'>
                     {i18n('landing.hero.title')}{' '}
                   </CardTitle>
                 </CardHeader>
@@ -120,7 +120,7 @@ export function Hero() {
             >
               <Card className='relative overflow-visible w-full max-w-[80%] sm:max-w-xs md:max-w-xs dark:bg-black dark:border-white/10'>
                 {/* Bordes decorativos florales dentro del card (light: heroboton, dark: imagenhero) */}
-                <div className='absolute -left-32 top-3 block h-full w-full'>
+                <div className='absolute -left-30 md:-left-34 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
@@ -138,7 +138,7 @@ export function Hero() {
                     aria-hidden='true'
                   />
                 </div>
-                <div className='absolute -right-32 top-3 block h-full w-full'>
+                <div className='absolute -right-30 md:-right-34 top-3 block h-full w-full'>
                   <Image
                     src='/assets/img/heroboton.png'
                     alt=''
@@ -157,7 +157,7 @@ export function Hero() {
                   />
                 </div>
                 <CardHeader className='relative z-10'>
-                  <CardTitle className='text-center capitalize font-cinzel'>
+                  <CardTitle className='text-center capitalize font-cinzel -mt-2'>
                     {i18n('landing.heros.title')}
                   </CardTitle>
                 </CardHeader>

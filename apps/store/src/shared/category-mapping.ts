@@ -5,10 +5,11 @@
  * y viceversa, manteniendo compatibilidad durante la migración.
  */
 export const CATEGORY_ALIASES = {
-  // Mapeo bidireccional: "San Valentín" incluye productos de "Bodas" y "Follaje"
-  "San Valentín": ["San Valentín", "Bodas", "Follaje"],
-  "Bodas": ["San Valentín", "Bodas", "Follaje"], // Redirige a "San Valentín"
-  "Follaje": ["San Valentín", "Bodas", "Follaje"], // Mantener compatibilidad temporal
+  // Mapeo bidireccional: "Día de la Madre" incluye productos de "Bodas" y "Follaje"
+  "Día de la Madre": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"],
+  "San Valentín": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"], // Redirige a "Día de la Madre"
+  "Bodas": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"], // Redirige a "Día de la Madre"
+  "Follaje": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"], // Mantener compatibilidad temporal
 } as const;
 
 /**

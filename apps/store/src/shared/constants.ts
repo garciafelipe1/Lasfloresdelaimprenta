@@ -2,15 +2,15 @@ export const CATEGORIES = {
   ramosPrimaverales: "Ramos primaverales",
   rosas: "Rosas",
   box: "Box",
-  sanValentin: "San Valentín", // ✅ Nueva categoría principal (reemplaza "Bodas")
-  complementosSanValentin: "Complementos de San Valentín",
+  sanValentin: "Día de la Madre", // ✅ Nueva categoría principal (reemplaza "Bodas")
+  complementosSanValentin: "Complemento Día de la Madre",
   complementos: "Complementos",
 } as const;
 
 // Categorías legacy para compatibilidad durante migración
 export const LEGACY_CATEGORIES = {
   follaje: "Follaje", // Mantener para productos existentes
-  bodas: "Bodas", // Mantener para productos existentes (redirige a "San Valentín")
+  bodas: "Bodas", // Mantener para productos existentes (redirige a "Día de la Madre")
 } as const;
 
 export const SIZES = ["S", "M", "XXL"];
