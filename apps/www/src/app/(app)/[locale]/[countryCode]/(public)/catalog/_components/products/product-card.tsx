@@ -7,21 +7,33 @@ import { CATEGORIES } from '@server/constants';
 import { ProductDTO } from '@server/types';
 import { useLocale, useTranslations } from 'next-intl';
 
-const isSanValentin = (categories: ProductDTO['categories']) =>
+const isDiaDeLaMadre = (categories: ProductDTO['categories']) =>
   (categories ?? []).some((c) => c.name === CATEGORIES.sanValentin);
 
-/** Solo para la tarjeta del catálogo en San Valentín. No cambia los precios reales del producto ni la página de detalle. */
-const SAN_VALENTIN_CATALOG_PRICE: Record<string, number> = {
-  'dulce-complicidad': 90_000,
-  'amor-en-equilibrio': 164_000,
-  'chispa-vital': 190_000,
-  'el-clasico-enamorado': 310_000,
-  'declaracion-absoluta': 230_000,
-  'pasion-sin-filtros': 190_000,
-  'ternura-infinita': 90_000,
-  'box-love-story': 170_000,
-  'romance-perfumado': 164_000,
-  'valentines-gold-edition': 154_000,
+/** Solo para la tarjeta del catálogo en Día de la Madre. No cambia los precios reales del producto ni la página de detalle. */
+const DIA_DE_LA_MADRE_CATALOG_PRICE: Record<string, number> = {
+  // Handles antiguos (por compatibilidad)
+  'dulce-complicidad': 50_000,
+  'amor-en-equilibrio': 50_000,
+  'chispa-vital': 50_000,
+  'el-clasico-enamorado': 50_000,
+  'declaracion-absoluta': 50_000,
+  'pasion-sin-filtros': 50_000,
+  'ternura-infinita': 50_000,
+  'box-love-story': 50_000,
+  'romance-perfumado': 50_000,
+  'valentines-gold-edition': 50_000,
+  // Handles nuevos
+  'admiracion-sutil': 90_000,
+  'fuerza-y-equilibrio': 164_000,
+  'energia-creadora': 190_000,
+  'reconocimiento-absoluto': 310_000,
+  'mujer-lider': 230_000,
+  'determinacion-pura': 190_000,
+  'elegancia-y-gracia': 90_000,
+  'box-vanguardia-femenina': 170_000,
+  'esencia-inolvidable': 164_000,
+  'edicion-oro-8m': 154_000,
 };
 
 import Image from 'next/image';
@@ -52,9 +64,9 @@ export const ProductCard = ({ product }: Props) => {
     Infinity,
   );
 
-  /** En catálogo San Valentín mostramos estos precios fijos; al entrar al producto se ven los precios reales por variante. */
-  const catalogDisplayPrice = isSanValentin(product.categories)
-    ? (SAN_VALENTIN_CATALOG_PRICE[product.handle] ?? lowestPrice)
+  /** En catálogo Día de la Madre mostramos estos precios fijos; al entrar al producto se ven los precios reales por variante. */
+  const catalogDisplayPrice = isDiaDeLaMadre(product.categories)
+    ? (DIA_DE_LA_MADRE_CATALOG_PRICE[product.handle] ?? lowestPrice)
     : lowestPrice;
 
   const currency = locale === 'en' ? 'USD' : 'ARS';
@@ -108,7 +120,7 @@ export const ProductCard = ({ product }: Props) => {
           {isExclusive(product.categories ?? [])
             ? t('consult')
             : formatMoneyByLocale(
-              isSanValentin(product.categories) ? catalogDisplayPrice : lowestPrice,
+              isDiaDeLaMadre(product.categories) ? catalogDisplayPrice : lowestPrice,
               locale,
             )}
         </p>
