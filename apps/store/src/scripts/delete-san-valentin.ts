@@ -23,7 +23,7 @@ export default async function deleteSanValentinProducts({ container }: ExecArgs)
   const targetCategories = new Set([targetCategoryName]);
 
   logger.info(
-    `Objetivo: borrar productos de categorías: ${expanded.map((c) => `"${c}"`).join(", ")}`
+    `Objetivo: borrar productos de categoría: "${targetCategoryName}"`
   );
   logger.info(`Modo: ${dryRun ? "DRY_RUN (no borra)" : "BORRADO REAL"}`);
 
