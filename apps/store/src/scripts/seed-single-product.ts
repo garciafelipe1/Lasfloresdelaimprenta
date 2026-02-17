@@ -5,7 +5,6 @@ import { ProductStatus } from "@medusajs/framework/utils";
 import slugify from "slugify";
 
 import { SIZES, CATEGORIES } from "@/shared/constants";
-import { sanValentin } from "./seed/products/san-valentin.seed";
 
 export default async function seedSingleProduct({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
@@ -20,11 +19,11 @@ export default async function seedSingleProduct({ container }: ExecArgs) {
     fields: ["id", "name"],
   });
 
-  // Verificar si la categoría "San Valentín" existe, si no, crearla
+  // Verificar si la categoría "Día de la Madre" existe, si no, crearla
   let categories = (existingCategories || []) as any[];
-  const sanValentinCategory = categories.find((c: any) => c.name === CATEGORIES.sanValentin);
+  const diaMadreCategory = categories.find((c: any) => c.name === CATEGORIES.sanValentin);
 
-  if (!sanValentinCategory) {
+  if (!diaMadreCategory) {
     logger.info(`Category "${CATEGORIES.sanValentin}" not found. Creating it...`);
     const { result: categoryResult } = await createProductCategoriesWorkflow(container).run({
       input: {
@@ -59,30 +58,9 @@ export default async function seedSingleProduct({ container }: ExecArgs) {
     throw new Error("No sales channel found. Please run the full seed first.");
   }
 
-  logger.info("Creating products from san-valentin seed...");
-
-  // Filtrar productos que ya existen
-  const { data: existingProducts } = await query.graph({
-    entity: "product",
-    fields: ["handle"],
-  });
-
-  const existingHandles = new Set(
-    (existingProducts || []).map((p: any) => p.handle)
-  );
-
-  // Filtrar solo productos que no existen
-  const productsToCreate = sanValentin.filter((item) => {
-    const handle = slugify(item.title, { lower: true, trim: true });
-    return !existingHandles.has(handle);
-  });
-
-  if (productsToCreate.length === 0) {
-    logger.info("All products already exist. Nothing to create.");
-    return;
-  }
-
-  logger.info(`Creating ${productsToCreate.length} new product(s)...`);
+  logger.info("Este script necesita actualizarse para usar productos de Día de la Madre.");
+  logger.info("Por favor, usa el seed principal o crea productos manualmente.");
+  return;
 
   const buildBasicSeedProduct = (item: any) => {
     const category = categories.find((c: any) => c.name === item.category);

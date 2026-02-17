@@ -1,13 +1,11 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { CATEGORIES } from "@/shared/constants";
-import { getExpandedCategories } from "@/shared/category-mapping";
 
 /**
- * Borra productos que aparecen bajo la categoría "San Valentín".
- *
- * Importante: por compatibilidad, "San Valentín" incluye aliases ("Bodas", "Follaje")
- * según `CATEGORY_ALIASES`. Este script borra productos en cualquiera de esas categorías.
+ * Borra productos que aparecen bajo la categoría "San Valentín" (si todavía existe).
+ * 
+ * NOTA: Los productos de "San Valentín" ya fueron migrados a "Día de la Madre".
+ * Este script solo borra productos que todavía estén en la categoría "San Valentín" (legacy).
  *
  * Por seguridad corre en DRY_RUN por defecto.
  * - DRY_RUN=true  -> solo lista lo que borraría
@@ -20,8 +18,9 @@ export default async function deleteSanValentinProducts({ container }: ExecArgs)
 
   const dryRun = String(process.env.DRY_RUN ?? "true").toLowerCase() !== "false";
 
-  const expanded = getExpandedCategories(CATEGORIES.sanValentin);
-  const targetCategories = new Set(expanded);
+  // Buscar específicamente la categoría "San Valentín" (legacy)
+  const targetCategoryName = "San Valentín";
+  const targetCategories = new Set([targetCategoryName]);
 
   logger.info(
     `Objetivo: borrar productos de categorías: ${expanded.map((c) => `"${c}"`).join(", ")}`

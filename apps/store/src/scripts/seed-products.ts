@@ -11,11 +11,9 @@ import slugify from "slugify";
 import { ROSAS_QUANTITY, SIZES } from "@/shared/constants";
 import { box } from "./seed/products/box.seed";
 import { complementos } from "./seed/products/complementos.seed";
-import { complementosSanValentin } from "./seed/products/complementos-san-valentin.seed";
 import { follaje } from "./seed/products/follaje.seed";
 import { ramosPrimaverales } from "./seed/products/ramos-primaverales.seed";
 import { rosas } from "./seed/products/rosas.seed";
-import { sanValentin } from "./seed/products/san-valentin.seed";
 
 export async function SeedProducts(
   container: MedusaContainer,
@@ -43,7 +41,7 @@ export async function SeedProducts(
     XXL: 170,
   };
 
-  // ✅ Rosas + San Valentín (catálogo): variaciones X* con precios ARS fijos
+  // ✅ Rosas (catálogo): variaciones X* con precios ARS fijos
   const X_VARIATIONS = [
     { label: "X3", ars: 50_000, usd: 50 },
     { label: "X6", ars: 84_000, usd: 84 },
@@ -121,12 +119,11 @@ export async function SeedProducts(
     ...ramosPrimaverales,
     ...box,
     ...follaje,
-    ...sanValentin,
   ] as any[])
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
       ...buildBasicSeedProduct(i),
-      ...(i.category === "San Valentín"
+      ...(i.category === "Día de la Madre"
         ? {
           options: [
             {
@@ -262,30 +259,10 @@ export async function SeedProducts(
       })),
     }));
 
-  const complementosSanValentinSeed: CreateProductWorkflowInputDTO[] =
-    complementosSanValentin
-      .filter((i) => shouldCreate(i.title))
-      .map((i) => ({
-        ...buildBasicSeedProduct(i),
-        options: [{ title: "Presentación", values: ["Default"] }],
-        variants: [
-          {
-            title: "Default",
-            sku: uniqueSku(`${toHandle(i.title)}-default`),
-            options: { Presentación: "Default" },
-            prices: [
-              { amount: i.price.ars.base, currency_code: "ars" },
-              { amount: i.price.usd.base, currency_code: "usd" },
-            ],
-          },
-        ],
-      }));
-
   const productsToCreate = [
     ...products1,
     ...rosasSeed,
     ...complementosSeed,
-    ...complementosSanValentinSeed,
   ];
 
   if (!productsToCreate.length) {

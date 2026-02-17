@@ -2,8 +2,8 @@ export const CATEGORIES = {
   ramosPrimaverales: "Ramos primaverales",
   rosas: "Rosas",
   box: "Box",
-  sanValentin: "Día de la Madre", // ✅ Nueva categoría principal (reemplaza "Bodas")
-  complementosSanValentin: "Complemento Día de la Madre",
+  sanValentin: "Día de la Madre", // ✅ Categoría "Día de la Madre" (antes "San Valentín", migrada)
+  complementosSanValentin: "Complemento Día de la Madre", // ✅ Complementos de Día de la Madre (antes "Complementos de San Valentín", migrada)
   complementos: "Complementos",
 } as const;
 

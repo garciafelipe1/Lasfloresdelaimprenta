@@ -30,7 +30,7 @@ export default async function verifyCatalogVariations({ container }: ExecArgs) {
     );
 
   const rosas = pick(CATEGORIES.rosas);
-  const sv = pick(CATEGORIES.sanValentin);
+  const diaMadre = pick(CATEGORIES.sanValentin);
 
   const summarize = (label: string, list: any[]) => {
     logger.info(`== ${label}: ${list.length} producto(s) ==`);
@@ -51,6 +51,6 @@ export default async function verifyCatalogVariations({ container }: ExecArgs) {
   };
 
   summarize("Rosas", rosas);
-  summarize("San Valentín", sv);
+  summarize("Día de la Madre", diaMadre);
 }
 

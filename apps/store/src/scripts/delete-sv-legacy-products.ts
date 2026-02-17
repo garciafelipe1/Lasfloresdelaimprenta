@@ -27,8 +27,8 @@ const TARGETS: Target[] = [
 /**
  * Borra SOLO 3 productos legacy:
  * - Follaje Decorativo
- * - Ramo San Valentín 1
- * - Ramo de San Valentín 2
+ * - Ramo San Valentín 1 (legacy)
+ * - Ramo de San Valentín 2 (legacy)
  *
  * DRY_RUN=true por defecto.
  * - DRY_RUN=true  -> lista

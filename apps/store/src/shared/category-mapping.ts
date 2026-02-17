@@ -1,15 +1,14 @@
 /**
  * Mapeo de categorías para compatibilidad y migración
  * 
- * Permite que productos con categoría "Bodas" o "Follaje" aparezcan cuando se busca "San Valentín"
+ * Permite que productos con categoría "Bodas" o "Follaje" aparezcan cuando se busca "Día de la Madre"
  * y viceversa, manteniendo compatibilidad durante la migración.
  */
 export const CATEGORY_ALIASES = {
   // Mapeo bidireccional: "Día de la Madre" incluye productos de "Bodas" y "Follaje"
-  "Día de la Madre": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"],
-  "San Valentín": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"], // Redirige a "Día de la Madre"
-  "Bodas": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"], // Redirige a "Día de la Madre"
-  "Follaje": ["Día de la Madre", "San Valentín", "Bodas", "Follaje"], // Mantener compatibilidad temporal
+  "Día de la Madre": ["Día de la Madre", "Bodas", "Follaje"],
+  "Bodas": ["Día de la Madre", "Bodas", "Follaje"], // Redirige a "Día de la Madre"
+  "Follaje": ["Día de la Madre", "Bodas", "Follaje"], // Mantener compatibilidad temporal
 } as const;
 
 /**
