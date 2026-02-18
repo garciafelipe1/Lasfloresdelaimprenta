@@ -5,10 +5,10 @@ const SAN_VALENTIN_BANNER_URL =
 
 export function FooterBanner() {
   return (
-    <div className='relative w-full overflow-hidden rounded-xl'>
-      <div className='relative w-full min-h-[200px] h-[min(320px,55vw)] sm:h-[280px] md:h-[340px] lg:h-[400px] xl:h-[460px]'>
+    <div className='relative w-full overflow-hidden rounded-xl bg-muted/30'>
+      <div className='relative w-full min-h-[180px] h-[min(400px,50vw)] sm:min-h-[220px] sm:h-[min(450px,45vw)] md:min-h-[260px] md:h-[min(500px,40vw)] lg:min-h-[300px] lg:h-[min(550px,35vw)] xl:min-h-[340px] xl:h-[min(600px,30vw)]'>
         <Image
-          className='h-full w-full object-contain object-center sm:object-cover'
+          className='h-full w-full object-contain object-center'
           fill
           src={SAN_VALENTIN_BANNER_URL}
           alt='Banner Día de la Madre'

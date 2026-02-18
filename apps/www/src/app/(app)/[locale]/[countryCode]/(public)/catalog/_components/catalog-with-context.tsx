@@ -63,7 +63,7 @@ export function CatalogWithContext({ children }: Props) {
         }}
       >
         <div
-          className='relative w-full min-h-[240px] h-[min(380px,65vw)] sm:min-h-[300px] sm:h-[min(400px,55vw)] md:min-h-[360px] md:h-[min(480px,50vw)]'
+          className='relative w-full min-h-[180px] h-[min(400px,50vw)] sm:min-h-[220px] sm:h-[min(450px,45vw)] md:min-h-[260px] md:h-[min(500px,40vw)] lg:min-h-[300px] lg:h-[min(550px,35vw)] xl:min-h-[340px] xl:h-[min(600px,30vw)]'
           style={{
             borderRadius: '16px',
             overflow: 'hidden',
@@ -74,7 +74,7 @@ export function CatalogWithContext({ children }: Props) {
           <img
             src={BANNER_SRC}
             alt='Banner Día de la Madre - Las flores de la imprenta'
-            className='absolute inset-0 h-full rounded-xl w-full object-contain object-center'
+            className='absolute inset-0 h-full w-full object-contain object-center'
             style={{
               borderRadius: '16px',
               clipPath: 'inset(0 round 16px)',

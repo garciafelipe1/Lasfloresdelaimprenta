@@ -18,7 +18,7 @@ export function PhotoBanner({ src, alt = '', className, wide }: PhotoBannerProps
     >
       <div
         className={cn(
-          'relative mx-auto h-[min(400px,62vw)] min-h-[320px] w-full overflow-hidden rounded-xl md:min-h-[380px]',
+          'relative mx-auto min-h-[180px] h-[min(400px,50vw)] sm:min-h-[220px] sm:h-[min(450px,45vw)] md:min-h-[260px] md:h-[min(500px,40vw)] lg:min-h-[300px] lg:h-[min(550px,35vw)] xl:min-h-[340px] xl:h-[min(600px,30vw)] w-full overflow-hidden rounded-xl bg-muted/30',
           wide ? 'max-w-[1920px]' : 'max-w-[1560px]',
         )}
       >
@@ -26,7 +26,7 @@ export function PhotoBanner({ src, alt = '', className, wide }: PhotoBannerProps
           src={src}
           alt={alt}
           fill
-          className="object-cover object-center"
+          className="object-contain object-center"
           sizes={wide ? '(max-width: 1920px) 100vw, 1920px' : '(max-width: 1560px) 100vw, 1560px'}
           priority={false}
         />
