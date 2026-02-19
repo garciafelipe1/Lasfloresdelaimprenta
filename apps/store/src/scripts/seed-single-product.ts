@@ -19,7 +19,7 @@ export default async function seedSingleProduct({ container }: ExecArgs) {
     fields: ["id", "name"],
   });
 
-  // Verificar si la categoría "Día de la Madre" existe, si no, crearla
+  // Verificar si la categoría "Día de la Mujer" existe, si no, crearla
   let categories = (existingCategories || []) as any[];
   const diaMadreCategory = categories.find((c: any) => c.name === CATEGORIES.sanValentin);
 
@@ -58,7 +58,7 @@ export default async function seedSingleProduct({ container }: ExecArgs) {
     throw new Error("No sales channel found. Please run the full seed first.");
   }
 
-  logger.info("Este script necesita actualizarse para usar productos de Día de la Madre.");
+  logger.info("Este script necesita actualizarse para usar productos de Día de la Mujer.");
   logger.info("Por favor, usa el seed principal o crea productos manualmente.");
   return;
 }

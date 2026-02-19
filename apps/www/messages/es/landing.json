@@ -5,7 +5,7 @@
       "button": "Cliquea aqui para verlos"
     },
     "heros": {
-      "title": "Colección Día de la Madre",
+      "title": "Colección Día de la Mujer",
       "button": "Cliquea aqui para verlos"
     },
     "examples": {
@@ -46,7 +46,8 @@
         "ramosPrimaverales": "Bouquet Spring",
         "rosas": "Rosas importadas",
         "box": "Box",
-        "sanValentin": "Día de la Madre Ramos"
+        "sanValentin": "Día de la Mujer Ramos",
+        "Día de la Mujer": "Día de la Mujer Ramos"
       }
     },
     "testimonials": {

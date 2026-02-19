@@ -8,7 +8,7 @@ import { MobileFilters } from './filters/mobile-filters';
 import { GridLayout } from './grid-layout';
 
 const BANNER_SRC =
-  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/sanvalentinbanner.jpg';
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Banner%20d%C3%ADa%20la%20mujer.jpg';
 
 interface Props {
   children: React.ReactNode;
@@ -73,7 +73,7 @@ export function CatalogWithContext({ children }: Props) {
         >
           <img
             src={BANNER_SRC}
-            alt='Banner Día de la Madre - Las flores de la imprenta'
+            alt='Banner Día de la Mujer - Las flores de la imprenta'
             className='absolute inset-0 h-full w-full object-contain object-center'
             style={{
               borderRadius: '16px',

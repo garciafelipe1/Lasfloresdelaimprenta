@@ -1,6 +1,6 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { diaDeLaMadre } from "./seed/products/dia-de-la-madre.seed";
+import { diaDeLaMujer } from "./seed/products/dia-de-la-mujer.seed";
 import slugify from "slugify";
 
 const toHandle = (value: string) =>
@@ -12,31 +12,31 @@ const toHandle = (value: string) =>
  */
 const PRODUCT_MAPPING: Record<string, any> = {
     // Handles antiguos
-    "dulce-complicidad": diaDeLaMadre.find((p) => p.title === "Admiración Sutil"),
-    "amor-en-equilibrio": diaDeLaMadre.find((p) => p.title === "Fuerza y Equilibrio"),
-    "chispa-vital": diaDeLaMadre.find((p) => p.title === "Energía Creadora"),
-    "el-clasico-enamorado": diaDeLaMadre.find((p) => p.title === "Reconocimiento Absoluto"),
-    "declaracion-absoluta": diaDeLaMadre.find((p) => p.title === "Mujer Líder"),
-    "pasion-sin-filtros": diaDeLaMadre.find((p) => p.title === "Determinación Pura"),
-    "ternura-infinita": diaDeLaMadre.find((p) => p.title === "Elegancia y Gracia"),
-    "box-love-story": diaDeLaMadre.find((p) => p.title === "Box Vanguardia Femenina"),
-    "romance-perfumado": diaDeLaMadre.find((p) => p.title === "Esencia Inolvidable"),
-    "valentines-gold-edition": diaDeLaMadre.find((p) => p.title === "Edición Oro 8M"),
+    "dulce-complicidad": diaDeLaMujer.find((p) => p.title === "Admiración Sutil"),
+    "amor-en-equilibrio": diaDeLaMujer.find((p) => p.title === "Fuerza y Equilibrio"),
+    "chispa-vital": diaDeLaMujer.find((p) => p.title === "Energía Creadora"),
+    "el-clasico-enamorado": diaDeLaMujer.find((p) => p.title === "Reconocimiento Absoluto"),
+    "declaracion-absoluta": diaDeLaMujer.find((p) => p.title === "Mujer Líder"),
+    "pasion-sin-filtros": diaDeLaMujer.find((p) => p.title === "Determinación Pura"),
+    "ternura-infinita": diaDeLaMujer.find((p) => p.title === "Elegancia y Gracia"),
+    "box-love-story": diaDeLaMujer.find((p) => p.title === "Box Vanguardia Femenina"),
+    "romance-perfumado": diaDeLaMujer.find((p) => p.title === "Esencia Inolvidable"),
+    "valentines-gold-edition": diaDeLaMujer.find((p) => p.title === "Edición Oro 8M"),
     // Handles nuevos (por si ya fueron actualizados)
-    "admiracion-sutil": diaDeLaMadre.find((p) => p.title === "Admiración Sutil"),
-    "fuerza-y-equilibrio": diaDeLaMadre.find((p) => p.title === "Fuerza y Equilibrio"),
-    "energia-creadora": diaDeLaMadre.find((p) => p.title === "Energía Creadora"),
-    "reconocimiento-absoluto": diaDeLaMadre.find((p) => p.title === "Reconocimiento Absoluto"),
-    "mujer-lider": diaDeLaMadre.find((p) => p.title === "Mujer Líder"),
-    "determinacion-pura": diaDeLaMadre.find((p) => p.title === "Determinación Pura"),
-    "elegancia-y-gracia": diaDeLaMadre.find((p) => p.title === "Elegancia y Gracia"),
-    "box-vanguardia-femenina": diaDeLaMadre.find((p) => p.title === "Box Vanguardia Femenina"),
-    "esencia-inolvidable": diaDeLaMadre.find((p) => p.title === "Esencia Inolvidable"),
-    "edicion-oro-8m": diaDeLaMadre.find((p) => p.title === "Edición Oro 8M"),
+    "admiracion-sutil": diaDeLaMujer.find((p) => p.title === "Admiración Sutil"),
+    "fuerza-y-equilibrio": diaDeLaMujer.find((p) => p.title === "Fuerza y Equilibrio"),
+    "energia-creadora": diaDeLaMujer.find((p) => p.title === "Energía Creadora"),
+    "reconocimiento-absoluto": diaDeLaMujer.find((p) => p.title === "Reconocimiento Absoluto"),
+    "mujer-lider": diaDeLaMujer.find((p) => p.title === "Mujer Líder"),
+    "determinacion-pura": diaDeLaMujer.find((p) => p.title === "Determinación Pura"),
+    "elegancia-y-gracia": diaDeLaMujer.find((p) => p.title === "Elegancia y Gracia"),
+    "box-vanguardia-femenina": diaDeLaMujer.find((p) => p.title === "Box Vanguardia Femenina"),
+    "esencia-inolvidable": diaDeLaMujer.find((p) => p.title === "Esencia Inolvidable"),
+    "edicion-oro-8m": diaDeLaMujer.find((p) => p.title === "Edición Oro 8M"),
 };
 
 /**
- * Actualiza contenido de los productos de "Día de la Madre" en la DB:
+ * Actualiza contenido de los productos de "Día de la Mujer" en la DB:
  * - title (nuevo nombre)
  * - description (nueva descripción)
  * - images + thumbnail
@@ -54,7 +54,7 @@ export default async function updateDiaDeLaMadreContent({ container }: ExecArgs)
 
     logger.info("[update-dia-de-la-madre-content] Iniciando actualización...");
 
-    // Variaciones de precios para "Día de la Madre" (igual que en seed-products.ts)
+    // Variaciones de precios para "Día de la Mujer" (igual que en seed-products.ts)
     const X_VARIATIONS = [
         { label: "X3", ars: 50_000, usd: 50 },
         { label: "X6", ars: 84_000, usd: 84 },
@@ -65,7 +65,7 @@ export default async function updateDiaDeLaMadreContent({ container }: ExecArgs)
         { label: "X24", ars: 297_000, usd: 297 },
     ] as const;
 
-    // Obtener todos los productos de "Día de la Madre" con sus variantes y precios
+    // Obtener todos los productos de "Día de la Mujer" con sus variantes y precios
     const { data: products } = await query.graph({
         entity: "product",
         fields: [
@@ -81,11 +81,11 @@ export default async function updateDiaDeLaMadreContent({ container }: ExecArgs)
     });
 
     const diaDeLaMadreProducts = (products || []).filter((p: any) =>
-        (p?.categories || []).some((c: any) => c?.name === "Día de la Madre")
+        (p?.categories || []).some((c: any) => c?.name === "Día de la Mujer")
     );
 
     logger.info(
-        `[update-dia-de-la-madre-content] Encontrados ${diaDeLaMadreProducts.length} productos en "Día de la Madre"`
+        `[update-dia-de-la-madre-content] Encontrados ${diaDeLaMadreProducts.length} productos en "Día de la Mujer"`
     );
 
     let updated = 0;

@@ -4,7 +4,7 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 /**
  * Borra productos que aparecen bajo la categoría "San Valentín" (si todavía existe).
  * 
- * NOTA: Los productos de "San Valentín" ya fueron migrados a "Día de la Madre".
+ * NOTA: Los productos de "San Valentín" ya fueron migrados a "Día de la Mujer".
  * Este script solo borra productos que todavía estén en la categoría "San Valentín" (legacy).
  *
  * Por seguridad corre en DRY_RUN por defecto.

@@ -106,7 +106,7 @@ export function Hero() {
             className='relative h-[75dvh] min-h-[500px] w-full'
           >
             <Image
-              src={`/assets/img/home4.jpg?v=${HOME_IMG_V}`}
+              src={`https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Home%20d%C3%ADa%20de%20la%20mujer.jpg`}
               alt={i18n('landing.heros.title')}
               className='h-full w-full object-cover object-top'
               fill

@@ -7,11 +7,11 @@ import { CATEGORIES } from '@server/constants';
 import { ProductDTO } from '@server/types';
 import { useLocale, useTranslations } from 'next-intl';
 
-const isDiaDeLaMadre = (categories: ProductDTO['categories']) =>
+const isDiaDeLaMujer = (categories: ProductDTO['categories']) =>
   (categories ?? []).some((c) => c.name === CATEGORIES.sanValentin);
 
-/** Solo para la tarjeta del catálogo en Día de la Madre. No cambia los precios reales del producto ni la página de detalle. */
-const DIA_DE_LA_MADRE_CATALOG_PRICE: Record<string, number> = {
+/** Solo para la tarjeta del catálogo en Día de la Mujer. No cambia los precios reales del producto ni la página de detalle. */
+const DIA_DE_LA_MUJER_CATALOG_PRICE: Record<string, number> = {
   // Handles antiguos (por compatibilidad)
   'dulce-complicidad': 50_000,
   'amor-en-equilibrio': 50_000,
@@ -64,9 +64,9 @@ export const ProductCard = ({ product }: Props) => {
     Infinity,
   );
 
-  /** En catálogo Día de la Madre mostramos estos precios fijos; al entrar al producto se ven los precios reales por variante. */
-  const catalogDisplayPrice = isDiaDeLaMadre(product.categories)
-    ? (DIA_DE_LA_MADRE_CATALOG_PRICE[product.handle] ?? lowestPrice)
+  /** En catálogo Día de la Mujer mostramos estos precios fijos; al entrar al producto se ven los precios reales por variante. */
+  const catalogDisplayPrice = isDiaDeLaMujer(product.categories)
+    ? (DIA_DE_LA_MUJER_CATALOG_PRICE[product.handle] ?? lowestPrice)
     : lowestPrice;
 
   const currency = locale === 'en' ? 'USD' : 'ARS';
@@ -120,7 +120,7 @@ export const ProductCard = ({ product }: Props) => {
           {isExclusive(product.categories ?? [])
             ? t('consult')
             : formatMoneyByLocale(
-              isDiaDeLaMadre(product.categories) ? catalogDisplayPrice : lowestPrice,
+              isDiaDeLaMujer(product.categories) ? catalogDisplayPrice : lowestPrice,
               locale,
             )}
         </p>

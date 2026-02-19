@@ -58,8 +58,8 @@ const CategoryCard = ({ title, imageUrl }: BannerProps) => (
 
 const CATEGORY_IMAGES = [
   {
-    key: 'sanValentin',
-    href: '/catalog?category=San+Valentín',
+    key: 'Día de la Mujer',
+    href: '/catalog?category=Día+de+la+Mujer',
     imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/ramo.jpeg',
   },
   {
@@ -119,7 +119,7 @@ export function Categories() {
               className='block h-full'
             >
               <CategoryCard
-                title={t(`landing.categories.items.${c.key}`)}
+                title={t(`landing.categories.items.${c.key}` as any)}
                 imageUrl={getImageUrl(c.imagePath)}
               />
             </Link>

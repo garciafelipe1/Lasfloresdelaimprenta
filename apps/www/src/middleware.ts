@@ -15,7 +15,7 @@ function getCategoryRedirect(pathname: string, searchParams: URLSearchParams): s
 
   if (category === 'Follaje' || category === 'Bodas') {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('category', 'Día de la Madre');
+    newSearchParams.set('category', 'Día de la Mujer');
     return `${pathname}?${newSearchParams.toString()}`;
   }
 

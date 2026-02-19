@@ -5,7 +5,7 @@
       "button": "Click here to view them"
     },
     "heros": {
-      "title": "Valentine's Day Collection",
+      "title": "Women's Day Collection",
       "button": "Click here to view them"
     },
     "examples": {
@@ -46,7 +46,8 @@
         "ramosPrimaverales": "Bouquet Spring",
         "rosas": "Imported Roses",
         "box": "Box",
-        "sanValentin": "Mother's Day Bouquets"
+        "sanValentin": "Women's Day Bouquets",
+        "Día de la Mujer": "Women's Day Bouquets"
       }
     },
     "testimonials": {

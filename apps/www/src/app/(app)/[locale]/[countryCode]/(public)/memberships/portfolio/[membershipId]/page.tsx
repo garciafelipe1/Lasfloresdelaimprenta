@@ -34,7 +34,7 @@ import { MembershipForm } from '../../membership-form';
 const ELITE_PORTFOLIO_V = '20260205';
 
 /** Foto del banner de cierre en cada portfolio (Esencial, Premium, Elite). Cambiá esta ruta para usar otra imagen. */
-const MEMBERSHIPS_PORTFOLIO_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/membresiasbanner.jpg';
+const MEMBERSHIPS_PORTFOLIO_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Banner%20member%20.jpg';
 
 // Portfolio de imágenes por membresía
 // Portfolio de ejemplo (velas) - reemplazable cuando haya fotos definitivas

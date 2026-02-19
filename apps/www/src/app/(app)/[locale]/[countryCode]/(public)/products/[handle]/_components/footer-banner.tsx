@@ -1,7 +1,7 @@
 import Image from 'next/image';
 
 const SAN_VALENTIN_BANNER_URL =
-  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/sanvalentinbanner.jpg';
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Banner%20d%C3%ADa%20la%20mujer.jpg';
 
 export function FooterBanner() {
   return (
@@ -11,7 +11,7 @@ export function FooterBanner() {
           className='h-full w-full object-contain object-center'
           fill
           src={SAN_VALENTIN_BANNER_URL}
-          alt='Banner Día de la Madre'
+          alt='Banner Día de la Mujer'
           sizes='(max-width: 480px) 100vw, (max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1024px'
           priority={false}
         />

@@ -15,39 +15,39 @@ interface NewsItem {
 const news: NewsItem[] = [
   {
     id: 1,
-    title: '¡Gran Lanzamiento! Nuevas Funcionalidades Disponibles',
+    title: 'VOLVIMOS AL DISEÑO',
     excerpt:
-      'Descubre las últimas características que hemos añadido para mejorar tu experiencia con nuestra plataforma.',
+      'Tras un San Valentín con stock agotado, el taller de Soler 212 vuelve a estar operativo. Recibimos materia prima fresca y de alta gama para los pedidos de esta semana. Agenda abierta.',
     imageUrl:
-      'https://i.pinimg.com/736x/86/89/6f/86896fa8acddcd7ead4f386c4b2a6320.jpg',
-    date: '05 de Junio, 2025',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-volvimos-al-diseno.jpg',
+    date: '8 de Marzo, 2025',
   },
   {
     id: 2,
-    title: 'Consejos para Optimizar tu Membresía Premium',
+    title: 'COLECCIÓN 8M: ADMIRACIÓN',
     excerpt:
-      'Aprovecha al máximo todos los beneficios de tu membresía con nuestra guía detallada y exclusiva.',
+      'Este 8 de Marzo, el reconocimiento a la mujer se demuestra con excelencia. Ya estamos tomando pre-órdenes de nuestra nueva colección exclusiva. Asegurá tu diseño antes de que se agote.',
     imageUrl:
-      'https://i.pinimg.com/736x/86/89/6f/86896fa8acddcd7ead4f386c4b2a6320.jpg',
-    date: '01 de Junio, 2025',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-coleccion-8m.jpg',
+    date: '8 de Marzo, 2025',
   },
   {
     id: 3,
-    title: 'Evento Exclusivo: Webinar con Expertos del Sector',
+    title: 'IMAGEN CORPORATIVA',
     excerpt:
-      'No te pierdas nuestro próximo webinar interactivo. Regístrate ahora y aprende de los mejores líderes de la industria.',
+      'Elevamos la presencia de tu marca. Ofrecemos soluciones florales para regalos institucionales, fechas especiales y ambientación de oficinas o eventos. Consultá por propuestas a medida',
     imageUrl:
-      'https://i.pinimg.com/736x/86/89/6f/86896fa8acddcd7ead4f386c4b2a6320.jpg',
-    date: '28 de Mayo, 2025',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-imagen-corporativa.jpg',
+    date: '1 de Marzo, 2025',
   },
   {
     id: 4,
-    title: 'Caso de Éxito: Cómo Nuestros Usuarios Triunfan',
+    title: 'LA EXCELENCIA COMO HÁBITO',
     excerpt:
-      'Lee testimonios inspiradores y casos reales de cómo nuestra plataforma ayudó a usuarios como tú a alcanzar sus metas.',
+      'Suscribite a nuestras membresías y olvidate de gestionar pedidos. Recibí diseño floral fresco en tu hogar o empresa de forma automática, con la frecuencia que elijas',
     imageUrl:
-      'https://i.pinimg.com/736x/86/89/6f/86896fa8acddcd7ead4f386c4b2a6320.jpg',
-    date: '20 de Mayo, 2025',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-excelencia-habito.jpg',
+    date: '15 de Febrero, 2025',
   },
 ];
 
@@ -130,9 +130,8 @@ export default function NewsSection() {
         {news.map((_, idx) => (
           <button
             key={idx}
-            className={`h-2 w-2 rounded-full transition-all duration-300 ${
-              currentNewsIndex === idx ? 'bg-primary w-4' : 'bg-primary/50 w-2'
-            }`}
+            className={`h-2 w-2 rounded-full transition-all duration-300 ${currentNewsIndex === idx ? 'bg-primary w-4' : 'bg-primary/50 w-2'
+              }`}
             onClick={() => {
               setIsFading(true);
               setTimeout(() => {

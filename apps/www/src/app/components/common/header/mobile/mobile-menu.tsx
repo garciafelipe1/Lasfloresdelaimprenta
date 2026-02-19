@@ -33,15 +33,17 @@ export function MobileMenu() {
       </SheetTrigger>
       <SheetContent
         side='right'
-        className='flex flex-col space-y-4'
+        className='flex flex-col p-0'
       >
-        <SheetHeader>
+        <SheetHeader className='flex-shrink-0 border-b'>
           <SheetTitle className='flex items-center justify-center'>
             <MobileThemedLogo className='h-14' />
           </SheetTitle>
           <SheetDescription className='m-0'></SheetDescription>
         </SheetHeader>
-        <Links onClose={() => setOpen(false)} />
+        <div className='flex-1 overflow-y-auto'>
+          <Links onClose={() => setOpen(false)} />
+        </div>
       </SheetContent>
     </Sheet>
   );

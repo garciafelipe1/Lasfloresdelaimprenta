@@ -11,8 +11,8 @@ import slugify from "slugify";
 import { ROSAS_QUANTITY, SIZES } from "@/shared/constants";
 import { box } from "./seed/products/box.seed";
 import { complementos } from "./seed/products/complementos.seed";
-import { complementosDiaDeLaMadre } from "./seed/products/complementos-dia-de-la-madre.seed";
-import { diaDeLaMadre } from "./seed/products/dia-de-la-madre.seed";
+import { complementosDiaDeLaMujer } from "./seed/products/complementos-dia-de-la-mujer.seed";
+import { diaDeLaMujer } from "./seed/products/dia-de-la-mujer.seed";
 import { follaje } from "./seed/products/follaje.seed";
 import { ramosPrimaverales } from "./seed/products/ramos-primaverales.seed";
 import { rosas } from "./seed/products/rosas.seed";
@@ -121,12 +121,12 @@ export async function SeedProducts(
     ...ramosPrimaverales,
     ...box,
     ...follaje,
-    ...diaDeLaMadre,
+    ...diaDeLaMujer,
   ] as any[])
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
       ...buildBasicSeedProduct(i),
-      ...(i.category === "Día de la Madre"
+      ...(i.category === "Día de la Mujer"
         ? {
           options: [
             {
@@ -262,8 +262,8 @@ export async function SeedProducts(
       })),
     }));
 
-  const complementosDiaDeLaMadreSeed: CreateProductWorkflowInputDTO[] =
-    complementosDiaDeLaMadre
+  const complementosDiaDeLaMujerSeed: CreateProductWorkflowInputDTO[] =
+    complementosDiaDeLaMujer
       .filter((i) => shouldCreate(i.title))
       .map((i) => ({
         ...buildBasicSeedProduct(i),
@@ -285,7 +285,7 @@ export async function SeedProducts(
     ...products1,
     ...rosasSeed,
     ...complementosSeed,
-    ...complementosDiaDeLaMadreSeed,
+    ...complementosDiaDeLaMujerSeed,
   ];
 
   if (!productsToCreate.length) {

@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import ServiceDetailPage from '../_components/service-detail-page';
 
 /** Foto del banner de cierre en Bodas. Cambiá esta ruta para usar otra imagen. */
-const BODAS_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/bannerservicios.jpg';
+const BODAS_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Banner%20eventos%20%20boda.jpg';
 
 type Props = {
   params: Promise<{

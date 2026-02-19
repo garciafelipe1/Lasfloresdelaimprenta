@@ -1,6 +1,6 @@
 import { CATEGORIES } from "@/shared/constants";
 
-export const diaDeLaMadre = [
+export const diaDeLaMujer = [
     {
         title: "Admiración Sutil",
         description:
@@ -8,7 +8,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Admiraci%C3%B3nSutil.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
             exclusive: true,
         },
         price: {
@@ -29,7 +29,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/fuerzayequilibrio.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -49,7 +49,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/energiacreadora.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -69,7 +69,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/reconocimientoabsoluto.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -89,7 +89,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/mujerlider.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -109,7 +109,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/determinacionpura.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -129,7 +129,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/eleganciaygracia.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -149,7 +149,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/boxvanguardiafemenil.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -169,7 +169,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/escenciainolvidable.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
         },
         price: {
             ars: {
@@ -189,7 +189,7 @@ export const diaDeLaMadre = [
         images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/edicionoro.jpeg"],
         category: CATEGORIES["sanValentin"],
         metadata: {
-            occasion: "Día de la Madre",
+            occasion: "Día de la Mujer",
             exclusive: true,
         },
         price: {
