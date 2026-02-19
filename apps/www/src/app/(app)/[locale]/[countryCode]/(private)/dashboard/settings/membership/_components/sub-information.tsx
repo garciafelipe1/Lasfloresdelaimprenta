@@ -9,7 +9,6 @@ import { SubscriptionWithMembership } from '@/common/dto/subscription.dto';
 import { differenceInCalendarDays, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useState } from 'react';
-import { userService } from '@/services/user.service';
 import { Button } from '@/app/components/ui/button';
 import { useRouter } from 'next/navigation';
 
@@ -55,7 +54,15 @@ export function SubInformation({ subscription }: Props) {
     setError(null);
 
     try {
-      await userService.cancelSubscription();
+      const response = await fetch('/api/membership/cancel', {
+        method: 'PUT',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Error al cancelar la suscripción');
+      }
+
       // Recargar la página para mostrar el estado actualizado
       router.refresh();
     } catch (err: any) {

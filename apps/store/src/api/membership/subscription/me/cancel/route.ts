@@ -33,7 +33,7 @@ export async function PUT(
     }
 
     // Cancelar todas las suscripciones activas del usuario
-    const cancelledSubscriptions = [];
+    const cancelledSubscriptions: string[] = [];
     for (const subscription of userSubscriptions) {
       try {
         logger.info(`[CancelSubscription] Cancelando suscripción ${subscription.id}...`);
