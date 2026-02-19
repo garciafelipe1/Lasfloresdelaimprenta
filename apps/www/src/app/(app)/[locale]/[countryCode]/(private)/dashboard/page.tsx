@@ -114,7 +114,7 @@ export default async function DashboardPage() {
             {t('DashboardPage.noMembership.title')}
           </p>
           <Link
-            href='/planes'
+            href='/memberships'
             className='bg-primary text-secondary hover:bg-primary/80 rounded-lg px-6 py-2 font-semibold transition-colors duration-200'
           >
             {t('DashboardPage.noMembership.explorePlansButton')}

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Section,
   SectionHeader,
@@ -6,12 +8,19 @@ import {
 import { SubscriptionWithMembership } from '@/common/dto/subscription.dto';
 import { differenceInCalendarDays, format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useState } from 'react';
+import { userService } from '@/services/user.service';
+import { Button } from '@/app/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   subscription: SubscriptionWithMembership;
 }
 
 export function SubInformation({ subscription }: Props) {
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const { membership, status, started_at, ended_at } = subscription;
 
   const formattedStart = format(
@@ -36,6 +45,24 @@ export function SubInformation({ subscription }: Props) {
   const differenceDays = ended_at
     ? differenceInCalendarDays(new Date(), new Date(ended_at))
     : 0;
+
+  const handleCancel = async () => {
+    if (!confirm('¿Estás seguro de que deseas cancelar tu membresía? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    setIsCancelling(true);
+    setError(null);
+
+    try {
+      await userService.cancelSubscription();
+      // Recargar la página para mostrar el estado actualizado
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || 'Error al cancelar la suscripción');
+      setIsCancelling(false);
+    }
+  };
 
   return (
     <Section className='max-w-2xl'>
@@ -92,6 +119,32 @@ export function SubInformation({ subscription }: Props) {
           </code>
         </section>
       </section>
+
+      {isActive && (
+        <section className='mt-6 pt-6 border-t'>
+          <div className='flex flex-col gap-4'>
+            <div>
+              <h3 className='font-semibold text-primary mb-2'>Cancelar membresía</h3>
+              <p className='text-sm text-muted-foreground mb-4'>
+                Si cancelas tu membresía, perderás acceso a todos los beneficios al finalizar el período actual.
+              </p>
+            </div>
+            {error && (
+              <div className='p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'>
+                <p className='text-sm text-red-600 dark:text-red-400'>{error}</p>
+              </div>
+            )}
+            <Button
+              onClick={handleCancel}
+              disabled={isCancelling}
+              variant='destructive'
+              className='w-full sm:w-auto'
+            >
+              {isCancelling ? 'Cancelando...' : 'Cancelar membresía'}
+            </Button>
+          </div>
+        </section>
+      )}
     </Section>
   );
 }

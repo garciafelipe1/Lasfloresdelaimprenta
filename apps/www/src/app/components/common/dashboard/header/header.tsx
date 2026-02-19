@@ -17,6 +17,7 @@ export async function DashboardHeader() {
       <SidebarTrigger />
       <section className="flex items-center gap-4 md:gap-8 lg:gap-12">
         <nav className="hidden items-center gap-3 md:flex lg:gap-4">
+          <Link href="/" className="text-sm md:text-base">Home</Link>
           <Link href="/catalog" className="text-sm md:text-base">Catálogo</Link>
           <Link href="/memberships" className="text-sm md:text-base">Membresías</Link>
         </nav>
