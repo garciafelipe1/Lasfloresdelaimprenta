@@ -19,7 +19,7 @@ const news: NewsItem[] = [
     excerpt:
       'Tras un San Valentín con stock agotado, el taller de Soler 212 vuelve a estar operativo. Recibimos materia prima fresca y de alta gama para los pedidos de esta semana. Agenda abierta.',
     imageUrl:
-      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-volvimos-al-diseno.jpg',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Volvimos%20al%20dise%C3%B1o.jpg',
     date: '8 de Marzo, 2025',
   },
   {
@@ -28,7 +28,7 @@ const news: NewsItem[] = [
     excerpt:
       'Este 8 de Marzo, el reconocimiento a la mujer se demuestra con excelencia. Ya estamos tomando pre-órdenes de nuestra nueva colección exclusiva. Asegurá tu diseño antes de que se agote.',
     imageUrl:
-      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-coleccion-8m.jpg',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Colecci%C3%B3n%208M_%20Admiraci%C3%B3n.jpg',
     date: '8 de Marzo, 2025',
   },
   {
@@ -37,7 +37,7 @@ const news: NewsItem[] = [
     excerpt:
       'Elevamos la presencia de tu marca. Ofrecemos soluciones florales para regalos institucionales, fechas especiales y ambientación de oficinas o eventos. Consultá por propuestas a medida',
     imageUrl:
-      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-imagen-corporativa.jpg',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Imagen%20corporativa.jpg',
     date: '1 de Marzo, 2025',
   },
   {
@@ -46,7 +46,7 @@ const news: NewsItem[] = [
     excerpt:
       'Suscribite a nuestras membresías y olvidate de gestionar pedidos. Recibí diseño floral fresco en tu hogar o empresa de forma automática, con la frecuencia que elijas',
     imageUrl:
-      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/noticia-excelencia-habito.jpg',
+      'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/La%20excelencia%20como%20h%C3%A1bito.jpg',
     date: '15 de Febrero, 2025',
   },
 ];
