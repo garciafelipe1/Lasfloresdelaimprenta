@@ -53,8 +53,15 @@ export function InteractiveSection({ product }: Props) {
   const viewTracked = useRef(false);
   const { setOpenCart } = useCartQueryParam();
   const { execute, isExecuting } = useAction(addToCartAction, {
-    onError() {
-      toast.error(t('addToCartError'));
+    onError(data: unknown) {
+      const err = data && typeof data === 'object' && 'error' in data ? (data as { error?: Error }).error : data;
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null && 'message' in err && typeof (err as { message: unknown }).message === 'string'
+            ? (err as { message: string }).message
+            : t('addToCartError');
+      toast.error(message);
     },
     onSuccess() {
       setOpenCart(true);
@@ -72,6 +79,7 @@ export function InteractiveSection({ product }: Props) {
     },
   });
 
+  // Un solo variante: preseleccionar. Productos exclusivos (ej. Día de la Mujer): preseleccionar primera variante para que "Agregar al carrito" funcione aunque no mostremos el selector.
   useEffect(() => {
     if (product.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options);
@@ -101,6 +109,14 @@ export function InteractiveSection({ product }: Props) {
     return Boolean((metadata as Record<string, unknown>).exclusive);
   }, [product.metadata]);
 
+  // Productos exclusivos con varias variantes: preseleccionar la primera para poder agregar al carrito.
+  useEffect(() => {
+    if (isExclusive && product.variants?.length >= 1) {
+      const variantOptions = optionsAsKeymap(product.variants![0].options);
+      setOptions(variantOptions ?? {});
+    }
+  }, [isExclusive, product.variants]);
+
   const shouldShowCustomization = useMemo(() => {
     const names = (product.categories ?? []).map((c) => c.name);
     return (
@@ -110,6 +126,13 @@ export function InteractiveSection({ product }: Props) {
       names.includes(CATEGORIES['box'])
     );
   }, [product.categories]);
+
+  // Preseleccionar "Papel" cuando el producto tiene personalización (Día de la Mujer, Rosas, etc.) para que "Agregar al carrito" esté habilitado de entrada.
+  useEffect(() => {
+    if (shouldShowCustomization && preparado === undefined) {
+      setPreparado('Papel');
+    }
+  }, [shouldShowCustomization, preparado]);
 
   // Botón de WhatsApp (compra alternativa) solo para categorías específicas
   const shouldShowWhatsAppPurchase = useMemo(() => {
@@ -124,7 +147,9 @@ export function InteractiveSection({ product }: Props) {
     return !isExcluded;
   }, [product.categories]);
 
-  const isPreparadoMissing = shouldShowCustomization && !preparado;
+  // No exigir preparado en productos exclusivos (solo WhatsApp); en el resto, si hay personalización y no eligió Papel/Arpillera, bloquear.
+  const isPreparadoMissing =
+    shouldShowCustomization && !isExclusive && !preparado;
 
   const shouldRequireExplicitSelection = useMemo(() => {
     if (!isCatalogLockedCategory) return false;

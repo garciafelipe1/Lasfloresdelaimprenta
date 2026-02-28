@@ -2,18 +2,25 @@
 
 import { ChevronLeft } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { Button } from '../../ui/button';
 
 interface Props {
   totalPrice: number;
+  onClose?: () => void;
 }
 
-export function ShoppingCartFooter({ totalPrice }: Props) {
+export function ShoppingCartFooter({ totalPrice, onClose }: Props) {
   const locale = useLocale();
   const t = useTranslations('footer');
   const isEnglish = locale === 'en';
+  const router = useRouter();
+
+  const navigateAndClose = (href: string) => {
+    onClose?.();
+    router.push(href);
+  };
 
   return (
     <div className='sticky bottom-0 flex w-full flex-col gap-4 border-t p-8'>
@@ -28,24 +35,21 @@ export function ShoppingCartFooter({ totalPrice }: Props) {
           {t('currencyNote')}
         </p>
       ) : null}
-      <Link href={`/${locale}/ar/checkout/cart`}>
-        <Button
-          variant='outline'
-          className='w-full'
-        >
-          {t('finishPurchase')}
-        </Button>
-      </Link>
-
-      <Link
-        href={`/${locale}/ar/catalog`}
-        className=''
+      <Button
+        variant='outline'
+        className='w-full'
+        onClick={() => navigateAndClose(`/${locale}/ar/checkout/cart`)}
       >
-        <Button className='w-full'>
-          <ChevronLeft className='text-primary' />
-          <span>{t('continueShopping')}</span>
-        </Button>
-      </Link>
+        {t('finishPurchase')}
+      </Button>
+
+      <Button
+        className='w-full'
+        onClick={() => navigateAndClose(`/${locale}/ar/catalog`)}
+      >
+        <ChevronLeft className='text-primary' />
+        <span>{t('continueShopping')}</span>
+      </Button>
     </div>
   );
 }

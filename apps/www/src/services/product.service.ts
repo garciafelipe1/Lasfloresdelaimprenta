@@ -232,7 +232,8 @@ export const productService: ProductService = {
       const { products } = await medusa.store.product.list({
         region_id: region.id,
         handle,
-        fields: 'categories.*',
+        fields:
+          'categories.*,*variants,*variants.calculated_price,*variants.options,*options',
       });
 
       const product = products[0];

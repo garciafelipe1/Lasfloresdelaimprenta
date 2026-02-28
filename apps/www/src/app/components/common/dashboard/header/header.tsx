@@ -10,8 +10,6 @@ export async function DashboardHeader() {
   const subscription = await userService.getSubscriptionInfo();
   const user = await authService.getUser().catch(() => null);
 
-  console.log('[DashboardHeader] user:', user);
-
   return (
     <header className="bg-background sticky top-0 flex w-full justify-between border-b px-4 py-3 md:px-8 md:py-4 lg:px-12">
       <SidebarTrigger />

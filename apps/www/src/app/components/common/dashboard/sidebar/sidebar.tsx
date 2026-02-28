@@ -1,4 +1,4 @@
-import { Home, Settings, ShoppingBag } from 'lucide-react';
+import { Home, LayoutDashboard, Settings, ShoppingBag } from 'lucide-react';
 
 import {
   Sidebar,
@@ -12,12 +12,17 @@ import {
 } from '@/app/components/ui/sidebar';
 import Link from 'next/link';
 
-// Menu items.
+// Menu items: Inicio = sitio principal, Panel = dashboard.
 const items = [
   {
-    title: 'Home',
-    url: '/dashboard',
+    title: 'Inicio',
+    url: '/',
     icon: Home,
+  },
+  {
+    title: 'Panel',
+    url: '/dashboard',
+    icon: LayoutDashboard,
   },
   {
     title: 'Mis pedidos',
