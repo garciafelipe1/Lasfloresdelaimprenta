@@ -538,7 +538,7 @@ export const createMercadoPagoPreference = cartActionClient
         order_type: 'checkout',
       },
       notification_url: medusaBackendUrl
-        ? `${medusaBackendUrl}/store/mercadopago/webhook`
+        ? `${medusaBackendUrl}/hooks/mercadopago/webhook`
         : undefined,
       statement_descriptor: 'La Florería de la Imprenta', // Descripción que aparece en el resumen de tarjeta
     };

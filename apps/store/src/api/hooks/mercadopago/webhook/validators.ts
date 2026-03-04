@@ -15,4 +15,3 @@ export const MercadoPagoWebhookSchema = z.object({
 export type MercadoPagoWebhookSchemaType = z.infer<
   typeof MercadoPagoWebhookSchema
 >;
-

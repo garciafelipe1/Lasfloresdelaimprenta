@@ -24,7 +24,7 @@ import { PutMembershipSchema } from "./membership/validators";
 import { GetStoreCustomSchema } from "./store/custom/validators";
 import { ConfirmMercadoPagoPaymentSchema } from "./store/mercadopago/payment/validators";
 import { UpdatePaymentSessionSchema } from "./store/mercadopago/payment/session/validators";
-import { MercadoPagoWebhookSchema } from "./store/mercadopago/webhook/validators";
+import { MercadoPagoWebhookSchema } from "./hooks/mercadopago/webhook/validators";
 
 export default defineMiddlewares({
   routes: [
@@ -66,7 +66,7 @@ export default defineMiddlewares({
       middlewares: [validateAndTransformBody(ConfirmMercadoPagoPaymentSchema)],
     },
     {
-      matcher: "/store/mercadopago/webhook",
+      matcher: "/hooks/mercadopago/webhook",
       method: "POST",
       middlewares: [validateAndTransformBody(MercadoPagoWebhookSchema)],
     },
