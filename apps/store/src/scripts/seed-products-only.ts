@@ -1,6 +1,11 @@
-import { ExecArgs } from "@medusajs/framework/types";
+import { CreateInventoryLevelInput, ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { createProductCategoriesWorkflow } from "@medusajs/medusa/core-flows";
+import {
+  createInventoryLevelsWorkflow,
+  createProductCategoriesWorkflow,
+  createStockLocationsWorkflow,
+  linkSalesChannelsToStockLocationWorkflow,
+} from "@medusajs/medusa/core-flows";
 
 import { CATEGORIES } from "@/shared/constants";
 import { SeedProducts } from "./seed-products";
@@ -74,6 +79,87 @@ export default async function seedProductsOnly({ container }: ExecArgs) {
     shippingProfile.id,
     defaultSalesChannel[0].id
   );
+
+  // Asegurar que los productos nuevos tengan inventario en la ubicación vinculada al canal (para poder agregar al carrito)
+  logger.info("Asegurando inventario para nuevos productos...");
+  let stockLocation: { id: string; name?: string } | undefined;
+  try {
+    const { data: locations } = await query.graph({
+      entity: "stock_location",
+      fields: ["id", "name"],
+    });
+    stockLocation =
+      (locations || []).find((l: any) => l?.name === "La Floreria De La Imprenta") ||
+      (locations || [])[0];
+  } catch {
+    // ignore
+  }
+
+  if (!stockLocation) {
+    const { result } = await createStockLocationsWorkflow(container).run({
+      input: {
+        locations: [
+          {
+            name: "La Floreria De La Imprenta",
+            address: {
+              city: "Bahía Blanca",
+              country_code: "ar",
+              address_1: "Calle Falsa 123",
+              province: "Buenos Aires",
+              postal_code: "xxxx",
+            },
+          },
+        ],
+      },
+    });
+    stockLocation = result[0];
+  }
+
+  await linkSalesChannelsToStockLocationWorkflow(container).run({
+    input: {
+      id: stockLocation.id,
+      add: [defaultSalesChannel[0].id],
+    },
+  });
+
+  const { data: inventoryItems } = await query.graph({
+    entity: "inventory_item",
+    fields: ["id"],
+  });
+
+  const existingLevels = new Set<string>();
+  try {
+    const { data: inventoryLevels } = await query.graph({
+      entity: "inventory_level",
+      fields: ["inventory_item_id", "location_id"],
+      filters: { location_id: stockLocation.id } as any,
+    });
+    (inventoryLevels || []).forEach((l: any) => {
+      if (l?.location_id && l?.inventory_item_id) {
+        existingLevels.add(`${l.location_id}:${l.inventory_item_id}`);
+      }
+    });
+  } catch {
+    // ignore
+  }
+
+  const inventory_levels: CreateInventoryLevelInput[] = [];
+  for (const item of inventoryItems || []) {
+    const key = `${stockLocation.id}:${(item as any).id}`;
+    if (existingLevels.has(key)) continue;
+    inventory_levels.push({
+      location_id: stockLocation.id,
+      inventory_item_id: (item as any).id,
+      stocked_quantity: 100,
+    });
+  }
+
+  if (inventory_levels.length) {
+    await createInventoryLevelsWorkflow(container).run({
+      input: { inventory_levels },
+    });
+    logger.info(`Inventario: ${inventory_levels.length} niveles creados para nuevos ítems.`);
+  }
 
   logger.info("✅ Finished seeding products.");
 }

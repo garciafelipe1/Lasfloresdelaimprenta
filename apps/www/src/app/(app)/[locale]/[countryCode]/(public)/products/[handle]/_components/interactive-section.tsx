@@ -326,8 +326,8 @@ export function InteractiveSection({ product }: Props) {
         </p>
       </div>
 
-      {/* Opciones (cantidad / talla): grid ordenado */}
-      {!isExclusive ? (
+      {/* Opciones (cantidad / talla): no mostrar si es exclusivo o si tiene una sola variante (sin elección real) */}
+      {!isExclusive && (product.variants?.length ?? 0) > 1 ? (
         <ul className='flex flex-col gap-5'>
           {product.options?.map((option) => (
             <ProductOptions

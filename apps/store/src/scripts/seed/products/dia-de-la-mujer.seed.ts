@@ -203,5 +203,74 @@ export const diaDeLaMujer = [
             },
         },
     },
+    {
+        title: "Flower bag",
+        description:
+            "<p>Una presentación vanguardista y lista para llevar. El equilibrio perfecto entre la elegancia y el diseño contemporáneo.</p>",
+        images: [
+            "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Flower-bag-1.jpg",
+            "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Flower-bag-1_1.jpg",
+        ],
+        category: CATEGORIES["sanValentin"],
+        metadata: {
+            occasion: "Día de la Mujer",
+            noVariations: true,
+            exclusive: true,
+        },
+        price: {
+            ars: {
+                base: 75000,
+                aument: 0,
+            },
+            usd: {
+                base: 75,
+                aument: 0,
+            },
+        },
+    },
+    {
+        title: "Bouquet spring en florero",
+        description:
+            "<p>La experiencia estética definitiva. Diseño floral premium que perdura en el espacio, entregado listo para su exhibición inmediata.</p>",
+        images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/bouquet%20spring%20en%20florero%20de%20cristal.png"],
+        category: CATEGORIES["sanValentin"],
+        metadata: {
+            occasion: "Día de la Mujer",
+            noVariations: true,
+            exclusive: true,
+        },
+        price: {
+            ars: {
+                base: 90000,
+                aument: 0,
+            },
+            usd: {
+                base: 90,
+                aument: 0,
+            },
+        },
+    },
+    {
+        title: "Box Esencia y Admiración",
+        description:
+            "<p>Diseño de alto impacto en presentación rígida. Ideal para agasajar a la alta gerencia o destacar en mostradores principales.</p>",
+        images: ["https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Box-floral-.jpg"],
+        category: CATEGORIES["sanValentin"],
+        metadata: {
+            occasion: "Día de la Mujer",
+            noVariations: true,
+            exclusive: true,
+        },
+        price: {
+            ars: {
+                base: 100000,
+                aument: 0,
+            },
+            usd: {
+                base: 100,
+                aument: 0,
+            },
+        },
+    },
 ];
 

@@ -127,23 +127,38 @@ export async function SeedProducts(
     .map((i) => ({
       ...buildBasicSeedProduct(i),
       ...(i.category === "Día de la Mujer"
-        ? {
-          options: [
-            {
-              title: "Cantidad",
-              values: X_VARIATIONS.map((v) => v.label),
-            },
-          ],
-          variants: X_VARIATIONS.map((v) => ({
-            title: `${i.title} / ${v.label}`,
-            sku: uniqueSku(`${toHandle(i.title)}-${v.label}`),
-            options: { Cantidad: v.label },
-            prices: [
-              { amount: v.ars, currency_code: "ars" },
-              { amount: v.usd, currency_code: "usd" },
-            ],
-          })),
-        }
+        ? (i as any).metadata?.noVariations
+          ? {
+              options: [{ title: "Presentación", values: ["Default"] }],
+              variants: [
+                {
+                  title: "Default",
+                  sku: uniqueSku(`${toHandle(i.title)}-default`),
+                  options: { Presentación: "Default" },
+                  prices: [
+                    { amount: i.price.ars.base, currency_code: "ars" },
+                    { amount: i.price.usd.base, currency_code: "usd" },
+                  ],
+                },
+              ],
+            }
+          : {
+              options: [
+                {
+                  title: "Cantidad",
+                  values: X_VARIATIONS.map((v) => v.label),
+                },
+              ],
+              variants: X_VARIATIONS.map((v) => ({
+                title: `${i.title} / ${v.label}`,
+                sku: uniqueSku(`${toHandle(i.title)}-${v.label}`),
+                options: { Cantidad: v.label },
+                prices: [
+                  { amount: v.ars, currency_code: "ars" },
+                  { amount: v.usd, currency_code: "usd" },
+                ],
+              })),
+            }
         : i.category === "Box"
           ? {
             options: [{ title: "Presentación", values: ["Default"] }],
