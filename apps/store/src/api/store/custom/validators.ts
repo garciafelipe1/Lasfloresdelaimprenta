@@ -1,7 +1,11 @@
 import { z } from "zod";
-import { CATEGORIES, sortOptionValues } from "../../../shared/constants";
+import { CATEGORIES, LEGACY_CATEGORIES, sortOptionValues } from "../../../shared/constants";
 
-const categories = Object.values(CATEGORIES) as [string, ...string[]];
+const categoriesList = [
+  ...Object.values(CATEGORIES),
+  ...Object.values(LEGACY_CATEGORIES),
+] as [string, ...string[]];
+const categoriesSet = new Set(categoriesList);
 
 export const GetStoreCustomSchema = z.object({
   q: z.string().optional(),
@@ -9,9 +13,11 @@ export const GetStoreCustomSchema = z.object({
   category: z
     .string()
     .optional()
-    .transform((val) =>
-      val && categories.includes(val) ? val : undefined
-    ),
+    .transform((val) => {
+      const trimmed = typeof val === "string" ? val.trim() : "";
+      if (!trimmed) return undefined;
+      return categoriesSet.has(trimmed) ? trimmed : undefined;
+    }),
   color: z.string().optional(),
   min_price: z.preprocess((val) => {
     if (val && typeof val === "string") {

@@ -28,6 +28,14 @@ interface Props {
   product: StoreProduct;
 }
 
+/** Handles de productos que solo muestran "Indicaciones (opcional)" sin Preparado (por si metadata no llega). */
+const HANDLES_SOLO_INDICACIONES = new Set([
+  'flower-bag',
+  'box-esencia-y-admiración',
+  'box-esencia-y-admiracion',
+  'bouquet-spring-en-florero',
+]);
+
 const optionsAsKeymap = (variantOptions: StoreProductVariant['options']) => {
   return variantOptions?.reduce(
     (acc: Record<string, string>, varopt: unknown) => {
@@ -109,6 +117,13 @@ export function InteractiveSection({ product }: Props) {
     return Boolean((metadata as Record<string, unknown>).exclusive);
   }, [product.metadata]);
 
+  const shouldShowOnlyIndicaciones = useMemo(() => {
+    const meta = product.metadata as Record<string, unknown> | null | undefined;
+    if (meta && meta.noVariations === true) return true;
+    const handle = (product.handle ?? '').trim().toLowerCase();
+    return HANDLES_SOLO_INDICACIONES.has(handle);
+  }, [product.metadata, product.handle]);
+
   // Productos exclusivos con varias variantes: preseleccionar la primera para poder agregar al carrito.
   useEffect(() => {
     if (isExclusive && product.variants?.length >= 1) {
@@ -147,9 +162,9 @@ export function InteractiveSection({ product }: Props) {
     return !isExcluded;
   }, [product.categories]);
 
-  // No exigir preparado en productos exclusivos (solo WhatsApp); en el resto, si hay personalización y no eligió Papel/Arpillera, bloquear.
+  // No exigir preparado en productos exclusivos ni en los que solo tienen indicaciones; en el resto, si hay personalización y no eligió Papel/Arpillera, bloquear.
   const isPreparadoMissing =
-    shouldShowCustomization && !isExclusive && !preparado;
+    shouldShowCustomization && !isExclusive && !shouldShowOnlyIndicaciones && !preparado;
 
   const shouldRequireExplicitSelection = useMemo(() => {
     if (!isCatalogLockedCategory) return false;
@@ -258,7 +273,7 @@ export function InteractiveSection({ product }: Props) {
 
     const metadata = shouldShowCustomization
       ? {
-        preparado,
+        ...(shouldShowOnlyIndicaciones ? {} : { preparado }),
         indicaciones: indicaciones?.trim() || undefined,
         dedicatoria: agregarDedicatoria ? dedicatoria.trim() || undefined : undefined,
       }
@@ -365,46 +380,48 @@ export function InteractiveSection({ product }: Props) {
 
       {shouldShowCustomization ? (
         <div className='flex flex-col gap-4 rounded-lg border border-border/60 bg-muted/30 p-4'>
-          <div className='flex flex-col gap-3'>
-            <p className='text-sm font-medium text-muted-foreground'>
-              {t('customization.preparadoLabel')}
-            </p>
-            <div className='grid grid-cols-2 gap-2'>
-              {(() => {
-                const names = (product.categories ?? []).map((c) => c.name);
-                const isBoxCategory = names.includes(CATEGORIES['box']);
-                const valuePrimary = isBoxCategory ? 'Con envoltorio' : 'Papel';
-                const valueSecondary = isBoxCategory ? 'Sin envoltorio' : 'Arpillera';
-                const labelPrimary = isBoxCategory
-                  ? 'Con envoltorio'
-                  : t('customization.preparadoOptions.papel');
-                const labelSecondary = isBoxCategory
-                  ? 'Sin envoltorio'
-                  : t('customization.preparadoOptions.arpillera');
+          {!shouldShowOnlyIndicaciones ? (
+            <div className='flex flex-col gap-3'>
+              <p className='text-sm font-medium text-muted-foreground'>
+                {t('customization.preparadoLabel')}
+              </p>
+              <div className='grid grid-cols-2 gap-2'>
+                {(() => {
+                  const names = (product.categories ?? []).map((c) => c.name);
+                  const isBoxCategory = names.includes(CATEGORIES['box']);
+                  const valuePrimary = isBoxCategory ? 'Con envoltorio' : 'Papel';
+                  const valueSecondary = isBoxCategory ? 'Sin envoltorio' : 'Arpillera';
+                  const labelPrimary = isBoxCategory
+                    ? 'Con envoltorio'
+                    : t('customization.preparadoOptions.papel');
+                  const labelSecondary = isBoxCategory
+                    ? 'Sin envoltorio'
+                    : t('customization.preparadoOptions.arpillera');
 
-                return (
-                  <>
-                    <Button
-                      type='button'
-                      variant={preparado === valuePrimary ? 'default' : 'outline'}
-                      onClick={() => setPreparado(valuePrimary)}
-                      aria-pressed={preparado === valuePrimary}
-                    >
-                      {labelPrimary}
-                    </Button>
-                    <Button
-                      type='button'
-                      variant={preparado === valueSecondary ? 'default' : 'outline'}
-                      onClick={() => setPreparado(valueSecondary)}
-                      aria-pressed={preparado === valueSecondary}
-                    >
-                      {labelSecondary}
-                    </Button>
-                  </>
-                );
-              })()}
+                  return (
+                    <>
+                      <Button
+                        type='button'
+                        variant={preparado === valuePrimary ? 'default' : 'outline'}
+                        onClick={() => setPreparado(valuePrimary)}
+                        aria-pressed={preparado === valuePrimary}
+                      >
+                        {labelPrimary}
+                      </Button>
+                      <Button
+                        type='button'
+                        variant={preparado === valueSecondary ? 'default' : 'outline'}
+                        onClick={() => setPreparado(valueSecondary)}
+                        aria-pressed={preparado === valueSecondary}
+                      >
+                        {labelSecondary}
+                      </Button>
+                    </>
+                  );
+                })()}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div className='flex flex-col gap-2'>
             <p className='text-sm font-medium text-muted-foreground'>

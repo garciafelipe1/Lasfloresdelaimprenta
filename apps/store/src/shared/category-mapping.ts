@@ -1,14 +1,13 @@
 /**
  * Mapeo de categorías para compatibilidad y migración
- * 
- * Permite que productos con categoría "Bodas" o "Follaje" aparezcan cuando se busca "Día de la Mujer"
- * y viceversa, manteniendo compatibilidad durante la migración.
+ *
+ * "Día de la Mujer": solo productos de esa categoría (filtro estricto en catálogo).
+ * "Bodas" / "Follaje": se expanden para mostrar también productos de Día de la Mujer (URLs antiguas).
  */
 export const CATEGORY_ALIASES = {
-  // Mapeo bidireccional: "Día de la Mujer" incluye productos de "Bodas" y "Follaje"
-  "Día de la Mujer": ["Día de la Mujer", "Bodas", "Follaje"],
-  "Bodas": ["Día de la Mujer", "Bodas", "Follaje"], // Redirige a "Día de la Mujer"
-  "Follaje": ["Día de la Mujer", "Bodas", "Follaje"], // Mantener compatibilidad temporal
+  "Día de la Mujer": ["Día de la Mujer"],
+  "Bodas": ["Día de la Mujer", "Bodas", "Follaje"],
+  "Follaje": ["Día de la Mujer", "Bodas", "Follaje"],
 } as const;
 
 /**

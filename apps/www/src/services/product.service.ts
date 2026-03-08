@@ -55,9 +55,10 @@ export const productService: ProductService = {
       order,
     };
 
-    const categoryOption = category && {
-      category,
-    };
+    const categoryTrimmed =
+      typeof category === "string" ? category.trim() : "";
+    const categoryOption =
+      categoryTrimmed.length > 0 ? { category: categoryTrimmed } : {};
 
     const qOptions = name && {
       q: name,
@@ -95,12 +96,22 @@ export const productService: ProductService = {
     });
 
     const seen = new Set<string>();
-    const uniqueProducts = (data.result ?? []).filter((p) => {
+    let uniqueProducts = (data.result ?? []).filter((p) => {
       const key = p.handle ?? p.id;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
+
+    // Filtro estricto en frontend: con categoría "Día de la Mujer" solo mostramos productos que tengan esa categoría
+    const DIA_DE_LA_MUJER_CATEGORY = CATEGORIES.sanValentin;
+    if (categoryTrimmed === DIA_DE_LA_MUJER_CATEGORY) {
+      uniqueProducts = uniqueProducts.filter((p) =>
+        (p.categories ?? []).some(
+          (c) => (c?.name ?? '').trim() === DIA_DE_LA_MUJER_CATEGORY
+        )
+      );
+    }
 
     let totalItems = data.metadata?.count ?? uniqueProducts.length;
     if (data.metadata && 'total' in data.metadata) {

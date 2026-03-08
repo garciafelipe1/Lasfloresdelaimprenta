@@ -10,6 +10,27 @@ import { useLocale, useTranslations } from 'next-intl';
 const isDiaDeLaMujer = (categories: ProductDTO['categories']) =>
   (categories ?? []).some((c) => c.name === CATEGORIES.sanValentin);
 
+/** Títulos de productos que muestran la etiqueta "Producto limitado" (solo Día de la Mujer del seed). */
+const PRODUCTOS_LIMITADOS = new Set(
+  [
+    'Admiración Sutil',
+    'Fuerza y Equilibrio',
+    'Energía Creadora',
+    'Reconocimiento Absoluto',
+    'Mujer Líder',
+    'Determinación Pura',
+    'Elegancia y Gracia',
+    'Box Vanguardia Femenina',
+    'Esencia Inolvidable',
+    'Edición Oro 8M',
+    'Flower bag',
+    'Bouquet spring en florero',
+    'Box Esencia y Admiración',
+  ].map((t) => t.trim().toLowerCase())
+);
+const isProductoLimitado = (title: string | undefined) =>
+  Boolean(title && PRODUCTOS_LIMITADOS.has(title.trim().toLowerCase()));
+
 /** Solo para la tarjeta del catálogo en Día de la Mujer. No cambia los precios reales del producto ni la página de detalle. */
 const DIA_DE_LA_MUJER_CATALOG_PRICE: Record<string, number> = {
   // Handles antiguos (por compatibilidad)
@@ -116,6 +137,11 @@ export const ProductCard = ({ product }: Props) => {
       </div>
       <div className='flex flex-col items-center justify-center gap-0.5 *:text-center **:m-0'>
         <p className='text-sm font-semibold text-foreground'>{product.title}</p>
+        {isProductoLimitado(product.title) ? (
+          <span className='text-xs font-medium text-primary'>
+            {t('productLimited')}
+          </span>
+        ) : null}
         <p className='text-sm text-neutral-500'>
           {isExclusive(product.categories ?? [])
             ? t('consult')

@@ -153,17 +153,20 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   // Filter by category name with aliases support
   if (params.category) {
-    // Obtener categoría (puede ser string o array)
     const categoryName = Array.isArray(params.category)
       ? params.category[0]
       : params.category;
+    const categoryNameTrimmed =
+      typeof categoryName === "string" ? categoryName.trim() : "";
 
-    // Expandir categoría con aliases (ej: "Bodas" → ["Bodas", "Follaje"])
-    const expandedCategories = getExpandedCategories(categoryName);
-
-    result = result.filter((p) =>
-      p.categories?.some((c) => expandedCategories.includes(c?.name!))
-    );
+    if (categoryNameTrimmed) {
+      const expandedCategories = getExpandedCategories(categoryNameTrimmed);
+      result = result.filter((p) =>
+        p.categories?.some(
+          (c) => c?.name != null && expandedCategories.includes(c.name.trim())
+        )
+      );
+    }
   }
 
   // Filter by color (only for "Rosas" category)
