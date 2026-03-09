@@ -1,156 +1,23 @@
 'use client';
 
-import { getSafeImageUrl } from '@/lib/get-safe-image-url';
-import { isExclusive } from '@/lib/isExclusive';
-import { formatMoneyByLocale } from '@/lib/money-formatter';
-import { CATEGORIES } from '@server/constants';
 import { ProductDTO } from '@server/types';
 import { useLocale, useTranslations } from 'next-intl';
-
-const isDiaDeLaMujer = (categories: ProductDTO['categories']) =>
-  (categories ?? []).some((c) => c.name === CATEGORIES.sanValentin);
-
-/** Títulos de productos que muestran la etiqueta "Producto limitado" (solo Día de la Mujer del seed). */
-const PRODUCTOS_LIMITADOS = new Set(
-  [
-    'Admiración Sutil',
-    'Fuerza y Equilibrio',
-    'Energía Creadora',
-    'Reconocimiento Absoluto',
-    'Mujer Líder',
-    'Determinación Pura',
-    'Elegancia y Gracia',
-    'Box Vanguardia Femenina',
-    'Esencia Inolvidable',
-    'Edición Oro 8M',
-    'Flower bag',
-    'Bouquet spring en florero',
-    'Box Esencia y Admiración',
-  ].map((t) => t.trim().toLowerCase())
-);
-const isProductoLimitado = (title: string | undefined) =>
-  Boolean(title && PRODUCTOS_LIMITADOS.has(title.trim().toLowerCase()));
-
-/** Solo para la tarjeta del catálogo en Día de la Mujer. No cambia los precios reales del producto ni la página de detalle. */
-const DIA_DE_LA_MUJER_CATALOG_PRICE: Record<string, number> = {
-  // Handles antiguos (por compatibilidad)
-  'dulce-complicidad': 50_000,
-  'amor-en-equilibrio': 50_000,
-  'chispa-vital': 50_000,
-  'el-clasico-enamorado': 50_000,
-  'declaracion-absoluta': 50_000,
-  'pasion-sin-filtros': 50_000,
-  'ternura-infinita': 50_000,
-  'box-love-story': 50_000,
-  'romance-perfumado': 50_000,
-  'valentines-gold-edition': 50_000,
-  // Handles nuevos
-  'admiracion-sutil': 90_000,
-  'fuerza-y-equilibrio': 164_000,
-  'energia-creadora': 190_000,
-  'reconocimiento-absoluto': 310_000,
-  'mujer-lider': 230_000,
-  'determinacion-pura': 190_000,
-  'elegancia-y-gracia': 90_000,
-  'box-vanguardia-femenina': 170_000,
-  'esencia-inolvidable': 164_000,
-  'edicion-oro-8m': 154_000,
-};
-
-import Image from 'next/image';
-import Link from 'next/link';
+import { ProductCardView } from './product-card-view';
 
 interface Props {
   product: ProductDTO;
 }
 
-const SCHEMA_BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL || 'https://api.nomeimporta.xyz';
-
-/** Base URL solo desde env para evitar hydration mismatch (server vs client con window.location.origin). */
-const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || undefined;
-
-export const ProductCard = ({ product }: Props) => {
+export function ProductCard({ product }: Props) {
   const locale = useLocale();
   const t = useTranslations('categories-products.products');
-  const rawImage =
-    product.images?.[0]?.url ?? product.thumbnail ?? '';
-  const imageUrl = getSafeImageUrl(rawImage, IMAGE_BASE_URL);
-
-  const productUrl = `/${locale}/ar/products/${product.handle}`;
-
-  const lowestPrice = product.variants.reduce(
-    (min, variant) =>
-      Math.min(min, variant.calculated_price?.calculated_amount ?? Infinity),
-    Infinity,
-  );
-
-  /** En catálogo Día de la Mujer mostramos estos precios fijos; al entrar al producto se ven los precios reales por variante. */
-  const catalogDisplayPrice = isDiaDeLaMujer(product.categories)
-    ? (DIA_DE_LA_MUJER_CATALOG_PRICE[product.handle] ?? lowestPrice)
-    : lowestPrice;
-
-  const currency = locale === 'en' ? 'USD' : 'ARS';
-
-  const productSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.title,
-    description: product.description,
-    image: imageUrl || undefined,
-    url: `${SCHEMA_BASE_URL}${productUrl}`,
-    brand: {
-      '@type': 'Brand',
-      name: 'Collection',
-    },
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: currency,
-      price: lowestPrice,
-      itemCondition: 'https://schema.org/NewCondition',
-      availability: 'https://schema.org/InStock',
-      url: `${SCHEMA_BASE_URL}${productUrl}`,
-    },
-  };
 
   return (
-    <Link
-      href={productUrl}
-      className='group flex w-full cursor-pointer flex-col gap-3'
-    >
-      <script
-        type='application/ld+json'
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
-      />
-
-      <div className='relative aspect-[4/5] w-full overflow-hidden rounded-md bg-neutral-100'>
-        {imageUrl ? (
-          <Image
-            draggable={false}
-            className='absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]'
-            alt=""
-            src={imageUrl}
-            fill
-            sizes='(max-width: 768px) 50vw, 300px'
-          />
-        ) : null}
-      </div>
-      <div className='flex flex-col items-center justify-center gap-0.5 *:text-center **:m-0'>
-        <p className='text-sm font-semibold text-foreground'>{product.title}</p>
-        {isProductoLimitado(product.title) ? (
-          <span className='text-xs font-medium text-primary'>
-            {t('productLimited')}
-          </span>
-        ) : null}
-        <p className='text-sm text-neutral-500'>
-          {isExclusive(product.categories ?? [])
-            ? t('consult')
-            : formatMoneyByLocale(
-              isDiaDeLaMujer(product.categories) ? catalogDisplayPrice : lowestPrice,
-              locale,
-            )}
-        </p>
-      </div>
-    </Link>
+    <ProductCardView
+      product={product}
+      locale={locale}
+      consultLabel={t('consult')}
+      productLimitedLabel={t('productLimited')}
+    />
   );
-};
+}
