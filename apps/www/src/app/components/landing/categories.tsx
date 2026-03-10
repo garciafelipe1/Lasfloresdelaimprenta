@@ -70,7 +70,7 @@ const CATEGORY_IMAGES = [
   {
     key: 'box',
     href: '/catalog?category=Box',
-    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG-20251019-WA0009.jpeg',
+    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/categoriajpeg.jpeg',
   },
   {
     key: 'rosas',
