@@ -2,15 +2,17 @@ export const CATEGORIES = {
   ramosPrimaverales: "Ramos primaverales",
   rosas: "Rosas",
   box: "Box",
-  sanValentin: "Día de la Mujer", // ✅ Categoría "Día de la Mujer" (antes "San Valentín", migrada)
-  complementosSanValentin: "Complemento Día de la Mujer", // ✅ Complementos de Día de la Mujer (antes "Complementos de San Valentín", migrada)
+  sanValentin: "Diseños Exclusivos", // Categoría principal (antes "Día de la Mujer")
+  complementosSanValentin: "Complementos Exclusivos", // Complementos (antes "Complemento Día de la Mujer")
   complementos: "Complementos",
 } as const;
 
 // Categorías legacy para compatibilidad durante migración
 export const LEGACY_CATEGORIES = {
-  follaje: "Follaje", // Mantener para productos existentes
-  bodas: "Bodas", // Mantener para productos existentes (redirige a "Día de la Mujer")
+  follaje: "Follaje",
+  bodas: "Bodas",
+  diaDeLaMujer: "Día de la Mujer", // → Diseños Exclusivos
+  complementoDiaDeLaMujer: "Complemento Día de la Mujer", // → Complementos Exclusivos
 } as const;
 
 export const SIZES = ["S", "M", "XXL"];

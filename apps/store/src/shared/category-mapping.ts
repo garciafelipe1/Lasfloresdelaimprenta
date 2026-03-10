@@ -1,13 +1,14 @@
 /**
  * Mapeo de categorías para compatibilidad y migración
  *
- * "Día de la Mujer": solo productos de esa categoría (filtro estricto en catálogo).
- * "Bodas" / "Follaje": se expanden para mostrar también productos de Día de la Mujer (URLs antiguas).
+ * "Diseños Exclusivos": solo productos de esa categoría (filtro estricto en catálogo).
+ * "Bodas" / "Follaje": se expanden para mostrar también productos de Diseños Exclusivos (URLs antiguas).
  */
 export const CATEGORY_ALIASES = {
-  "Día de la Mujer": ["Día de la Mujer"],
-  "Bodas": ["Día de la Mujer", "Bodas", "Follaje"],
-  "Follaje": ["Día de la Mujer", "Bodas", "Follaje"],
+  "Diseños Exclusivos": ["Diseños Exclusivos"],
+  "Día de la Mujer": ["Diseños Exclusivos"], // legacy, redirige a Diseños Exclusivos
+  "Bodas": ["Diseños Exclusivos", "Bodas", "Follaje"],
+  "Follaje": ["Diseños Exclusivos", "Bodas", "Follaje"],
 } as const;
 
 /**

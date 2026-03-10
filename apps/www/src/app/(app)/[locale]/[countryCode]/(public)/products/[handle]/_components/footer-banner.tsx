@@ -11,7 +11,7 @@ export function FooterBanner() {
           className='h-full w-full object-contain object-center'
           fill
           src={SAN_VALENTIN_BANNER_URL}
-          alt='Banner Día de la Mujer'
+          alt='Banner Diseños Exclusivos'
           sizes='(max-width: 480px) 100vw, (max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1024px'
           priority={false}
         />

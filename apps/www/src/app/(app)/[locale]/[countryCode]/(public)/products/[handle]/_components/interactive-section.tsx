@@ -87,7 +87,7 @@ export function InteractiveSection({ product }: Props) {
     },
   });
 
-  // Un solo variante: preseleccionar. Productos exclusivos (ej. Día de la Mujer): preseleccionar primera variante para que "Agregar al carrito" funcione aunque no mostremos el selector.
+  // Un solo variante: preseleccionar. Productos exclusivos (ej. Diseños Exclusivos): preseleccionar primera variante para que "Agregar al carrito" funcione aunque no mostremos el selector.
   useEffect(() => {
     if (product.variants?.length === 1) {
       const variantOptions = optionsAsKeymap(product.variants[0].options);
@@ -142,7 +142,7 @@ export function InteractiveSection({ product }: Props) {
     );
   }, [product.categories]);
 
-  // Preseleccionar "Papel" cuando el producto tiene personalización (Día de la Mujer, Rosas, etc.) para que "Agregar al carrito" esté habilitado de entrada.
+  // Preseleccionar "Papel" cuando el producto tiene personalización (Diseños Exclusivos, Rosas, etc.) para que "Agregar al carrito" esté habilitado de entrada.
   useEffect(() => {
     if (shouldShowCustomization && preparado === undefined) {
       setPreparado('Papel');

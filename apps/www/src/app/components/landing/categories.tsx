@@ -58,8 +58,8 @@ const CategoryCard = ({ title, imageUrl }: BannerProps) => (
 
 const CATEGORY_IMAGES = [
   {
-    key: 'Día de la Mujer',
-    href: '/catalog?category=Día+de+la+Mujer',
+    key: 'Diseños Exclusivos',
+    href: '/catalog?category=Diseños+Exclusivos',
     imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/ramo.jpeg',
   },
   {

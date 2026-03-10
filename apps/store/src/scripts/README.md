@@ -61,3 +61,31 @@ Then, pass the arguments in the `exec` command after the file path:
 ```bash
 npx medusa exec ./src/scripts/my-script.ts arg1 arg2
 ```
+
+---
+
+## Migración: Día de la Mujer → Diseños Exclusivos
+
+Tras renombrar la categoría en el sitio a **"Diseños Exclusivos"**, los productos en la base de datos siguen con la categoría antigua **"Día de la Mujer"**, por eso el frontend (que filtra por nombre de categoría) no los muestra.
+
+### Pasos recomendados (sin borrar productos ni perder datos)
+
+1. **Simular** (opcional): ejecutar en modo solo lectura para ver qué se movería:
+   ```bash
+   DRY_RUN=true pnpm run migrate:dia-mujer-to-disenios-exclusivos
+   ```
+
+2. **Ejecutar la migración**: mueve productos a "Diseños Exclusivos" y "Complementos Exclusivos" (crea categorías si no existen):
+   ```bash
+   DRY_RUN=false pnpm run migrate:dia-mujer-to-disenios-exclusivos
+   ```
+
+3. **Seeds**: los productos de esta categoría están definidos en:
+   - `seed/products/disenios-exclusivos.seed.ts` (export `diseniosExclusivos`)
+   - `seed/products/complementos-exclusivos.seed.ts` (export `complementosExclusivos`)
+   Ambos usan `CATEGORIES.sanValentin` y `CATEGORIES.complementosSanValentin` como única fuente de verdad.
+
+4. **Actualizar contenido** de productos (títulos, descripciones, imágenes, precios de variantes):
+   ```bash
+   pnpm run update:disenios-exclusivos-content
+   ```

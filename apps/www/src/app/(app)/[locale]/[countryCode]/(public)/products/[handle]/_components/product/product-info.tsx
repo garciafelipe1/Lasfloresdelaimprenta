@@ -11,7 +11,7 @@ import { ProductBreadcrumb } from './product-breadcrumb';
 import { ProductComplements } from './product-complements';
 import { ExclusiveSection } from './product-exclusive-section';
 
-/** Títulos de productos Día de la Mujer que muestran la etiqueta "Producto limitado" en la página de detalle. */
+/** Títulos de productos Diseños Exclusivos que muestran la etiqueta "Producto limitado" en la página de detalle. */
 const PRODUCTOS_LIMITADOS = new Set(
   [
     'Admiración Sutil',

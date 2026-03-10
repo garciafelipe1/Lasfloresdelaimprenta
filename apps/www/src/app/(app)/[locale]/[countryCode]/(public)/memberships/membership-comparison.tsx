@@ -11,8 +11,8 @@ import { useParams } from 'next/navigation';
 import { membershipColors } from './constants';
 
 const priceValues: Record<MembershipId, string> = {
-  esencial: '$110.000',
-  premium: '$185.000',
+  esencial: '$115.000',
+  premium: '$190.000',
   elite: '$285.000',
 };
 
@@ -65,16 +65,13 @@ const plans: MembershipId[] = ['esencial', 'premium', 'elite'];
 
 const featureKeys = [
   'frequency',
+  'deliveryDays',
   'bouquetSize',
   'flowerType',
   'candle',
   'fragrance',
-  'vases',
   'loyaltyCard',
   'support',
-  'exclusiveProducts',
-  'customization',
-  'idealFor',
   'price',
 ] as const;
 
@@ -104,24 +101,11 @@ export default function MembershipsComparison() {
     if (featureKey === 'fragrance' && plan === 'esencial') {
       return t('features.fragrance.none');
     }
-    if (featureKey === 'vases' && plan === 'esencial') {
-      return t('features.vases.none');
-    }
     if (featureKey === 'support' && plan === 'esencial') {
       return t('features.support.none');
     }
-    if (featureKey === 'exclusiveProducts') {
-      if (plan === 'esencial') {
-        return t('features.exclusiveProducts.no');
-      }
-      return t('features.exclusiveProducts.yes');
-    }
-    if (featureKey === 'customization' && plan === 'esencial') {
-      return t('features.customization.no');
-    }
 
     // Casos normales: intentar acceder a la traducción directamente
-    // @ts-expect-error - Dynamic translation key
     const translationKey = `features.${featureKey}.${plan}`;
     // @ts-expect-error - Dynamic translation key
     return t(translationKey);

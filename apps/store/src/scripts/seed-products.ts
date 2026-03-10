@@ -8,11 +8,11 @@ import { ProductStatus } from "@medusajs/framework/utils";
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
 import slugify from "slugify";
 
-import { ROSAS_QUANTITY, SIZES } from "@/shared/constants";
+import { CATEGORIES, ROSAS_QUANTITY, SIZES } from "@/shared/constants";
 import { box } from "./seed/products/box.seed";
 import { complementos } from "./seed/products/complementos.seed";
-import { complementosDiaDeLaMujer } from "./seed/products/complementos-dia-de-la-mujer.seed";
-import { diaDeLaMujer } from "./seed/products/dia-de-la-mujer.seed";
+import { complementosExclusivos } from "./seed/products/complementos-exclusivos.seed";
+import { diseniosExclusivos } from "./seed/products/disenios-exclusivos.seed";
 import { follaje } from "./seed/products/follaje.seed";
 import { ramosPrimaverales } from "./seed/products/ramos-primaverales.seed";
 import { rosas } from "./seed/products/rosas.seed";
@@ -121,12 +121,12 @@ export async function SeedProducts(
     ...ramosPrimaverales,
     ...box,
     ...follaje,
-    ...diaDeLaMujer,
+    ...diseniosExclusivos,
   ] as any[])
     .filter((i) => shouldCreate(i.title))
     .map((i) => ({
       ...buildBasicSeedProduct(i),
-      ...(i.category === "Día de la Mujer"
+      ...(i.category === CATEGORIES.sanValentin
         ? (i as any).metadata?.noVariations
           ? {
               options: [{ title: "Presentación", values: ["Default"] }],
@@ -277,8 +277,8 @@ export async function SeedProducts(
       })),
     }));
 
-  const complementosDiaDeLaMujerSeed: CreateProductWorkflowInputDTO[] =
-    complementosDiaDeLaMujer
+  const complementosExclusivosSeed: CreateProductWorkflowInputDTO[] =
+    complementosExclusivos
       .filter((i) => shouldCreate(i.title))
       .map((i) => ({
         ...buildBasicSeedProduct(i),
@@ -300,7 +300,7 @@ export async function SeedProducts(
     ...products1,
     ...rosasSeed,
     ...complementosSeed,
-    ...complementosDiaDeLaMujerSeed,
+    ...complementosExclusivosSeed,
   ];
 
   if (!productsToCreate.length) {

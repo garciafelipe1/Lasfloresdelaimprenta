@@ -1,8 +1,9 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { CATEGORIES, LEGACY_CATEGORIES } from "@/shared/constants";
 
 /**
- * Elimina productos duplicados de "Día de la Mujer" que tienen handles antiguos.
+ * Elimina productos duplicados de la categoría Diseños Exclusivos (o legacy "Día de la Mujer") que tienen handles antiguos.
  * Mantiene solo los productos con los handles nuevos correctos.
  *
  * Handles antiguos a eliminar:
@@ -42,16 +43,17 @@ export default async function deleteDuplicateDiaDeLaMadre({ container }: ExecArg
   ];
 
   logger.info(`Modo: ${dryRun ? "DRY_RUN (no borra)" : "BORRADO REAL"}`);
-  logger.info(`Objetivo: eliminar productos con handles antiguos en "Día de la Mujer"`);
+  logger.info(`Objetivo: eliminar productos con handles antiguos en "${CATEGORIES.sanValentin}" (o "${LEGACY_CATEGORIES.diaDeLaMujer}")`);
 
-  // Obtener todos los productos de "Día de la Mujer"
   const { data: products } = await query.graph({
     entity: "product",
     fields: ["id", "title", "handle", "categories.name"],
   });
 
   const diaDeLaMadreProducts = (products || []).filter((p: any) =>
-    (p?.categories || []).some((c: any) => c?.name === "Día de la Mujer")
+    (p?.categories || []).some(
+      (c: any) => c?.name === CATEGORIES.sanValentin || c?.name === LEGACY_CATEGORIES.diaDeLaMujer
+    )
   );
 
   const candidates = diaDeLaMadreProducts.filter((p: any) =>

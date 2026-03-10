@@ -39,7 +39,7 @@ const MEMBERSHIPS_PORTFOLIO_BANNER_IMAGE = 'https://pub-43da7721872a46ffac4397d0
 // Portfolio de imágenes por membresía
 // Portfolio de ejemplo (velas) - reemplazable cuando haya fotos definitivas
 const candleGallery: string[] = [
-  '/assets/img/memberships/velas/vela-1.png',
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela%20SILVER%20JACK%20-%20escencial.jpeg',
   // '/assets/img/memberships/velas/vela-2.png',
   // '/assets/img/memberships/velas/vela-3.png',
   // '/assets/img/memberships/velas/vela-4.png',
@@ -57,18 +57,22 @@ const esencialBouquet: string[] = [
 
 const premiumGallery: string[] = [
   '/assets/img/memberships/premium/premium-7.png',
-  '/assets/img/memberships/premium/premium-3.png',
+  // '/assets/img/memberships/premium/premium-3.png',
   '/assets/img/memberships/premium/premium-2.png',
-  '/assets/img/memberships/premium/premium-4.png',
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela-%20DONNA%20-%20premium.jpeg',
   '/assets/img/memberships/premium/premium-5.png',
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
   '/assets/img/memberships/premium/premium-6.png',
   // '/assets/img/memberships/premium/premium-7.png',
 ];
 
 const eliteGallery: string[] = [
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela%20-%20GLOW-%20ELITE.jpeg',
   `/assets/img/memberships/elite/portfolio/elite-01.jpg?v=${ELITE_PORTFOLIO_V}`,
   `/assets/img/memberships/elite/portfolio/elite-02.jpg?v=${ELITE_PORTFOLIO_V}`,
   `/assets/img/memberships/elite/portfolio/elite-03.jpg?v=${ELITE_PORTFOLIO_V}`,
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/difusores.jpeg',
   `/assets/img/memberships/elite/portfolio/elite-04.jpg?v=${ELITE_PORTFOLIO_V}`,
   `/assets/img/memberships/elite/portfolio/elite-05.jpg?v=${ELITE_PORTFOLIO_V}`,
   `/assets/img/memberships/elite/portfolio/elite-06.jpg?v=${ELITE_PORTFOLIO_V}`,
@@ -78,19 +82,21 @@ const eliteGallery: string[] = [
 
 ];
 
-// Carrusel (3 fotos)
+// Carrusel (4 fotos para Esencial; resto sin cambios)
 const membershipCarousel: Record<MembershipId, string[]> = {
   esencial: [
+    'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela%20SILVER%20JACK%20-%20escencial.jpeg',
     '/assets/img/memberships/carousel/carousel-3.png',
-    '/assets/img/memberships/velas/vela-1.png',
     '/assets/img/memberships/carousel/carousel-2.png',
   ],
   premium: [
     '/assets/img/memberships/premium/premium-1.png',
     '/assets/img/memberships/premium/premium-2.png',
-    '/assets/img/memberships/premium/premium-3.png',
-    '/assets/img/memberships/premium/premium-4.png',
+    'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela-%20DONNA%20-%20premium.jpeg',
+    // '/assets/img/memberships/premium/premium-3.png',
+    // '/assets/img/memberships/premium/premium-4.png',
     '/assets/img/memberships/premium/premium-5.png',
+    'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
     '/assets/img/memberships/premium/premium-6.png',
     '/assets/img/memberships/premium/premium-7.png',
   ],

@@ -51,6 +51,6 @@ export default async function verifyCatalogVariations({ container }: ExecArgs) {
   };
 
   summarize("Rosas", rosas);
-  summarize("Día de la Mujer", diaMadre);
+  summarize(CATEGORIES.sanValentin, diaMadre);
 }
 

@@ -61,30 +61,37 @@
       "features": {
         "frequency": {
           "label": "Delivery frequency",
-          "esencial": "Once per week",
-          "premium": "Once per week",
-          "elite": "Once per week"
+          "esencial": "4 times per month",
+          "premium": "4 times per month",
+          "elite": "4 times per month"
+        },
+        "deliveryDays": {
+          "label": "Delivery days",
+          "esencial": "Monday",
+          "premium": "Monday and Friday (your choice)",
+          "elite": "Monday, Wednesday and Friday (your choice)"
         },
         "bouquetSize": {
-          "label": "Bouquet size"
+          "label": "Sizes"
         },
         "flowerType": {
-          "label": "Flower type",
+          "label": "Flower types",
           "esencial": "Seasonal flowers",
           "premium": "Premium flowers + aromatic foliage",
-          "elite": "Supreme flowers + chromotherapy"
+          "elite": "Exclusive flowers + chromotherapy"
         },
         "candle": {
           "label": "Aromatic candles",
-          "esencial": "1 aromatic candle per month",
-          "premium": "1 large aromatic candle per month",
-          "elite": "1 large artisanal candle per month"
+          "esencial": "1 per month",
+          "premium": "1 per month",
+          "elite": "2 per month"
         },
         "fragrance": {
-          "label": "Aromatic fragrances",
+          "label": "Spray / aromatic diffuser",
           "none": "—",
-          "premium": "1 large fragrance",
-          "elite": "2 large fragrances"
+          "esencial": "—",
+          "premium": "1 spray",
+          "elite": "1 diffuser or spray (your choice)"
         },
         "vases": {
           "label": "Included vases",
@@ -93,16 +100,17 @@
           "elite": "First and third shipment"
         },
         "loyaltyCard": {
-          "label": "Loyalty card",
-          "esencial": "Virtual, with rewards",
-          "premium": "Virtual, special benefits",
-          "elite": "Virtual, exclusive benefits"
+          "label": "Loyalty cards",
+          "esencial": "Virtual with rewards",
+          "premium": "Virtual with premium benefits",
+          "elite": "Virtual exclusive benefits"
         },
         "support": {
           "label": "Personalized attention",
           "none": "—",
+          "esencial": "—",
           "premium": "Private support",
-          "elite": "VIP consultation + floral artist"
+          "elite": "VIP consultation (once per month)"
         },
         "exclusiveProducts": {
           "label": "Unique product proposals",

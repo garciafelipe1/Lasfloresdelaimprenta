@@ -103,12 +103,12 @@ export const productService: ProductService = {
       return true;
     });
 
-    // Filtro estricto en frontend: con categoría "Día de la Mujer" solo mostramos productos que tengan esa categoría
-    const DIA_DE_LA_MUJER_CATEGORY = CATEGORIES.sanValentin;
-    if (categoryTrimmed === DIA_DE_LA_MUJER_CATEGORY) {
+    // Filtro estricto en frontend: con categoría "Diseños Exclusivos" solo mostramos productos que tengan esa categoría
+    const EXCLUSIVE_DESIGNS_CATEGORY = CATEGORIES.sanValentin;
+    if (categoryTrimmed === EXCLUSIVE_DESIGNS_CATEGORY) {
       uniqueProducts = uniqueProducts.filter((p) =>
         (p.categories ?? []).some(
-          (c) => (c?.name ?? '').trim() === DIA_DE_LA_MUJER_CATEGORY
+          (c) => (c?.name ?? '').trim() === EXCLUSIVE_DESIGNS_CATEGORY
         )
       );
     }

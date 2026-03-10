@@ -40,7 +40,7 @@
  * - Category filtering supports multiple categories (OR logic)
  * - Implements server-side pagination when manual processing is required
  * - Results are cached using a stable stringified key of the query parameters
- * - Products with "Diseños exclusivos" category are excluded from price sorting
+ * - Products with "Diseños Exclusivos" category are excluded from price sorting
  *
  * PERFORMANCE CONSIDERATIONS:
  * - When price sorting or category filtering is used, all products are fetched first,

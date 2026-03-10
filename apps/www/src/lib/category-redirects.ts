@@ -5,14 +5,14 @@
  */
 
 export const CATEGORY_REDIRECTS: Record<string, string> = {
-  // Redirecciones de "Follaje" a "Día de la Mujer"
-  '/catalog?category=Follaje': '/catalog?category=Día+de+la+Mujer',
-  '/es/ar/catalog?category=Follaje': '/es/ar/catalog?category=Día+de+la+Mujer',
-  '/en/ar/catalog?category=Follaje': '/en/ar/catalog?category=Día+de+la+Mujer',
-  // Redirecciones de "Bodas" a "Día de la Mujer"
-  '/catalog?category=Bodas': '/catalog?category=Día+de+la+Mujer',
-  '/es/ar/catalog?category=Bodas': '/es/ar/catalog?category=Día+de+la+Mujer',
-  '/en/ar/catalog?category=Bodas': '/en/ar/catalog?category=Día+de+la+Mujer',
+  // Redirecciones de "Follaje" a "Diseños Exclusivos"
+  '/catalog?category=Follaje': '/catalog?category=Diseños+Exclusivos',
+  '/es/ar/catalog?category=Follaje': '/es/ar/catalog?category=Diseños+Exclusivos',
+  '/en/ar/catalog?category=Follaje': '/en/ar/catalog?category=Diseños+Exclusivos',
+  // Redirecciones de "Bodas" a "Diseños Exclusivos"
+  '/catalog?category=Bodas': '/catalog?category=Diseños+Exclusivos',
+  '/es/ar/catalog?category=Bodas': '/es/ar/catalog?category=Diseños+Exclusivos',
+  '/en/ar/catalog?category=Bodas': '/en/ar/catalog?category=Diseños+Exclusivos',
 };
 
 /**
@@ -24,15 +24,8 @@ export function getCategoryRedirect(pathname: string, searchParams: URLSearchPar
 
   if (category === 'Follaje' || category === 'Bodas') {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('category', 'Día de la Mujer');
+    newSearchParams.set('category', 'Diseños Exclusivos');
     return `${pathname}?${newSearchParams.toString()}`;
-  }
-
-  if (category === 'Diseños exclusivos') {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.delete('category');
-    const qs = newSearchParams.toString();
-    return qs ? `${pathname}?${qs}` : pathname;
   }
 
   return null;

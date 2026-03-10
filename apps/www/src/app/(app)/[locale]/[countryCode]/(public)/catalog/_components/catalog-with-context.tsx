@@ -73,7 +73,7 @@ export function CatalogWithContext({ children }: Props) {
         >
           <img
             src={BANNER_SRC}
-            alt='Banner Día de la Mujer - Las flores de la imprenta'
+            alt='Banner Diseños Exclusivos - Las flores de la imprenta'
             className='absolute inset-0 h-full w-full object-contain object-center'
             style={{
               borderRadius: '16px',
