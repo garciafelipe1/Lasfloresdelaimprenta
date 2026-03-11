@@ -48,7 +48,8 @@
       "title": "Prueba de suscripción",
       "subtitle": "Correo electrónico asociado a tu cuenta de Mercado Pago.",
       "button1": "Suscribirse",
-      "button2": "Redireccionando a Mercado Pago..."
+      "button2": "Redireccionando a Mercado Pago...",
+      "loginLink": "Iniciar sesión"
     },
     "comparison": {
       "title": "Compara nuestras membresías",

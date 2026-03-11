@@ -50,7 +50,8 @@
       "title": "Try subscription",
       "subtitle": "Email associated to your Mercado Pago account.",
       "button1": "Suscribe",
-      "button2": "Redirecting to Mercado Pago..."
+      "button2": "Redirecting to Mercado Pago...",
+      "loginLink": "Log in"
     },
     "comparison": {
       "title": "Compare our memberships",

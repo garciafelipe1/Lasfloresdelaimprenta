@@ -1,6 +1,6 @@
 'use client';
 
-import { subscribeAction } from '@/app/actions/subscribe.action';
+import { subscribeAction, AUTH_REQUIRED_MESSAGE } from '@/app/actions/subscribe.action';
 import { Button } from '@/app/components/ui/button';
 import {
   Form,
@@ -15,8 +15,11 @@ import { Input } from '@/app/components/ui/input';
 import { subscribeSchema, SubscribeSchema } from '@/lib/zod/subscribe-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MembershipId } from '@server/constants';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -26,6 +29,10 @@ interface Props {
 
 export function MembershipForm({ membership }: Props) {
   const t = useTranslations();
+  const params = useParams<{ locale: string; countryCode: string }>();
+  const locale = params?.locale ?? 'es';
+  const countryCode = params?.countryCode ?? 'ar';
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const form = useForm<SubscribeSchema>({
     resolver: zodResolver(subscribeSchema),
@@ -39,11 +46,15 @@ export function MembershipForm({ membership }: Props) {
         type: typeof error,
       });
 
-      // Mostrar el mensaje de error específico si está disponible
-      const errorMessage = error?.serverError || error?.message || 'Hubo un error al procesar la suscripción';
+      const errorMessage = error?.serverError ?? 'Hubo un error al procesar la suscripción';
       toast.error(errorMessage, {
         duration: 5000,
       });
+
+      // Mostrar aviso de login si el error es por no estar autenticado
+      if (error?.serverError === AUTH_REQUIRED_MESSAGE || String(error?.serverError ?? '').includes(AUTH_REQUIRED_MESSAGE)) {
+        setShowLoginPrompt(true);
+      }
     },
     onSuccess() {
       console.log('[MembershipForm] Suscripción iniciada correctamente');
@@ -69,6 +80,18 @@ export function MembershipForm({ membership }: Props) {
         onSubmit={form.handleSubmit(handleSubmit)}
         className='mx-auto flex max-w-3xl flex-col space-y-8'
       >
+        {showLoginPrompt && (
+          <div className='rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/40'>
+            <p className='mb-2 text-sm text-amber-800 dark:text-amber-200'>
+              {AUTH_REQUIRED_MESSAGE}
+            </p>
+            <Button asChild variant='outline' size='sm' className='border-amber-600 text-amber-800 hover:bg-amber-100 dark:border-amber-500 dark:text-amber-200 dark:hover:bg-amber-900/40'>
+              <Link href={`/${locale}/${countryCode}/login`}>
+                {t('membership.membershipaccount.loginLink', { defaultValue: 'Iniciar sesión' })}
+              </Link>
+            </Button>
+          </div>
+        )}
         <FormField
           control={form.control}
           name='email'

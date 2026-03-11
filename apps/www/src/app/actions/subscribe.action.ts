@@ -6,6 +6,9 @@ import { authService } from '@/services/auth.service';
 import { mercadoPagoService } from '@/services/mercado-pago.service';
 import { redirect } from 'next/navigation';
 
+/** Mensaje cuando el usuario no está autenticado; el front lo usa para mostrar el enlace a login. */
+export const AUTH_REQUIRED_MESSAGE = 'Debes iniciar sesión para suscribirte a una membresía';
+
 export const subscribeAction = actionClient
   .schema(subscribeSchemaAction)
   .action(async ({ parsedInput: { email, membership } }) => {
@@ -23,7 +26,7 @@ export const subscribeAction = actionClient
 
       if (!user) {
         console.error('[Subscribe Action] ❌ Usuario no encontrado');
-        throw new Error('Debes iniciar sesión para suscribirte a una membresía');
+        throw new Error(AUTH_REQUIRED_MESSAGE);
       }
 
       console.log('[Subscribe Action] ✅ Usuario encontrado:');
