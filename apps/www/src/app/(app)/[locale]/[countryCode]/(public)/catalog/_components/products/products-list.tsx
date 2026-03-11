@@ -7,9 +7,10 @@ import { ProductsEmpty } from './products-empty';
 
 interface Props {
   filters: FilterParams;
+  basePath: string;
 }
 
-export async function ProductsList({ filters }: Props) {
+export async function ProductsList({ filters, basePath }: Props) {
   const [data, locale, t] = await Promise.all([
     productService.getAll({ ...filters }),
     getLocale(),
@@ -40,7 +41,12 @@ export async function ProductsList({ filters }: Props) {
           </li>
         ))}
       </ul>
-      <Pagination info={data.info} currentPage={filters.page} />
+      <Pagination
+        info={data.info}
+        currentPage={filters.page}
+        basePath={basePath}
+        filters={filters}
+      />
     </section>
   );
 }

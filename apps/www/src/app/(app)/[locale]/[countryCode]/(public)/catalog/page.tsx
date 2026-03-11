@@ -13,10 +13,12 @@ import { ProductsSkeleton } from './_components/products/product-skeleton';
 import { ProductsList } from './_components/products/products-list';
 
 interface Props {
+  params: Promise<{ locale: string; countryCode: string }>;
   searchParams: Promise<SearchParams>;
 }
 
-export default async function CatalogPage({ searchParams }: Props) {
+export default async function CatalogPage({ params, searchParams }: Props) {
+  const { locale, countryCode } = await params;
   const filters = searchParamsCache.parse(await searchParams);
   const t = await getTranslations('categories-products.catalog');
   const searchQuery = filters?.name ?? undefined;
@@ -34,7 +36,10 @@ export default async function CatalogPage({ searchParams }: Props) {
         </SectionHeader>
         <CatalogWithContext>
           <Suspense fallback={<ProductsSkeleton />}>
-            <ProductsList filters={filters} />
+            <ProductsList
+              filters={filters}
+              basePath={`/${locale}/${countryCode}/catalog`}
+            />
           </Suspense>
         </CatalogWithContext>
       </Section>

@@ -65,12 +65,12 @@ const CATEGORY_IMAGES = [
   {
     key: 'ramosPrimaverales',
     href: '/catalog?category=Ramos+primaverales',
-    imagePath: '/assets/img/flor-4.jpg',
+    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_5041.jpg',
   },
   {
     key: 'box',
     href: '/catalog?category=Box',
-    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/categoriajpeg.jpeg',
+    imagePath: 'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_4689.jpg',
   },
   {
     key: 'rosas',
@@ -79,17 +79,13 @@ const CATEGORY_IMAGES = [
   },
 ] as const;
 
-/** Origen del sitio (fallback). */
-function getBaseUrl(): string {
-  if (typeof window !== 'undefined') return window.location.origin;
-  return process.env.NEXT_PUBLIC_BASE_URL ?? '';
-}
-
 export function Categories() {
   const t = useTranslations();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? getBaseUrl();
+  // En deploy, definir NEXT_PUBLIC_BASE_URL para que las imágenes locales tengan URL absoluta
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ??
+    (typeof window !== 'undefined' ? window.location.origin : '');
   const getImageUrl = (path: string) => {
-    // URLs absolutas (R2, etc.) se pasan tal cual
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return getSafeImageUrl(path, baseUrl || undefined);
     }

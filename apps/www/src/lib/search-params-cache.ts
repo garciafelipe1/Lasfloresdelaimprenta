@@ -9,6 +9,7 @@ export const filtersParams = {
   order: parseAsString.withDefault(''),
   page: parseAsInteger.withDefault(1),
   category: parseAsString.withDefault(''),
+  size: parseAsString.withDefault(''),
   color: parseAsString.withDefault(''),
   min_price: parseAsString.withDefault(''),
   max_price: parseAsString.withDefault(''),
