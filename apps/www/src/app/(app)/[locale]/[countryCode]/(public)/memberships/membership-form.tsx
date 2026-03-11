@@ -1,6 +1,7 @@
 'use client';
 
-import { subscribeAction, AUTH_REQUIRED_MESSAGE } from '@/app/actions/subscribe.action';
+import { subscribeAction } from '@/app/actions/subscribe.action';
+import { AUTH_REQUIRED_MESSAGE } from '@/lib/subscribe-constants';
 import { Button } from '@/app/components/ui/button';
 import {
   Form,

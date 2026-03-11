@@ -4,10 +4,8 @@ import { actionClient } from '@/lib/safe-action';
 import { subscribeSchemaAction } from '@/lib/zod/subscribe-schema';
 import { authService } from '@/services/auth.service';
 import { mercadoPagoService } from '@/services/mercado-pago.service';
+import { AUTH_REQUIRED_MESSAGE } from '@/lib/subscribe-constants';
 import { redirect } from 'next/navigation';
-
-/** Mensaje cuando el usuario no está autenticado; el front lo usa para mostrar el enlace a login. */
-export const AUTH_REQUIRED_MESSAGE = 'Debes iniciar sesión para suscribirte a una membresía';
 
 export const subscribeAction = actionClient
   .schema(subscribeSchemaAction)
