@@ -59,36 +59,28 @@
       "description": "Encuentra las respuestas a tus preguntas",
       "items": [
         {
-          "question": "¿Cómo puedo realizar un pedido?",
-          "answer": "Puedes realizar tu pedido a través de nuestra página web, seleccionando los productos que deseas y siguiendo el proceso de compra. También puedes contactarnos por teléfono o WhatsApp."
+          "question": "¿Dónde están ubicados y hacen envíos?",
+          "answer": "Nuestro local está en Soler 212, Bahía Blanca. ¡Sí hacemos envíos a domicilio! El costo se calcula según tu ubicación."
         },
         {
-          "question": "¿Cuál es el tiempo de entrega?",
-          "answer": "El tiempo de entrega depende de tu ubicación. Generalmente realizamos entregas el mismo día si el pedido se realiza antes de las 12:00 PM, o al día siguiente."
+          "question": "¿Qué medios de pago aceptan?",
+          "answer": "Aceptamos transferencia bancaria, efectivo y tarjeta de crédito o débito en un pago. Podés abonar tanto en pesos argentinos como en dólares."
         },
         {
-          "question": "¿Hacen entregas a domicilio?",
-          "answer": "Sí, realizamos entregas a domicilio en toda la ciudad. El costo de envío varía según la zona. También ofrecemos entrega gratis para pedidos que superen un monto determinado."
+          "question": "¿Cómo puedo reservar un producto?",
+          "answer": "Muy fácil — solo tocá el botón verde de WhatsApp que dice “Reserva” y nuestro equipo te ayuda enseguida."
         },
         {
-          "question": "¿Qué métodos de pago aceptan?",
-          "answer": "Aceptamos efectivo, tarjetas de débito y crédito, transferencias bancarias y pagos a través de Mercado Pago. También ofrecemos la opción de pago en efectivo contra entrega."
+          "question": "¿Cómo me uno a una membresía?",
+          "answer": "Tenés dos formas de hacerlo: podés suscribirte directamente desde el sitio web o, si preferís, escribirnos por WhatsApp y nuestro equipo te acompaña en el proceso de forma personalizada."
         },
         {
-          "question": "¿Puedo personalizar mi arreglo floral?",
-          "answer": "¡Por supuesto! Nos encanta crear arreglos personalizados según tus preferencias. Puedes elegir los tipos de flores, colores y estilo. Contacta con nosotros y te ayudaremos a crear el arreglo perfecto."
+          "question": "¿Qué eventos y espacios cubren con el servicio de decoración?",
+          "answer": "Trabajamos principalmente en bodas, eventos corporativos y eventos privados medianos y grandes. ¡Cada espacio merece algo especial!"
         },
         {
-          "question": "¿Ofrecen servicio para eventos?",
-          "answer": "Sí, ofrecemos servicios completos para eventos como bodas, cumpleaños, aniversarios y eventos corporativos. Trabajamos contigo para crear la decoración floral perfecta para tu ocasión especial."
-        },
-        {
-          "question": "¿Qué pasa si no estoy satisfecho con mi pedido?",
-          "answer": "Tu satisfacción es nuestra prioridad. Si no estás completamente satisfecho con tu pedido, contáctanos dentro de las 24 horas de la entrega y haremos todo lo posible para resolverlo."
-        },
-        {
-          "question": "¿Ofrecen suscripciones o membresías?",
-          "answer": "Sí, ofrecemos diferentes planes de membresía que te permiten recibir arreglos florales regulares con descuentos exclusivos. Puedes elegir entre planes mensuales, trimestrales o anuales según tus necesidades."
+          "question": "¿Cómo puedo pedir un presupuesto?",
+          "answer": "Podés hacerlo de dos formas: tocando el botón “Solicitar presupuesto” que te conecta directamente con nuestro equipo por WhatsApp, o llamándonos para hablar personalmente."
         }
       ]
     }

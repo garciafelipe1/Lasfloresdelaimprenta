@@ -26,14 +26,14 @@ export function Footer() {
 
   return (
     <footer className='relative py-16 md:py-32'>
-      <div className='relative z-10 mx-auto max-w-5xl px-6'>
+      <div className='relative z-10 mx-auto max-w-5xl px-8'>
         <Link
           href={`/${locale}/ar`}
           aria-label='go home'
           className='mx-auto block size-fit'
         ></Link>
 
-        <div className='my-8 flex flex-wrap justify-center gap-6 text-sm'>
+        <div className='my-8 flex flex-wrap justify-center ml-5 gap-8 text-sm'>
           {links.map((link, index) => (
             <Link
               key={index}
