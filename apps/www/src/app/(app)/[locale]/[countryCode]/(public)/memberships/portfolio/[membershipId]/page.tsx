@@ -53,6 +53,7 @@ const esencialBouquet: string[] = [
   '/assets/img/memberships/carousel/carousel-1.png',
   '/assets/img/memberships/carousel/carousel-2.png',
   '/assets/img/memberships/carousel/carousel-3.png',
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_5689.jpg',
 ];
 
 const premiumGallery: string[] = [
@@ -60,42 +61,35 @@ const premiumGallery: string[] = [
   // '/assets/img/memberships/premium/premium-3.png',
   '/assets/img/memberships/premium/premium-2.png',
   'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela-%20DONNA%20-%20premium.jpeg',
-  '/assets/img/memberships/premium/premium-5.png',
   'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
   '/assets/img/memberships/premium/premium-6.png',
   // '/assets/img/memberships/premium/premium-7.png',
 ];
 
 const eliteGallery: string[] = [
-  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela%20-%20GLOW-%20ELITE.jpeg',
-  `/assets/img/memberships/elite/portfolio/elite-01.jpg?v=${ELITE_PORTFOLIO_V}`,
-  `/assets/img/memberships/elite/portfolio/elite-02.jpg?v=${ELITE_PORTFOLIO_V}`,
-  `/assets/img/memberships/elite/portfolio/elite-03.jpg?v=${ELITE_PORTFOLIO_V}`,
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_5523.jpg',
   'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
   'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/difusores.jpeg',
-  `/assets/img/memberships/elite/portfolio/elite-04.jpg?v=${ELITE_PORTFOLIO_V}`,
-  `/assets/img/memberships/elite/portfolio/elite-05.jpg?v=${ELITE_PORTFOLIO_V}`,
-  `/assets/img/memberships/elite/portfolio/elite-06.jpg?v=${ELITE_PORTFOLIO_V}`,
   `/assets/img/memberships/elite/portfolio/elite-07.jpg?v=${ELITE_PORTFOLIO_V}`,
-  `/assets/img/memberships/elite/portfolio/elite-08.jpg?v=${ELITE_PORTFOLIO_V}`,
-  `/assets/img/memberships/elite/portfolio/elite-09.jpg?v=${ELITE_PORTFOLIO_V}`,
-
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/49cff137-096c-47b8-8a72-46c690da0c92.jpg',
+  `/assets/img/memberships/elite/portfolio/elite-05.jpg?v=${ELITE_PORTFOLIO_V}`,
 ];
 
 // Carrusel (4 fotos para Esencial; resto sin cambios)
 const membershipCarousel: Record<MembershipId, string[]> = {
   esencial: [
     'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela%20SILVER%20JACK%20-%20escencial.jpeg',
+    '/assets/img/memberships/carousel/carousel-1.png',
     '/assets/img/memberships/carousel/carousel-3.png',
+    'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_5689.jpg',
     '/assets/img/memberships/carousel/carousel-2.png',
   ],
   premium: [
-    '/assets/img/memberships/premium/premium-1.png',
+    // '/assets/img/memberships/premium/premium-1.png',
     '/assets/img/memberships/premium/premium-2.png',
     'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela-%20DONNA%20-%20premium.jpeg',
     // '/assets/img/memberships/premium/premium-3.png',
     // '/assets/img/memberships/premium/premium-4.png',
-    '/assets/img/memberships/premium/premium-5.png',
     'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
     '/assets/img/memberships/premium/premium-6.png',
     '/assets/img/memberships/premium/premium-7.png',
@@ -130,30 +124,25 @@ function buildEsencialGallery(opts: {
 
   const used = new Set(interleaved);
   const remainingCandles = candles.filter((c) => !used.has(c));
-  return [...interleaved, ...remainingCandles];
+  // Mostrar TODAS las imágenes reales (sin duplicados artificiales).
+  return [...new Set([...interleaved, ...remainingCandles])];
 }
 
 function getEsencialTileClass(index: number): string {
-  // Patrón con variación de alturas/anchos (sin forzar todo cuadrado).
+  // Mosaico equilibrado para Esencial: hero + módulos secundarios.
   switch (index) {
     case 0:
-      // Hero bouquet (portrait 4:5) ancho
-      return 'col-span-2 row-span-4 md:col-span-2 md:row-span-4 lg:col-span-2 lg:row-span-4';
+      return 'col-span-2 row-span-3 sm:col-span-2 sm:row-span-3 lg:col-span-2 lg:row-span-4';
     case 1:
-      // Detalle (vela) cuadrado
-      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+      return 'col-span-1 row-span-2 lg:col-span-1 lg:row-span-2';
     case 2:
-      // Bouquet (portrait)
-      return 'col-span-1 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+      return 'col-span-1 row-span-2 lg:col-span-1 lg:row-span-2';
     case 3:
-      // Detalle (vela)
-      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+      return 'col-span-2 row-span-2 lg:col-span-2 lg:row-span-2';
     case 4:
-      // Bouquet (portrait) ancho en mobile
-      return 'col-span-2 row-span-4 md:col-span-1 md:row-span-4 lg:col-span-1 lg:row-span-4';
+      return 'col-span-1 row-span-2 lg:col-span-1 lg:row-span-2';
     default:
-      // Resto detalles: cuadrados/horizontales pequeños
-      return 'col-span-1 row-span-2 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2';
+      return 'col-span-1 row-span-2 lg:col-span-1 lg:row-span-2';
   }
 }
 
@@ -212,8 +201,8 @@ const membershipNames: Record<MembershipId, string> = {
 };
 
 const membershipPrices: Record<MembershipId, number> = {
-  esencial: 110000,
-  premium: 185000,
+  esencial: 115000,
+  premium: 190000,
   elite: 285000,
 };
 
@@ -236,6 +225,18 @@ export default function MembershipPortfolioPage() {
     setMounted(true);
   }, []);
 
+  // Scroll al formulario si hay hash en la URL (debe ir antes de cualquier return: reglas de hooks)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash !== '#obtener-membresia') return;
+    const element = document.getElementById('obtener-membresia');
+    if (!element) return;
+    const id = window.setTimeout(() => {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+    return () => window.clearTimeout(id);
+  }, [membershipId]);
+
   // Validar que la membresía existe
   if (!membershipId || !(membershipId in membershipNames)) {
     return (
@@ -253,7 +254,8 @@ export default function MembershipPortfolioPage() {
   const isEsencial = membershipId === 'esencial';
   const isPremium = membershipId === 'premium';
   const isElite = membershipId === 'elite';
-  const isMosaic = isEsencial || isPremium || isElite;
+  const isMosaic = isPremium || isElite;
+  const isEsencialMosaic = isEsencial;
   const carouselImages = (membershipCarousel[membershipId] ?? []).filter(Boolean);
   const galleryImages = isEsencial
     ? buildEsencialGallery({
@@ -265,18 +267,6 @@ export default function MembershipPortfolioPage() {
   const colors = membershipColors[membershipId];
   const membershipIcon = membershipIcons[membershipId];
   const membershipPrice = membershipPrices[membershipId];
-
-  // Scroll al formulario si hay hash en la URL
-  useEffect(() => {
-    if (window.location.hash === '#obtener-membresia') {
-      const element = document.getElementById('obtener-membresia');
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
-    }
-  }, []);
 
   const handleClick = () => {
     setOpen(true);
@@ -362,7 +352,9 @@ export default function MembershipPortfolioPage() {
               className={
                 isMosaic
                   ? 'grid grid-cols-2 gap-4 grid-flow-dense auto-rows-[90px] sm:auto-rows-[100px] md:grid-cols-3 md:auto-rows-[110px] lg:grid-cols-4'
-                  : 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                  : isEsencialMosaic
+                    ? 'grid grid-cols-2 gap-4 grid-flow-dense auto-rows-[105px] sm:auto-rows-[120px] lg:grid-cols-4'
+                    : 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'
               }
             >
               {galleryImages.map((imageUrl, index) => (
@@ -370,13 +362,13 @@ export default function MembershipPortfolioPage() {
                   key={index}
                   className={
                     isMosaic
-                      ? `group relative overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-lg ${isEsencial
-                        ? getEsencialTileClass(index)
-                        : isPremium
-                          ? getPremiumTileClass(index)
-                          : getEliteTileClass(index)
+                      ? `group relative overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-lg ${isPremium
+                        ? getPremiumTileClass(index)
+                        : getEliteTileClass(index)
                       }`
-                      : 'group relative aspect-square overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg'
+                      : isEsencialMosaic
+                        ? `group relative overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-lg ${getEsencialTileClass(index)}`
+                        : 'group relative aspect-[4/5] overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg'
                   }
                 >
                   <Image

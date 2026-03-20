@@ -38,6 +38,7 @@
     "delete:complementos": "medusa exec ./src/scripts/delete-complementos-products.ts",
     "delete:duplicate-dia-de-la-madre": "medusa exec ./src/scripts/delete-duplicate-dia-de-la-madre.ts",
     "delete:exclusivos": "medusa exec ./src/scripts/delete-exclusivos-products.ts",
+    "delete:fresh-vibrant": "medusa exec ./src/scripts/delete-fresh-vibrant-product.ts",
     "delete:ramos-primaverales": "medusa exec ./src/scripts/delete-ramos-primaverales-products.ts",
     "verify:box": "medusa exec ./src/scripts/verify-box-products.ts",
     "update:box:images": "medusa exec ./src/scripts/update-box-images.ts",

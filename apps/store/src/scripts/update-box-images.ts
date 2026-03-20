@@ -2,7 +2,8 @@ import { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 /**
- * Actualiza imágenes/thumbnail de los 4 productos Box.
+ * Actualiza imágenes/thumbnail de los productos Box vigentes en catálogo.
+ * (Sin "fresh-vibrant": producto retirado — ver script delete:fresh-vibrant.)
  *
  * Nota: esto NO crea productos. Solo actualiza los existentes por handle.
  * Útil porque el seed de productos suele "saltear" si ya existen.
@@ -17,10 +18,6 @@ export default async function updateBoxImages({ container }: ExecArgs) {
     {
       handle: "lilium-and-violet",
       imageUrl: `${R2_BASE}/lilium.jpeg`,
-    },
-    {
-      handle: "fresh-vibrant",
-      imageUrl: `${R2_BASE}/IMG-20251019-WA0009.jpeg`,
     },
     {
       handle: "edicion-silvestre",

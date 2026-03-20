@@ -52,6 +52,7 @@
 import { getLowestARSPrice } from "@/lib/get-lowest-ars-price";
 import { stableStringify } from "@/lib/stable-stringify";
 import { getExpandedCategories } from "@/shared/category-mapping";
+import { isExcludedCatalogHandle } from "@/shared/constants";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import {
   ContainerRegistrationKeys,
@@ -149,7 +150,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     },
   });
 
-  let result = data;
+  let result = (data ?? []).filter(
+    (p) => !isExcludedCatalogHandle((p as { handle?: string }).handle)
+  );
 
   // Filter by category name with aliases support
   if (params.category) {

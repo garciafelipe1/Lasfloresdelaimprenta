@@ -9,6 +9,12 @@ import Link from 'next/link';
 const isDiaDeLaMujer = (categories: ProductDTO['categories']) =>
   (categories ?? []).some((c) => c.name === CATEGORIES.sanValentin);
 
+const isBoxCategory = (categories: ProductDTO['categories']) =>
+  (categories ?? []).some((c) => c.name === CATEGORIES.box);
+
+/** Precio en catálogo para todos los productos de la categoría Box (ARS). */
+const BOX_CATALOG_PRICE_ARS = 95_000;
+
 const PRODUCTOS_LIMITADOS = new Set(
   [
     'Admiración Sutil',
@@ -80,9 +86,11 @@ export function ProductCardView({
     Infinity,
   );
 
-  const catalogDisplayPrice = isDiaDeLaMujer(product.categories)
-    ? (DIA_DE_LA_MUJER_CATALOG_PRICE[product.handle] ?? lowestPrice)
-    : lowestPrice;
+  const catalogDisplayPrice = isBoxCategory(product.categories)
+    ? BOX_CATALOG_PRICE_ARS
+    : isDiaDeLaMujer(product.categories)
+      ? (DIA_DE_LA_MUJER_CATALOG_PRICE[product.handle] ?? lowestPrice)
+      : lowestPrice;
 
   const currency = locale === 'en' ? 'USD' : 'ARS';
 
@@ -97,7 +105,7 @@ export function ProductCardView({
     offers: {
       '@type': 'Offer',
       priceCurrency: currency,
-      price: lowestPrice,
+      price: catalogDisplayPrice,
       itemCondition: 'https://schema.org/NewCondition',
       availability: 'https://schema.org/InStock',
       url: `${SCHEMA_BASE_URL}${productUrl}`,
@@ -135,12 +143,7 @@ export function ProductCardView({
         <p className='text-sm text-neutral-500'>
           {isExclusive(product.categories ?? [])
             ? consultLabel
-            : formatMoneyByLocale(
-                isDiaDeLaMujer(product.categories)
-                  ? catalogDisplayPrice
-                  : lowestPrice,
-                locale,
-              )}
+            : formatMoneyByLocale(catalogDisplayPrice, locale)}
         </p>
       </div>
     </Link>

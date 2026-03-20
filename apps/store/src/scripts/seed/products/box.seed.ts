@@ -12,26 +12,13 @@ export const box = [
     category: CATEGORIES["box"],
     price: {
       ars: {
-        base: 90000,
+        base: 95000,
         aument: 0,
       },
       usd: {
-        base: 90,
+        base: 95,
         aument: 0,
       },
-    },
-  },
-  {
-    title: "FRESH VIBRANT",
-    description:
-      "<p>Energía y luz. Un diseño alegre donde mezclamos <em>liliums frescos</em> con <em>rosas pequeñas</em> en color <em>fucsia vibrante</em>. Es una combinación llena de vida, perfecta para regalar optimismo o celebrar un cumpleaños.</p>",
-    images: [
-      "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG-20251019-WA0009.jpeg",
-    ],
-    category: CATEGORIES["box"],
-    price: {
-      ars: { base: 90000, aument: 0 },
-      usd: { base: 90, aument: 0 },
     },
   },
   {
@@ -43,8 +30,21 @@ export const box = [
     ],
     category: CATEGORIES["box"],
     price: {
-      ars: { base: 90000, aument: 0 },
-      usd: { base: 90, aument: 0 },
+      ars: { base: 95000, aument: 0 },
+      usd: { base: 95, aument: 0 },
+    },
+  },
+  {
+    title: "The Signature Box",
+    description:
+      "<p>Diseñado para quienes entienden que el impacto visual no admite improvisaciones. Este cofre de diseño editorial alberga una cúpula perfectamente simétrica de rosas de exportación, seleccionadas a mano por su textura aterciopelada y su apertura ideal.</p><p>El contraste entre la calidez de los tonos blush, la estructura rígida de nuestro empaque y el sellado característico de Las Flores de la Imprenta, convierten a esta pieza en una verdadera declaración de estatus.</p>",
+    images: [
+      "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_5516.jpg",
+    ],
+    category: CATEGORIES["box"],
+    price: {
+      ars: { base: 95000, aument: 0 },
+      usd: { base: 95, aument: 0 },
     },
   },
 ];

@@ -1,6 +1,7 @@
 import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { listRegions } from '@/lib/data/regions';
 import { medusa } from '@/lib/medusa-client';
+import { isExcludedCatalogHandle } from '@server/constants';
 import { getLocale } from 'next-intl/server';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
@@ -19,6 +20,20 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
   const locale = await getLocale();
+
+  if (isExcludedCatalogHandle(handle)) {
+    const notFoundTitle = locale === 'en'
+      ? 'Product not found - La Florería de la Imprenta'
+      : 'Producto no encontrado - La Florería de la Imprenta';
+    const notFoundDesc = locale === 'en'
+      ? 'The product you are looking for is not available or does not exist.'
+      : 'El producto que buscas no está disponible o no existe.';
+    return {
+      title: notFoundTitle,
+      description: notFoundDesc,
+      robots: 'noindex, nofollow',
+    };
+  }
 
   let product;
   try {
@@ -129,10 +144,12 @@ export async function generateStaticParams() {
 
     return countryCodes
       .map((countryCode) =>
-        products.map((product) => ({
-          countryCode,
-          handle: product.handle,
-        })),
+        products
+          .filter((product) => !isExcludedCatalogHandle(product.handle))
+          .map((product) => ({
+            countryCode,
+            handle: product.handle,
+          })),
       )
       .flat()
       .filter((param) => param.handle);

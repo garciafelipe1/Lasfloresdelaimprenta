@@ -46,5 +46,16 @@ export type MembershipColors = {
 
 export const MANUAL_PAYMENT_PROVIDER_ID = "pp_system_default";
 
+/**
+ * Productos dados de baja: no deben listarse ni resolverse por handle en
+ * storefront (catálogo, API custom, previews, recomendados).
+ */
+export const EXCLUDED_CATALOG_PRODUCT_HANDLES = ["fresh-vibrant"] as const;
+
+export function isExcludedCatalogHandle(handle: string | undefined | null): boolean {
+  if (!handle) return false;
+  return (EXCLUDED_CATALOG_PRODUCT_HANDLES as readonly string[]).includes(handle);
+}
+
 // Re-exportar category-mapping para uso en otros módulos
 export * from "./category-mapping";

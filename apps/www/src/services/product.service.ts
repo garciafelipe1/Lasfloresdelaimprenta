@@ -4,7 +4,7 @@ import { translateProduct, translateProducts } from '@/lib/product-translations'
 import { FilterParams } from '@/lib/search-params-cache';
 import { getLocale } from 'next-intl/server';
 import { StoreProduct, StoreProductCategory } from '@medusajs/types';
-import { CATEGORIES } from '@server/constants';
+import { CATEGORIES, isExcludedCatalogHandle } from '@server/constants';
 import { mapProductDTO } from '@server/mappers';
 import { GetProductsCustom, ProductDTO } from '@server/types';
 
@@ -97,6 +97,7 @@ export const productService: ProductService = {
 
     const seen = new Set<string>();
     let uniqueProducts = (data.result ?? []).filter((p) => {
+      if (isExcludedCatalogHandle(p.handle)) return false;
       const key = p.handle ?? p.id;
       if (seen.has(key)) return false;
       seen.add(key);
@@ -200,7 +201,9 @@ export const productService: ProductService = {
       fields: 'categories.*',
     });
 
-    const productsSameCategory = products.filter((p) => p.id !== product.id);
+    const productsSameCategory = products.filter(
+      (p) => p.id !== product.id && !isExcludedCatalogHandle(p.handle),
+    );
 
     let recommended = productsSameCategory;
 
@@ -213,7 +216,10 @@ export const productService: ProductService = {
       });
 
       const moreProducts = recentProducts.filter(
-        (p) => p.id !== product.id && !recommended.some((r) => r.id === p.id),
+        (p) =>
+          p.id !== product.id &&
+          !isExcludedCatalogHandle(p.handle) &&
+          !recommended.some((r) => r.id === p.id),
       );
 
       recommended = [
@@ -308,12 +314,14 @@ export const productService: ProductService = {
       order: 'created_at',
     });
 
+    const filteredLatest = products.filter((p) => !isExcludedCatalogHandle(p.handle));
+
     // Aplicar traducciones
     try {
       const locale = (await getLocale()) as 'es' | 'en';
-      return await translateProducts(products, locale);
+      return await translateProducts(filteredLatest, locale);
     } catch {
-      return products;
+      return filteredLatest;
     }
   },
 
@@ -339,6 +347,7 @@ export const productService: ProductService = {
       });
       const seen = new Set<string>();
       const unique = products.filter((p) => {
+        if (isExcludedCatalogHandle(p.handle)) return false;
         if (seen.has(p.id)) return false;
         seen.add(p.id);
         return true;
