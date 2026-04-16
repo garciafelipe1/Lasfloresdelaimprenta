@@ -25,12 +25,12 @@ export const cartService = {
       id,
       {
         fields:
-          '*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.categories, +discount_total, +subtotal, +tax_total',
+          '*items, *region, *items.product, *items.variant, *items.variant.product, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.categories, +discount_total, +subtotal, +tax_total',
       },
       {
-        next: {
-          tags: [`cart-${id}`],
-        },
+        // Sin caché: el título/precio del producto puede cambiar en Medusa sin mutar el carrito;
+        // si cacheamos, el checkout puede quedar con nombres viejos en líneas ya agregadas.
+        cache: 'no-store',
       },
     );
     return cart;

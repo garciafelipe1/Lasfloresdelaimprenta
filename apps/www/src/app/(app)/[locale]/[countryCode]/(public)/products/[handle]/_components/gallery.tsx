@@ -13,9 +13,11 @@ import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   images: string[];
+  /** Oculta la guía de tallas (p. ej. complementos, donde no aplica). */
+  hideSizeGuide?: boolean;
 }
 
-export function Gallery({ images }: Props) {
+export function Gallery({ images, hideSizeGuide = false }: Props) {
   const t = useTranslations('categories-products.products.gallery');
   const [activeSection, setActiveSection] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,26 +25,42 @@ export function Gallery({ images }: Props) {
   const [isModalZoomed, setIsModalZoomed] = useState(false);
   const modalImageRef = useRef<HTMLImageElement>(null);
 
+  const deliveryBody = t('deliveryInfoBody');
+
   const questions = [
     {
       question: t('deliveryInfo'),
-      answer:
-        'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Assumenda cum amet blanditiis quis vero saepe quo veritatis ab dicta ratione cumque, labore velit omnis sequi voluptatem harum distinctio reiciendis eveniet!',
-    },
-    {
-      question: t('sizeGuide'),
       answer: (
-        <div className='relative mt-2 w-full overflow-hidden rounded-lg bg-black/5 h-[clamp(220px,55vw,420px)]'>
-          <Image
-            className='h-full w-full object-contain'
-            src='/assets/img/Talles.jpg'
-            alt={t('sizeGuideAlt')}
-            fill
-            sizes='(max-width: 768px) 100vw, 700px'
-          />
+        <div className='space-y-3 text-sm leading-relaxed'>
+          {deliveryBody.split('\n\n').map((block, i) => (
+            <p
+              key={i}
+              className='m-0'
+            >
+              {block}
+            </p>
+          ))}
         </div>
       ),
     },
+    ...(hideSizeGuide
+      ? []
+      : [
+          {
+            question: t('sizeGuide'),
+            answer: (
+              <div className='relative mt-2 w-full overflow-hidden rounded-lg bg-black/5 h-[clamp(220px,55vw,420px)]'>
+                <Image
+                  className='h-full w-full object-contain'
+                  src='/assets/img/Talles.jpg'
+                  alt={t('sizeGuideAlt')}
+                  fill
+                  sizes='(max-width: 768px) 100vw, 700px'
+                />
+              </div>
+            ),
+          },
+        ]),
   ];
 
   const openModal = (index: number) => {

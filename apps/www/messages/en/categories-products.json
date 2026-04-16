@@ -39,7 +39,8 @@
       "dedicatoriaPlaceholder": "Write your dedication…"
     },
     "gallery": {
-      "deliveryInfo": "Delivery Information",
+      "deliveryInfo": "Shipping information",
+      "deliveryInfoBody": "We offer home delivery in Bahía Blanca and surrounding areas. Shipping cost and options are set at checkout based on your address and the method you choose.\n\nWe work with fresh flowers and foliage: each piece is made to order. There may be slight variations from the photo depending on seasonal availability, while keeping the style and quality of the design.\n\nTo coordinate timing, building access, or notes for the courier (floor, doorbell, landmarks, preferred window), add the details at checkout or message us on WhatsApp.",
       "sizeGuide": "Size Guide",
       "image": "Image",
       "previousImage": "Previous image",

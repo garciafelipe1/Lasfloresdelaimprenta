@@ -31,9 +31,12 @@ interface Props {
 /** Handles de productos que solo muestran "Indicaciones (opcional)" sin Preparado (por si metadata no llega). */
 const HANDLES_SOLO_INDICACIONES = new Set([
   'flower-bag',
+  'the-petite-gesture',
   'box-esencia-y-admiración',
   'box-esencia-y-admiracion',
+  'the-curated-experience-box',
   'bouquet-spring-en-florero',
+  'the-dynamic-centerpiece',
 ]);
 
 const optionsAsKeymap = (variantOptions: StoreProductVariant['options']) => {
@@ -289,18 +292,13 @@ export function InteractiveSection({ product }: Props) {
   const whatsAppHref = useMemo(() => {
     if (!shouldShowWhatsAppPurchase) return '';
 
-    const base = 'Hola, quiero reservar este producto del catálogo.';
-
     const optionText = (() => {
-      // Preferir la variante elegida (si existe)
       if (selectedVariant?.title && product.variants && product.variants.length > 1) {
-        // Usualmente: "Producto / Opción"
         const parts = selectedVariant.title.split(' / ');
         const suffix = parts.length > 1 ? parts.slice(1).join(' / ').trim() : '';
         if (suffix) return suffix;
       }
 
-      // Si hay selección de opciones, tomar la primera que tenga valor
       for (const opt of product.options ?? []) {
         const v = options[opt.id];
         if (typeof v === 'string' && v.trim().length) {
@@ -311,14 +309,21 @@ export function InteractiveSection({ product }: Props) {
       return '';
     })();
 
-    const lines = [
-      base,
-      '',
-      product.title ? `Producto: ${product.title}` : '',
-      optionText ? `Opción: ${optionText}` : '',
-    ].filter(Boolean);
+    const productLine = product.title?.trim()
+      ? `Producto: ${product.title.trim()}`
+      : 'Producto: —';
+    const optionLine = optionText.trim()
+      ? `Opción: ${optionText.trim()}`
+      : 'Opción: —';
 
-    return getWhatsAppUrl({ text: lines.join('\n') });
+    const text = [
+      'Hola, quisiera solicitar el siguiente diseño floral de su colección: 🌿',
+      productLine,
+      optionLine,
+      'Aguardo su respuesta. ¡Gracias!',
+    ].join('\n');
+
+    return getWhatsAppUrl({ text });
   }, [options, product.options, product.title, product.variants, selectedVariant?.title, shouldShowWhatsAppPurchase]);
 
   const displayPrice =

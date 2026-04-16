@@ -28,6 +28,10 @@ interface ServiceDetailPageProps {
     requestQuote: string;
     viewGallery: string;
     premiumService: string;
+    /** Solo Bodas: pie de la cabecera de galería */
+    galleryTagline?: string;
+    /** Solo Bodas: texto del badge sobre el título */
+    portfolioLabel?: string;
   };
 }
 
@@ -64,6 +68,70 @@ export default function ServiceDetailPage({
       default:
         return '';
     }
+  };
+
+  /** Contenedor de grid Bodas según cantidad de fotos (sin huecos en desktop). */
+  const getBodasGalleryGridClass = (total: number) => {
+    const base =
+      'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 md:gap-6 lg:gap-6';
+    if (total === 3) {
+      return `${base} lg:grid-cols-12 lg:grid-rows-[minmax(280px,1fr)_minmax(280px,1fr)]`;
+    }
+    if (total === 4) {
+      return `${base} lg:grid-cols-12 lg:grid-rows-[minmax(260px,1.1fr)_minmax(260px,1.1fr)_minmax(300px,1.2fr)]`;
+    }
+    if (total === 5) {
+      return `${base} lg:grid-cols-12 lg:grid-rows-[minmax(240px,1fr)_minmax(240px,1fr)_minmax(260px,1.15fr)]`;
+    }
+    return `${base} lg:grid-cols-3`;
+  };
+
+  /** Celdas Bodas: bento asimétrico; mobile/tablet apilado o 2 cols sin huecos. */
+  const getBodasGalleryTileClass = (index: number, total: number) => {
+    const min = 'min-h-[260px] sm:min-h-[280px]';
+    if (total === 3) {
+      switch (index) {
+        case 0:
+          return `${min} sm:col-span-2 lg:col-span-7 lg:row-span-2 lg:min-h-0 h-full lg:min-h-[520px]`;
+        case 1:
+          return `${min} lg:col-span-5 lg:row-span-1 lg:min-h-0`;
+        case 2:
+          return `${min} lg:col-span-5 lg:row-span-1 lg:min-h-0`;
+        default:
+          return `${min} sm:col-span-2 lg:col-span-6`;
+      }
+    }
+    if (total === 4) {
+      switch (index) {
+        case 0:
+          return `${min} sm:col-span-2 lg:col-span-7 lg:row-span-2 lg:min-h-0 h-full lg:min-h-[560px]`;
+        case 1:
+          return `${min} lg:col-span-5 lg:row-span-1 lg:min-h-0`;
+        case 2:
+          return `${min} lg:col-span-5 lg:row-span-1 lg:min-h-0`;
+        case 3:
+          return `${min} sm:col-span-2 lg:col-span-12 lg:row-span-1 lg:min-h-[min(360px,42vh)]`;
+        default:
+          return `${min} sm:col-span-2`;
+      }
+    }
+    if (total === 5) {
+      switch (index) {
+        case 0:
+          return `${min} sm:col-span-2 sm:min-h-[300px] lg:col-span-7 lg:row-span-2 lg:min-h-0 h-full`;
+        case 1:
+          return `${min} lg:col-span-5 lg:row-span-1 lg:min-h-0`;
+        case 2:
+          return `${min} lg:col-span-5 lg:row-span-1 lg:min-h-0`;
+        case 3:
+          return `${min} lg:col-span-4 lg:row-span-1 lg:min-h-0`;
+        case 4:
+          return `${min} lg:col-span-8 lg:row-span-1 lg:min-h-0`;
+        default:
+          return `${min} sm:col-span-2 lg:col-span-6`;
+      }
+    }
+    return `${min} sm:col-span-2 lg:col-span-1`;
   };
 
   return (
@@ -149,36 +217,90 @@ export default function ServiceDetailPage({
       </section>
 
       {/* Gallery Section */}
-      <section id='galeria' className='py-16 bg-secondary/30'>
-        <div className='max-w-desktop mx-auto px-layout'>
-          <h2 className='text-3xl font-bold text-center mb-12 text-primary'>
-            {translations.ourWork}
-          </h2>
-          {galleryImages.length > 0 ? (
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 grid-flow-dense auto-rows-[160px] sm:auto-rows-[180px] lg:auto-rows-[200px]'>
-              {galleryImages.map((src, index) => (
-                // Bodas: forzar una pieza vertical para bodas-8 en "Nuestros trabajos"
-                // (más alto, estilo portrait)
-                <div
-                  key={`${src}-${index}`}
-                  className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-all duration-300 hover:shadow-md ${slug === 'bodas' && src.includes('/assets/img/services/bodas/bodas-7.')
-                    ? 'row-span-1 sm:row-span-1 lg:row-span-3'
-                    : getGalleryTileClass(index)
-                    }`}
-                >
-                  <Image
-                    src={src}
-                    alt={`${title} - Galería ${index + 1}`}
-                    fill
-                    className='object-cover transition-transform duration-500 group-hover:scale-110'
-                    sizes='(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw'
-                    loading={index < 3 ? 'eager' : 'lazy'}
-                    quality={85}
-                  />
-                  <div className='absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10' />
-                </div>
-              ))}
+      <section
+        id='galeria'
+        className={`relative py-16 md:py-20 ${slug === 'bodas' ? 'overflow-hidden bg-gradient-to-b from-secondary/40 via-primary/[0.06] to-secondary/30' : 'bg-secondary/30'}`}
+      >
+        {slug === 'bodas' ? (
+          <>
+            <div
+              className='pointer-events-none absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-primary/10 blur-3xl'
+              aria-hidden
+            />
+            <div
+              className='pointer-events-none absolute -right-20 bottom-1/4 h-80 w-80 rounded-full bg-violet-400/15 blur-3xl'
+              aria-hidden
+            />
+            <div
+              className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,transparent_0%,hsl(var(--primary)/0.04)_50%,transparent_100%)]'
+              aria-hidden
+            />
+          </>
+        ) : null}
+        <div className={`relative z-10 max-w-desktop mx-auto px-layout ${slug === 'bodas' ? '' : ''}`}>
+          {slug === 'bodas' ? (
+            <div className='mb-10 flex flex-col items-center gap-3 text-center md:mb-14'>
+              <span className='inline-flex items-center gap-2 rounded-full border border-primary/15 bg-background/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-primary shadow-sm backdrop-blur-sm'>
+                <Heart className='h-3.5 w-3.5 fill-primary/20 text-primary' aria-hidden />
+                {translations.portfolioLabel ?? 'Portfolio'}
+              </span>
+              <h2 className='bg-gradient-to-br from-primary via-primary to-primary/70 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl lg:text-[2.75rem]'>
+                {translations.ourWork}
+              </h2>
+              {translations.galleryTagline ? (
+                <p className='max-w-lg text-sm text-muted-foreground md:text-base'>
+                  {translations.galleryTagline}
+                </p>
+              ) : null}
             </div>
+          ) : (
+            <h2 className='text-3xl font-bold text-center mb-12 text-primary'>
+              {translations.ourWork}
+            </h2>
+          )}
+          {galleryImages.length > 0 ? (
+            slug === 'bodas' ? (
+              <div className={getBodasGalleryGridClass(galleryImages.length)}>
+                {galleryImages.map((src, index) => (
+                  <div
+                    key={`${src}-${index}`}
+                    className={`group relative overflow-hidden rounded-3xl border border-white/40 bg-background/90 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.22)] backdrop-blur-[2px] transition-all duration-500 ease-out hover:z-10 hover:-translate-y-1.5 hover:shadow-[0_32px_70px_-12px_rgba(0,0,0,0.28)] hover:ring-2 hover:ring-primary/25 ${index === 0 ? 'ring-2 ring-primary/20' : ''} ${getBodasGalleryTileClass(index, galleryImages.length)}`}
+                  >
+                    <Image
+                      src={src}
+                      alt={`${title} - Galería ${index + 1}`}
+                      fill
+                      className='object-cover transition-transform duration-700 ease-out group-hover:scale-105'
+                      sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 40vw, 520px'
+                      loading={index < 3 ? 'eager' : 'lazy'}
+                      quality={90}
+                    />
+                    <div className='pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100' />
+                    <div className='pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100' />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 gap-4 grid-flow-dense auto-rows-[160px] sm:grid-cols-2 sm:auto-rows-[180px] sm:gap-4 lg:grid-cols-3 lg:auto-rows-[200px] lg:gap-4'>
+                {galleryImages.map((src, index) => (
+                  <div
+                    key={`${src}-${index}`}
+                    className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-all duration-300 hover:shadow-md ${getGalleryTileClass(index)}`}
+                  >
+                    <Image
+                      src={src}
+                      alt={`${title} - Galería ${index + 1}`}
+                      fill
+                      className='object-cover transition-transform duration-500 group-hover:scale-110'
+                      sizes='(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                      loading={index < 3 ? 'eager' : 'lazy'}
+                      quality={85}
+                    />
+                    <div className='absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10' />
+                  </div>
+                ))}
+              </div>
+            )
           ) : null}
         </div>
       </section>

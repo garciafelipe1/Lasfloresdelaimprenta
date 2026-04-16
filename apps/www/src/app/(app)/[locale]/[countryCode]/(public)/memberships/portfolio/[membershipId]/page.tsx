@@ -52,17 +52,17 @@ const candleGallery: string[] = [
 const esencialBouquet: string[] = [
   '/assets/img/memberships/carousel/carousel-1.png',
   '/assets/img/memberships/carousel/carousel-2.png',
-  '/assets/img/memberships/carousel/carousel-3.png',
+  // '/assets/img/memberships/carousel/carousel-3.png',
   'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_5689.jpg',
 ];
 
 const premiumGallery: string[] = [
-  '/assets/img/memberships/premium/premium-7.png',
-  // '/assets/img/memberships/premium/premium-3.png',
   '/assets/img/memberships/premium/premium-2.png',
   'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela-%20DONNA%20-%20premium.jpeg',
-  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
   '/assets/img/memberships/premium/premium-6.png',
+  'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
+  // '/assets/img/memberships/premium/premium-7.png',
+  '/assets/img/memberships/premium/premium-3.png',
   // '/assets/img/memberships/premium/premium-7.png',
 ];
 
@@ -80,7 +80,7 @@ const membershipCarousel: Record<MembershipId, string[]> = {
   esencial: [
     'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/vela%20SILVER%20JACK%20-%20escencial.jpeg',
     '/assets/img/memberships/carousel/carousel-1.png',
-    '/assets/img/memberships/carousel/carousel-3.png',
+    // '/assets/img/memberships/carousel/carousel-3.png',
     'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/IMG_5689.jpg',
     '/assets/img/memberships/carousel/carousel-2.png',
   ],
@@ -92,7 +92,7 @@ const membershipCarousel: Record<MembershipId, string[]> = {
     // '/assets/img/memberships/premium/premium-4.png',
     'https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/Sprays.jpeg',
     '/assets/img/memberships/premium/premium-6.png',
-    '/assets/img/memberships/premium/premium-7.png',
+    // '/assets/img/memberships/premium/premium-7.png',
   ],
   elite: [
     ...eliteGallery,
@@ -197,7 +197,13 @@ function getEliteTileClass(index: number): string {
 const membershipNames: Record<MembershipId, string> = {
   esencial: 'Esencial',
   premium: 'Premium',
-  elite: 'Elite',
+  elite: 'Élite',
+};
+
+const membershipTaglines: Record<MembershipId, string> = {
+  esencial: 'descubrimiento semanal',
+  premium: 'armonía floral',
+  elite: 'nobleza floral',
 };
 
 const membershipPrices: Record<MembershipId, number> = {
@@ -264,6 +270,7 @@ export default function MembershipPortfolioPage() {
     })
     : (membershipGallery[membershipId] ?? []).filter(Boolean);
   const membershipName = membershipNames[membershipId];
+  const membershipTagline = membershipTaglines[membershipId];
   const colors = membershipColors[membershipId];
   const membershipIcon = membershipIcons[membershipId];
   const membershipPrice = membershipPrices[membershipId];
@@ -289,7 +296,7 @@ export default function MembershipPortfolioPage() {
             </Link>
             <div>
               <h1 className='text-3xl font-bold md:text-4xl'>
-                {t('header.title')} {membershipName}
+                {membershipName} - {membershipTagline}
               </h1>
               <p className='mt-2 text-muted-foreground'>
                 {t('header.description')}

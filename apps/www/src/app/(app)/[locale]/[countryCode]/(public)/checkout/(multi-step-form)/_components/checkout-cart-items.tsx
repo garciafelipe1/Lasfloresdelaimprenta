@@ -14,6 +14,10 @@ import {
   DialogTitle,
 } from '@/app/components/ui/dialog';
 import { canHaveMessage } from '@/lib/canHaveMessage';
+import {
+  getCartLineItemProductTitle,
+  getCartLineItemVariantLabel,
+} from '@/lib/cart-line-display';
 import { StoreCartLineItem } from '@medusajs/types';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -33,20 +37,28 @@ export function CheckoutCartItems({ items }: Props) {
   return (
     <>
       <ul className='flex flex-col gap-2 sm:gap-2'>
-        {items.map((item) => (
+        {items.map((item) => {
+          const displayTitle = getCartLineItemProductTitle(item);
+          const variantTitle = getCartLineItemVariantLabel(item, displayTitle);
+          return (
           <ItemRoot
             className='border-none p-0 sm:p-0'
             key={item.id}
           >
             <ItemImage
               quantity={item.quantity}
-              alt={`${item.title} image`}
+              alt={`${displayTitle} image`}
               src={item.thumbnail ?? ''}
             />
             <ItemBody
               price={item.unit_price}
-              title={item.title}
+              title={displayTitle}
             >
+              {variantTitle ? (
+                <p className='text-xs text-muted-foreground'>
+                  Variante: {variantTitle}
+                </p>
+              ) : null}
               {canHaveMessage(item.product?.categories) &&
                 (item.metadata?.message ? (
                   <div className='flex items-center justify-between gap-2'>
@@ -76,7 +88,8 @@ export function CheckoutCartItems({ items }: Props) {
                 ))}
             </ItemBody>
           </ItemRoot>
-        ))}
+          );
+        })}
       </ul>
       <Dialog
         open={dialogOpen}

@@ -14,21 +14,42 @@ import { diseniosExclusivos } from "./seed/products/disenios-exclusivos.seed";
 const toHandle = (value: string) =>
   slugify(value, { lower: true, trim: true, strict: true });
 
-const PRODUCT_MAPPING: Record<string, (typeof diseniosExclusivos)[number]> = {};
+// Mapeamos handles actuales (y legacy) → contenido nuevo; también actualizamos handle al slug del nuevo título
+// (igual que el seed), salvo colisión con otro producto.
+const BY_NEW_TITLE: Record<string, (typeof diseniosExclusivos)[number]> = {};
 for (const p of diseniosExclusivos) {
-  PRODUCT_MAPPING[toHandle(p.title)] = p;
+  BY_NEW_TITLE[p.title] = p;
 }
-// Handles legacy (antes de slugificar)
-PRODUCT_MAPPING["dulce-complicidad"] = diseniosExclusivos.find((p) => p.title === "Admiración Sutil")!;
-PRODUCT_MAPPING["amor-en-equilibrio"] = diseniosExclusivos.find((p) => p.title === "Fuerza y Equilibrio")!;
-PRODUCT_MAPPING["chispa-vital"] = diseniosExclusivos.find((p) => p.title === "Energía Creadora")!;
-PRODUCT_MAPPING["el-clasico-enamorado"] = diseniosExclusivos.find((p) => p.title === "Reconocimiento Absoluto")!;
-PRODUCT_MAPPING["declaracion-absoluta"] = diseniosExclusivos.find((p) => p.title === "Mujer Líder")!;
-PRODUCT_MAPPING["pasion-sin-filtros"] = diseniosExclusivos.find((p) => p.title === "Determinación Pura")!;
-PRODUCT_MAPPING["ternura-infinita"] = diseniosExclusivos.find((p) => p.title === "Elegancia y Gracia")!;
-PRODUCT_MAPPING["box-love-story"] = diseniosExclusivos.find((p) => p.title === "Box Vanguardia Femenina")!;
-PRODUCT_MAPPING["romance-perfumado"] = diseniosExclusivos.find((p) => p.title === "Esencia Inolvidable")!;
-PRODUCT_MAPPING["valentines-gold-edition"] = diseniosExclusivos.find((p) => p.title === "Edición Oro 8M")!;
+
+const PRODUCT_MAPPING: Record<string, (typeof diseniosExclusivos)[number]> = {
+  // Nombres anteriores (handles actuales en DB) → nuevos nombres / descripciones
+  "reconocimiento-absoluto": BY_NEW_TITLE["THE MASTERPIECE RED."]!,
+  "esencia-inolvidable": BY_NEW_TITLE["THE LILY & ROSE EDIT."]!,
+  "mujer-lider": BY_NEW_TITLE["THE CORPORATE RED."]!,
+  "determinacion-pura": BY_NEW_TITLE["CRIMSON MONOCHROME."]!,
+  "fuerza-y-equilibrio": BY_NEW_TITLE["THE SCARLET STRUCTURE."]!,
+  "elegancia-y-gracia": BY_NEW_TITLE["THE BLUSH MINIMAL."]!,
+  "box-vanguardia-femenina": BY_NEW_TITLE["THE SIGNATURE HATBOX."]!,
+  "admiracion-sutil": BY_NEW_TITLE["THE NEUTRAL PALETTE."]!,
+  "energia-creadora": BY_NEW_TITLE["VIBRANT CORAL EDIT."]!,
+  "edicion-oro-8m": BY_NEW_TITLE["THE PREMIUM ROUGE."]!,
+  "box-esencia-y-admiración": BY_NEW_TITLE["THE CURATED EXPERIENCE BOX."]!,
+  "box-esencia-y-admiracion": BY_NEW_TITLE["THE CURATED EXPERIENCE BOX."]!,
+  "flower-bag": BY_NEW_TITLE["THE PETITE GESTURE."]!,
+  "bouquet-spring-en-florero": BY_NEW_TITLE["THE DYNAMIC CENTERPIECE."]!,
+
+  // Handles legacy del catálogo anterior (si todavía existieran)
+  "dulce-complicidad": BY_NEW_TITLE["THE NEUTRAL PALETTE."]!,
+  "amor-en-equilibrio": BY_NEW_TITLE["THE SCARLET STRUCTURE."]!,
+  "chispa-vital": BY_NEW_TITLE["VIBRANT CORAL EDIT."]!,
+  "el-clasico-enamorado": BY_NEW_TITLE["THE MASTERPIECE RED."]!,
+  "declaracion-absoluta": BY_NEW_TITLE["THE CORPORATE RED."]!,
+  "pasion-sin-filtros": BY_NEW_TITLE["CRIMSON MONOCHROME."]!,
+  "ternura-infinita": BY_NEW_TITLE["THE BLUSH MINIMAL."]!,
+  "box-love-story": BY_NEW_TITLE["THE SIGNATURE HATBOX."]!,
+  "romance-perfumado": BY_NEW_TITLE["THE LILY & ROSE EDIT."]!,
+  "valentines-gold-edition": BY_NEW_TITLE["THE PREMIUM ROUGE."]!,
+};
 
 const X_VARIATIONS = [
   { label: "X3", ars: 50_000, usd: 50 },
@@ -52,25 +73,60 @@ export default async function updateDiseniosExclusivosContent({ container }: Exe
 
   logger.info("[update-disenios-exclusivos-content] Iniciando...");
 
-  const { data: products } = await query.graph({
-    entity: "product",
-    fields: [
-      "id",
-      "title",
-      "handle",
-      "categories.name",
-      "variants.id",
-      "variants.title",
-      "variants.options.value",
-      "variants.price_set.id",
-    ],
-  });
+  const productGraphFields = [
+    "id",
+    "title",
+    "handle",
+    "categories.name",
+    "variants.id",
+    "variants.title",
+    "variants.options.value",
+    "variants.price_set.id",
+  ] as const;
 
-  const targetProducts = (products || []).filter((p: any) =>
+  const inExclusive = (p: any) =>
     (p?.categories || []).some(
       (c: any) => c?.name === categoryName || c?.name === legacyCategoryName
-    )
-  );
+    );
+
+  let { data: products } = await query.graph({
+    entity: "product",
+    fields: [...productGraphFields],
+  });
+
+  // Si corrió seed:products tras cambiar títulos, puede haber duplicados: mismo diseño con handle viejo y con slug nuevo.
+  // Eliminamos el producto cuyo handle ya es el definitivo (twin) y conservamos el que está en PRODUCT_MAPPING con handle legacy.
+  const byHandle = new Map<string, any>();
+  for (const p of products || []) {
+    if (p?.handle) byHandle.set(p.handle, p);
+  }
+  const deletedTwinIds = new Set<string>();
+  for (const p of products || []) {
+    if (!inExclusive(p)) continue;
+    const newData = PRODUCT_MAPPING[p.handle];
+    if (!newData) continue;
+    const desiredHandle = toHandle(newData.title);
+    if (p.handle === desiredHandle) continue;
+    const twin = byHandle.get(desiredHandle);
+    if (!twin || twin.id === p.id || deletedTwinIds.has(twin.id)) continue;
+    if (!inExclusive(twin)) continue;
+    await productModuleService.deleteProducts([twin.id]);
+    deletedTwinIds.add(twin.id);
+    byHandle.delete(desiredHandle);
+    logger.info(
+      `[update-disenios-exclusivos-content] 🗑️ Duplicado (seed) eliminado: "${desiredHandle}" (id ${twin.id}); se conserva "${p.handle}"`
+    );
+  }
+
+  if (deletedTwinIds.size > 0) {
+    const again = await query.graph({
+      entity: "product",
+      fields: [...productGraphFields],
+    });
+    products = again.data;
+  }
+
+  const targetProducts = (products || []).filter((p: any) => inExclusive(p));
 
   logger.info(
     `[update-disenios-exclusivos-content] Productos a procesar: ${targetProducts.length} (categoría "${categoryName}" o "${legacyCategoryName}")`
@@ -91,8 +147,6 @@ export default async function updateDiseniosExclusivosContent({ container }: Exe
       continue;
     }
 
-    const newHandle = toHandle(newData.title);
-
     const updateData: any = {
       title: newData.title,
       description: newData.description,
@@ -107,11 +161,16 @@ export default async function updateDiseniosExclusivosContent({ container }: Exe
       };
     }
 
+    const newHandle = toHandle(newData.title);
     if (oldHandle !== newHandle) {
-      const existingWithNewHandle = targetProducts.find(
-        (p: any) => p.handle === newHandle && p.id !== product.id
+      const taken = (products || []).some(
+        (p: any) => p?.handle === newHandle && p?.id !== product.id
       );
-      if (!existingWithNewHandle) {
+      if (taken) {
+        logger.warn(
+          `[update-disenios-exclusivos-content] ⚠️ Handle objetivo "${newHandle}" ya existe; se mantiene "${oldHandle}"`
+        );
+      } else {
         updateData.handle = newHandle;
         logger.info(
           `[update-disenios-exclusivos-content] 🔄 Handle: ${oldHandle} → ${newHandle}`

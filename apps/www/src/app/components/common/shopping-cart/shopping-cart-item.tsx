@@ -3,6 +3,10 @@
 import { removeFromCartAction } from '@/app/actions/cart/remove-from-cart.action';
 import { Button } from '@/components/ui/button';
 import { getSafeImageUrl } from '@/lib/get-safe-image-url';
+import {
+  getCartLineItemProductTitle,
+  getCartLineItemVariantLabel,
+} from '@/lib/cart-line-display';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { cn } from '@/lib/utils';
 import { StoreCartLineItem } from '@medusajs/types';
@@ -19,16 +23,8 @@ interface Props {
 
 export function ShoppingCartItem({ item }: Props) {
   const locale = useLocale();
-  const productTitle =
-    ((item as any).product?.title as string | undefined) ||
-    ((item as any).variant?.product?.title as string | undefined);
-  const displayTitle = productTitle || item.title;
-  const rawVariantTitle =
-    item.title && item.title !== displayTitle ? item.title : null;
-  const variantTitle =
-    rawVariantTitle && rawVariantTitle.trim().toLowerCase() === 'default'
-      ? null
-      : rawVariantTitle;
+  const displayTitle = getCartLineItemProductTitle(item);
+  const variantTitle = getCartLineItemVariantLabel(item, displayTitle);
   const imageUrl = getSafeImageUrl(item.product?.thumbnail ?? '');
   const meta = (item as any).metadata as
     | { preparado?: string; indicaciones?: string; dedicatoria?: string }

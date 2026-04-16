@@ -17,19 +17,19 @@ const BOX_CATALOG_PRICE_ARS = 95_000;
 
 const PRODUCTOS_LIMITADOS = new Set(
   [
-    'Admiración Sutil',
-    'Fuerza y Equilibrio',
-    'Energía Creadora',
-    'Reconocimiento Absoluto',
-    'Mujer Líder',
-    'Determinación Pura',
-    'Elegancia y Gracia',
-    'Box Vanguardia Femenina',
-    'Esencia Inolvidable',
-    'Edición Oro 8M',
-    'Flower bag',
-    'Bouquet spring en florero',
-    'Box Esencia y Admiración',
+    'THE NEUTRAL PALETTE.',
+    'THE SCARLET STRUCTURE.',
+    'VIBRANT CORAL EDIT.',
+    'THE MASTERPIECE RED.',
+    'THE CORPORATE RED.',
+    'CRIMSON MONOCHROME.',
+    'THE BLUSH MINIMAL.',
+    'THE SIGNATURE HATBOX.',
+    'THE LILY & ROSE EDIT.',
+    'THE PREMIUM ROUGE.',
+    'THE PETITE GESTURE.',
+    'THE DYNAMIC CENTERPIECE.',
+    'THE CURATED EXPERIENCE BOX.',
   ].map((t) => t.trim().toLowerCase())
 );
 const isProductoLimitado = (title: string | undefined) =>
@@ -56,6 +56,16 @@ const DIA_DE_LA_MUJER_CATALOG_PRICE: Record<string, number> = {
   'box-vanguardia-femenina': 170_000,
   'esencia-inolvidable': 164_000,
   'edicion-oro-8m': 154_000,
+  'the-neutral-palette': 90_000,
+  'the-scarlet-structure': 164_000,
+  'vibrant-coral-edit': 190_000,
+  'the-masterpiece-red': 310_000,
+  'the-corporate-red': 230_000,
+  'crimson-monochrome': 190_000,
+  'the-blush-minimal': 90_000,
+  'the-signature-hatbox': 170_000,
+  'the-lily-and-rose-edit': 164_000,
+  'the-premium-rouge': 154_000,
 };
 
 const SCHEMA_BASE_URL =

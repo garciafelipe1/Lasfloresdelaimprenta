@@ -59,7 +59,10 @@ export async function ProductInfo({ handle }: Props) {
     <div className='max-w-desktop mx-auto flex w-full flex-col gap-4'>
       <ProductBreadcrumb title={product.title} />
       <section className='grid w-full grid-cols-1 gap-4 md:grid-cols-[1fr_minmax(min(100%,200px),400px)]'>
-        <Gallery images={images} />
+        <Gallery
+          images={images}
+          hideSizeGuide={isComplement(product.categories)}
+        />
         <aside>
           <div className='sticky top-20 flex flex-col gap-12'>
             <header>

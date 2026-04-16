@@ -39,7 +39,8 @@
       "dedicatoriaPlaceholder": "Escribí tu dedicatoria…"
     },
     "gallery": {
-      "deliveryInfo": "Información de Delivery",
+      "deliveryInfo": "Información de envío",
+      "deliveryInfoBody": "Realizamos entregas a domicilio en Bahía Blanca y zonas de influencia. El costo y las opciones de envío se definen en el checkout según tu dirección y el método elegido.\n\nTrabajamos con flores y follajes frescos: cada pieza se prepara por encargo. Puede haber variaciones leves respecto a la foto según disponibilidad de temporada, sin perder el estilo ni la calidad del diseño.\n\nPara coordinar horario, acceso al domicilio o indicaciones para el repartidor (piso, timbre, referencias, horario), completá los datos en el checkout o escribinos por WhatsApp.",
       "sizeGuide": "Guía de tallas",
       "image": "Imagen",
       "previousImage": "Imagen anterior",

@@ -1,5 +1,9 @@
 import { StoreCart } from '@medusajs/types';
 import Image from 'next/image';
+import {
+  getCartLineItemProductTitle,
+  getCartLineItemVariantLabel,
+} from '@/lib/cart-line-display';
 import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { getLocale } from 'next-intl/server';
@@ -51,7 +55,10 @@ export async function SummaryInfo({ cart }: Props) {
       <div className='flex flex-col gap-2'>
         <h4>{t('summary.productsTitle')}</h4>
         <ul className='grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))]'>
-          {cart.items?.map((item) => (
+          {cart.items?.map((item) => {
+            const displayTitle = getCartLineItemProductTitle(item);
+            const variantTitle = getCartLineItemVariantLabel(item, displayTitle);
+            return (
             <div
               key={item.id}
               className='bg-secondary flex flex-col gap-3 rounded-md p-3 shadow sm:flex-row sm:gap-4'
@@ -65,7 +72,12 @@ export async function SummaryInfo({ cart }: Props) {
                 />
               </div>
               <div className='flex min-w-0 flex-1 flex-col gap-1'>
-                <h4 className='break-words text-sm font-semibold sm:text-base'>{item.title}</h4>
+                <h4 className='break-words text-sm font-semibold sm:text-base'>{displayTitle}</h4>
+                {variantTitle ? (
+                  <p className='text-xs text-muted-foreground'>
+                    Variante: {variantTitle}
+                  </p>
+                ) : null}
                 <div className='flex flex-col gap-1 text-sm opacity-75'>
                   <p className='break-words'>
                     {t('summary.unitPrice')}: {formatMoneyByLocale(item.unit_price, locale)}
@@ -80,7 +92,8 @@ export async function SummaryInfo({ cart }: Props) {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </ul>
       </div>
       <div className='flex flex-col gap-2'>

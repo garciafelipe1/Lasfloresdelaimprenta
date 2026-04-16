@@ -4,6 +4,10 @@ import { removeFromCartAction } from '@/app/actions/cart/remove-from-cart.action
 import { upateItemQuantityAction } from '@/app/actions/cart/update-item-quantity.action';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
+import {
+  getCartLineItemProductTitle,
+  getCartLineItemVariantLabel,
+} from '@/lib/cart-line-display';
 import { getSafeImageUrl } from '@/lib/get-safe-image-url';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
 import { StoreCart } from '@medusajs/types';
@@ -73,16 +77,8 @@ export function CheckoutProductsTable({ items }: Props) {
         <span></span>
       </div>
       {items?.map((item) => {
-        const productTitle =
-          ((item as any).product?.title as string | undefined) ||
-          ((item as any).variant?.product?.title as string | undefined);
-        const displayTitle = productTitle || item.title;
-        const rawVariantTitle =
-          item.title && item.title !== displayTitle ? item.title : null;
-        const variantTitle =
-          rawVariantTitle && rawVariantTitle.trim().toLowerCase() === 'default'
-            ? null
-            : rawVariantTitle;
+        const displayTitle = getCartLineItemProductTitle(item);
+        const variantTitle = getCartLineItemVariantLabel(item, displayTitle);
         const meta = (item as any).metadata as
           | { preparado?: string; indicaciones?: string; dedicatoria?: string }
           | undefined;

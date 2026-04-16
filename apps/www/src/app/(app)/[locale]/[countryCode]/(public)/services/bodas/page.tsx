@@ -42,11 +42,12 @@ export default async function BodasPage({ params }: Props) {
   const locale: 'en' | 'es' = rawLocale === 'en' ? 'en' : 'es';
   const t = await getTranslations({ locale, namespace: 'services' as const });
   const images: string[] = [
-    '/assets/img/services/bodas/bodas-3.png',
+    "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/395bdecb-cc71-432e-b133-8e9a20bb26b7.jpg",
+    "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/23f1ed90-8ace-447f-abfd-a04d3cc27a3b.jpg",
+    "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/9376af9a-000e-4c29-abd3-04fc152c6eef.jpg",
+    "https://pub-43da7721872a46ffac4397d05373bc0d.r2.dev/c262c5c6-14c5-4cab-a899-9d78f3b8aa8a.jpg",
     '/assets/img/services/bodas/bodas-4.png',
-    '/assets/img/services/bodas/bodas-7.png',
-    '/assets/img/services/bodas/bodas-8.png',
-    '/assets/img/services/bodas/bodas-5.png',
+
   ];
 
   const benefits = [
@@ -85,6 +86,8 @@ export default async function BodasPage({ params }: Props) {
           requestQuote: t('common.requestQuote'),
           viewGallery: t('common.viewGallery'),
           premiumService: t('common.premiumService'),
+          galleryTagline: t('Servicio2.galleryTagline'),
+          portfolioLabel: t('Servicio2.portfolioLabel'),
         }}
       />
       <PhotoBanner src={BODAS_BANNER_IMAGE} wide />
