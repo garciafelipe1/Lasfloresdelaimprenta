@@ -1,7 +1,10 @@
 import type { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import type { CustomerDTO } from "@medusajs/types";
 import { WELCOME_METADATA } from "../../shared/welcome/metadata-keys";
+
+type CustomerLike = {
+  metadata?: unknown;
+};
 
 /**
  * Tras la primera orden, marca el beneficio de bienvenida como consumido en metadata.
@@ -34,9 +37,9 @@ export async function markWelcomePromoConsumedAfterOrder(params: {
     return;
   }
 
-  let customer: CustomerDTO;
+  let customer: CustomerLike;
   try {
-    customer = await customerModule.retrieveCustomer(customerId);
+    customer = (await customerModule.retrieveCustomer(customerId)) as CustomerLike;
   } catch {
     return;
   }

@@ -3,10 +3,14 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import type { CustomerDTO } from "@medusajs/types";
 import { completeWelcomeProfileSchema } from "./validators";
 
 import * as crypto from "crypto";
+
+type CustomerLike = {
+  id?: string;
+  metadata?: unknown;
+};
 
 const WELCOME_METADATA = {
   offerEligible: "welcome_offer_eligible",
@@ -43,7 +47,7 @@ const ELIGIBILITY_DAYS = 7;
 const MAX_CODE_ATTEMPTS = 5;
 
 function mergeCustomerMetadata(
-  existing: CustomerDTO["metadata"],
+  existing: unknown,
   patch: Record<string, unknown>,
 ): Record<string, unknown> {
   const base =
@@ -130,15 +134,17 @@ export async function POST(
 
   const body = parsed.data;
 
-  let customer: CustomerDTO;
+  let customer: CustomerLike;
   try {
-    customer = await customerModule.retrieveCustomer(customerId);
+    customer = (await customerModule.retrieveCustomer(customerId)) as CustomerLike;
   } catch (e) {
     logger.warn(`[welcome/complete-profile] retrieveCustomer: ${e}`);
     return res.status(404).json({ message: "Cliente no encontrado" });
   }
 
-  const meta = customer.metadata as Record<string, unknown> | null | undefined;
+  const meta =
+    (customer?.metadata as Record<string, unknown> | null | undefined) ??
+    undefined;
   if (meta?.[WELCOME_METADATA.profileCompletedAt]) {
     return res.status(200).json({
       ok: true,
