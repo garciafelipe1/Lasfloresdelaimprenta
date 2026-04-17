@@ -15,6 +15,8 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createCustomerAccountWorkflow } from "@medusajs/medusa/core-flows";
 import * as crypto from "crypto";
 
+const WELCOME_OFFER_ELIGIBLE_KEY = "welcome_offer_eligible";
+
 const JWT_HEADER = Buffer.from(
   JSON.stringify({ alg: "HS256", typ: "JWT" })
 ).toString("base64url");
@@ -137,6 +139,23 @@ export const POST = async (
     }
     customerId = id;
     logger.info(`[link-customer] createCustomerAccountWorkflow OK, customer_id: ${customerId}`);
+
+    try {
+      const customerModule = req.scope.resolve(Modules.CUSTOMER);
+      const cust = await customerModule.retrieveCustomer(customerId);
+      const prev =
+        cust.metadata && typeof cust.metadata === "object" && !Array.isArray(cust.metadata)
+          ? { ...(cust.metadata as Record<string, unknown>) }
+          : {};
+      await customerModule.updateCustomers(customerId, {
+        metadata: {
+          ...prev,
+          [WELCOME_OFFER_ELIGIBLE_KEY]: true,
+        },
+      });
+    } catch (metaErr) {
+      logger.warn(`[link-customer] No se pudo marcar welcome_offer_eligible: ${metaErr}`);
+    }
   } catch (err: any) {
     logger.error(`[link-customer] Error en createCustomerAccountWorkflow: ${err?.message ?? String(err)}`);
     res.status(500).json({

@@ -3,6 +3,7 @@
 import { cookies } from '@/lib/data/cookies';
 import { medusa } from '@/lib/medusa-client';
 import { actionClient } from '@/lib/safe-action';
+import { WELCOME_METADATA } from '@/lib/welcome/metadata-keys';
 import { registerSchema } from '@/lib/zod/register-schema';
 import { FetchError } from '@medusajs/js-sdk';
 
@@ -62,6 +63,9 @@ export const registerAction = actionClient
           first_name: name,
           last_name: name,
           phone,
+          metadata: {
+            [WELCOME_METADATA.offerEligible]: true,
+          },
         },
         {},
         headers,

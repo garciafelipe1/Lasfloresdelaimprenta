@@ -28,6 +28,11 @@ import { MercadoPagoWebhookSchema } from "./hooks/mercadopago/webhook/validators
 
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/store/welcome/complete-profile",
+      method: "POST",
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
     // Cities
     {
       matcher: "/bahia-blanca/city",
