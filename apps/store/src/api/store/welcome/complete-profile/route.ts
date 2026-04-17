@@ -84,6 +84,8 @@ async function createWelcomePromotion(params: {
       application_method: {
         type: "percentage",
         target_type: "items",
+        // Requerido por Medusa cuando target_type es items/shipping_methods
+        allocation: "across",
         value: WELCOME_DISCOUNT_PERCENT,
       },
     },
