@@ -29,11 +29,11 @@ Todas las reglas acordadas priorizan **claridad**, **control del margen** y **un
 - **Qué es:** tres niveles de reconocimiento según **meses de antigüedad** desde la **primera compra de membresía** en el sitio (fecha de inicio de la suscripción que usamos como referencia).
 - **Niveles y beneficio acordado en catálogo (solo catálogo, no membresías):**
 
-  | Nivel        | Antigüedad (referencia) | Descuento en catálogo |
-  |-------------|-------------------------|------------------------|
-  | Lead Sólido | Meses 1 a 6             | 5%                     |
-  | Lead Senior | Meses 6 a 12            | 7%                     |
-  | Lead VIP    | A partir del mes 12     | 10%                    |
+  | Nivel       | Antigüedad (referencia) | Descuento en catálogo |
+  | ----------- | ----------------------- | --------------------- |
+  | Lead Sólido | Meses 1 a 6             | 5%                    |
+  | Lead Senior | Meses 6 a 12            | 7%                    |
+  | Lead VIP    | A partir del mes 12     | 10%                   |
 
 - **Manual vs automático:** el sistema puede **calcular** el nivel por fechas; el equipo puede **fijar o corregir** el nivel y dejar **notas internas** en Medusa (la parte de administración avanzada se va habilitando por etapas).
 - **En pantalla:** el **panel del miembro** muestra el nivel Inner Circle cuando tiene membresía activa (nombre del nivel, % acordado para catálogo y fecha de referencia de antigüedad).
@@ -51,11 +51,11 @@ Todas las reglas acordadas priorizan **claridad**, **control del margen** y **un
 
 ## 3. Resumen de reglas globales
 
-| Tema | Regla |
-|------|--------|
-| Membresías | Los cupones de **catálogo** (bienvenida, Inner Circle cuando esté ligado a promo, referidos) **no aplican** a productos de membresía salvo definición explícita futura. |
-| Apilamiento | **No** se combinan varias promociones en el mismo pedido: **una sola** promoción activa. |
-| Inner Circle | Solo **miembros con membresía activa**; niveles según antigüedad o ajuste manual. |
+| Tema         | Regla                                                                                                                                                                   |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Membresías   | Los cupones de **catálogo** (bienvenida, Inner Circle cuando esté ligado a promo, referidos) **no aplican** a productos de membresía salvo definición explícita futura. |
+| Apilamiento  | **No** se combinan varias promociones en el mismo pedido: **una sola** promoción activa.                                                                                |
+| Inner Circle | Solo **miembros con membresía activa**; niveles según antigüedad o ajuste manual.                                                                                       |
 
 ---
 
@@ -82,4 +82,4 @@ Las apps que consumían la respuesta como **array puro** deben actualizarse.
 
 Este archivo vive en el repositorio (`docs/cliente-beneficios-e-implementacion.md`) y puede actualizarse cuando cambien reglas comerciales o se complete una nueva fase de desarrollo.
 
-*Última actualización: documentación alineada al desarrollo del programa de beneficios (bienvenida, Inner Circle, roadmap referidos).*
+_Última actualización: documentación alineada al desarrollo del programa de beneficios (bienvenida, Inner Circle, roadmap referidos)._
