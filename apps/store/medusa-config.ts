@@ -45,6 +45,8 @@ module.exports = defineConfig({
     vite: () => ({
       resolve: {
         alias: {
+          // Para imports compartidos backend/admin (ej: "@/shared/...", "@/admin/...")
+          "@": path.resolve(__dirname, "./src"),
           "~": path.resolve(__dirname, "./src/admin"),
         },
       },
