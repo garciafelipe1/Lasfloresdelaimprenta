@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { processReferrerRewardForMembershipOrder } from "../shared/referral/order-referral-rewards";
 import { sendOrderConfirmationWorkflow } from "../workflows/send-order-confirmation";
 
 const WELCOME_PROMO_CODE_KEY = "welcome_promo_code";
@@ -51,6 +52,12 @@ export default async function orderPlacedHandler({
     logger.info(`[welcome] promo consumido marcado para customer ${customerId}`);
   } catch {
     // No romper confirmación de orden por esto.
+  }
+
+  try {
+    await processReferrerRewardForMembershipOrder(container, data.id);
+  } catch {
+    // best-effort
   }
 }
 

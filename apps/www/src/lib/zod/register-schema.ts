@@ -18,6 +18,7 @@ export const registerSchema = z
         message: 'La contraseña tiene que ser alfanumérica',
       }),
     confirmPassword: z.string(),
+    referralCode: z.string().max(32).optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ['confirmPassword'],

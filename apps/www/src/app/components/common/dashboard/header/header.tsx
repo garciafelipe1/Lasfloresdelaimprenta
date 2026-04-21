@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ProfileDropdown } from './profile-dropdown';
 
 export async function DashboardHeader() {
-  const subscription = await userService.getSubscriptionInfo();
+  const { subscription } = await userService.getSubscriptionInfo();
   const user = await authService.getUser().catch(() => null);
 
   return (

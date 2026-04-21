@@ -1,6 +1,12 @@
-import { cookies } from '@/lib/data/cookies';
+import {
+  cartHasOnlyMembershipProducts,
+  CART_PROMO_RETRIEVE_FIELDS,
+  getExistingPromoCodesUpper,
+  resolveCartPromoCustomerMetadata,
+  updateCartWithPromoCode,
+  type CartPromoApplyOptions,
+} from '@/lib/membership/cart-promo-shared';
 import { medusa } from '@/lib/medusa-client';
-import { revalidateTag } from 'next/cache';
 import { WELCOME_METADATA } from './metadata-keys';
 
 function parseIso(s: unknown): Date | null {
@@ -19,32 +25,12 @@ function isTruthyConsumed(v: unknown): boolean {
  */
 export async function applyWelcomePromoToCartIfEligible(
   cartId: string,
+  options?: CartPromoApplyOptions,
 ): Promise<void> {
-  const auth = await cookies.getAuthHeaders();
-  if (!('authorization' in auth) || !auth.authorization) {
+  const meta = await resolveCartPromoCustomerMetadata(options);
+  if (!meta) {
     return;
   }
-
-  const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? '';
-  const headers: Record<string, string> = {
-    ...auth,
-    ...(publishableKey ? { 'x-publishable-api-key': publishableKey } : {}),
-  };
-
-  let customer: { metadata?: Record<string, unknown> } | undefined;
-  try {
-    const res = await medusa.client.fetch<{
-      customer: { metadata?: Record<string, unknown> };
-    }>('/store/customers/me', {
-      method: 'GET',
-      headers,
-    });
-    customer = res.customer;
-  } catch {
-    return;
-  }
-
-  const meta = customer?.metadata ?? {};
 
   if (!meta[WELCOME_METADATA.profileCompletedAt]) {
     return;
@@ -67,33 +53,33 @@ export async function applyWelcomePromoToCartIfEligible(
   const promoCode = codeRaw.trim().toUpperCase();
 
   const { cart } = await medusa.store.cart.retrieve(cartId, {
-    fields: '*items,*promotions',
+    fields: CART_PROMO_RETRIEVE_FIELDS,
   });
 
   if (!cart?.items?.length) {
     return;
   }
 
-  const promotions = (cart as { promotions?: { code?: string }[] })
-    .promotions;
-  const existingCodes =
-    promotions?.map((p) => p.code?.trim().toUpperCase()).filter(Boolean) ??
-    [];
+  if (cartHasOnlyMembershipProducts(cart)) {
+    return;
+  }
+
+  const existingCodes = getExistingPromoCodesUpper(cart);
 
   if (existingCodes.includes(promoCode)) {
     return;
   }
 
-  const newPromoCodes = [
-    ...(promotions?.map((p) => p.code).filter(Boolean) as string[]),
-    promoCode,
-  ];
+  // Una sola promoción por pedido: si ya hay otro código, no auto-aplicar bienvenida.
+  if (
+    existingCodes.length > 0 &&
+    !existingCodes.every((c) => c === promoCode)
+  ) {
+    return;
+  }
 
   try {
-    await medusa.store.cart.update(cartId, {
-      promo_codes: newPromoCodes,
-    } as Record<string, unknown>);
-    revalidateTag(`cart-${cartId}`);
+    await updateCartWithPromoCode(cartId, promoCode);
   } catch (e) {
     console.warn('[applyWelcomePromoToCartIfEligible]', e);
   }

@@ -2,7 +2,7 @@ import { Book, DocumentText, XMarkMini } from "@medusajs/icons";
 import { Button, Container, Heading, IconBadge, Text } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { MemberDTOO } from "../../../../api/membership/members/[id]/route";
+import { MemberDetailDto } from "@/api/membership/members/[id]/route";
 import { Loading } from "../../../components/common/loading";
 import { SubscriptionsList } from "../../../components/member/subscriptions-list";
 import { SectionRow } from "../../../components/section-row";
@@ -11,7 +11,7 @@ import { medusaSdk } from "../../../lib/config";
 import { formatARS } from "../../../lib/utils";
 
 const getMember = (id: string) => {
-  return medusaSdk.client.fetch<MemberDTOO>(`/membership/members/${id}`);
+  return medusaSdk.client.fetch<MemberDetailDto>(`/membership/members/${id}`);
 };
 
 const CustomPage = () => {

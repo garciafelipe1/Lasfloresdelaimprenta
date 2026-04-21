@@ -4,7 +4,7 @@ import { actionClient } from '@/lib/safe-action';
 import { cookies } from '@/lib/data/cookies';
 import { cartService } from '@/services/cart.service';
 import { welcomeProfileSchema } from '@/lib/zod/welcome-profile-schema';
-import { applyWelcomePromoToCartIfEligible } from '@/lib/welcome/apply-welcome-promo-to-cart';
+import { applyAllEligibleCartPromos } from '@/lib/membership/apply-all-eligible-cart-promos';
 
 function medusaBackendUrl(): string {
   return (
@@ -58,7 +58,7 @@ export const completeWelcomeProfileAction = actionClient
 
     const cart = await cartService.getCart().catch(() => null);
     if (cart?.id) {
-      await applyWelcomePromoToCartIfEligible(cart.id);
+      await applyAllEligibleCartPromos(cart.id);
     }
 
     return {

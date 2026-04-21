@@ -1,6 +1,6 @@
 import { Badge, Heading, Text } from "@medusajs/ui";
 import { differenceInDays, format } from "date-fns";
-import { SubscriptionType } from "../../../types";
+import { SubscriptionType } from "@/shared/types";
 import { formatARS } from "../../lib/utils";
 import { SubscriptionBadge } from "../ui/subscription-badge";
 

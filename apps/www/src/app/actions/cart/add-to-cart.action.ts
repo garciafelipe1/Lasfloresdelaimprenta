@@ -1,7 +1,7 @@
 'use server';
 
 import medusaError from '@/app/helpers/medusa-error';
-import { applyWelcomePromoToCartIfEligible } from '@/lib/welcome/apply-welcome-promo-to-cart';
+import { applyAllEligibleCartPromos } from '@/lib/membership/apply-all-eligible-cart-promos';
 import { medusa } from '@/lib/medusa-client';
 import { cartActionClient } from '@/lib/next-safe-action/cart-action-client';
 import { revalidateTag } from 'next/cache';
@@ -29,7 +29,7 @@ export const addToCartAction = cartActionClient
         ...(metadata ? { metadata } : {}),
       });
       revalidateTag(`cart-${cart.id}`);
-      await applyWelcomePromoToCartIfEligible(cart.id);
+      await applyAllEligibleCartPromos(cart.id);
     } catch (error: any) {
       console.error('[AddToCart] Error al agregar producto:', error);
 
@@ -60,7 +60,7 @@ export const addToCartAction = cartActionClient
         });
 
         revalidateTag(`cart-${newCartResp.cart.id}`);
-        await applyWelcomePromoToCartIfEligible(newCartResp.cart.id);
+        await applyAllEligibleCartPromos(newCartResp.cart.id);
         console.log('[AddToCart] Producto añadido al nuevo carrito exitosamente');
       } else {
         // Mensaje amigable según tipo de error (stock, red, etc.)

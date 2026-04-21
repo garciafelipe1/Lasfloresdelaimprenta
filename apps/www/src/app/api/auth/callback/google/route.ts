@@ -101,6 +101,25 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const search = url.search; // ?code=...&state=...
   console.log("[AUTH GOOGLE CALLBACK] request url (path+search):", url.pathname + url.search);
+  const code = url.searchParams.get("code");
+  const oauthError = url.searchParams.get("error");
+  const oauthErrorDescription = url.searchParams.get("error_description");
+
+  // Si Google no envía `code`, no tiene sentido llamar a Medusa.
+  // Puede pasar si el usuario canceló, si hubo error en consent screen, o si se pegó la URL a mano.
+  if (!code) {
+    const qs = new URLSearchParams();
+    qs.set("error", "google_no_code");
+    if (oauthError) qs.set("oauth_error", oauthError);
+    if (oauthErrorDescription) qs.set("oauth_error_description", oauthErrorDescription);
+    console.warn(
+      "[AUTH GOOGLE CALLBACK] Sin code en callback. error=",
+      oauthError ?? "n/a",
+      "desc=",
+      oauthErrorDescription ?? "n/a",
+    );
+    return NextResponse.redirect(`${normalizedSiteUrl}/login?${qs.toString()}`);
+  }
 
   try {
     // 1) Reenviamos el callback a Medusa para que valide el código de Google

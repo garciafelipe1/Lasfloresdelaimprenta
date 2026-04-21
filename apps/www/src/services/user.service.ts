@@ -1,33 +1,54 @@
-import { SubscriptionWithMembership } from '@/common/dto/subscription.dto';
+import type {
+  InnerCircleInfo,
+  SubscriptionDashboardInfo,
+  SubscriptionMeApiPayload,
+  SubscriptionWithMembership,
+} from '@/common/dto/subscription.dto';
 import { cookies } from '@/lib/data/cookies';
 import { medusa } from '@/lib/medusa-client';
 
+function normalizeSubscriptionPayload(
+  raw: SubscriptionMeApiPayload | SubscriptionWithMembership[] | null | undefined,
+): SubscriptionDashboardInfo {
+  if (!raw) {
+    return { subscription: null, innerCircle: null, referral: null };
+  }
+  if (Array.isArray(raw)) {
+    return {
+      subscription: raw[0] ?? null,
+      innerCircle: null,
+      referral: null,
+    };
+  }
+  return {
+    subscription: raw.subscriptions?.[0] ?? null,
+    innerCircle: raw.innerCircle ?? null,
+    referral: raw.referral ?? null,
+  };
+}
+
 class UserService {
-  async getSubscriptionInfo(): Promise<SubscriptionWithMembership | null> {
+  async getSubscriptionInfo(): Promise<SubscriptionDashboardInfo> {
     const authHeaders = await cookies.getAuthHeaders();
 
     if (!('authorization' in authHeaders)) {
-      return null;
+      return { subscription: null, innerCircle: null, referral: null };
     }
 
     try {
-      const subscriptions = await medusa.client.fetch<
-        SubscriptionWithMembership[]
+      const raw = await medusa.client.fetch<
+        SubscriptionMeApiPayload | SubscriptionWithMembership[]
       >('/membership/subscription/me', {
         headers: authHeaders,
       });
 
-      if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
-        return null;
-      }
-
-      return subscriptions[0];
+      return normalizeSubscriptionPayload(raw);
     } catch (error: unknown) {
       const status = (error as { status?: number })?.status ?? (error as { statusCode?: number })?.statusCode;
       if (status === 401) {
-        return null;
+        return { subscription: null, innerCircle: null, referral: null };
       }
-      return null;
+      return { subscription: null, innerCircle: null, referral: null };
     }
   }
 
@@ -51,15 +72,15 @@ class UserService {
     } catch (error: unknown) {
       const status = (error as { status?: number })?.status ?? (error as { statusCode?: number })?.statusCode;
       const message = (error as { message?: string })?.message ?? 'Error al cancelar la suscripción';
-      
+
       if (status === 401) {
         throw new Error('No autorizado');
       }
-      
+
       if (status === 404) {
         throw new Error('No se encontró una suscripción activa para cancelar');
       }
-      
+
       throw new Error(message);
     }
   }

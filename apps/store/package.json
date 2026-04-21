@@ -17,12 +17,14 @@
     "./constants": "./src/shared/constants.ts"
   },
   "scripts": {
+    "typecheck": "tsc --noEmit && tsc --noEmit -p src/admin/tsconfig.json",
     "build": "pnpm medusa build && npm run resolve:aliases && rm -rf public && ln -s .medusa/server/public public",
     "predeploy": "pnpm medusa db:migrate",
     "start": "medusa start",
     "dev": "medusa develop",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "seed:products": "medusa exec ./src/scripts/seed-products-only.ts",
+    "activate:subscription": "medusa exec ./src/scripts/activate-subscription.ts",
     "create:shipping:envio-a-confirmar": "medusa exec ./src/scripts/create-envio-a-confirmar-shipping-option.ts",
     "create:single-use-promo": "medusa exec ./src/scripts/create-single-use-promo.ts",
     "fix:stock": "medusa exec ./src/scripts/fix-sales-channel-stock-location.ts",

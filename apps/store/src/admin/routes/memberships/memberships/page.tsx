@@ -2,12 +2,12 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { ChartBar as ChartBarMedusa, CurrencyDollar } from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
-import { SubscriptionAnalytic } from "../../../../modules/membership/service";
-import { MembershipType } from "../../../../types";
-import { ChartBar } from "../../../components/charts/bar-chart";
-import { ChartPie } from "../../../components/charts/pie-chart";
-import { MembershipsList } from "../../../components/memberships/memberships-list";
-import { medusaSdk } from "../../../lib/config";
+import { ChartBar } from "@/admin/components/charts/bar-chart";
+import { ChartPie } from "@/admin/components/charts/pie-chart";
+import { MembershipsList } from "@/admin/components/memberships/memberships-list";
+import { medusaSdk } from "@/admin/lib/config";
+import { SubscriptionAnalytic } from "@/modules/membership/service";
+import { MembershipType } from "@/shared/types";
 
 const getMemberships = () => {
   return medusaSdk.client.fetch<MembershipType[]>("/membership", {

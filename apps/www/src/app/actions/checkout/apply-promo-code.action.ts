@@ -10,36 +10,29 @@ const schema = z.object({
 });
 
 /**
- * Aplica un código promocional al carrito.
- * Usa el Store API PUT directamente para aplicar los códigos promocionales.
- * Esto activa los workflows de Medusa que calculan los descuentos automáticamente.
+ * Aplica un código promocional al carrito (solo uno activo por pedido).
  */
 export const applyPromoCodeAction = cartActionClient.schema(schema).action(
   async ({ parsedInput: { promoCode }, ctx: { cart } }) => {
     try {
-      // Obtener códigos promocionales actuales del carrito
       const currentCart = await medusa.store.cart.retrieve(cart.id, {
         fields: 'promotions',
       });
 
-      // Obtener códigos ya aplicados
-      const existingCodes = (currentCart.cart as any).promotions?.map((p: any) => p.code).filter(Boolean) || [];
+      const existingCodes =
+        (currentCart.cart as { promotions?: { code?: string }[] }).promotions
+          ?.map((p) => p.code?.trim().toUpperCase())
+          .filter(Boolean) ?? [];
 
-      // Si el código ya está aplicado, no hacer nada
       if (existingCodes.includes(promoCode)) {
         const updatedCart = await medusa.store.cart.retrieve(cart.id);
         revalidateTag(`cart-${cart.id}`);
         return { cart: updatedCart.cart };
       }
 
-      // Agregar el nuevo código a la lista
-      const newPromoCodes = [...existingCodes, promoCode];
-
-      // Usar el Store API PUT para actualizar el carrito con los códigos promocionales
-      // Esto activa los workflows de Medusa que calculan los descuentos
       const updated = await medusa.store.cart.update(cart.id, {
-        promo_codes: newPromoCodes,
-      } as any);
+        promo_codes: [promoCode],
+      } as Record<string, unknown>);
 
       // Log para debugging
       console.log('[Apply Promo] Código aplicado:', {

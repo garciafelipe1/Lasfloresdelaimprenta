@@ -33,6 +33,11 @@ export default defineMiddlewares({
       method: "POST",
       middlewares: [authenticate("customer", ["session", "bearer"])],
     },
+    {
+      matcher: "/store/referral/attach",
+      method: "POST",
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
     // Cities
     {
       matcher: "/bahia-blanca/city",

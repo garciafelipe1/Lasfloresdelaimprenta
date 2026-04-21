@@ -3,7 +3,7 @@ import { Button, FocusModal, Heading, Input, Label, Text } from "@medusajs/ui";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useBahiaBlancaMutations } from "~/hooks/use-bahia-blanca-mutations";
+import { useBahiaBlancaMutations } from "@/admin/hooks/use-bahia-blanca-mutations";
 import {
   ShippingOptionsDTO,
   shippingOptionsDto,

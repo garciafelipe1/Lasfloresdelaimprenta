@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Drawer, Input, Label, Text } from "@medusajs/ui";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useBahiaBlancaMutations } from "~/hooks/use-bahia-blanca-mutations";
+import { useBahiaBlancaMutations } from "@/admin/hooks/use-bahia-blanca-mutations";
 import {
   createShippingOptionSchema,
   CreateShippingOptionsDTO,

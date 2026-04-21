@@ -5,6 +5,16 @@ import { userService } from '@/services/user.service';
 import { orderService } from '@/services/order.service';
 import { getLocale } from 'next-intl/server';
 import { formatMoneyByLocale } from '@/lib/money-formatter';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/app/components/ui/accordion';
+import { getExclusiveGalleryImagesForMembership } from '@/lib/membership/exclusive-gallery';
+import { BenefitsChecklist, type BenefitChecklistItem } from '@/app/components/dashboard/benefits-checklist';
+import { authService } from '@/services/auth.service';
+import { WELCOME_METADATA } from '@/lib/welcome/metadata-keys';
 
 // Mapeo de IDs del backend a IDs del frontend
 const membershipIdMap: Record<string, string> = {
@@ -17,8 +27,11 @@ export default async function DashboardPage() {
   const t = await getTranslations();
   const locale = await getLocale();
 
-  // Obtener la suscripción del usuario desde el backend
-  const subscription = await userService.getSubscriptionInfo();
+  const { subscription, innerCircle, referral } = await userService.getSubscriptionInfo();
+  const me = await authService.getUser().catch(() => null);
+  const meMeta = (me?.metadata && typeof me.metadata === 'object' && !Array.isArray(me.metadata))
+    ? (me.metadata as Record<string, unknown>)
+    : {};
 
   // Últimos pedidos del usuario (para preview en dashboard)
   const ordersRes = await orderService.listMyOrders({ limit: 3, offset: 0 }).catch(() => null);
@@ -30,6 +43,63 @@ export default async function DashboardPage() {
     ? membershipIdMap[subscription.membership.id] || null
     : null;
 
+  const hasMembership = Boolean(userMembership && subscription?.membership?.id);
+
+  const monthsSinceInnerCircleStart = (() => {
+    const raw = innerCircle?.memberSince;
+    if (!raw) return null;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    const now = new Date();
+    const months =
+      (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+    return Math.max(0, months);
+  })();
+
+  // Progreso continuo: 0 meses = 0%, 12+ meses = 100%. (En UI marcamos hitos 1/6/12)
+  const fidelizacionPercent =
+    monthsSinceInnerCircleStart == null
+      ? 0
+      : Math.min(100, Math.round((monthsSinceInnerCircleStart / 12) * 100));
+
+  const renderFidelizacion = () => {
+    if (!innerCircle) return null;
+
+    return (
+      <div className="mb-5">
+        <p className="text-primary text-lg font-semibold">Fidelización</p>
+
+        <div className="mt-3">
+          <div className="relative h-1 w-full rounded-full bg-border">
+            <div
+              className="absolute left-0 top-0 h-1 rounded-full bg-primary"
+              style={{ width: `${fidelizacionPercent}%` }}
+            />
+            <div
+              className="absolute -top-1.5 h-4 w-4 -translate-x-1/2 rounded-full border border-border bg-background shadow"
+              style={{ left: `${fidelizacionPercent}%` }}
+            />
+
+            <div className="absolute -top-1.5 left-0 h-4 w-4 -translate-x-1/2 rounded-full bg-primary" />
+            <div className="absolute -top-1.5 left-1/2 h-4 w-4 -translate-x-1/2 rounded-full bg-border" />
+            <div className="absolute -top-1.5 left-full h-4 w-4 -translate-x-1/2 rounded-full bg-border" />
+          </div>
+
+          <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+            <span>1 mes</span>
+            <span>6 meses</span>
+            <span>+12 meses</span>
+          </div>
+
+          <div className="mt-1 flex justify-between text-[11px] text-primary/80">
+            <span>Sólido</span>
+            <span>Senior</span>
+            <span>VIP</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const membershipConfig: {
     [key: string]: {
@@ -221,6 +291,51 @@ export default async function DashboardPage() {
           ))}
         </ul>
 
+        {innerCircle && (
+          <div
+            className={`mt-6 rounded-lg border border-dashed p-4 ${membership.borderColorClass} bg-background/40`}
+          >
+            <p className='text-primary mb-1 text-xs font-semibold uppercase tracking-wide opacity-80'>
+              Inner Circle
+            </p>
+            <p className={`text-primary mb-2 text-xl font-bold ${membership.accentColorClass}`}>
+              {innerCircle.labelEs}
+            </p>
+            <p className='text-primary text-sm opacity-90'>
+              {innerCircle.catalogDiscountPercent}% de descuento en el catálogo (no incluye membresías). Antigüedad
+              desde{' '}
+              {new Date(innerCircle.memberSince).toLocaleDateString(locale, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+              .
+            </p>
+          </div>
+        )}
+
+        {referral && referral.ownCode && (
+          <div
+            className={`mt-4 rounded-lg border border-dashed p-4 ${membership.borderColorClass} bg-background/30`}
+          >
+            <p className='text-primary mb-1 text-xs font-semibold uppercase tracking-wide opacity-80'>
+              Referidos
+            </p>
+            <p className='text-primary font-mono text-lg font-bold tracking-wide'>{referral.ownCode}</p>
+            <p className='text-primary mt-1 text-xs opacity-80'>
+              Compartí este código: quien se registre y compre membresía te ayuda a sumar recompensas en catálogo
+              (tope mensual).
+            </p>
+          </div>
+        )}
+
+        {referral && referral.daysUntilEligible != null && referral.daysUntilEligible > 0 && (
+          <p className='text-primary mt-3 text-sm opacity-80'>
+            Tu código de referidos estará disponible en {referral.daysUntilEligible} día
+            {referral.daysUntilEligible === 1 ? '' : 's'}.
+          </p>
+        )}
+
         <div className='mt-8 text-right'>
           <button
             className={`bg-primary text-secondary hover:bg-primary/80 rounded-lg px-6 py-2 font-semibold transition-colors duration-200`}
@@ -231,6 +346,78 @@ export default async function DashboardPage() {
       </div>
     );
   };
+
+  const exclusiveGallery = hasMembership
+    ? getExclusiveGalleryImagesForMembership(subscription?.membership?.id, 6)
+    : [];
+
+  const welcomeCompleted = Boolean(meMeta[WELCOME_METADATA.profileCompletedAt]);
+  const welcomeConsumed =
+    meMeta[WELCOME_METADATA.promoConsumed] === true ||
+    meMeta[WELCOME_METADATA.promoConsumed] === 'true';
+  const welcomeUntilIso =
+    typeof meMeta[WELCOME_METADATA.promoEligibleUntil] === 'string'
+      ? (meMeta[WELCOME_METADATA.promoEligibleUntil] as string)
+      : null;
+  const welcomeUntilMs = welcomeUntilIso ? Date.parse(welcomeUntilIso) : NaN;
+  const welcomeActive =
+    welcomeCompleted &&
+    !welcomeConsumed &&
+    Number.isFinite(welcomeUntilMs) &&
+    welcomeUntilMs > Date.now();
+
+  const membershipBenefitItems: BenefitChecklistItem[] =
+    hasMembership && userMembership && membershipConfig[userMembership]
+      ? membershipConfig[userMembership].features.map((desc, idx) => ({
+          id: `m-${idx}`,
+          title: subscription?.membership?.name ?? 'Membresía',
+          description: String(desc),
+          active: true,
+          expiresAt: null,
+        }))
+      : [];
+
+  const benefitItems: BenefitChecklistItem[] = [
+    ...(innerCircle
+      ? [
+          {
+            id: 'inner-circle',
+            title: 'Fidelización',
+            description:
+              innerCircle.tier === 'vip'
+                ? 'Lead VIP: consultoría floral + Signature Box de regalo en aniversario.'
+                : innerCircle.tier === 'senior'
+                  ? 'Lead Senior: acceso anticipado + beneficio en decoración.'
+                  : 'Lead Sólido: descuento en catálogo según antigüedad.',
+            active: true,
+            expiresAt: null,
+          },
+        ]
+      : []),
+    ...(welcomeActive
+      ? [
+          {
+            id: 'welcome',
+            title: 'Beneficio temporal',
+            description: '10% de descuento en tu primera compra (catálogo).',
+            active: true,
+            expiresAt: welcomeUntilIso,
+          },
+        ]
+      : []),
+    ...(referral?.ownCode
+      ? [
+          {
+            id: 'referral',
+            title: 'Referidos',
+            description: `Compartí tu código ${referral.ownCode} para desbloquear recompensas.`,
+            active: true,
+            expiresAt: null,
+          },
+        ]
+      : []),
+    ...membershipBenefitItems,
+  ];
 
   return (
     <section className='container mx-auto px-4 py-8'>
@@ -243,7 +430,147 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+      {/* Fidelización: visible en desktop y mobile */}
+      <div className="mb-6">
+        {renderFidelizacion()}
+      </div>
+
+      {/* Mobile: panel por secciones (como en capturas) */}
+      <div className="md:hidden">
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue="beneficios"
+          className="rounded-xl border border-border bg-secondary/30 px-4"
+        >
+          <AccordionItem value="beneficios">
+            <AccordionTrigger className="text-primary text-2xl font-extrabold">
+              Beneficios
+            </AccordionTrigger>
+            <AccordionContent>
+              {benefitItems.length > 0 ? (
+                <BenefitsChecklist items={benefitItems} />
+              ) : (
+                <div className="text-primary/80 text-sm">
+                  Todavía no tenés beneficios activos.
+                </div>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="pedidos">
+            <AccordionTrigger className="text-primary text-2xl font-extrabold">
+              Mis pedidos
+            </AccordionTrigger>
+            <AccordionContent>
+              {latestOrders.length === 0 ? (
+                <div className="text-primary/80">
+                  <p className="mb-4">{t('DashboardPage.orders.empty.title')}</p>
+                  <Link
+                    href="/catalog"
+                    className="bg-primary text-secondary hover:bg-primary/80 inline-flex rounded-lg px-4 py-2 font-semibold transition-colors"
+                  >
+                    {t('DashboardPage.orders.empty.cta')}
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-primary/80">
+                    {t('DashboardPage.orders.total', { count: totalOrders })}
+                  </p>
+                  <ul className="space-y-2">
+                    {latestOrders.map((o: any) => (
+                      <li key={o.id} className="rounded-lg border border-border bg-background/40 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-primary font-semibold truncate">
+                              {t('DashboardPage.orders.orderLabel', { id: o.display_id ?? o.id })}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {o.created_at
+                                ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(
+                                  new Date(o.created_at),
+                                )
+                                : ''}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-primary font-semibold">
+                              {typeof o.total === 'number'
+                                ? formatMoneyByLocale(o.total, locale)
+                                : ''}
+                            </p>
+                            <Link
+                              href={`/dashboard/orders/${o.id}`}
+                              className="text-xs font-semibold text-primary underline underline-offset-4 hover:opacity-80"
+                            >
+                              {t('DashboardPage.orders.viewDetails')}
+                            </Link>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="mt-4">
+                <Link
+                  href="/dashboard/orders"
+                  className="text-sm font-semibold text-primary underline underline-offset-4 hover:opacity-80"
+                >
+                  Ver todos los pedidos
+                </Link>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {hasMembership && (
+            <AccordionItem value="membresia">
+              <AccordionTrigger className="text-primary text-2xl font-extrabold">
+                Membresía
+              </AccordionTrigger>
+              <AccordionContent>
+                {renderMembershipInfo()}
+                {exclusiveGallery.length > 0 && (
+                  <div className="mt-6 rounded-2xl border border-border bg-background/20 p-4">
+                    <p className="text-primary text-3xl font-extrabold tracking-wide">
+                      exclusive gallery
+                    </p>
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      {exclusiveGallery.map((src) => (
+                        <div
+                          key={src}
+                          className="overflow-hidden rounded-2xl bg-black/30"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={src}
+                            alt=""
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4">
+                      <Link
+                        href={`/memberships/portfolio/${subscription?.membership?.id ?? ''}`}
+                        className="text-primary text-sm font-semibold underline underline-offset-4 hover:opacity-80"
+                      >
+                        Ver portfolio completo
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          )}
+        </Accordion>
+      </div>
+
+      {/* Desktop/tablet: grilla actual */}
+      <div className='hidden grid-cols-1 gap-6 md:grid md:grid-cols-2 lg:grid-cols-3'>
         <section className='bg-secondary col-span-1 rounded-xl p-6 shadow-md md:col-span-2'>
           <div className='mb-6 flex items-center justify-between'>
             <h2 className='text-primary text-2xl font-bold'>

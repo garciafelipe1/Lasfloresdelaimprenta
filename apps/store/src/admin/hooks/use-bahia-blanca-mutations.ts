@@ -4,7 +4,7 @@ import {
   createCity,
   QUERY_KEYS,
   updateCity,
-} from "~/queries/bahia-blanca-queries";
+} from "@/admin/queries/bahia-blanca-queries";
 
 interface Props {
   onCreateSuccess?: () => void;

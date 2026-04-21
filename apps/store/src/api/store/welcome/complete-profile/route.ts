@@ -4,6 +4,7 @@ import {
 } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { completeWelcomeProfileSchema } from "./validators";
+import { buildWelcomePromoTargetRulesFromEnv } from "../../../../shared/commerce/welcome-promo-target-rules";
 
 import * as crypto from "crypto";
 
@@ -67,6 +68,13 @@ async function createWelcomePromotion(params: {
 }): Promise<{ id: string; code: string }> {
   const { promotionModule, code, endsAt, logger } = params;
 
+  const targetRules = buildWelcomePromoTargetRulesFromEnv();
+  if (!targetRules?.length) {
+    logger.warn(
+      "[welcome/complete-profile] Sin WELCOME_PROMO_CATALOG_CATEGORY_IDS ni WELCOME_PROMO_EXCLUDE_MEMBERSHIP_PRODUCT_IDS: el 10% podría aplicar también a membresías.",
+    );
+  }
+
   const rawRows = await promotionModule.createPromotions([
     {
       code,
@@ -77,7 +85,8 @@ async function createWelcomePromotion(params: {
       campaign: {
         name: "Bienvenida — primera compra",
         campaign_identifier: `welcome_${code.replace(/[^a-zA-Z0-9]/g, "")}_${Date.now()}`,
-        description: "Cupón único por cliente, 7 días, un solo uso",
+        description:
+          "10% catálogo (excluye membresías si está configurado), 7 días, un solo uso",
         starts_at: new Date(),
         ends_at: endsAt,
       },
@@ -87,6 +96,7 @@ async function createWelcomePromotion(params: {
         // Requerido por Medusa cuando target_type es items/shipping_methods
         allocation: "across",
         value: WELCOME_DISCOUNT_PERCENT,
+        ...(targetRules?.length ? { target_rules: targetRules } : {}),
       },
     },
   ]);

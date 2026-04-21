@@ -3,7 +3,7 @@ import { SubEmpty } from './_components/sub-empty';
 import { SubInformation } from './_components/sub-information';
 
 export default async function MembershipPage() {
-  const membership = await userService.getSubscriptionInfo();
+  const { subscription: membership } = await userService.getSubscriptionInfo();
 
   return (
     <section>

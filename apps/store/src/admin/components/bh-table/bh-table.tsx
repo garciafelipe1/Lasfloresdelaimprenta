@@ -4,7 +4,7 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
-import { ShippingOptionsDTO } from "~/dtos/shipping-options";
+import { ShippingOptionsDTO } from "@/shared/dtos/shipping-options";
 import { formatARS } from "../../lib/utils";
 import { CreateCityDrawer } from "./create-city-drawer";
 import { UpdateCityModal } from "./update-city-modal";

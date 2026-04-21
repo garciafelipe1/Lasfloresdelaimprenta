@@ -44,6 +44,7 @@ export default function RegisterPreview() {
       phone: '',
       password: '',
       confirmPassword: '',
+      referralCode: '',
     },
   });
 
@@ -164,6 +165,26 @@ export default function RegisterPreview() {
                           id="confirmPassword"
                           placeholder="******"
                           autoComplete="new-password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="referralCode"
+                  render={({ field }) => (
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="referralCode">Código de referido (opcional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          id="referralCode"
+                          placeholder="RF-XXXXXXXX"
+                          autoComplete="off"
+                          className="font-mono uppercase"
                           {...field}
                         />
                       </FormControl>

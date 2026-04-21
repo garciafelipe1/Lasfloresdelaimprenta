@@ -7,9 +7,19 @@ import { WELCOME_METADATA } from '@/lib/welcome/metadata-keys';
 import { registerSchema } from '@/lib/zod/register-schema';
 import { FetchError } from '@medusajs/js-sdk';
 
+function medusaBackendUrl(): string {
+  return (
+    process.env.MEDUSA_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    ''
+  );
+}
+
 export const registerAction = actionClient
   .schema(registerSchema)
-  .action(async ({ parsedInput: { email, name, password, phone } }) => {
+  .action(async ({ parsedInput: { email, name, password, phone, referralCode } }) => {
     try {
       const token = await medusa.auth.register('customer', 'emailpass', {
         email,
@@ -73,5 +83,30 @@ export const registerAction = actionClient
     } catch (error) {
       console.error({ error });
       throw new Error(`Error ${error}`);
+    }
+
+    const ref = typeof referralCode === 'string' ? referralCode.trim() : '';
+    if (ref.length >= 3) {
+      const base = medusaBackendUrl();
+      const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? '';
+      if (base) {
+        try {
+          const attachRes = await fetch(`${base.replace(/\/$/, '')}/store/referral/attach`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...headers,
+              ...(publishableKey ? { 'x-publishable-api-key': publishableKey } : {}),
+            },
+            body: JSON.stringify({ code: ref }),
+          });
+          if (!attachRes.ok) {
+            const body = await attachRes.text();
+            console.warn('[register] referral attach failed:', attachRes.status, body);
+          }
+        } catch (e) {
+          console.warn('[register] referral attach:', e);
+        }
+      }
     }
   });

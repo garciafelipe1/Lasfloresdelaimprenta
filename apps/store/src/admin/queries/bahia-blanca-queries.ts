@@ -1,16 +1,29 @@
 import { queryOptions } from "@tanstack/react-query";
+import { medusaSdk } from "@/admin/lib/config";
 import {
   CreateShippingOptionsDTO,
   ShippingOptionsDTO,
-} from "~/dtos/shipping-options";
-import { medusaSdk } from "~/lib/config";
+} from "@/shared/dtos/shipping-options";
+
+/** Respuesta mínima del SDK admin para listar opciones de envío. */
+export interface AdminShippingOptionListResponse {
+  shipping_options: Array<{
+    id: string;
+    name: string;
+    type: { code: string };
+    prices: Array<{ id?: string; amount: number; currency_code: string }>;
+  }>;
+}
 
 export const QUERY_KEYS = {
   LIST_ALL: ["shipping-options"],
 };
 
 export const listShippingOptionsQuery = queryOptions({
-  queryFn: () => medusaSdk.admin.shippingOption.list(),
+  queryFn: async () => {
+    const res = await medusaSdk.admin.shippingOption.list();
+    return res as AdminShippingOptionListResponse;
+  },
   queryKey: QUERY_KEYS.LIST_ALL,
 });
 

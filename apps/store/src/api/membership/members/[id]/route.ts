@@ -3,7 +3,8 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { CustomerDTO } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
-export type MemberDTOO = CustomerDTO & {
+/** Detalle de miembro + suscripciones (admin /membership/members/:id). */
+export type MemberDetailDto = CustomerDTO & {
   subscriptions: SubscriptionType[];
 };
 

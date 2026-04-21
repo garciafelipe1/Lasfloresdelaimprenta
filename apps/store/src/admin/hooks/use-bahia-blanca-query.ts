@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { listShippingOptionsQuery } from "~/queries/bahia-blanca-queries";
-import { BAHIA_BLANCA_SHIPPING_CODES } from "../../shared/constants";
-import { shippingOptionsDto } from "../../shared/dtos/shipping-options";
+import { listShippingOptionsQuery } from "@/admin/queries/bahia-blanca-queries";
+import { BAHIA_BLANCA_SHIPPING_CODES } from "@/shared/constants";
+import { shippingOptionsDto } from "@/shared/dtos/shipping-options";
 
 export function useBahiaBlancaQuery() {
   const { data, isLoading } = useQuery(listShippingOptionsQuery);

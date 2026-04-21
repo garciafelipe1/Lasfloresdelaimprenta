@@ -1,8 +1,8 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { Spinner, TruckFast } from "@medusajs/icons";
 import { Container, Heading, Toaster } from "@medusajs/ui";
-import { BHTable } from "~/components/bh-table/bh-table";
-import { useBahiaBlancaQuery } from "~/hooks/use-bahia-blanca-query";
+import { BHTable } from "@/admin/components/bh-table/bh-table";
+import { useBahiaBlancaQuery } from "@/admin/hooks/use-bahia-blanca-query";
 
 const CustomPage = () => {
   const { bahiaBlancaCities, isLoading } = useBahiaBlancaQuery();

@@ -1,5 +1,5 @@
 import { StatusBadge } from "@medusajs/ui";
-import { SubscriptionType } from "../../../types";
+import { SubscriptionType } from "@/shared/types";
 
 interface Props {
   status: SubscriptionType["status"];

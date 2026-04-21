@@ -5,6 +5,15 @@ import {
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { MEMBERSHIP_MODULE } from "../../../../modules/membership";
 import MembershipModuleService from "../../../../modules/membership/service";
+import {
+  clearInnerCircleCatalogPromotion,
+  ensureInnerCircleCatalogPromotion,
+} from "../../../../shared/membership/inner-circle-catalog-promotion";
+import { INNER_CIRCLE_METADATA } from "../../../../shared/membership/inner-circle";
+import { resolveInnerCircleForMember } from "../../../../shared/membership/inner-circle";
+import { differenceInCalendarDays } from "date-fns";
+import { ensureOwnReferralCode } from "../../../../shared/referral/ensure-own-referral-code";
+import { REFERRAL_OWN_CODE_KEY } from "../../../../shared/referral/metadata-keys";
 
 export async function GET(
   req: AuthenticatedMedusaRequest,
@@ -210,12 +219,18 @@ export async function GET(
   logger.info(`[SubscriptionMe] Total de suscripciones encontradas (final): ${subscriptions.length}`);
   logger.info(`[SubscriptionMe] Suscripciones (raw, antes del filtro): ${JSON.stringify(subscriptions, null, 2)}`);
 
+  // Normalizar: defensivo ante entradas undefined/null o tipos inesperados
+  subscriptions = (Array.isArray(subscriptions) ? subscriptions : [])
+    .filter(Boolean)
+    .filter((s: any) => typeof s === "object" && !Array.isArray(s));
+
   // Paso 1: Verificar y actualizar suscripciones expiradas
   logger.info(`[SubscriptionMe] 🔍 Verificando suscripciones expiradas...`);
   const now = new Date();
   const expiredSubscriptionsToUpdate: any[] = [];
 
   for (const sub of subscriptions) {
+    if (!sub) continue;
     if (sub.status === 'active' && sub.ended_at) {
       const endedAt = new Date(sub.ended_at);
       
@@ -294,6 +309,108 @@ export async function GET(
   logger.info(`[SubscriptionMe] Suscripciones activas (final): ${JSON.stringify(activeSubscriptions, null, 2)}`);
   logger.info(`[SubscriptionMe] ========== FIN DE OBTENCIÓN DE SUSCRIPCIONES ==========`);
 
-  // Devolver array de suscripciones activas (el frontend toma el primer elemento)
-  return res.json(activeSubscriptions);
+  let earliestMembershipDate: Date | null = null;
+  if (activeSubscriptions.length > 0) {
+    const earliestMs = activeSubscriptions.reduce((acc: number, sub: { started_at?: string }) => {
+      const t = sub.started_at ? new Date(sub.started_at).getTime() : NaN;
+      if (Number.isNaN(t)) return acc;
+      return Math.min(acc, t);
+    }, Number.POSITIVE_INFINITY);
+    earliestMembershipDate =
+      earliestMs !== Number.POSITIVE_INFINITY ? new Date(earliestMs) : null;
+  }
+
+  let innerCircle: ReturnType<typeof resolveInnerCircleForMember> = null;
+  if (activeSubscriptions.length > 0) {
+    try {
+      const customerModule = req.scope.resolve(Modules.CUSTOMER);
+      const customer = await customerModule.retrieveCustomer(memberId);
+      const meta =
+        customer?.metadata && typeof customer.metadata === "object" && !Array.isArray(customer.metadata)
+          ? (customer.metadata as Record<string, unknown>)
+          : undefined;
+      innerCircle = resolveInnerCircleForMember({
+        metadata: meta,
+        earliestMembershipStartedAt: earliestMembershipDate,
+      });
+    } catch (e) {
+      logger.warn(`[SubscriptionMe] Inner Circle omitido: ${e}`);
+    }
+  }
+
+  try {
+    const customerModule = req.scope.resolve(Modules.CUSTOMER);
+    const promotionModule = req.scope.resolve(Modules.PROMOTION);
+
+    if (activeSubscriptions.length > 0 && innerCircle) {
+      await ensureInnerCircleCatalogPromotion({
+        customerId: memberId,
+        customerModule,
+        promotionModule,
+        innerCircle,
+        logger,
+      });
+    }
+    if (activeSubscriptions.length > 0 && earliestMembershipDate) {
+      await ensureOwnReferralCode({
+        customerId: memberId,
+        customerModule,
+        earliestMembershipStartedAt: earliestMembershipDate,
+        logger,
+      });
+    }
+    if (activeSubscriptions.length === 0) {
+      const cust = await customerModule.retrieveCustomer(memberId);
+      const m =
+        cust?.metadata && typeof cust.metadata === "object" && !Array.isArray(cust.metadata)
+          ? (cust.metadata as Record<string, unknown>)
+          : {};
+      if (
+        m[INNER_CIRCLE_METADATA.promoPromotionId] ||
+        m[INNER_CIRCLE_METADATA.promoCode]
+      ) {
+        await clearInnerCircleCatalogPromotion({
+          customerId: memberId,
+          customerModule,
+          promotionModule,
+          logger,
+        });
+      }
+    }
+  } catch (e) {
+    logger.warn(`[SubscriptionMe] sync promo Inner Circle / referidos: ${e}`);
+  }
+
+  let referral: {
+    ownCode: string | null;
+    daysUntilEligible: number | null;
+  } = { ownCode: null, daysUntilEligible: null };
+
+  if (activeSubscriptions.length > 0 && earliestMembershipDate) {
+    try {
+      const customerModule = req.scope.resolve(Modules.CUSTOMER);
+      const cust = await customerModule.retrieveCustomer(memberId);
+      const m =
+        cust?.metadata && typeof cust.metadata === "object" && !Array.isArray(cust.metadata)
+          ? (cust.metadata as Record<string, unknown>)
+          : {};
+      const own =
+        typeof m[REFERRAL_OWN_CODE_KEY] === "string" && m[REFERRAL_OWN_CODE_KEY].trim()
+          ? (m[REFERRAL_OWN_CODE_KEY] as string).trim()
+          : null;
+      const daysSince = differenceInCalendarDays(new Date(), earliestMembershipDate);
+      referral = {
+        ownCode: own,
+        daysUntilEligible: daysSince < 30 ? 30 - daysSince : null,
+      };
+    } catch {
+      // omitir
+    }
+  }
+
+  return res.json({
+    subscriptions: activeSubscriptions,
+    innerCircle,
+    referral,
+  });
 }

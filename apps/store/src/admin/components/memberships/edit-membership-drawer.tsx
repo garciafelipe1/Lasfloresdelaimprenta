@@ -7,7 +7,7 @@ import {
   PutMembershipSchema,
   PutMembershipSchemaType,
 } from "../../../api/membership/validators";
-import { MembershipType } from "../../../types";
+import { MembershipType } from "@/shared/types";
 import { medusaSdk } from "../../lib/config";
 
 const updateMembership = (input: PutMembershipSchemaType) => {

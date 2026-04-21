@@ -1,6 +1,6 @@
 import { clx, Text } from "@medusajs/ui";
-import { MembershipId } from "../../../shared/constants";
-import { MembershipType } from "../../../shared/types";
+import { MembershipId } from "@/shared/constants";
+import { MembershipType } from "@/shared/types";
 import { formatARS } from "../../lib/utils";
 import { EditMembershipDrawer } from "./edit-membership-drawer";
 

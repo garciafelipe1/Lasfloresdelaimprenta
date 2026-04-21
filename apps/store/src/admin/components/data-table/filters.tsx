@@ -1,7 +1,7 @@
 import { createDataTableFilterHelper } from "@medusajs/ui";
-import { Item } from "../table";
+import { MemberDTO } from "@/api/membership/members/route";
 
-const filterHelper = createDataTableFilterHelper<Item>();
+const filterHelper = createDataTableFilterHelper<MemberDTO>();
 
 export const filters = [
   filterHelper.accessor("status", {
