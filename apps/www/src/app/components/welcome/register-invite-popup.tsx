@@ -26,6 +26,8 @@ const SUPPRESS_INVITE_PATH_SNIPPETS = [
   '/dashboard',
 ];
 
+const INVITE_SCROLL_TRIGGER_PX = 140;
+
 function readDismissedUntil(): number | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -68,11 +70,48 @@ export const RegisterInvitePopup: React.FC<{ isLoggedIn?: boolean }> = ({
       return;
     }
 
-    const t = window.setTimeout(() => {
-      setOpen(true);
+    let didTrigger = false;
+
+    const onScroll = () => {
+      if (window.scrollY >= INVITE_SCROLL_TRIGGER_PX) {
+        triggerOpen();
+      }
+    };
+
+    const onFirstInteraction = (e: Event) => {
+      // Evitar disparar por eventos dentro de un dialog ya abierto.
+      const t = e.target as HTMLElement | null;
+      if (t && t.closest?.('[data-slot="dialog-content"]')) {
+        return;
+      }
+      triggerOpen();
+    };
+
+    const timeoutId = window.setTimeout(() => {
+      triggerOpen();
     }, WELCOME_INVITE_POPUP_DELAY_MS);
 
-    return () => window.clearTimeout(t);
+    const cleanup = () => {
+      window.clearTimeout(timeoutId);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('pointerdown', onFirstInteraction);
+    };
+
+    const triggerOpen = () => {
+      if (didTrigger) return;
+      didTrigger = true;
+      setOpen(true);
+      cleanup();
+    };
+
+    // Scroll + primer click/tap en cualquier parte.
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('pointerdown', onFirstInteraction, { passive: true });
+
+    // Si ya entró con scroll (ej. anchor), disparar al montar.
+    onScroll();
+
+    return cleanup;
   }, [isLoggedIn, pathname]);
 
   const handleGoogle = () => {
@@ -101,8 +140,9 @@ export const RegisterInvitePopup: React.FC<{ isLoggedIn?: boolean }> = ({
             Registrate y obtené un 10% de descuento
           </DialogTitle>
           <DialogDescription className='text-base text-muted-foreground pt-1'>
-            En tu primera compra, válido durante 7 días después de completar tu perfil.
-            Podés cerrar esta ventana; el beneficio se activa solo cuando te registrás.
+            En tu primera compra, válido durante 7 días después de completar tu perfil (teléfono,
+            Instagram, preferencia floral, edad y género). Ese paso es obligatorio después de entrar
+            con Google. Podés cerrar esta ventana; el beneficio se activa solo cuando te registrás.
           </DialogDescription>
         </DialogHeader>
         <div className='flex flex-col gap-3 pt-2'>

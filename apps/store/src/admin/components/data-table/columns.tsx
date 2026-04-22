@@ -1,4 +1,4 @@
-import { InformationCircleSolid } from "@medusajs/icons";
+import { InformationCircleSolid, Sparkles } from "@medusajs/icons";
 import {
   createDataTableColumnHelper,
   IconButton,
@@ -42,16 +42,28 @@ export const columns = [
       const id = getValue();
 
       return (
-        <Tooltip
-          delayDuration={300}
-          content="Revisar el historial de subscripciones de este usuario"
-        >
-          <Link to={`/memberships/${id}`}>
-            <IconButton>
-              <InformationCircleSolid />
-            </IconButton>
-          </Link>
-        </Tooltip>
+        <div className="flex items-center gap-1">
+          <Tooltip
+            delayDuration={300}
+            content="Revisar el historial de subscripciones de este usuario"
+          >
+            <Link to={`/memberships/${id}`}>
+              <IconButton>
+                <InformationCircleSolid />
+              </IconButton>
+            </Link>
+          </Tooltip>
+          <Tooltip
+            delayDuration={300}
+            content="Inner Circle: nivel, override y cupón de catálogo"
+          >
+            <Link to={`/inner-circle?customer_id=${encodeURIComponent(id)}`}>
+              <IconButton>
+                <Sparkles />
+              </IconButton>
+            </Link>
+          </Tooltip>
+        </div>
       );
     },
   }),

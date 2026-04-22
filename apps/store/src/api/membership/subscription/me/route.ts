@@ -9,11 +9,18 @@ import {
   clearInnerCircleCatalogPromotion,
   ensureInnerCircleCatalogPromotion,
 } from "../../../../shared/membership/inner-circle-catalog-promotion";
-import { INNER_CIRCLE_METADATA } from "../../../../shared/membership/inner-circle";
-import { resolveInnerCircleForMember } from "../../../../shared/membership/inner-circle";
+import {
+  INNER_CIRCLE_METADATA,
+  earliestStartedAtFromSubscriptionList,
+  resolveInnerCircleForMember,
+} from "../../../../shared/membership/inner-circle";
 import { differenceInCalendarDays } from "date-fns";
 import { ensureOwnReferralCode } from "../../../../shared/referral/ensure-own-referral-code";
-import { REFERRAL_OWN_CODE_KEY } from "../../../../shared/referral/metadata-keys";
+import {
+  REFERRAL_OWN_CODE_KEY,
+  referralGrantCountKey,
+} from "../../../../shared/referral/metadata-keys";
+import { listRefereesByReferrerCustomerId } from "../../../../shared/referral/list-referees-by-referrer";
 
 export async function GET(
   req: AuthenticatedMedusaRequest,
@@ -25,16 +32,22 @@ export async function GET(
   const membershipModuleService: MembershipModuleService =
     req.scope.resolve(MEMBERSHIP_MODULE);
 
-  logger.info(`[SubscriptionMe] ========== OBTENIENDO SUSCRIPCIONES ==========`);
-  logger.info(`[SubscriptionMe] Timestamp: ${new Date().toISOString()}`);
-  logger.info(`[SubscriptionMe] memberId (customer_id): ${memberId}`);
-  logger.info(`[SubscriptionMe] URL: ${req.url}`);
-  logger.info(`[SubscriptionMe] Method: ${req.method}`);
+  const debug =
+    String(process.env.SUBSCRIPTION_ME_DEBUG ?? "").trim() === "true";
+  if (debug) {
+    logger.info(
+      `[SubscriptionMe] start memberId=${memberId} url=${req.url} method=${req.method}`,
+    );
+  }
 
   // Intentar primero con GraphQL query (usando links)
   let subscriptions: any[] = [];
-  
-  logger.info(`[SubscriptionMe] Intentando buscar suscripciones via GraphQL (usando links)...`);
+
+  if (debug) {
+    logger.info(
+      `[SubscriptionMe] buscando suscripciones via GraphQL (links) para ${memberId}...`,
+    );
+  }
   try {
     const graphQuery = {
     entity: "customer",
@@ -54,77 +67,42 @@ export async function GET(
     },
     };
     
-    logger.info(`[SubscriptionMe] GraphQL query: ${JSON.stringify(graphQuery, null, 2)}`);
-    
     const { data } = await query.graph(graphQuery);
-
-    logger.info(`[SubscriptionMe] GraphQL response recibida. Total de customers: ${data.length}`);
-
-  const customer = data[0];
-    logger.info(`[SubscriptionMe] Customer encontrado: ${customer ? 'Sí' : 'No'}`);
+    const customer = data[0];
     
     if (customer) {
-      logger.info(`[SubscriptionMe] Customer data: ${JSON.stringify(customer, null, 2)}`);
       subscriptions = customer?.subscriptions ?? [];
-      logger.info(`[SubscriptionMe] ✅ Suscripciones encontradas via GraphQL (links): ${subscriptions.length}`);
-      
-      if (subscriptions.length > 0) {
-        logger.info(`[SubscriptionMe] Detalles de suscripciones encontradas:`);
-        subscriptions.forEach((sub: any, index: number) => {
-          logger.info(`[SubscriptionMe]   [${index}] id: ${sub.id}, status: ${sub.status}, membership_id: ${sub.membership_id}`);
-        });
+      if (debug) {
+        logger.info(
+          `[SubscriptionMe] subscriptions via GraphQL: ${subscriptions.length}`,
+        );
       }
     } else {
-      logger.warn(`[SubscriptionMe] ⚠️ No se encontró customer con id: ${memberId}`);
+      if (debug) {
+        logger.warn(`[SubscriptionMe] customer no encontrado id=${memberId}`);
+      }
     }
   } catch (error: any) {
-    logger.error(`[SubscriptionMe] ❌ Error en GraphQL query: ${error.message}`);
-    logger.error(`[SubscriptionMe] Stack: ${error.stack}`);
-    logger.error(`[SubscriptionMe] Error completo: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
+    logger.warn(`[SubscriptionMe] GraphQL falló (se usa fallback): ${error}`);
   }
 
   // Si no hay suscripciones via GraphQL, buscar directamente por customer_id
   if (subscriptions.length === 0) {
-    logger.info(`[SubscriptionMe] ⚠️ No se encontraron suscripciones via GraphQL. Buscando directamente por customer_id...`);
+    if (debug) {
+      logger.info(
+        `[SubscriptionMe] sin subs via GraphQL, usando listSubscriptions({customer_id})...`,
+      );
+    }
     try {
-      logger.info(`[SubscriptionMe] Obteniendo todas las suscripciones del sistema...`);
-      const allSubscriptions = await membershipModuleService.listSubscriptions();
-      logger.info(`[SubscriptionMe] ✅ Total de suscripciones en el sistema: ${allSubscriptions.length}`);
-      
-      if (allSubscriptions.length > 0) {
-        logger.info(`[SubscriptionMe] Primeras 5 suscripciones (muestra):`);
-        allSubscriptions.slice(0, 5).forEach((sub: any, index: number) => {
-          logger.info(`[SubscriptionMe]   [${index}] id: ${sub.id}, customer_id: ${sub.customer_id}, status: ${sub.status}, membership_id: ${sub.membership_id}`);
-        });
-      }
-      
-      // Filtrar por customer_id manualmente
-      logger.info(`[SubscriptionMe] Filtrando suscripciones por customer_id: ${memberId}...`);
-      const customerSubscriptions = allSubscriptions.filter((sub: any) => {
-        const matches = sub.customer_id === memberId;
-        if (matches) {
-          logger.info(`[SubscriptionMe]   ✅ Match encontrado: subscription.id=${sub.id}, customer_id=${sub.customer_id}, status=${sub.status}`);
-        }
-        return matches;
+      const customerSubscriptions = await membershipModuleService.listSubscriptions({
+        customer_id: memberId,
       });
       
-      logger.info(`[SubscriptionMe] ✅ Suscripciones encontradas para customer ${memberId}: ${customerSubscriptions.length}`);
-      
       if (customerSubscriptions.length > 0) {
-        logger.info(`[SubscriptionMe] Detalles de suscripciones encontradas:`);
-        customerSubscriptions.forEach((sub: any, index: number) => {
-          logger.info(`[SubscriptionMe]   [${index}] ${JSON.stringify(sub, null, 2)}`);
-        });
-      }
-      
-      // Convertir a formato compatible con GraphQL response
-      logger.info(`[SubscriptionMe] Obteniendo información de membresías para las suscripciones...`);
-      subscriptions = await Promise.all(
-        customerSubscriptions.map(async (sub: any, index: number) => {
-          logger.info(`[SubscriptionMe]   [${index}] Obteniendo membresía ${sub.membership_id}...`);
+        subscriptions = await Promise.all(
+        customerSubscriptions.map(async (sub: any) => {
           try {
             const membership = await membershipModuleService.retrieveMembership(sub.membership_id);
-            logger.info(`[SubscriptionMe]   [${index}] ✅ Membresía obtenida: id=${membership.id}, name=${membership.name}`);
             return {
               ...sub,
               membership: {
@@ -133,7 +111,11 @@ export async function GET(
               },
             };
           } catch (error: any) {
-            logger.error(`[SubscriptionMe]   [${index}] ❌ Error al obtener membresía ${sub.membership_id}: ${error.message}`);
+            if (debug) {
+              logger.warn(
+                `[SubscriptionMe] no se pudo obtener membership ${sub.membership_id}: ${error}`,
+              );
+            }
             return {
               ...sub,
               membership: {
@@ -144,80 +126,15 @@ export async function GET(
           }
         })
       );
-      
-      logger.info(`[SubscriptionMe] ✅ Suscripciones convertidas: ${subscriptions.length}`);
-    } catch (error: any) {
-      logger.error(`[SubscriptionMe] ❌ Error al buscar suscripciones directamente: ${error.message}`);
-      logger.error(`[SubscriptionMe] Stack: ${error.stack}`);
-      logger.error(`[SubscriptionMe] Error completo: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
-    }
-  }
-
-  logger.info(`[SubscriptionMe] Total de suscripciones encontradas (antes de búsqueda directa): ${subscriptions.length}`);
-  
-  // SIEMPRE buscar también directamente por customer_id, incluso si GraphQL devolvió resultados
-  // Esto asegura que encontremos todas las suscripciones, independientemente del estado del link
-  logger.info(`[SubscriptionMe] 🔍 Buscando también directamente por customer_id (fallback/verificación)...`);
-  try {
-    const allSubscriptions = await membershipModuleService.listSubscriptions();
-    logger.info(`[SubscriptionMe] ✅ Total de suscripciones en el sistema: ${allSubscriptions.length}`);
-    
-    // Filtrar por customer_id manualmente
-    const customerSubscriptionsDirect = allSubscriptions.filter((sub: any) => {
-      return sub.customer_id === memberId;
-    });
-    
-    logger.info(`[SubscriptionMe] ✅ Suscripciones encontradas directamente para customer ${memberId}: ${customerSubscriptionsDirect.length}`);
-    
-    if (customerSubscriptionsDirect.length > 0) {
-      logger.info(`[SubscriptionMe] Detalles de suscripciones encontradas directamente:`);
-      customerSubscriptionsDirect.forEach((sub: any, index: number) => {
-        logger.info(`[SubscriptionMe]   [${index}] id=${sub.id}, customer_id=${sub.customer_id}, status=${sub.status}, membership_id=${sub.membership_id}, external_id=${sub.external_id}`);
-      });
-      
-      // Si encontramos suscripciones directamente que no estaban en GraphQL, agregarlas
-      const existingIds = new Set(subscriptions.map((s: any) => s.id));
-      const newSubscriptions = customerSubscriptionsDirect.filter((sub: any) => !existingIds.has(sub.id));
-      
-      if (newSubscriptions.length > 0) {
-        logger.info(`[SubscriptionMe] ⚠️ Se encontraron ${newSubscriptions.length} suscripciones directamente que no estaban en GraphQL. Agregándolas...`);
-        
-        // Obtener información de membresía para las nuevas suscripciones
-        const newSubscriptionsWithMembership = await Promise.all(
-          newSubscriptions.map(async (sub: any) => {
-            try {
-              const membership = await membershipModuleService.retrieveMembership(sub.membership_id);
-              return {
-                ...sub,
-                membership: {
-                  id: membership.id,
-                  name: membership.name,
-                },
-              };
-            } catch (error: any) {
-              logger.error(`[SubscriptionMe] ❌ Error al obtener membresía ${sub.membership_id}: ${error.message}`);
-              return {
-                ...sub,
-                membership: {
-                  id: sub.membership_id,
-                  name: 'Unknown',
-                },
-              };
-            }
-          })
-        );
-        
-        subscriptions = [...subscriptions, ...newSubscriptionsWithMembership];
-        logger.info(`[SubscriptionMe] ✅ Total de suscripciones después de agregar las encontradas directamente: ${subscriptions.length}`);
       }
+    } catch (error: any) {
+      logger.warn(`[SubscriptionMe] fallback listSubscriptions falló: ${error}`);
     }
-  } catch (error: any) {
-    logger.error(`[SubscriptionMe] ❌ Error en búsqueda directa: ${error.message}`);
-    logger.error(`[SubscriptionMe] Stack: ${error.stack}`);
   }
 
-  logger.info(`[SubscriptionMe] Total de suscripciones encontradas (final): ${subscriptions.length}`);
-  logger.info(`[SubscriptionMe] Suscripciones (raw, antes del filtro): ${JSON.stringify(subscriptions, null, 2)}`);
+  if (debug) {
+    logger.info(`[SubscriptionMe] subscriptions total: ${subscriptions.length}`);
+  }
 
   // Normalizar: defensivo ante entradas undefined/null o tipos inesperados
   subscriptions = (Array.isArray(subscriptions) ? subscriptions : [])
@@ -225,7 +142,9 @@ export async function GET(
     .filter((s: any) => typeof s === "object" && !Array.isArray(s));
 
   // Paso 1: Verificar y actualizar suscripciones expiradas
-  logger.info(`[SubscriptionMe] 🔍 Verificando suscripciones expiradas...`);
+  if (debug) {
+    logger.info(`[SubscriptionMe] verificando suscripciones expiradas...`);
+  }
   const now = new Date();
   const expiredSubscriptionsToUpdate: any[] = [];
 
@@ -267,7 +186,9 @@ export async function GET(
   }
 
   // Paso 2: Filtrar solo suscripciones realmente activas (status active Y ended_at en el futuro)
-  logger.info(`[SubscriptionMe] 🔍 Filtrando suscripciones activas...`);
+  if (debug) {
+    logger.info(`[SubscriptionMe] filtrando suscripciones activas...`);
+  }
   const activeSubscriptions = subscriptions
     .filter((sub: any) => {
       const isActiveStatus = sub.status === 'active';
@@ -281,14 +202,10 @@ export async function GET(
       
       const isActive = isActiveStatus && isNotExpired;
       
-      logger.info(`[SubscriptionMe]   Suscripción id=${sub.id}, membership_id=${sub.membership_id}, status="${sub.status}", ended_at=${sub.ended_at}, isActiveStatus=${isActiveStatus}, isNotExpired=${isNotExpired}, isActive=${isActive}`);
-      
-      if (!isActive) {
-        if (!isActiveStatus) {
-          logger.info(`[SubscriptionMe]     ⚠️ Suscripción NO activa (status="${sub.status}"). Filtrada.`);
-        } else if (!isNotExpired) {
-          logger.info(`[SubscriptionMe]     ⚠️ Suscripción EXPIRADA (ended_at=${sub.ended_at}). Filtrada.`);
-        }
+      if (debug) {
+        logger.info(
+          `[SubscriptionMe] sub=${sub.id} status=${sub.status} ended_at=${sub.ended_at} isActive=${isActive}`,
+        );
       }
       
       return isActive;
@@ -299,15 +216,14 @@ export async function GET(
       return dateB - dateA; // Más reciente primero
     });
 
-  logger.info(`[SubscriptionMe] ✅ Suscripciones activas después del filtro: ${activeSubscriptions.length}`);
-  if (activeSubscriptions.length === 0 && subscriptions.length > 0) {
-    logger.warn(`[SubscriptionMe] ⚠️⚠️⚠️ PROBLEMA DETECTADO: Se encontraron ${subscriptions.length} suscripción(es) pero NINGUNA está activa:`);
-    subscriptions.forEach((sub: any, index: number) => {
-      logger.warn(`[SubscriptionMe]   [${index}] id=${sub.id}, status="${sub.status}", membership_id=${sub.membership_id}`);
-    });
+  if (debug) {
+    logger.info(
+      `[SubscriptionMe] activeSubscriptions=${activeSubscriptions.length}`,
+    );
   }
-  logger.info(`[SubscriptionMe] Suscripciones activas (final): ${JSON.stringify(activeSubscriptions, null, 2)}`);
-  logger.info(`[SubscriptionMe] ========== FIN DE OBTENCIÓN DE SUSCRIPCIONES ==========`);
+
+  /** Antigüedad (opción A): mínimo `started_at` entre todas las suscripciones; no metadata de “primer pago” aparte. */
+  const historicLoyaltySince = earliestStartedAtFromSubscriptionList(subscriptions);
 
   let earliestMembershipDate: Date | null = null;
   if (activeSubscriptions.length > 0) {
@@ -320,8 +236,10 @@ export async function GET(
       earliestMs !== Number.POSITIVE_INFINITY ? new Date(earliestMs) : null;
   }
 
+  const loyaltyAnchor = historicLoyaltySince ?? earliestMembershipDate;
+
   let innerCircle: ReturnType<typeof resolveInnerCircleForMember> = null;
-  if (activeSubscriptions.length > 0) {
+  if (activeSubscriptions.length > 0 && loyaltyAnchor) {
     try {
       const customerModule = req.scope.resolve(Modules.CUSTOMER);
       const customer = await customerModule.retrieveCustomer(memberId);
@@ -331,7 +249,7 @@ export async function GET(
           : undefined;
       innerCircle = resolveInnerCircleForMember({
         metadata: meta,
-        earliestMembershipStartedAt: earliestMembershipDate,
+        earliestMembershipStartedAt: loyaltyAnchor,
       });
     } catch (e) {
       logger.warn(`[SubscriptionMe] Inner Circle omitido: ${e}`);
@@ -351,11 +269,11 @@ export async function GET(
         logger,
       });
     }
-    if (activeSubscriptions.length > 0 && earliestMembershipDate) {
+    if (activeSubscriptions.length > 0 && loyaltyAnchor) {
       await ensureOwnReferralCode({
         customerId: memberId,
         customerModule,
-        earliestMembershipStartedAt: earliestMembershipDate,
+        earliestMembershipStartedAt: loyaltyAnchor,
         logger,
       });
     }
@@ -384,9 +302,13 @@ export async function GET(
   let referral: {
     ownCode: string | null;
     daysUntilEligible: number | null;
+    referredTotal?: number;
+    recentReferees?: { id: string; email: string | null; createdAt: string | null }[];
+    rewardsGrantedThisMonth?: number;
+    lastRewardAt?: string | null;
   } = { ownCode: null, daysUntilEligible: null };
 
-  if (activeSubscriptions.length > 0 && earliestMembershipDate) {
+  if (activeSubscriptions.length > 0 && loyaltyAnchor) {
     try {
       const customerModule = req.scope.resolve(Modules.CUSTOMER);
       const cust = await customerModule.retrieveCustomer(memberId);
@@ -398,11 +320,38 @@ export async function GET(
         typeof m[REFERRAL_OWN_CODE_KEY] === "string" && m[REFERRAL_OWN_CODE_KEY].trim()
           ? (m[REFERRAL_OWN_CODE_KEY] as string).trim()
           : null;
-      const daysSince = differenceInCalendarDays(new Date(), earliestMembershipDate);
+      const daysSince = differenceInCalendarDays(new Date(), loyaltyAnchor);
       referral = {
         ownCode: own,
         daysUntilEligible: daysSince < 30 ? 30 - daysSince : null,
       };
+
+      // Tracking referidos del usuario (si ya tiene código propio, usamos su customer_id como referrer)
+      try {
+        const { total, recent } = await listRefereesByReferrerCustomerId({
+          customerModule,
+          referrerId: memberId,
+          limit: 8,
+        });
+        referral.referredTotal = total;
+        referral.recentReferees = recent;
+      } catch (e) {
+        logger.warn(`[SubscriptionMe] referral tracking omitido: ${e}`);
+      }
+
+      // Recompensas otorgadas este mes (contador en metadata del referidor)
+      try {
+        const now = new Date();
+        const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        const key = referralGrantCountKey(ym);
+        referral.rewardsGrantedThisMonth = Number(m[key] ?? 0) || 0;
+        referral.lastRewardAt =
+          typeof m["referral_referrer_last_reward_at"] === "string"
+            ? (m["referral_referrer_last_reward_at"] as string)
+            : null;
+      } catch {
+        // noop
+      }
     } catch {
       // omitir
     }

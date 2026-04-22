@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Settings, ShoppingBag } from 'lucide-react';
+import { Home, LayoutDashboard, Settings, ShoppingBag, Users } from 'lucide-react';
 
 import {
   Sidebar,
@@ -28,6 +28,11 @@ const items = [
     title: 'Mis pedidos',
     url: '/dashboard/orders',
     icon: ShoppingBag,
+  },
+  {
+    title: 'Referidos',
+    url: '/dashboard/settings/account#referrals',
+    icon: Users,
   },
   // {
   //   title: 'Inbox',

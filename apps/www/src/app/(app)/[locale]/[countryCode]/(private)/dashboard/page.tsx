@@ -326,6 +326,53 @@ export default async function DashboardPage() {
               Compartí este código: quien se registre y compre membresía te ayuda a sumar recompensas en catálogo
               (tope mensual).
             </p>
+
+            {(typeof referral.referredTotal === 'number' || typeof referral.rewardsGrantedThisMonth === 'number') && (
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {typeof referral.referredTotal === 'number' && (
+                  <div className="rounded-lg border border-border bg-background/30 px-3 py-2">
+                    <p className="text-primary text-xs font-semibold uppercase tracking-wide opacity-80">
+                      Registrados con tu código
+                    </p>
+                    <p className="text-primary mt-1 text-base font-semibold">{referral.referredTotal}</p>
+                  </div>
+                )}
+                {typeof referral.rewardsGrantedThisMonth === 'number' && (
+                  <div className="rounded-lg border border-border bg-background/30 px-3 py-2">
+                    <p className="text-primary text-xs font-semibold uppercase tracking-wide opacity-80">
+                      Recompensas este mes
+                    </p>
+                    <p className="text-primary mt-1 text-base font-semibold">{referral.rewardsGrantedThisMonth}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {Array.isArray(referral.recentReferees) && referral.recentReferees.length > 0 ? (
+              <div className="mt-3">
+                <p className="text-primary mb-2 text-xs font-semibold uppercase tracking-wide opacity-80">
+                  Últimos referidos
+                </p>
+                <ul className="space-y-1">
+                  {referral.recentReferees.slice(0, 5).map((r) => (
+                    <li key={r.id} className="flex items-center justify-between gap-3 text-xs">
+                      <span className="text-primary truncate">
+                        {r.email ? r.email : `Customer ${r.id.slice(0, 8)}…`}
+                      </span>
+                      {r.createdAt ? (
+                        <span className="text-muted-foreground whitespace-nowrap">
+                          {new Date(r.createdAt).toLocaleDateString(locale, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: '2-digit',
+                          })}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         )}
 

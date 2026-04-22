@@ -90,6 +90,11 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [authenticate("customer", ["session", "bearer"])],
     },
+    // Admin-only: Inner Circle management (Medusa Admin session)
+    {
+      matcher: "/membership/inner-circle/*",
+      middlewares: [authenticate("user", ["session"])],
+    },
     {
       matcher: "/google/*",
       middlewares: [

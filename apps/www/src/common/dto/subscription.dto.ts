@@ -17,6 +17,14 @@ export type ReferralInfo = {
   ownCode: string | null;
   /** Días hasta poder usar el código propio; null si ya aplica. */
   daysUntilEligible: number | null;
+  /** Cantidad total de cuentas que se registraron con tu código. */
+  referredTotal?: number;
+  /** Últimos referidos (máx 8). */
+  recentReferees?: { id: string; email: string | null; createdAt: string | null }[];
+  /** Recompensas otorgadas este mes (por compras de membresía de tus referidos). */
+  rewardsGrantedThisMonth?: number;
+  /** Última vez que se otorgó recompensa al referidor (best-effort). */
+  lastRewardAt?: string | null;
 };
 
 export type SubscriptionMeApiPayload = {
